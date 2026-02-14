@@ -1,0 +1,7 @@
+[mod]
+id = "pickaxe-core"
+name = "Pickaxe Core"
+version = "0.1.0"
+
+[mod.entrypoint]
+main = "init.lua"

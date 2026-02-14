@@ -1,0 +1,12 @@
+[package]
+name = "pickaxe-world"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+pickaxe-types = { workspace = true }
+pickaxe-nbt = { workspace = true }
+pickaxe-data = { workspace = true }
+pickaxe-protocol-core = { workspace = true }
+bytes = { workspace = true }
+tracing = { workspace = true }

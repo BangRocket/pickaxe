@@ -1,0 +1,13 @@
+[mod]
+id = "pickaxe-vanilla"
+name = "Pickaxe Vanilla"
+version = "0.1.0"
+
+[mod.entrypoint]
+main = "init.lua"
+
+[mod.dependencies]
+core = ">=0.1.0"
+
+[mod.load_order]
+after = ["pickaxe-core"]

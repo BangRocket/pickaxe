@@ -1,0 +1,50 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/pickaxe-types",
+    "crates/pickaxe-nbt",
+    "crates/pickaxe-data",
+    "crates/pickaxe-protocol-core",
+    "crates/pickaxe-protocol-v1_21",
+    "crates/pickaxe-world",
+    "crates/pickaxe-events",
+    "crates/pickaxe-scripting",
+    "crates/pickaxe-server",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+# Internal crates
+pickaxe-types = { path = "crates/pickaxe-types" }
+pickaxe-nbt = { path = "crates/pickaxe-nbt" }
+pickaxe-data = { path = "crates/pickaxe-data" }
+pickaxe-protocol-core = { path = "crates/pickaxe-protocol-core" }
+pickaxe-protocol-v1_21 = { path = "crates/pickaxe-protocol-v1_21" }
+pickaxe-world = { path = "crates/pickaxe-world" }
+pickaxe-events = { path = "crates/pickaxe-events" }
+pickaxe-scripting = { path = "crates/pickaxe-scripting" }
+
+# External crates
+tokio = { version = "1", features = ["full"] }
+bytes = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "2"
+anyhow = "1"
+hecs = "0.10"
+mlua = { version = "0.10", features = ["luajit", "vendored", "serialize"] }
+rsa = "0.9"
+aes = "0.8"
+cfb8 = "0.8"
+flate2 = "1"
+reqwest = { version = "0.12", features = ["json"] }
+sha1 = "0.10"
+num-bigint = "0.4"
+rand = "0.8"

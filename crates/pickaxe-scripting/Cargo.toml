@@ -1,0 +1,13 @@
+[package]
+name = "pickaxe-scripting"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+pickaxe-events = { workspace = true }
+pickaxe-types = { workspace = true }
+mlua = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+toml = { workspace = true }
+serde = { workspace = true }

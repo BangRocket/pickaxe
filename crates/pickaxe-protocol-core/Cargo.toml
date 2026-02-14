@@ -1,0 +1,16 @@
+[package]
+name = "pickaxe-protocol-core"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+pickaxe-types = { workspace = true }
+pickaxe-nbt = { workspace = true }
+bytes = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+aes = { workspace = true }
+flate2 = { workspace = true }

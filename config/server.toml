@@ -1,0 +1,8 @@
+# Pickaxe Server Configuration
+
+bind = "0.0.0.0"
+port = 25565
+max_players = 20
+motd = "A Pickaxe Server"
+online_mode = false
+view_distance = 8
