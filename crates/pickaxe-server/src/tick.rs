@@ -398,7 +398,7 @@ fn handle_disconnect(
 }
 
 fn process_packet(
-    _config: &ServerConfig,
+    config: &ServerConfig,
     _adapter: &V1_21Adapter,
     world: &mut World,
     world_state: &mut WorldState,
@@ -642,11 +642,26 @@ fn process_packet(
                 .unwrap_or_default();
             info!("{} issued command: /{}", name, command);
 
-            // Fire Lua event
             scripting.fire_event(
                 "player_command",
                 &[("name", &name), ("command", &command)],
             );
+
+            let parts: Vec<&str> = command.splitn(2, ' ').collect();
+            let cmd_name = parts[0];
+            let args = if parts.len() > 1 { parts[1] } else { "" };
+
+            match cmd_name {
+                "gamemode" | "gm" => cmd_gamemode(config, world, entity, args),
+                "tp" | "teleport" => cmd_tp(world, entity, args),
+                "give" => cmd_give(world, entity, args, config),
+                "kill" => cmd_kill(world, entity),
+                "say" => cmd_say(world, args, &name),
+                "help" => cmd_help(world, entity),
+                _ => {
+                    send_message(world, entity, &format!("Unknown command: /{}", cmd_name));
+                }
+            }
         }
 
         InternalPacket::HeldItemChange { slot } => {
@@ -935,6 +950,274 @@ fn tick_entity_movement_broadcast(world: &mut World) {
     }
 }
 
+// ── Command handlers ──────────────────────────────────────────────────
+
+fn cmd_gamemode(config: &ServerConfig, world: &mut World, entity: hecs::Entity, args: &str) {
+    if !is_op(world, entity, config) {
+        send_message(world, entity, "You don't have permission to use this command.");
+        return;
+    }
+
+    let mode = match args.trim() {
+        "survival" | "s" | "0" => GameMode::Survival,
+        "creative" | "c" | "1" => GameMode::Creative,
+        "adventure" | "a" | "2" => GameMode::Adventure,
+        "spectator" | "sp" | "3" => GameMode::Spectator,
+        _ => {
+            send_message(
+                world,
+                entity,
+                "Usage: /gamemode <survival|creative|adventure|spectator>",
+            );
+            return;
+        }
+    };
+
+    if let Ok(mut gm) = world.get::<&mut PlayerGameMode>(entity) {
+        gm.0 = mode;
+    }
+
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::GameEvent {
+            event: 3,
+            value: mode.id() as f32,
+        });
+    }
+
+    let uuid = world
+        .get::<&Profile>(entity)
+        .map(|p| p.0.uuid)
+        .unwrap_or(uuid::Uuid::nil());
+    broadcast_to_all(
+        world,
+        &InternalPacket::PlayerInfoUpdate {
+            actions: player_info_actions::UPDATE_GAME_MODE,
+            players: vec![PlayerInfoEntry {
+                uuid,
+                name: None,
+                properties: vec![],
+                game_mode: Some(mode.id() as i32),
+                listed: None,
+                ping: None,
+                display_name: None,
+            }],
+        },
+    );
+
+    let name = world
+        .get::<&Profile>(entity)
+        .map(|p| p.0.name.clone())
+        .unwrap_or_default();
+    send_message(world, entity, &format!("Game mode set to {:?}", mode));
+    info!("{} changed game mode to {:?}", name, mode);
+}
+
+fn cmd_tp(world: &mut World, entity: hecs::Entity, args: &str) {
+    let parts: Vec<&str> = args.split_whitespace().collect();
+
+    let (x, y, z) = match parts.len() {
+        3 => {
+            let x: f64 = match parts[0].parse() {
+                Ok(v) => v,
+                Err(_) => {
+                    send_message(world, entity, "Invalid x coordinate");
+                    return;
+                }
+            };
+            let y: f64 = match parts[1].parse() {
+                Ok(v) => v,
+                Err(_) => {
+                    send_message(world, entity, "Invalid y coordinate");
+                    return;
+                }
+            };
+            let z: f64 = match parts[2].parse() {
+                Ok(v) => v,
+                Err(_) => {
+                    send_message(world, entity, "Invalid z coordinate");
+                    return;
+                }
+            };
+            (x, y, z)
+        }
+        1 => {
+            let target_name = parts[0];
+            let mut found = None;
+            for (_e, (profile, pos)) in world.query::<(&Profile, &Position)>().iter() {
+                if profile.0.name.eq_ignore_ascii_case(target_name) {
+                    found = Some(pos.0);
+                    break;
+                }
+            }
+            match found {
+                Some(pos) => (pos.x, pos.y, pos.z),
+                None => {
+                    send_message(
+                        world,
+                        entity,
+                        &format!("Player '{}' not found", target_name),
+                    );
+                    return;
+                }
+            }
+        }
+        _ => {
+            send_message(world, entity, "Usage: /tp <x> <y> <z> or /tp <player>");
+            return;
+        }
+    };
+
+    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+        pos.0 = Vec3d::new(x, y, z);
+    }
+
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SynchronizePlayerPosition {
+            position: Vec3d::new(x, y, z),
+            yaw: 0.0,
+            pitch: 0.0,
+            flags: 0,
+            teleport_id: 2,
+        });
+    }
+
+    send_message(
+        world,
+        entity,
+        &format!("Teleported to {:.1}, {:.1}, {:.1}", x, y, z),
+    );
+}
+
+fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str, config: &ServerConfig) {
+    if !is_op(world, entity, config) {
+        send_message(world, entity, "You don't have permission to use this command.");
+        return;
+    }
+
+    let parts: Vec<&str> = args.split_whitespace().collect();
+    if parts.is_empty() {
+        send_message(world, entity, "Usage: /give <item_name> [count]");
+        return;
+    }
+
+    let item_name = parts[0].strip_prefix("minecraft:").unwrap_or(parts[0]);
+    let count = if parts.len() > 1 {
+        parts[1].parse::<i8>().unwrap_or(1).max(1)
+    } else {
+        1
+    };
+
+    let item_id = match pickaxe_data::item_name_to_id(item_name) {
+        Some(id) => id,
+        None => {
+            send_message(world, entity, &format!("Unknown item: {}", item_name));
+            return;
+        }
+    };
+
+    let slot_index = {
+        let inv = match world.get::<&Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return,
+        };
+        let mut found = None;
+        for i in 36..=44 {
+            if inv.slots[i].is_none() {
+                found = Some(i);
+                break;
+            }
+        }
+        if found.is_none() {
+            for i in 9..=35 {
+                if inv.slots[i].is_none() {
+                    found = Some(i);
+                    break;
+                }
+            }
+        }
+        match found {
+            Some(i) => i,
+            None => {
+                send_message(world, entity, "Inventory is full!");
+                return;
+            }
+        }
+    };
+
+    let state_id = {
+        let mut inv = match world.get::<&mut Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return,
+        };
+        let item = pickaxe_types::ItemStack::new(item_id, count);
+        inv.set_slot(slot_index, Some(item));
+        inv.state_id
+    };
+
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+            window_id: 0,
+            state_id,
+            slot: slot_index as i16,
+            item: Some(pickaxe_types::ItemStack::new(item_id, count)),
+        });
+    }
+
+    let display_name = pickaxe_data::item_id_to_name(item_id).unwrap_or("unknown");
+    send_message(
+        world,
+        entity,
+        &format!("Gave {} x{}", display_name, count),
+    );
+}
+
+fn cmd_kill(world: &mut World, entity: hecs::Entity) {
+    let spawn = Vec3d::new(0.5, -59.0, 0.5);
+    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+        pos.0 = spawn;
+    }
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SynchronizePlayerPosition {
+            position: spawn,
+            yaw: 0.0,
+            pitch: 0.0,
+            flags: 0,
+            teleport_id: 3,
+        });
+    }
+    send_message(world, entity, "Killed! (respawned at spawn)");
+}
+
+fn cmd_say(world: &World, message: &str, sender_name: &str) {
+    if message.is_empty() {
+        return;
+    }
+    let chat_text = format!("[{}] {}", sender_name, message);
+    broadcast_to_all(
+        world,
+        &InternalPacket::SystemChatMessage {
+            content: TextComponent::plain(&chat_text),
+            overlay: false,
+        },
+    );
+}
+
+fn cmd_help(world: &World, entity: hecs::Entity) {
+    let help_text = [
+        "=== Pickaxe Server Commands ===",
+        "/gamemode <mode> - Change game mode (survival/creative/adventure/spectator)",
+        "/tp <x> <y> <z> - Teleport to coordinates",
+        "/tp <player> - Teleport to player",
+        "/give <item> [count] - Give item to yourself",
+        "/kill - Respawn at spawn point",
+        "/say <message> - Broadcast a message",
+        "/help - Show this help",
+    ];
+    for line in &help_text {
+        send_message(world, entity, line);
+    }
+}
+
 fn handle_chunk_updates(
     world: &mut World,
     world_state: &mut WorldState,
@@ -1070,6 +1353,24 @@ fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
         5 => BlockPos::new(pos.x + 1, pos.y, pos.z),
         _ => *pos,
     }
+}
+
+/// Send a system chat message to a specific player entity.
+fn send_message(world: &World, entity: hecs::Entity, message: &str) {
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SystemChatMessage {
+            content: TextComponent::plain(message),
+            overlay: false,
+        });
+    }
+}
+
+/// Check if a player is an operator.
+fn is_op(world: &World, entity: hecs::Entity, config: &ServerConfig) -> bool {
+    world
+        .get::<&Profile>(entity)
+        .map(|p| config.ops.iter().any(|op| op.eq_ignore_ascii_case(&p.0.name)))
+        .unwrap_or(false)
 }
 
 /// Get the player count.
