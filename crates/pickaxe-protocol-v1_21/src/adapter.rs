@@ -92,6 +92,7 @@ const PLAY_UPDATE_ENTITY_POS_ROT: i32 = 0x2F;
 const PLAY_UPDATE_ENTITY_ROT: i32 = 0x30;
 const PLAY_SET_HEAD_ROTATION: i32 = 0x48;
 const PLAY_TELEPORT_ENTITY: i32 = 0x70;
+const PLAY_DECLARE_COMMANDS: i32 = 0x11;
 const PLAY_SET_CONTAINER_CONTENT: i32 = 0x13;
 const PLAY_SET_CONTAINER_SLOT: i32 = 0x15;
 const PLAY_SET_HELD_ITEM: i32 = 0x53;
@@ -745,6 +746,29 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
         InternalPacket::SetHeldItem { slot } => {
             write_varint(&mut buf, PLAY_SET_HELD_ITEM);
             buf.put_i8(*slot);
+        }
+        InternalPacket::DeclareCommands { commands } => {
+            write_varint(&mut buf, PLAY_DECLARE_COMMANDS);
+            // Build node tree: node 0 = root, nodes 1..N = literal commands
+            let node_count = 1 + commands.len() as i32;
+            write_varint(&mut buf, node_count);
+
+            // Node 0: Root node (type=0, children = [1, 2, ..., N])
+            buf.put_u8(0x00); // flags: type=root(0), no executable
+            write_varint(&mut buf, commands.len() as i32); // child count
+            for i in 0..commands.len() {
+                write_varint(&mut buf, (i + 1) as i32); // child indices
+            }
+
+            // Nodes 1..N: Literal nodes (type=1, executable)
+            for cmd in commands {
+                buf.put_u8(0x05); // flags: type=literal(1) | executable(0x04)
+                write_varint(&mut buf, 0); // no children
+                write_string(&mut buf, cmd); // command name
+            }
+
+            // Root index
+            write_varint(&mut buf, 0);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

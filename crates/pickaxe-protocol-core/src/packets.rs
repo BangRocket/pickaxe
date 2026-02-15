@@ -238,6 +238,12 @@ pub enum InternalPacket {
         on_ground: bool,
     },
 
+    /// Declare Commands (0x11 CB) — command tree for tab completion.
+    DeclareCommands {
+        /// List of command names (root literals). The encoder builds the node tree.
+        commands: Vec<String>,
+    },
+
     /// Set Container Content (0x13 CB) — sends entire inventory.
     SetContainerContent {
         window_id: u8,

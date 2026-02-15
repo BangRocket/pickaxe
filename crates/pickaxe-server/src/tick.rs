@@ -207,6 +207,16 @@ fn handle_new_player(
         enforces_secure_chat: false,
     });
 
+    // Declare commands for tab completion
+    let _ = sender.send(InternalPacket::DeclareCommands {
+        commands: vec![
+            "gamemode".into(), "gm".into(),
+            "tp".into(), "teleport".into(),
+            "give".into(), "kill".into(),
+            "say".into(), "help".into(),
+        ],
+    });
+
     // Spawn position
     let spawn_pos = Vec3d::new(0.5, -59.0, 0.5);
     let center_cx = (spawn_pos.x as i32) >> 4;
