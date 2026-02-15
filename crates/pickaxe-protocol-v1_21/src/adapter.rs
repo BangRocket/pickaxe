@@ -85,6 +85,13 @@ const PLAY_SYNC_PLAYER_POS: i32 = 0x40;
 const PLAY_SET_CENTER_CHUNK: i32 = 0x54;
 const PLAY_SET_DEFAULT_SPAWN: i32 = 0x56;
 const PLAY_SYSTEM_CHAT: i32 = 0x6C;
+const PLAY_SPAWN_ENTITY: i32 = 0x01;
+const PLAY_REMOVE_ENTITIES: i32 = 0x42;
+const PLAY_UPDATE_ENTITY_POS: i32 = 0x2E;
+const PLAY_UPDATE_ENTITY_POS_ROT: i32 = 0x2F;
+const PLAY_UPDATE_ENTITY_ROT: i32 = 0x30;
+const PLAY_SET_HEAD_ROTATION: i32 = 0x48;
+const PLAY_TELEPORT_ENTITY: i32 = 0x70;
 
 // === Decode functions ===
 
@@ -632,6 +639,72 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             let mut nbt_buf = BytesMut::new();
             nbt.write_root_network(&mut nbt_buf);
             buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::SpawnEntity {
+            entity_id, entity_uuid, entity_type, x, y, z,
+            pitch, yaw, head_yaw, data, velocity_x, velocity_y, velocity_z,
+        } => {
+            write_varint(&mut buf, PLAY_SPAWN_ENTITY);
+            write_varint(&mut buf, *entity_id);
+            write_uuid(&mut buf, entity_uuid);
+            write_varint(&mut buf, *entity_type);
+            buf.put_f64(*x);
+            buf.put_f64(*y);
+            buf.put_f64(*z);
+            buf.put_u8(*pitch);
+            buf.put_u8(*yaw);
+            buf.put_u8(*head_yaw);
+            write_varint(&mut buf, *data);
+            buf.put_i16(*velocity_x);
+            buf.put_i16(*velocity_y);
+            buf.put_i16(*velocity_z);
+        }
+        InternalPacket::RemoveEntities { entity_ids } => {
+            write_varint(&mut buf, PLAY_REMOVE_ENTITIES);
+            write_varint(&mut buf, entity_ids.len() as i32);
+            for &eid in entity_ids {
+                write_varint(&mut buf, eid);
+            }
+        }
+        InternalPacket::UpdateEntityPosition { entity_id, delta_x, delta_y, delta_z, on_ground } => {
+            write_varint(&mut buf, PLAY_UPDATE_ENTITY_POS);
+            write_varint(&mut buf, *entity_id);
+            buf.put_i16(*delta_x);
+            buf.put_i16(*delta_y);
+            buf.put_i16(*delta_z);
+            buf.put_u8(*on_ground as u8);
+        }
+        InternalPacket::UpdateEntityPositionAndRotation { entity_id, delta_x, delta_y, delta_z, yaw, pitch, on_ground } => {
+            write_varint(&mut buf, PLAY_UPDATE_ENTITY_POS_ROT);
+            write_varint(&mut buf, *entity_id);
+            buf.put_i16(*delta_x);
+            buf.put_i16(*delta_y);
+            buf.put_i16(*delta_z);
+            buf.put_u8(*yaw);
+            buf.put_u8(*pitch);
+            buf.put_u8(*on_ground as u8);
+        }
+        InternalPacket::UpdateEntityRotation { entity_id, yaw, pitch, on_ground } => {
+            write_varint(&mut buf, PLAY_UPDATE_ENTITY_ROT);
+            write_varint(&mut buf, *entity_id);
+            buf.put_u8(*yaw);
+            buf.put_u8(*pitch);
+            buf.put_u8(*on_ground as u8);
+        }
+        InternalPacket::SetHeadRotation { entity_id, head_yaw } => {
+            write_varint(&mut buf, PLAY_SET_HEAD_ROTATION);
+            write_varint(&mut buf, *entity_id);
+            buf.put_u8(*head_yaw);
+        }
+        InternalPacket::TeleportEntity { entity_id, x, y, z, yaw, pitch, on_ground } => {
+            write_varint(&mut buf, PLAY_TELEPORT_ENTITY);
+            write_varint(&mut buf, *entity_id);
+            buf.put_f64(*x);
+            buf.put_f64(*y);
+            buf.put_f64(*z);
+            buf.put_u8(*yaw);
+            buf.put_u8(*pitch);
+            buf.put_u8(*on_ground as u8);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }
