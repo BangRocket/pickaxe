@@ -8,4 +8,4 @@ pub use codec::*;
 pub use state::*;
 pub use packets::*;
 pub use adapter::*;
-pub use connection::Connection;
+pub use connection::{Connection, ConnectionReader, ConnectionWriter};

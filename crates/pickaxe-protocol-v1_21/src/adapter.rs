@@ -79,9 +79,12 @@ const PLAY_GAME_EVENT: i32 = 0x22;
 const PLAY_KEEP_ALIVE: i32 = 0x26;
 const PLAY_CHUNK_DATA: i32 = 0x27;
 const PLAY_LOGIN: i32 = 0x2B;
+const PLAY_PLAYER_REMOVE: i32 = 0x3D;
+const PLAY_PLAYER_INFO: i32 = 0x3E;
 const PLAY_SYNC_PLAYER_POS: i32 = 0x40;
 const PLAY_SET_CENTER_CHUNK: i32 = 0x54;
 const PLAY_SET_DEFAULT_SPAWN: i32 = 0x56;
+const PLAY_SYSTEM_CHAT: i32 = 0x6C;
 
 // === Decode functions ===
 
@@ -202,6 +205,40 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         0x00 => {
             let teleport_id = read_varint(data)?;
             Ok(InternalPacket::ConfirmTeleportation { teleport_id })
+        }
+        0x04 => {
+            // Chat Command (serverbound)
+            let command = read_string(data, 256)?;
+            // Skip remaining fields (timestamp, salt, signatures, etc.)
+            // We only need the command text
+            data.advance(data.remaining());
+            Ok(InternalPacket::ChatCommand { command })
+        }
+        0x06 => {
+            // Chat Message (serverbound)
+            let message = read_string(data, 256)?;
+            let timestamp = data.get_i64();
+            let salt = data.get_i64();
+            let has_signature = data.get_u8() != 0;
+            let signature = if has_signature {
+                let mut sig = vec![0u8; 256];
+                data.copy_to_slice(&mut sig);
+                Some(sig)
+            } else {
+                None
+            };
+            let offset = read_varint(data)?;
+            let mut acknowledged = [0u8; 3];
+            data.copy_to_slice(&mut acknowledged);
+            Ok(InternalPacket::ChatMessage {
+                message,
+                timestamp,
+                salt,
+                has_signature,
+                signature,
+                offset,
+                acknowledged,
+            })
         }
         0x08 => {
             // Chunk Batch Received — just acknowledge, read the chunks_per_tick float
@@ -510,6 +547,81 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
         InternalPacket::AcknowledgeBlockChange { sequence } => {
             write_varint(&mut buf, PLAY_ACK_BLOCK_CHANGE);
             write_varint(&mut buf, *sequence);
+        }
+        InternalPacket::ChunkBatchStart => {
+            write_varint(&mut buf, 0x0D);
+        }
+        InternalPacket::ChunkBatchFinished { batch_size } => {
+            write_varint(&mut buf, 0x0C);
+            write_varint(&mut buf, *batch_size);
+        }
+        InternalPacket::SystemChatMessage { content, overlay } => {
+            write_varint(&mut buf, PLAY_SYSTEM_CHAT);
+            // Content is an NBT text component (anonymous NBT in 1.20.3+)
+            let nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(content.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+            buf.put_u8(*overlay as u8);
+        }
+        InternalPacket::PlayerInfoUpdate { actions, players } => {
+            write_varint(&mut buf, PLAY_PLAYER_INFO);
+            buf.put_u8(*actions);
+            write_varint(&mut buf, players.len() as i32);
+            for player in players {
+                write_uuid(&mut buf, &player.uuid);
+                if actions & player_info_actions::ADD_PLAYER != 0 {
+                    write_string(&mut buf, player.name.as_deref().unwrap_or(""));
+                    // Properties
+                    let props = &player.properties;
+                    write_varint(&mut buf, props.len() as i32);
+                    for (name, value, signature) in props {
+                        write_string(&mut buf, name);
+                        write_string(&mut buf, value);
+                        if let Some(sig) = signature {
+                            buf.put_u8(1);
+                            write_string(&mut buf, sig);
+                        } else {
+                            buf.put_u8(0);
+                        }
+                    }
+                }
+                if actions & player_info_actions::INITIALIZE_CHAT != 0 {
+                    // No chat session — write false
+                    buf.put_u8(0);
+                }
+                if actions & player_info_actions::UPDATE_GAME_MODE != 0 {
+                    write_varint(&mut buf, player.game_mode.unwrap_or(0));
+                }
+                if actions & player_info_actions::UPDATE_LISTED != 0 {
+                    buf.put_u8(player.listed.unwrap_or(true) as u8);
+                }
+                if actions & player_info_actions::UPDATE_LATENCY != 0 {
+                    write_varint(&mut buf, player.ping.unwrap_or(0));
+                }
+                if actions & player_info_actions::UPDATE_DISPLAY_NAME != 0 {
+                    if let Some(ref display) = player.display_name {
+                        buf.put_u8(1); // has display name
+                        let nbt = NbtValue::Compound(vec![
+                            ("text".into(), NbtValue::String(display.text.clone())),
+                        ]);
+                        let mut nbt_buf = BytesMut::new();
+                        nbt.write_root_network(&mut nbt_buf);
+                        buf.extend_from_slice(&nbt_buf);
+                    } else {
+                        buf.put_u8(0); // no display name
+                    }
+                }
+            }
+        }
+        InternalPacket::PlayerInfoRemove { uuids } => {
+            write_varint(&mut buf, PLAY_PLAYER_REMOVE);
+            write_varint(&mut buf, uuids.len() as i32);
+            for uuid in uuids {
+                write_uuid(&mut buf, uuid);
+            }
         }
         InternalPacket::Disconnect { reason } => {
             write_varint(&mut buf, PLAY_DISCONNECT);

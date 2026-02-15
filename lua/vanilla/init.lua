@@ -21,6 +21,21 @@ pickaxe.events.on("player_move", function(event)
     end
 end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
 
+-- Player chat event
+pickaxe.events.on("player_chat", function(event)
+    pickaxe.log("<" .. (event.name or "?") .. "> " .. (event.message or ""))
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+-- Player leave event
+pickaxe.events.on("player_leave", function(event)
+    pickaxe.log("Player left: " .. (event.name or "unknown"))
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+-- Player command event
+pickaxe.events.on("player_command", function(event)
+    pickaxe.log(event.name .. " issued command: /" .. event.command)
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
 -- Block break event
 pickaxe.events.on("block_break", function(event)
     pickaxe.log("Block broken at " .. event.x .. "," .. event.y .. "," .. event.z ..
@@ -33,4 +48,4 @@ pickaxe.events.on("block_place", function(event)
                 " by " .. event.name .. " (block " .. event.block_id .. ")")
 end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
 
-pickaxe.log("Pickaxe Vanilla mod loaded - " .. "5 event handlers registered")
+pickaxe.log("Pickaxe Vanilla mod loaded - " .. "8 event handlers registered")

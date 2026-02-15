@@ -24,3 +24,4 @@ serde = { workspace = true }
 toml = { workspace = true }
 anyhow = { workspace = true }
 uuid = { workspace = true }
+hecs = { workspace = true }

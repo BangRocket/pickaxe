@@ -1,25 +1,16 @@
 mod config;
+mod ecs;
 mod network;
-mod player;
-mod state;
+mod tick;
 
 use config::ServerConfig;
 use pickaxe_scripting::ScriptRuntime;
-use state::ServerState;
 use std::path::Path;
+use std::sync::atomic::{AtomicI32, AtomicUsize};
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tracing::{error, info};
-
-/// Events sent from connection tasks to the main thread for Lua processing.
-#[derive(Debug)]
-pub enum ScriptEvent {
-    PlayerJoin { name: String },
-    PlayerMove { name: String, x: String, y: String, z: String },
-    BlockBreak { name: String, x: i32, y: i32, z: i32, block_id: i32 },
-    BlockPlace { name: String, x: i32, y: i32, z: i32, block_id: i32 },
-}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -38,74 +29,74 @@ async fn main() -> anyhow::Result<()> {
         config.bind, config.port, config.max_players, config.online_mode
     );
 
-    // Initialize Lua scripting (must stay on this thread)
-    let scripting = ScriptRuntime::new(&[
-        Path::new("lua"),
-    ])?;
+    // Initialize Lua scripting (must stay on this thread — Lua VM is !Send)
+    let scripting = ScriptRuntime::new(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
     scripting.fire_event("server_start", &[]);
 
-    let server_state = Arc::new(ServerState::new());
     info!("World generated (flat)");
 
-    // Channel for script events from connection tasks
-    let (event_tx, mut event_rx) = mpsc::unbounded_channel::<ScriptEvent>();
+    // Channel for new players entering play state
+    let (new_player_tx, new_player_rx) = mpsc::unbounded_channel::<tick::NewPlayer>();
 
+    // Shared entity ID counter
+    let next_eid = Arc::new(AtomicI32::new(1));
+
+    // Player count for status responses
+    let player_count = Arc::new(AtomicUsize::new(0));
+
+    // TCP listener
     let addr = format!("{}:{}", config.bind, config.port);
     let listener = TcpListener::bind(&addr).await?;
     info!("Listening on {}", addr);
 
+    // Run tick loop and TCP accept loop concurrently on the main task.
+    // The tick loop owns the Lua VM (which is !Send), so it must stay on this task.
+    // Connection handling is spawned onto the Tokio runtime (those tasks are Send).
+    let tick_config = config.clone();
+    let tick_player_count = player_count.clone();
+
+    tokio::select! {
+        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count) => {
+            error!("Tick loop exited unexpectedly");
+        }
+        _ = accept_loop(listener, config, new_player_tx, next_eid, player_count) => {
+            error!("Accept loop exited unexpectedly");
+        }
+    }
+
+    Ok(())
+}
+
+async fn accept_loop(
+    listener: TcpListener,
+    config: Arc<ServerConfig>,
+    new_player_tx: mpsc::UnboundedSender<tick::NewPlayer>,
+    next_eid: Arc<AtomicI32>,
+    player_count: Arc<AtomicUsize>,
+) {
     loop {
-        tokio::select! {
-            result = listener.accept() => {
-                match result {
-                    Ok((socket, peer)) => {
-                        info!("New connection from {}", peer);
-                        let config = config.clone();
-                        let state = server_state.clone();
-                        let tx = event_tx.clone();
-                        tokio::spawn(async move {
-                            network::handle_connection(socket, config, state, tx).await;
-                        });
-                    }
-                    Err(e) => {
-                        error!("Failed to accept connection: {}", e);
-                    }
-                }
+        match listener.accept().await {
+            Ok((socket, peer)) => {
+                info!("New connection from {}", peer);
+                let config = config.clone();
+                let tx = new_player_tx.clone();
+                let eid = next_eid.clone();
+                let pc = player_count.clone();
+                tokio::spawn(async move {
+                    network::handle_connection(
+                        socket,
+                        config,
+                        tx,
+                        eid,
+                        move || pc.load(std::sync::atomic::Ordering::Relaxed),
+                    )
+                    .await;
+                });
             }
-            Some(event) = event_rx.recv() => {
-                match event {
-                    ScriptEvent::PlayerJoin { name } => {
-                        scripting.fire_event("player_join", &[("name", &name)]);
-                    }
-                    ScriptEvent::PlayerMove { name, x, y, z } => {
-                        scripting.fire_event("player_move", &[
-                            ("name", &name),
-                            ("x", &x),
-                            ("y", &y),
-                            ("z", &z),
-                        ]);
-                    }
-                    ScriptEvent::BlockBreak { name, x, y, z, block_id } => {
-                        scripting.fire_event("block_break", &[
-                            ("name", &name),
-                            ("x", &x.to_string()),
-                            ("y", &y.to_string()),
-                            ("z", &z.to_string()),
-                            ("block_id", &block_id.to_string()),
-                        ]);
-                    }
-                    ScriptEvent::BlockPlace { name, x, y, z, block_id } => {
-                        scripting.fire_event("block_place", &[
-                            ("name", &name),
-                            ("x", &x.to_string()),
-                            ("y", &y.to_string()),
-                            ("z", &z.to_string()),
-                            ("block_id", &block_id.to_string()),
-                        ]);
-                    }
-                }
+            Err(e) => {
+                error!("Failed to accept connection: {}", e);
             }
         }
     }

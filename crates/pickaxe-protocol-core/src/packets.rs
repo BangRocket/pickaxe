@@ -81,6 +81,26 @@ pub enum InternalPacket {
     },
 
     // === Play (clientbound) ===
+    /// System chat message (0x6C clientbound, protocol 767)
+    SystemChatMessage {
+        /// NBT text component content
+        content: TextComponent,
+        /// If true, displayed as action bar overlay
+        overlay: bool,
+    },
+
+    /// Player Info Update (0x3E clientbound, protocol 767)
+    /// Bitmask-driven: only sends fields indicated by actions.
+    PlayerInfoUpdate {
+        actions: u8,
+        players: Vec<PlayerInfoEntry>,
+    },
+
+    /// Player Info Remove (0x3D clientbound, protocol 767)
+    PlayerInfoRemove {
+        uuids: Vec<Uuid>,
+    },
+
     JoinGame {
         entity_id: i32,
         is_hardcore: bool,
@@ -143,8 +163,30 @@ pub enum InternalPacket {
     AcknowledgeBlockChange {
         sequence: i32,
     },
+    /// Chunk Batch Start (0x0D clientbound, protocol 767) — empty packet.
+    ChunkBatchStart,
+    /// Chunk Batch Finished (0x0C clientbound, protocol 767).
+    ChunkBatchFinished {
+        batch_size: i32,
+    },
 
     // === Play (serverbound) ===
+    /// Chat Message (0x06 serverbound, protocol 767)
+    ChatMessage {
+        message: String,
+        timestamp: i64,
+        salt: i64,
+        has_signature: bool,
+        signature: Option<Vec<u8>>,
+        offset: i32,
+        acknowledged: [u8; 3],
+    },
+
+    /// Chat Command (0x04 serverbound, protocol 767)
+    ChatCommand {
+        command: String,
+    },
+
     ConfirmTeleportation {
         teleport_id: i32,
     },
@@ -200,6 +242,34 @@ pub enum InternalPacket {
         packet_id: i32,
         data: Vec<u8>,
     },
+}
+
+/// Player Info Update action bitmask flags.
+pub mod player_info_actions {
+    pub const ADD_PLAYER: u8 = 0x01;
+    pub const INITIALIZE_CHAT: u8 = 0x02;
+    pub const UPDATE_GAME_MODE: u8 = 0x04;
+    pub const UPDATE_LISTED: u8 = 0x08;
+    pub const UPDATE_LATENCY: u8 = 0x10;
+    pub const UPDATE_DISPLAY_NAME: u8 = 0x20;
+}
+
+/// A single player entry in a PlayerInfoUpdate packet.
+#[derive(Debug, Clone)]
+pub struct PlayerInfoEntry {
+    pub uuid: Uuid,
+    /// Present when ADD_PLAYER action is set.
+    pub name: Option<String>,
+    /// Properties (name, value, signature) — present with ADD_PLAYER.
+    pub properties: Vec<(String, String, Option<String>)>,
+    /// Present when UPDATE_GAME_MODE action is set.
+    pub game_mode: Option<i32>,
+    /// Present when UPDATE_LISTED action is set.
+    pub listed: Option<bool>,
+    /// Present when UPDATE_LATENCY action is set.
+    pub ping: Option<i32>,
+    /// Present when UPDATE_DISPLAY_NAME action is set.
+    pub display_name: Option<TextComponent>,
 }
 
 #[derive(Debug, Clone)]
