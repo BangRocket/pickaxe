@@ -92,6 +92,9 @@ const PLAY_UPDATE_ENTITY_POS_ROT: i32 = 0x2F;
 const PLAY_UPDATE_ENTITY_ROT: i32 = 0x30;
 const PLAY_SET_HEAD_ROTATION: i32 = 0x48;
 const PLAY_TELEPORT_ENTITY: i32 = 0x70;
+const PLAY_SET_CONTAINER_CONTENT: i32 = 0x13;
+const PLAY_SET_CONTAINER_SLOT: i32 = 0x15;
+const PLAY_SET_HELD_ITEM: i32 = 0x53;
 
 // === Decode functions ===
 
@@ -315,6 +318,22 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             let inside_block = data.get_u8() != 0;
             let sequence = read_varint(data)?;
             Ok(InternalPacket::BlockPlace { hand, position, face, cursor_x, cursor_y, cursor_z, inside_block, sequence })
+        }
+        0x0E => {
+            // ClickContainer — complex, skip for now
+            data.advance(data.remaining());
+            Ok(InternalPacket::Unknown { packet_id: id, data: vec![] })
+        }
+        0x2F => {
+            // SetHeldItem (serverbound)
+            let slot_id = data.get_i16();
+            Ok(InternalPacket::HeldItemChange { slot: slot_id })
+        }
+        0x32 => {
+            // CreativeInventoryAction
+            let slot = data.get_i16();
+            let item = read_slot(data).map_err(|e| anyhow::anyhow!("{}", e))?;
+            Ok(InternalPacket::CreativeInventoryAction { slot, item })
         }
         _ => Ok(InternalPacket::Unknown {
             packet_id: id,
@@ -705,6 +724,27 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_u8(*yaw);
             buf.put_u8(*pitch);
             buf.put_u8(*on_ground as u8);
+        }
+        InternalPacket::SetContainerContent { window_id, state_id, slots, carried_item } => {
+            write_varint(&mut buf, PLAY_SET_CONTAINER_CONTENT);
+            buf.put_u8(*window_id);
+            write_varint(&mut buf, *state_id);
+            write_varint(&mut buf, slots.len() as i32);
+            for slot in slots {
+                write_slot(&mut buf, slot);
+            }
+            write_slot(&mut buf, carried_item);
+        }
+        InternalPacket::SetContainerSlot { window_id, state_id, slot, item } => {
+            write_varint(&mut buf, PLAY_SET_CONTAINER_SLOT);
+            buf.put_i8(*window_id);
+            write_varint(&mut buf, *state_id);
+            buf.put_i16(*slot);
+            write_slot(&mut buf, item);
+        }
+        InternalPacket::SetHeldItem { slot } => {
+            write_varint(&mut buf, PLAY_SET_HELD_ITEM);
+            buf.put_i8(*slot);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }
