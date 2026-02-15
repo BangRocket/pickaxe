@@ -17,6 +17,12 @@ struct Block {
     default_state: i32,
     #[serde(default)]
     drops: Vec<i32>,
+    #[serde(default)]
+    hardness: f64,
+    #[serde(default)]
+    diggable: bool,
+    #[serde(rename = "harvestTools")]
+    harvest_tools: Option<HashMap<String, bool>>,
 }
 
 #[derive(Deserialize)]
@@ -176,6 +182,136 @@ fn main() {
                     out,
                     "        {}..={} => Some({}), // {}",
                     b.min_state_id, b.max_state_id, iid, b.name
+                )
+                .unwrap();
+            }
+        }
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // block_state_to_hardness
+    writeln!(
+        out,
+        "/// Map block state ID to (hardness, diggable)."
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "pub fn block_state_to_hardness(state_id: i32) -> Option<(f64, bool)> {{"
+    )
+    .unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        let diggable = if b.diggable { "true" } else { "false" };
+        if b.min_state_id == b.max_state_id {
+            writeln!(
+                out,
+                "        {} => Some(({:?}, {})), // {}",
+                b.min_state_id, b.hardness, diggable, b.name
+            )
+            .unwrap();
+        } else {
+            writeln!(
+                out,
+                "        {}..={} => Some(({:?}, {})), // {}",
+                b.min_state_id, b.max_state_id, b.hardness, diggable, b.name
+            )
+            .unwrap();
+        }
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // block_state_to_drops
+    writeln!(
+        out,
+        "/// Map block state ID to dropped item IDs."
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "pub fn block_state_to_drops(state_id: i32) -> &'static [i32] {{"
+    )
+    .unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        if b.drops.is_empty() {
+            continue;
+        }
+        let drops_str: Vec<String> = b.drops.iter().map(|d| d.to_string()).collect();
+        let drops_list = drops_str.join(", ");
+        if b.min_state_id == b.max_state_id {
+            writeln!(
+                out,
+                "        {} => &[{}], // {}",
+                b.min_state_id, drops_list, b.name
+            )
+            .unwrap();
+        } else {
+            writeln!(
+                out,
+                "        {}..={} => &[{}], // {}",
+                b.min_state_id, b.max_state_id, drops_list, b.name
+            )
+            .unwrap();
+        }
+    }
+    writeln!(out, "        _ => &[],").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // block_state_to_harvest_tools
+    writeln!(
+        out,
+        "/// Map block state ID to required harvest tool IDs (None = any tool works)."
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "pub fn block_state_to_harvest_tools(state_id: i32) -> Option<&'static [i32]> {{"
+    )
+    .unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        if let Some(ref tools) = b.harvest_tools {
+            let mut tool_ids: Vec<i32> = tools.keys().filter_map(|k| k.parse::<i32>().ok()).collect();
+            tool_ids.sort();
+            let tools_str: Vec<String> = tool_ids.iter().map(|id| id.to_string()).collect();
+            let tools_list = tools_str.join(", ");
+            if b.min_state_id == b.max_state_id {
+                writeln!(
+                    out,
+                    "        {} => Some(&[{}]), // {}",
+                    b.min_state_id, tools_list, b.name
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    out,
+                    "        {}..={} => Some(&[{}]), // {}",
+                    b.min_state_id, b.max_state_id, tools_list, b.name
+                )
+                .unwrap();
+            }
+        } else {
+            if b.min_state_id == b.max_state_id {
+                writeln!(
+                    out,
+                    "        {} => None, // {}",
+                    b.min_state_id, b.name
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    out,
+                    "        {}..={} => None, // {}",
+                    b.min_state_id, b.max_state_id, b.name
                 )
                 .unwrap();
             }

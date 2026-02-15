@@ -44,4 +44,27 @@ mod tests {
     fn test_stack_size() {
         assert_eq!(item_id_to_stack_size(1), Some(64));
     }
+
+    #[test]
+    fn test_block_hardness() {
+        assert_eq!(block_state_to_hardness(1), Some((1.5, true))); // stone
+        assert_eq!(block_state_to_hardness(79), Some((-1.0, false))); // bedrock
+        assert_eq!(block_state_to_hardness(0), Some((0.0, false))); // air
+        assert_eq!(block_state_to_hardness(10), Some((0.5, true))); // dirt
+    }
+
+    #[test]
+    fn test_block_drops() {
+        assert_eq!(block_state_to_drops(1), &[35]); // stone -> cobblestone
+        assert_eq!(block_state_to_drops(10), &[28]); // dirt -> dirt
+        assert!(block_state_to_drops(0).is_empty()); // air -> nothing
+    }
+
+    #[test]
+    fn test_harvest_tools() {
+        let tools = block_state_to_harvest_tools(1).unwrap(); // stone requires pickaxes
+        assert!(tools.contains(&820)); // wooden_pickaxe
+        assert!(tools.contains(&845)); // netherite_pickaxe
+        assert_eq!(block_state_to_harvest_tools(10), None); // dirt needs no tool
+    }
 }
