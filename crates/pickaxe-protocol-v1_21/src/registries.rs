@@ -25,7 +25,6 @@ fn build_dimension_type_registry() -> InternalPacket {
         entries: vec![RegistryEntry {
             id: "minecraft:overworld".into(),
             data: Some(nbt_compound! {
-                "fixed_time" => NbtValue::Long(-1), // not present = no fixed time, but we use optional
                 "has_skylight" => NbtValue::Byte(1),
                 "has_ceiling" => NbtValue::Byte(0),
                 "ultrawarm" => NbtValue::Byte(0),
@@ -99,26 +98,77 @@ fn build_chat_type_registry() -> InternalPacket {
     }
 }
 
+fn damage_entry(id: &str, message_id: &str, scaling: &str, exhaustion: f32,
+                 effects: Option<&str>, death_message_type: Option<&str>) -> RegistryEntry {
+    let mut fields = vec![
+        ("message_id".into(), NbtValue::String(message_id.into())),
+        ("scaling".into(), NbtValue::String(scaling.into())),
+        ("exhaustion".into(), NbtValue::Float(exhaustion)),
+    ];
+    if let Some(fx) = effects {
+        fields.push(("effects".into(), NbtValue::String(fx.into())));
+    }
+    if let Some(dmt) = death_message_type {
+        fields.push(("death_message_type".into(), NbtValue::String(dmt.into())));
+    }
+    RegistryEntry {
+        id: format!("minecraft:{}", id),
+        data: Some(NbtValue::Compound(fields)),
+    }
+}
+
 fn build_damage_type_registry() -> InternalPacket {
+    let s = "when_caused_by_living_non_player";
     InternalPacket::RegistryData {
         registry_id: "minecraft:damage_type".into(),
         entries: vec![
-            RegistryEntry {
-                id: "minecraft:generic".into(),
-                data: Some(nbt_compound! {
-                    "message_id" => NbtValue::String("generic".into()),
-                    "scaling" => NbtValue::String("never".into()),
-                    "exhaustion" => NbtValue::Float(0.0)
-                }),
-            },
-            RegistryEntry {
-                id: "minecraft:generic_kill".into(),
-                data: Some(nbt_compound! {
-                    "message_id" => NbtValue::String("genericKill".into()),
-                    "scaling" => NbtValue::String("never".into()),
-                    "exhaustion" => NbtValue::Float(0.0)
-                }),
-            },
+            damage_entry("arrow", "arrow", s, 0.1, None, None),
+            damage_entry("bad_respawn_point", "badRespawnPoint", "always", 0.1, None, Some("intentional_game_design")),
+            damage_entry("cactus", "cactus", s, 0.1, None, None),
+            damage_entry("campfire", "inFire", s, 0.1, Some("burning"), None),
+            damage_entry("cramming", "cramming", s, 0.0, None, None),
+            damage_entry("dragon_breath", "dragonBreath", s, 0.0, None, None),
+            damage_entry("drown", "drown", s, 0.0, Some("drowning"), None),
+            damage_entry("dry_out", "dryout", s, 0.1, None, None),
+            damage_entry("explosion", "explosion", "always", 0.1, None, None),
+            damage_entry("fall", "fall", s, 0.0, None, Some("fall_variants")),
+            damage_entry("falling_anvil", "anvil", s, 0.1, None, None),
+            damage_entry("falling_block", "fallingBlock", s, 0.1, None, None),
+            damage_entry("falling_stalactite", "fallingStalactite", s, 0.1, None, None),
+            damage_entry("fireball", "fireball", s, 0.1, Some("burning"), None),
+            damage_entry("fireworks", "fireworks", s, 0.1, None, None),
+            damage_entry("fly_into_wall", "flyIntoWall", s, 0.0, None, None),
+            damage_entry("freeze", "freeze", s, 0.0, Some("freezing"), None),
+            damage_entry("generic", "generic", s, 0.0, None, None),
+            damage_entry("generic_kill", "genericKill", s, 0.0, None, None),
+            damage_entry("hot_floor", "hotFloor", s, 0.1, Some("burning"), None),
+            damage_entry("in_fire", "inFire", s, 0.1, Some("burning"), None),
+            damage_entry("in_wall", "inWall", s, 0.0, None, None),
+            damage_entry("indirect_magic", "indirectMagic", s, 0.0, None, None),
+            damage_entry("lava", "lava", s, 0.1, Some("burning"), None),
+            damage_entry("lightning_bolt", "lightningBolt", s, 0.1, None, None),
+            damage_entry("magic", "magic", s, 0.0, None, None),
+            damage_entry("mob_attack", "mob", s, 0.1, None, None),
+            damage_entry("mob_attack_no_aggro", "mob", s, 0.1, None, None),
+            damage_entry("mob_projectile", "mob", s, 0.1, None, None),
+            damage_entry("on_fire", "onFire", s, 0.0, Some("burning"), None),
+            damage_entry("out_of_world", "outOfWorld", s, 0.0, None, None),
+            damage_entry("outside_border", "outsideBorder", s, 0.0, None, None),
+            damage_entry("player_attack", "player", s, 0.1, None, None),
+            damage_entry("player_explosion", "explosion.player", "always", 0.1, None, None),
+            damage_entry("sonic_boom", "sonic_boom", "always", 0.0, None, None),
+            damage_entry("spit", "mob", s, 0.1, None, None),
+            damage_entry("stalagmite", "stalagmite", s, 0.0, None, None),
+            damage_entry("starve", "starve", s, 0.0, None, None),
+            damage_entry("sting", "sting", s, 0.1, None, None),
+            damage_entry("sweet_berry_bush", "sweetBerryBush", s, 0.1, Some("poking"), None),
+            damage_entry("thorns", "thorns", s, 0.1, Some("thorns"), None),
+            damage_entry("thrown", "thrown", s, 0.1, None, None),
+            damage_entry("trident", "trident", s, 0.1, None, None),
+            damage_entry("unattributed_fireball", "onFire", s, 0.1, Some("burning"), None),
+            damage_entry("wind_charge", "mob", s, 0.1, None, None),
+            damage_entry("wither", "wither", s, 0.0, None, None),
+            damage_entry("wither_skull", "witherSkull", s, 0.1, None, None),
         ],
     }
 }

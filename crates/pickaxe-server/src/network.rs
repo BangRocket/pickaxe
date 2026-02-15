@@ -1,7 +1,8 @@
 use crate::config::ServerConfig;
 use crate::ScriptEvent;
 use anyhow::Result;
-use pickaxe_protocol_core::{Connection, ConnectionState, InternalPacket, KnownPack};
+use bytes::BytesMut;
+use pickaxe_protocol_core::{Connection, ConnectionState, InternalPacket, KnownPack, write_varint};
 use pickaxe_protocol_v1_21::V1_21Adapter;
 use pickaxe_protocol_core::ProtocolAdapter;
 use pickaxe_types::{GameMode, GameProfile, TextComponent, Vec3d, BlockPos};
@@ -275,24 +276,10 @@ async fn handle_play_inner(
         is_debug: false,
         is_flat: true,
         portal_cooldown: 0,
-        sea_level: 63,
         enforces_secure_chat: false,
     }).await?;
 
-    // Send default spawn position
-    send_packet(conn, adapter, ConnectionState::Play, &InternalPacket::SetDefaultSpawnPosition {
-        position: BlockPos::new(0, -60, 0),
-        angle: 0.0,
-    }).await?;
-
-    // Send Game Event: Start waiting for level chunks (event 13, value 0)
-    send_packet(conn, adapter, ConnectionState::Play, &InternalPacket::GameEvent {
-        event: 13,
-        value: 0.0,
-    }).await?;
-
-    // Compute spawn Y based on flat world: bedrock(1) + stone(2) + dirt(1) + grass(1) = top at y=-60
-    // Actually for flat world: y=-64 bedrock, y=-63..-61 stone, y=-61 dirt, y=-60 grass_block
+    // Compute spawn position: flat world top block is grass_block at y=-60
     // So spawn on top of grass at y=-59 (feet position)
     let spawn_y = -59.0;
     let spawn_pos = Vec3d::new(0.5, spawn_y, 0.5);
@@ -316,6 +303,18 @@ async fn handle_play_inner(
         pitch: 0.0,
         flags: 0,
         teleport_id,
+    }).await?;
+
+    // Send Game Event: Start waiting for level chunks (event 13, value 0)
+    send_packet(conn, adapter, ConnectionState::Play, &InternalPacket::GameEvent {
+        event: 13,
+        value: 0.0,
+    }).await?;
+
+    // Send default spawn position (must come after GameEvent to avoid NPE)
+    send_packet(conn, adapter, ConnectionState::Play, &InternalPacket::SetDefaultSpawnPosition {
+        position: BlockPos::new(0, -60, 0),
+        angle: 0.0,
     }).await?;
 
     // Enter the play loop
@@ -420,18 +419,22 @@ async fn send_chunks_around(
     view_distance: i32,
     server_state: &Arc<crate::ServerState>,
 ) -> Result<()> {
-    // Send chunk batch start
+    // Chunk Batch Start: 0x0D, empty
     send_packet_raw(conn, adapter, ConnectionState::Play, 0x0D, &[]).await?;
 
+    let mut batch_size = 0i32;
     for cx in (center_cx - view_distance)..=(center_cx + view_distance) {
         for cz in (center_cz - view_distance)..=(center_cz + view_distance) {
             let chunk_packet = server_state.get_chunk_packet(cx, cz);
             send_packet(conn, adapter, ConnectionState::Play, &chunk_packet).await?;
+            batch_size += 1;
         }
     }
 
-    // Send chunk batch finished
-    send_packet_raw(conn, adapter, ConnectionState::Play, 0x0C, &[]).await?;
+    // Chunk Batch Finished: 0x0C, VarInt batch_size
+    let mut finish_buf = BytesMut::new();
+    write_varint(&mut finish_buf, batch_size);
+    send_packet_raw(conn, adapter, ConnectionState::Play, 0x0C, &finish_buf).await?;
 
     Ok(())
 }
@@ -471,21 +474,25 @@ async fn handle_chunk_updates(
             }
         }
 
-        // Send chunk batch start
+        // Chunk Batch Start: 0x0D, empty
         send_packet_raw(conn, adapter, ConnectionState::Play, 0x0D, &[]).await?;
 
         // Load new chunks that are now in range
+        let mut batch_size = 0i32;
         for cx in (new_cx - vd)..=(new_cx + vd) {
             for cz in (new_cz - vd)..=(new_cz + vd) {
                 if (cx - old_cx).abs() > vd || (cz - old_cz).abs() > vd {
                     let chunk_packet = server_state.get_chunk_packet(cx, cz);
                     send_packet(conn, adapter, ConnectionState::Play, &chunk_packet).await?;
+                    batch_size += 1;
                 }
             }
         }
 
-        // Send chunk batch finished
-        send_packet_raw(conn, adapter, ConnectionState::Play, 0x0C, &[]).await?;
+        // Chunk Batch Finished: 0x0C, VarInt batch_size
+        let mut finish_buf = BytesMut::new();
+        write_varint(&mut finish_buf, batch_size);
+        send_packet_raw(conn, adapter, ConnectionState::Play, 0x0C, &finish_buf).await?;
     }
 
     Ok(())

@@ -99,7 +99,6 @@ pub enum InternalPacket {
         is_debug: bool,
         is_flat: bool,
         portal_cooldown: i32,
-        sea_level: i32,
         enforces_secure_chat: bool,
     },
     SynchronizePlayerPosition {

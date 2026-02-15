@@ -521,6 +521,7 @@ name = "pickaxe-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bytes",
  "pickaxe-data",
  "pickaxe-events",
  "pickaxe-nbt",

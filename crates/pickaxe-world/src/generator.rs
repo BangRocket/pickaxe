@@ -14,7 +14,7 @@ pub const AIR: i32 = 0;
 pub const STONE: i32 = 1;
 pub const GRASS_BLOCK: i32 = 9; // grass_block[snowy=false]
 pub const DIRT: i32 = 10;
-pub const BEDROCK: i32 = 33;
+pub const BEDROCK: i32 = 79;
 
 /// Generates a flat world chunk (superflat default: bedrock, 2 dirt, grass_block).
 /// Layer layout (matching vanilla superflat "Classic Flat"):

@@ -388,7 +388,6 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             is_debug,
             is_flat,
             portal_cooldown,
-            sea_level,
             enforces_secure_chat,
         } => {
             write_varint(&mut buf, PLAY_LOGIN);
@@ -414,7 +413,6 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             // Death location: not present
             buf.put_u8(0);
             write_varint(&mut buf, *portal_cooldown);
-            write_varint(&mut buf, *sea_level);
             buf.put_u8(*enforces_secure_chat as u8);
         }
         InternalPacket::SynchronizePlayerPosition {
