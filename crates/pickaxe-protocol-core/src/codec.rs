@@ -1,4 +1,5 @@
 use bytes::{Buf, BufMut, BytesMut};
+use pickaxe_types::ItemStack;
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -148,6 +149,39 @@ pub fn read_byte_array(buf: &mut BytesMut) -> CodecResult<Vec<u8>> {
 pub fn write_byte_array(buf: &mut BytesMut, data: &[u8]) {
     write_varint(buf, data.len() as i32);
     buf.put_slice(data);
+}
+
+/// Read a Slot from the wire (1.21.1 component-based format).
+/// Returns None for empty slots (item_count == 0).
+pub fn read_slot(buf: &mut BytesMut) -> CodecResult<Option<ItemStack>> {
+    let item_count = read_varint(buf)?;
+    if item_count <= 0 {
+        return Ok(None);
+    }
+    let item_id = read_varint(buf)?;
+    let add_count = read_varint(buf)?;
+    let remove_count = read_varint(buf)?;
+    // Skip component data — we don't handle components yet.
+    // For basic items (no enchantments/custom data), counts are 0.
+    if add_count > 0 || remove_count > 0 {
+        tracing::debug!("Slot has {} added, {} removed components — not parsed", add_count, remove_count);
+    }
+    Ok(Some(ItemStack::new(item_id, item_count as i8)))
+}
+
+/// Write a Slot to the wire (1.21.1 component-based format).
+pub fn write_slot(buf: &mut BytesMut, slot: &Option<ItemStack>) {
+    match slot {
+        None => {
+            write_varint(buf, 0); // item_count = 0 = empty
+        }
+        Some(item) => {
+            write_varint(buf, item.count as i32);
+            write_varint(buf, item.item_id);
+            write_varint(buf, 0); // no added components
+            write_varint(buf, 0); // no removed components
+        }
+    }
 }
 
 #[cfg(test)]

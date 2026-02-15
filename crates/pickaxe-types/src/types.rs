@@ -186,3 +186,18 @@ pub enum Hand {
     Main = 0,
     Off = 1,
 }
+
+/// An item stack in an inventory slot.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ItemStack {
+    /// Item registry ID (from PrismarineJS items.json).
+    pub item_id: i32,
+    /// Number of items in this stack (1-127).
+    pub count: i8,
+}
+
+impl ItemStack {
+    pub fn new(item_id: i32, count: i8) -> Self {
+        Self { item_id, count }
+    }
+}
