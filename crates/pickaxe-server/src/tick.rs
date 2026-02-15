@@ -149,6 +149,8 @@ pub async fn run_tick_loop(
 
         // 5. Tick systems
         tick_keep_alive(&adapter, &mut world, tick_count);
+        tick_entity_tracking(&mut world);
+        tick_entity_movement_broadcast(&mut world);
 
         tick_count += 1;
 
@@ -367,6 +369,18 @@ fn handle_disconnect(
                 uuids: vec![uuid],
             },
         );
+
+        // Remove from all players' tracked entities and send despawn
+        for (_e, (tracked, sender)) in world
+            .query::<(&mut TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if tracked.visible.remove(&entity_id) {
+                let _ = sender.0.send(InternalPacket::RemoveEntities {
+                    entity_ids: vec![entity_id],
+                });
+            }
+        }
 
         // Fire Lua event
         scripting.fire_event("player_leave", &[("name", &player_name)]);
@@ -661,6 +675,216 @@ fn tick_keep_alive(_adapter: &V1_21Adapter, world: &mut World, tick_count: u64) 
     }
 }
 
+fn tick_entity_tracking(world: &mut World) {
+    use std::collections::HashSet;
+
+    // Collect all player data
+    let mut player_data: Vec<(hecs::Entity, i32, Vec3d, f32, f32, bool, uuid::Uuid, i32, i32)> =
+        Vec::new();
+    for (e, (eid, pos, rot, og, profile, cp, _vd)) in world
+        .query::<(
+            &EntityId,
+            &Position,
+            &Rotation,
+            &OnGround,
+            &Profile,
+            &ChunkPosition,
+            &ViewDistance,
+        )>()
+        .iter()
+    {
+        player_data.push((
+            e,
+            eid.0,
+            pos.0,
+            rot.yaw,
+            rot.pitch,
+            og.0,
+            profile.0.uuid,
+            cp.chunk_x,
+            cp.chunk_z,
+        ));
+    }
+
+    for i in 0..player_data.len() {
+        let (observer_entity, _observer_eid, _, _, _, _, _, obs_cx, obs_cz) = player_data[i];
+
+        let obs_vd = match world.get::<&ViewDistance>(observer_entity) {
+            Ok(vd) => vd.0,
+            Err(_) => continue,
+        };
+
+        let mut should_see: HashSet<i32> = HashSet::new();
+        for j in 0..player_data.len() {
+            if i == j {
+                continue;
+            }
+            let (_, target_eid, _, _, _, _, _, tgt_cx, tgt_cz) = player_data[j];
+            if (tgt_cx - obs_cx).abs() <= obs_vd && (tgt_cz - obs_cz).abs() <= obs_vd {
+                should_see.insert(target_eid);
+            }
+        }
+
+        let currently_tracked: HashSet<i32> = match world.get::<&TrackedEntities>(observer_entity) {
+            Ok(te) => te.visible.clone(),
+            Err(_) => continue,
+        };
+
+        let observer_sender = match world.get::<&ConnectionSender>(observer_entity) {
+            Ok(s) => s.0.clone(),
+            Err(_) => continue,
+        };
+
+        // Spawn new entities
+        for &eid in should_see.difference(&currently_tracked) {
+            if let Some(&(_, _, pos, yaw, pitch, _, uuid, _, _)) =
+                player_data.iter().find(|d| d.1 == eid)
+            {
+                let _ = observer_sender.send(InternalPacket::SpawnEntity {
+                    entity_id: eid,
+                    entity_uuid: uuid,
+                    entity_type: 128, // player entity type in 1.21.1
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z,
+                    pitch: degrees_to_angle(pitch),
+                    yaw: degrees_to_angle(yaw),
+                    head_yaw: degrees_to_angle(yaw),
+                    data: 0,
+                    velocity_x: 0,
+                    velocity_y: 0,
+                    velocity_z: 0,
+                });
+                let _ = observer_sender.send(InternalPacket::SetHeadRotation {
+                    entity_id: eid,
+                    head_yaw: degrees_to_angle(yaw),
+                });
+            }
+        }
+
+        // Despawn removed entities
+        let to_remove: Vec<i32> = currently_tracked.difference(&should_see).copied().collect();
+        if !to_remove.is_empty() {
+            let _ = observer_sender.send(InternalPacket::RemoveEntities {
+                entity_ids: to_remove,
+            });
+        }
+
+        // Update tracked set
+        if let Ok(mut te) = world.get::<&mut TrackedEntities>(observer_entity) {
+            te.visible = should_see;
+        }
+    }
+}
+
+fn tick_entity_movement_broadcast(world: &mut World) {
+    // Collect entities that moved or rotated
+    let mut movers: Vec<(i32, Vec3d, Vec3d, f32, f32, f32, f32, bool)> = Vec::new();
+
+    for (_e, (eid, pos, prev_pos, rot, prev_rot, og)) in world
+        .query::<(
+            &EntityId,
+            &Position,
+            &PreviousPosition,
+            &Rotation,
+            &PreviousRotation,
+            &OnGround,
+        )>()
+        .iter()
+    {
+        let pos_changed =
+            pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
+        let rot_changed = rot.yaw != prev_rot.yaw || rot.pitch != prev_rot.pitch;
+        if pos_changed || rot_changed {
+            movers.push((
+                eid.0,
+                pos.0,
+                prev_pos.0,
+                rot.yaw,
+                rot.pitch,
+                prev_rot.yaw,
+                prev_rot.pitch,
+                og.0,
+            ));
+        }
+    }
+
+    // For each mover, send packets to all observers tracking them
+    for &(mover_eid, new_pos, old_pos, yaw, pitch, _old_yaw, _old_pitch, on_ground) in &movers {
+        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
+        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
+        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
+
+        let pos_changed = dx != 0 || dy != 0 || dz != 0;
+
+        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
+            || (new_pos.y - old_pos.y).abs() > 8.0
+            || (new_pos.z - old_pos.z).abs() > 8.0;
+
+        for (_e, (eid, tracked, sender)) in world
+            .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if eid.0 == mover_eid {
+                continue;
+            }
+            if !tracked.visible.contains(&mover_eid) {
+                continue;
+            }
+
+            if needs_teleport {
+                let _ = sender.0.send(InternalPacket::TeleportEntity {
+                    entity_id: mover_eid,
+                    x: new_pos.x,
+                    y: new_pos.y,
+                    z: new_pos.z,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            } else if pos_changed {
+                let _ = sender.0.send(InternalPacket::UpdateEntityPositionAndRotation {
+                    entity_id: mover_eid,
+                    delta_x: dx,
+                    delta_y: dy,
+                    delta_z: dz,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            } else {
+                let _ = sender.0.send(InternalPacket::UpdateEntityRotation {
+                    entity_id: mover_eid,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            }
+
+            // Always send head rotation
+            let _ = sender.0.send(InternalPacket::SetHeadRotation {
+                entity_id: mover_eid,
+                head_yaw: degrees_to_angle(yaw),
+            });
+        }
+    }
+
+    // Update previous positions and rotations
+    for (_e, (pos, prev_pos, rot, prev_rot)) in world
+        .query::<(
+            &Position,
+            &mut PreviousPosition,
+            &Rotation,
+            &mut PreviousRotation,
+        )>()
+        .iter()
+    {
+        prev_pos.0 = pos.0;
+        prev_rot.yaw = rot.yaw;
+        prev_rot.pitch = rot.pitch;
+    }
+}
+
 fn handle_chunk_updates(
     world: &mut World,
     world_state: &mut WorldState,
@@ -801,4 +1025,9 @@ fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
 /// Get the player count.
 pub fn player_count(world: &World) -> usize {
     world.query::<&Profile>().iter().count()
+}
+
+/// Convert degrees to MC protocol angle (256ths of a turn).
+fn degrees_to_angle(degrees: f32) -> u8 {
+    ((degrees / 360.0) * 256.0) as i32 as u8
 }
