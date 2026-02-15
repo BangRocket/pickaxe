@@ -1,7 +1,7 @@
 use crate::config::ServerConfig;
 use crate::ecs::*;
 use hecs::World;
-use pickaxe_protocol_core::{player_info_actions, InternalPacket, PlayerInfoEntry};
+use pickaxe_protocol_core::{player_info_actions, CommandNode, InternalPacket, PlayerInfoEntry};
 use pickaxe_protocol_v1_21::V1_21Adapter;
 use pickaxe_scripting::ScriptRuntime;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, TextComponent, Vec3d};
@@ -213,15 +213,7 @@ fn handle_new_player(
     });
 
     // Declare commands for tab completion
-    let _ = sender.send(InternalPacket::DeclareCommands {
-        commands: vec![
-            "gamemode".into(), "gm".into(),
-            "tp".into(), "teleport".into(),
-            "give".into(), "kill".into(),
-            "say".into(), "help".into(),
-            "time".into(),
-        ],
-    });
+    let _ = sender.send(build_command_tree());
 
     // Send current world time
     let _ = sender.send(InternalPacket::UpdateTime {
@@ -420,7 +412,7 @@ fn handle_disconnect(
 }
 
 fn process_packet(
-    config: &ServerConfig,
+    _config: &ServerConfig,
     _adapter: &V1_21Adapter,
     world: &mut World,
     world_state: &mut WorldState,
@@ -674,13 +666,13 @@ fn process_packet(
             let args = if parts.len() > 1 { parts[1] } else { "" };
 
             match cmd_name {
-                "gamemode" | "gm" => cmd_gamemode(config, world, entity, args),
+                "gamemode" | "gm" => cmd_gamemode(world, entity, args),
                 "tp" | "teleport" => cmd_tp(world, entity, args),
-                "give" => cmd_give(world, entity, args, config),
+                "give" => cmd_give(world, entity, args),
                 "kill" => cmd_kill(world, entity),
                 "say" => cmd_say(world, args, &name),
                 "help" => cmd_help(world, entity),
-                "time" => cmd_time(world, entity, args, config, world_state),
+                "time" => cmd_time(world, entity, args, world_state),
                 _ => {
                     send_message(world, entity, &format!("Unknown command: /{}", cmd_name));
                 }
@@ -989,8 +981,8 @@ fn tick_world_time(world: &World, world_state: &mut WorldState, tick_count: u64)
 
 // ── Command handlers ──────────────────────────────────────────────────
 
-fn cmd_gamemode(config: &ServerConfig, world: &mut World, entity: hecs::Entity, args: &str) {
-    if !is_op(world, entity, config) {
+fn cmd_gamemode(world: &mut World, entity: hecs::Entity, args: &str) {
+    if !is_op(world, entity) {
         send_message(world, entity, "You don't have permission to use this command.");
         return;
     }
@@ -1125,8 +1117,8 @@ fn cmd_tp(world: &mut World, entity: hecs::Entity, args: &str) {
     );
 }
 
-fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str, config: &ServerConfig) {
-    if !is_op(world, entity, config) {
+fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str) {
+    if !is_op(world, entity) {
         send_message(world, entity, "You don't have permission to use this command.");
         return;
     }
@@ -1258,7 +1250,7 @@ fn cmd_help(world: &World, entity: hecs::Entity) {
     }
 }
 
-fn cmd_time(world: &World, entity: hecs::Entity, args: &str, config: &ServerConfig, world_state: &mut WorldState) {
+fn cmd_time(world: &World, entity: hecs::Entity, args: &str, world_state: &mut WorldState) {
     let parts: Vec<&str> = args.split_whitespace().collect();
     if parts.is_empty() {
         send_message(world, entity, "Usage: /time <set|add|query> [value]");
@@ -1267,7 +1259,7 @@ fn cmd_time(world: &World, entity: hecs::Entity, args: &str, config: &ServerConf
 
     match parts[0] {
         "set" => {
-            if !is_op(world, entity, config) {
+            if !is_op(world, entity) {
                 send_message(world, entity, "You don't have permission to use this command.");
                 return;
             }
@@ -1296,7 +1288,7 @@ fn cmd_time(world: &World, entity: hecs::Entity, args: &str, config: &ServerConf
             send_message(world, entity, &format!("Set time to {}", time));
         }
         "add" => {
-            if !is_op(world, entity, config) {
+            if !is_op(world, entity) {
                 send_message(world, entity, "You don't have permission to use this command.");
                 return;
             }
@@ -1473,6 +1465,84 @@ fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
     }
 }
 
+/// Build the Declare Commands packet with the full command tree.
+fn build_command_tree() -> InternalPacket {
+    let mut nodes: Vec<CommandNode> = Vec::new();
+
+    // Helper: create a literal node (type=1)
+    let lit = |name: &str, executable: bool, children: Vec<i32>| -> CommandNode {
+        CommandNode {
+            flags: 0x01 | if executable { 0x04 } else { 0 },
+            children,
+            name: Some(name.to_string()),
+            parser: None,
+            parser_properties: None,
+        }
+    };
+
+    // Node 0: Root
+    // Children will be filled in after we know all top-level command indices.
+    nodes.push(CommandNode {
+        flags: 0x00,
+        children: vec![],
+        name: None,
+        parser: None,
+        parser_properties: None,
+    });
+
+    // Simple commands: literal + executable, no subcommands
+    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help"];
+    let mut root_children: Vec<i32> = Vec::new();
+    for cmd in &simple_cmds {
+        let idx = nodes.len() as i32;
+        root_children.push(idx);
+        nodes.push(lit(cmd, true, vec![]));
+    }
+
+    // /time command with subcommands
+    // /time set <day|night|noon|midnight|sunset|sunrise|value>
+    // /time add <value>
+    // /time query <daytime|gametime|day>
+
+    // time set options
+    let set_opts = ["day", "night", "noon", "midnight", "sunset", "sunrise"];
+    let mut set_children: Vec<i32> = Vec::new();
+    for opt in &set_opts {
+        let idx = nodes.len() as i32;
+        set_children.push(idx);
+        nodes.push(lit(opt, true, vec![]));
+    }
+    let set_idx = nodes.len() as i32;
+    nodes.push(lit("set", false, set_children));
+
+    // time add (executable — takes a number typed by user)
+    let add_idx = nodes.len() as i32;
+    nodes.push(lit("add", true, vec![]));
+
+    // time query options
+    let query_opts = ["daytime", "gametime", "day"];
+    let mut query_children: Vec<i32> = Vec::new();
+    for opt in &query_opts {
+        let idx = nodes.len() as i32;
+        query_children.push(idx);
+        nodes.push(lit(opt, true, vec![]));
+    }
+    let query_idx = nodes.len() as i32;
+    nodes.push(lit("query", true, query_children));
+
+    let time_idx = nodes.len() as i32;
+    root_children.push(time_idx);
+    nodes.push(lit("time", false, vec![set_idx, add_idx, query_idx]));
+
+    // Patch root children
+    nodes[0].children = root_children;
+
+    InternalPacket::DeclareCommands {
+        nodes,
+        root_index: 0,
+    }
+}
+
 /// Send a system chat message to a specific player entity.
 fn send_message(world: &World, entity: hecs::Entity, message: &str) {
     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -1484,11 +1554,14 @@ fn send_message(world: &World, entity: hecs::Entity, message: &str) {
 }
 
 /// Check if a player is an operator.
-fn is_op(world: &World, entity: hecs::Entity, config: &ServerConfig) -> bool {
-    world
-        .get::<&Profile>(entity)
-        .map(|p| config.ops.iter().any(|op| op.eq_ignore_ascii_case(&p.0.name)))
-        .unwrap_or(false)
+/// Re-reads config/ops.toml so changes take effect without a restart.
+fn is_op(world: &World, entity: hecs::Entity) -> bool {
+    let name = match world.get::<&Profile>(entity) {
+        Ok(p) => p.0.name.clone(),
+        Err(_) => return false,
+    };
+    let ops = crate::config::load_ops();
+    ops.iter().any(|op| op.eq_ignore_ascii_case(&name))
 }
 
 /// Get the player count.

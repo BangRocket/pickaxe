@@ -246,8 +246,8 @@ pub enum InternalPacket {
 
     /// Declare Commands (0x11 CB) — command tree for tab completion.
     DeclareCommands {
-        /// List of command names (root literals). The encoder builds the node tree.
-        commands: Vec<String>,
+        nodes: Vec<CommandNode>,
+        root_index: i32,
     },
 
     /// Set Container Content (0x13 CB) — sends entire inventory.
@@ -405,6 +405,22 @@ pub struct ChunkLightData {
     pub empty_block_light_mask: Vec<i64>,
     pub sky_light_arrays: Vec<Vec<u8>>,
     pub block_light_arrays: Vec<Vec<u8>>,
+}
+
+/// A node in the Declare Commands tree (0x11).
+/// See <https://wiki.vg/Command_Data> for the wire format.
+#[derive(Debug, Clone)]
+pub struct CommandNode {
+    /// Flags byte: bits 0-1 = node type (0=root, 1=literal, 2=argument),
+    /// bit 2 = is_executable, bit 3 = has_redirect, bit 4 = has_suggestions.
+    pub flags: u8,
+    pub children: Vec<i32>,
+    /// Name of the node (for literal and argument nodes).
+    pub name: Option<String>,
+    /// Parser identifier string (for argument nodes, e.g. "brigadier:integer").
+    pub parser: Option<String>,
+    /// Extra parser properties (raw bytes, parser-specific).
+    pub parser_properties: Option<Vec<u8>>,
 }
 
 impl Default for ChunkLightData {

@@ -15,8 +15,6 @@ pub struct ServerConfig {
     pub online_mode: bool,
     #[serde(default = "default_view_distance")]
     pub view_distance: u32,
-    #[serde(default)]
-    pub ops: Vec<String>,
 }
 
 fn default_bind() -> String {
@@ -48,7 +46,6 @@ impl Default for ServerConfig {
             motd: default_motd(),
             online_mode: false,
             view_distance: default_view_distance(),
-            ops: Vec::new(),
         }
     }
 }
@@ -63,5 +60,26 @@ impl ServerConfig {
             tracing::info!("No config file found at {}, using defaults", path.display());
             Ok(Self::default())
         }
+    }
+}
+
+/// Separate ops file — hot-reloaded on every permission check.
+#[derive(Debug, Deserialize, Default)]
+struct OpsConfig {
+    #[serde(default)]
+    ops: Vec<String>,
+}
+
+/// Read the operator list from config/ops.toml. Returns an empty list on error.
+pub fn load_ops() -> Vec<String> {
+    let path = Path::new("config/ops.toml");
+    if path.exists() {
+        std::fs::read_to_string(path)
+            .ok()
+            .and_then(|s| toml::from_str::<OpsConfig>(&s).ok())
+            .map(|c| c.ops)
+            .unwrap_or_default()
+    } else {
+        Vec::new()
     }
 }

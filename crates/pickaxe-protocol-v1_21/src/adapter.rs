@@ -748,28 +748,28 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             write_varint(&mut buf, PLAY_SET_HELD_ITEM);
             buf.put_i8(*slot);
         }
-        InternalPacket::DeclareCommands { commands } => {
+        InternalPacket::DeclareCommands { nodes, root_index } => {
             write_varint(&mut buf, PLAY_DECLARE_COMMANDS);
-            // Build node tree: node 0 = root, nodes 1..N = literal commands
-            let node_count = 1 + commands.len() as i32;
-            write_varint(&mut buf, node_count);
-
-            // Node 0: Root node (type=0, children = [1, 2, ..., N])
-            buf.put_u8(0x00); // flags: type=root(0), no executable
-            write_varint(&mut buf, commands.len() as i32); // child count
-            for i in 0..commands.len() {
-                write_varint(&mut buf, (i + 1) as i32); // child indices
+            write_varint(&mut buf, nodes.len() as i32);
+            for node in nodes {
+                buf.put_u8(node.flags);
+                write_varint(&mut buf, node.children.len() as i32);
+                for &child in &node.children {
+                    write_varint(&mut buf, child);
+                }
+                // Literal (type 1) and argument (type 2) nodes have a name
+                if let Some(name) = &node.name {
+                    write_string(&mut buf, name);
+                }
+                // Argument nodes (type 2) have a parser ID + optional properties
+                if let Some(parser) = &node.parser {
+                    write_varint(&mut buf, parser_to_id(parser));
+                    if let Some(props) = &node.parser_properties {
+                        buf.extend_from_slice(props);
+                    }
+                }
             }
-
-            // Nodes 1..N: Literal nodes (type=1, executable)
-            for cmd in commands {
-                buf.put_u8(0x05); // flags: type=literal(1) | executable(0x04)
-                write_varint(&mut buf, 0); // no children
-                write_string(&mut buf, cmd); // command name
-            }
-
-            // Root index
-            write_varint(&mut buf, 0);
+            write_varint(&mut buf, *root_index);
         }
         InternalPacket::UpdateTime { world_age, time_of_day } => {
             write_varint(&mut buf, PLAY_UPDATE_TIME);
@@ -779,6 +779,23 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }
     Ok(buf)
+}
+
+/// Map parser name to protocol 767 parser ID.
+fn parser_to_id(parser: &str) -> i32 {
+    match parser {
+        "brigadier:bool" => 0,
+        "brigadier:float" => 1,
+        "brigadier:double" => 2,
+        "brigadier:integer" => 3,
+        "brigadier:long" => 4,
+        "brigadier:string" => 5,
+        "minecraft:entity" => 6,
+        "minecraft:game_profile" => 7,
+        "minecraft:block_pos" => 8,
+        "minecraft:time" => 42,
+        _ => 5, // fallback to string
+    }
 }
 
 fn encode_light_data(buf: &mut BytesMut, light: &ChunkLightData) {
