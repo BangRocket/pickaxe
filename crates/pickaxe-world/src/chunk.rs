@@ -205,13 +205,27 @@ impl Chunk {
             "MOTION_BLOCKING" => NbtValue::LongArray(heightmap_data)
         };
 
+        // Sky light: 24 block sections + 2 boundary sections = 26 sections (bits 0..25)
+        // Set all bits in the sky light mask to indicate all sections have sky light
+        let sky_light_mask = vec![0x03FFFFFFi64]; // bits 0..25 set (26 sections)
+        // Full sky light = 15 for every block: 4 bits per block, 2 blocks per byte = 0xFF
+        let full_sky_light = vec![0xFFu8; 2048];
+        let sky_light_arrays: Vec<Vec<u8>> = (0..26).map(|_| full_sky_light.clone()).collect();
+
         InternalPacket::ChunkDataAndUpdateLight {
             chunk_x,
             chunk_z,
             heightmaps,
             data,
             block_entities: Vec::new(),
-            light_data: ChunkLightData::default(),
+            light_data: ChunkLightData {
+                sky_light_mask,
+                block_light_mask: vec![0i64],
+                empty_sky_light_mask: vec![0i64],
+                empty_block_light_mask: vec![0i64],
+                sky_light_arrays,
+                block_light_arrays: Vec::new(),
+            },
         }
     }
 }
@@ -234,6 +248,22 @@ mod tests {
         let section = ChunkSection::single_value(1); // stone
         assert_eq!(section.block_count, 4096);
         assert_eq!(section.bits_per_entry, 0);
+    }
+
+    #[test]
+    fn test_flat_section_encoding() {
+        use crate::generator::*;
+        let chunk = generate_flat_chunk();
+        let section = &chunk.sections[0];
+        assert_eq!(section.palette.len(), 4);
+        assert_eq!(section.bits_per_entry, 4);
+        assert_eq!(section.block_count, 1024);
+
+        let mut buf = BytesMut::new();
+        section.write_to(&mut buf);
+        let block_count_val = i16::from_be_bytes([buf[0], buf[1]]);
+        assert_eq!(block_count_val, 1024);
+        assert_eq!(buf[2], 4); // bits_per_entry
     }
 
     #[test]
