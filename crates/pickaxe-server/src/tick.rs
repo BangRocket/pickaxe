@@ -316,6 +316,12 @@ fn handle_new_player(
         },
         ViewDistance(view_distance),
         KeepAlive::new(),
+        TrackedEntities::new(),
+        PreviousPosition(spawn_pos),
+        PreviousRotation {
+            yaw: 0.0,
+            pitch: 0.0,
+        },
     ));
 
     inbound_receivers.insert(entity_id, new_player.packet_rx);

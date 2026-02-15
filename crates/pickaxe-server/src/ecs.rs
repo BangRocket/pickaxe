@@ -1,5 +1,6 @@
 use pickaxe_protocol_core::InternalPacket;
 use pickaxe_types::{GameMode, GameProfile, Vec3d};
+use std::collections::HashSet;
 use tokio::sync::mpsc;
 
 /// Network entity ID assigned by the server.
@@ -51,4 +52,26 @@ impl KeepAlive {
             pending: None,
         }
     }
+}
+
+/// Tracks which entity IDs this player can currently see.
+pub struct TrackedEntities {
+    pub visible: HashSet<i32>,
+}
+
+impl TrackedEntities {
+    pub fn new() -> Self {
+        Self {
+            visible: HashSet::new(),
+        }
+    }
+}
+
+/// Previous position — used to compute deltas for relative move packets.
+pub struct PreviousPosition(pub Vec3d);
+
+/// Previous rotation — used to detect rotation changes.
+pub struct PreviousRotation {
+    pub yaw: f32,
+    pub pitch: f32,
 }
