@@ -15,6 +15,8 @@ pub struct ServerConfig {
     pub online_mode: bool,
     #[serde(default = "default_view_distance")]
     pub view_distance: u32,
+    #[serde(default)]
+    pub ops: Vec<String>,
 }
 
 fn default_bind() -> String {
@@ -46,6 +48,7 @@ impl Default for ServerConfig {
             motd: default_motd(),
             online_mode: false,
             view_distance: default_view_distance(),
+            ops: Vec::new(),
         }
     }
 }
