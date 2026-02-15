@@ -35,6 +35,7 @@ pub struct WorldState {
     chunks: HashMap<ChunkPos, Chunk>,
     pub world_age: i64,
     pub time_of_day: i64,
+    pub tick_count: u64,
 }
 
 impl WorldState {
@@ -43,6 +44,7 @@ impl WorldState {
             chunks: HashMap::new(),
             world_age: 0,
             time_of_day: 0,
+            tick_count: 0,
         }
     }
 
@@ -139,6 +141,9 @@ pub async fn run_tick_loop(
         let count = world.query::<&Profile>().iter().count();
         player_count.store(count, Ordering::Relaxed);
 
+        // Update tick count in world state so it's available in process_packet
+        world_state.tick_count = tick_count;
+
         // 4. Process packets
         for pkt in packets {
             process_packet(
@@ -156,6 +161,7 @@ pub async fn run_tick_loop(
         tick_entity_tracking(&mut world);
         tick_entity_movement_broadcast(&mut world);
         tick_world_time(&world, &mut world_state, tick_count);
+        tick_block_breaking(&mut world, tick_count);
 
         tick_count += 1;
 
@@ -204,7 +210,7 @@ fn handle_new_player(
         dimension_type: 0,
         dimension_name: "minecraft:overworld".into(),
         hashed_seed: 0,
-        game_mode: GameMode::Creative,
+        game_mode: GameMode::Survival,
         previous_game_mode: -1,
         is_debug: false,
         is_flat: true,
@@ -285,7 +291,7 @@ fn handle_new_player(
             .iter()
             .map(|pr| (pr.name.clone(), pr.value.clone(), pr.signature.clone()))
             .collect(),
-        game_mode: Some(GameMode::Creative.id() as i32),
+        game_mode: Some(GameMode::Survival.id() as i32),
         listed: Some(true),
         ping: Some(0),
         display_name: None,
@@ -332,7 +338,7 @@ fn handle_new_player(
             pitch: 0.0,
         },
         OnGround(true),
-        PlayerGameMode(GameMode::Creative),
+        PlayerGameMode(GameMode::Survival),
         ConnectionSender(sender),
         ChunkPosition {
             chunk_x: center_cx,
@@ -514,43 +520,116 @@ fn process_packet(
             sequence,
             ..
         } => {
-            if status == 0 {
-                let old_block = world_state.set_block(&position, 0);
-                // Send block update + ack to the digging player
-                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
-                    let _ = sender.0.send(InternalPacket::BlockUpdate {
-                        position,
-                        block_id: 0,
-                    });
-                    let _ = sender
-                        .0
-                        .send(InternalPacket::AcknowledgeBlockChange { sequence });
-                }
-                // Broadcast block update to other players
-                broadcast_except(
-                    world,
-                    entity_id,
-                    &InternalPacket::BlockUpdate {
-                        position,
-                        block_id: 0,
-                    },
-                );
+            let game_mode = world
+                .get::<&PlayerGameMode>(entity)
+                .map(|gm| gm.0)
+                .unwrap_or(GameMode::Survival);
 
-                let name = world
-                    .get::<&Profile>(entity)
-                    .map(|p| p.0.name.clone())
-                    .unwrap_or_default();
-                debug!("{} broke block at {:?} (was {})", name, position, old_block);
-                scripting.fire_event(
-                    "block_break",
-                    &[
-                        ("name", &name),
-                        ("x", &position.x.to_string()),
-                        ("y", &position.y.to_string()),
-                        ("z", &position.z.to_string()),
-                        ("block_id", &old_block.to_string()),
-                    ],
-                );
+            match status {
+                // Started Digging
+                0 => {
+                    if game_mode == GameMode::Creative {
+                        // Creative mode: instant break
+                        complete_block_break(
+                            world, world_state, entity, entity_id, &position, sequence,
+                            scripting,
+                        );
+                    } else {
+                        // Survival mode: check block hardness
+                        let block_state = world_state.get_block(&position);
+                        let held_item_id = {
+                            let slot =
+                                world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                            world
+                                .get::<&Inventory>(entity)
+                                .ok()
+                                .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
+                        };
+                        match calculate_break_ticks(block_state, held_item_id) {
+                            None => {
+                                // Unbreakable block, just ack
+                                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                    let _ = sender.0.send(
+                                        InternalPacket::AcknowledgeBlockChange { sequence },
+                                    );
+                                }
+                            }
+                            Some(0) => {
+                                // Instant break (hardness == 0)
+                                complete_block_break(
+                                    world, world_state, entity, entity_id, &position,
+                                    sequence, scripting,
+                                );
+                            }
+                            Some(ticks) => {
+                                // Timed break: insert BreakingBlock component
+                                let _ = world.insert_one(
+                                    entity,
+                                    BreakingBlock {
+                                        position,
+                                        block_state,
+                                        started_tick: world_state.tick_count,
+                                        total_ticks: ticks,
+                                        last_stage: -1,
+                                    },
+                                );
+                                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                    let _ = sender.0.send(
+                                        InternalPacket::AcknowledgeBlockChange { sequence },
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                // Cancelled Digging
+                1 => {
+                    let _ = world.remove_one::<BreakingBlock>(entity);
+                    // Clear destroy stage animation
+                    broadcast_to_all(
+                        world,
+                        &InternalPacket::SetBlockDestroyStage {
+                            entity_id,
+                            position,
+                            destroy_stage: -1,
+                        },
+                    );
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ =
+                            sender
+                                .0
+                                .send(InternalPacket::AcknowledgeBlockChange { sequence });
+                    }
+                }
+                // Finished Digging
+                2 => {
+                    let valid = if let Ok(breaking) = world.get::<&BreakingBlock>(entity) {
+                        let elapsed = world_state
+                            .tick_count
+                            .saturating_sub(breaking.started_tick);
+                        // Allow 2 tick tolerance
+                        elapsed + 2 >= breaking.total_ticks
+                    } else {
+                        false
+                    };
+
+                    let _ = world.remove_one::<BreakingBlock>(entity);
+
+                    if valid {
+                        complete_block_break(
+                            world, world_state, entity, entity_id, &position, sequence,
+                            scripting,
+                        );
+                    } else {
+                        // Too fast or no breaking component — just ack without breaking
+                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                            let _ = sender
+                                .0
+                                .send(InternalPacket::AcknowledgeBlockChange { sequence });
+                        }
+                    }
+                }
+                _ => {}
             }
         }
 
@@ -976,6 +1055,198 @@ fn tick_world_time(world: &World, world_state: &mut WorldState, tick_count: u64)
             world_age: world_state.world_age,
             time_of_day: world_state.time_of_day,
         });
+    }
+}
+
+/// Calculate how many ticks it takes to break a block in survival mode.
+/// Returns None if the block is unbreakable, Some(0) for instant break, Some(ticks) otherwise.
+fn calculate_break_ticks(block_state: i32, held_item_id: Option<i32>) -> Option<u64> {
+    let (hardness, diggable) = pickaxe_data::block_state_to_hardness(block_state)?;
+    if !diggable || hardness < 0.0 {
+        return None;
+    }
+    if hardness == 0.0 {
+        return Some(0);
+    }
+    let has_correct_tool =
+        if let Some(required) = pickaxe_data::block_state_to_harvest_tools(block_state) {
+            held_item_id
+                .map(|id| required.contains(&id))
+                .unwrap_or(false)
+        } else {
+            true
+        };
+    let seconds = if has_correct_tool {
+        hardness * 1.5
+    } else {
+        hardness * 5.0
+    };
+    Some((seconds * 20.0).ceil() as u64)
+}
+
+/// Complete a block break: set to air, send updates, handle drops, fire Lua event.
+fn complete_block_break(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+    position: &BlockPos,
+    sequence: i32,
+    scripting: &ScriptRuntime,
+) {
+    let old_block = world_state.set_block(position, 0);
+
+    // Send block update + ack to the breaking player
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::BlockUpdate {
+            position: *position,
+            block_id: 0,
+        });
+        let _ = sender
+            .0
+            .send(InternalPacket::AcknowledgeBlockChange { sequence });
+    }
+
+    // Broadcast block update to other players
+    broadcast_except(
+        world,
+        entity_id,
+        &InternalPacket::BlockUpdate {
+            position: *position,
+            block_id: 0,
+        },
+    );
+
+    // Clear destroy stage animation for all players
+    broadcast_to_all(
+        world,
+        &InternalPacket::SetBlockDestroyStage {
+            entity_id,
+            position: *position,
+            destroy_stage: -1,
+        },
+    );
+
+    // Handle drops in survival mode
+    let game_mode = world
+        .get::<&PlayerGameMode>(entity)
+        .map(|gm| gm.0)
+        .unwrap_or(GameMode::Survival);
+
+    if game_mode == GameMode::Survival {
+        // Check if player has the correct tool for drops
+        let has_correct_tool =
+            if let Some(required) = pickaxe_data::block_state_to_harvest_tools(old_block) {
+                let held_item_id = {
+                    let slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                    world
+                        .get::<&Inventory>(entity)
+                        .ok()
+                        .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
+                };
+                held_item_id
+                    .map(|id| required.contains(&id))
+                    .unwrap_or(false)
+            } else {
+                true // No tool requirement
+            };
+
+        if has_correct_tool {
+            let drops = pickaxe_data::block_state_to_drops(old_block);
+            for &drop_item_id in drops {
+                // Find first empty slot: hotbar (36-44) then main inventory (9-35)
+                let slot_index = {
+                    let inv = match world.get::<&Inventory>(entity) {
+                        Ok(inv) => inv,
+                        Err(_) => continue,
+                    };
+                    let mut found = None;
+                    for i in 36..=44 {
+                        if inv.slots[i].is_none() {
+                            found = Some(i);
+                            break;
+                        }
+                    }
+                    if found.is_none() {
+                        for i in 9..=35 {
+                            if inv.slots[i].is_none() {
+                                found = Some(i);
+                                break;
+                            }
+                        }
+                    }
+                    found
+                };
+
+                if let Some(slot_index) = slot_index {
+                    let item = pickaxe_types::ItemStack::new(drop_item_id, 1);
+                    let state_id = {
+                        let mut inv = match world.get::<&mut Inventory>(entity) {
+                            Ok(inv) => inv,
+                            Err(_) => continue,
+                        };
+                        inv.set_slot(slot_index, Some(item.clone()));
+                        inv.state_id
+                    };
+
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                            window_id: 0,
+                            state_id,
+                            slot: slot_index as i16,
+                            item: Some(item),
+                        });
+                    }
+                }
+                // If inventory full, silently lose the drop (for now)
+            }
+        }
+    }
+
+    let name = world
+        .get::<&Profile>(entity)
+        .map(|p| p.0.name.clone())
+        .unwrap_or_default();
+    debug!("{} broke block at {:?} (was {})", name, position, old_block);
+    scripting.fire_event(
+        "block_break",
+        &[
+            ("name", &name),
+            ("x", &position.x.to_string()),
+            ("y", &position.y.to_string()),
+            ("z", &position.z.to_string()),
+            ("block_id", &old_block.to_string()),
+        ],
+    );
+}
+
+/// Update destroy stage animation for all players currently breaking blocks.
+fn tick_block_breaking(world: &mut World, tick_count: u64) {
+    let mut updates: Vec<(i32, BlockPos, i8)> = Vec::new();
+    for (_entity, (eid, breaking)) in world.query::<(&EntityId, &BreakingBlock)>().iter() {
+        let elapsed = tick_count.saturating_sub(breaking.started_tick);
+        let progress = elapsed as f64 / breaking.total_ticks as f64;
+        let stage = (progress * 10.0).min(9.0) as i8;
+        if stage != breaking.last_stage {
+            updates.push((eid.0, breaking.position, stage));
+        }
+    }
+
+    for (eid, pos, stage) in &updates {
+        broadcast_to_all(
+            world,
+            &InternalPacket::SetBlockDestroyStage {
+                entity_id: *eid,
+                position: *pos,
+                destroy_stage: *stage,
+            },
+        );
+    }
+
+    for (_entity, breaking) in world.query::<&mut BreakingBlock>().iter() {
+        let elapsed = tick_count.saturating_sub(breaking.started_tick);
+        let progress = elapsed as f64 / breaking.total_ticks as f64;
+        breaking.last_stage = (progress * 10.0).min(9.0) as i8;
     }
 }
 
