@@ -219,6 +219,7 @@ fn handle_new_player(
             "tp".into(), "teleport".into(),
             "give".into(), "kill".into(),
             "say".into(), "help".into(),
+            "time".into(),
         ],
     });
 
@@ -679,6 +680,7 @@ fn process_packet(
                 "kill" => cmd_kill(world, entity),
                 "say" => cmd_say(world, args, &name),
                 "help" => cmd_help(world, entity),
+                "time" => cmd_time(world, entity, args, config, world_state),
                 _ => {
                     send_message(world, entity, &format!("Unknown command: /{}", cmd_name));
                 }
@@ -1246,10 +1248,91 @@ fn cmd_help(world: &World, entity: hecs::Entity) {
         "/give <item> [count] - Give item to yourself",
         "/kill - Respawn at spawn point",
         "/say <message> - Broadcast a message",
+        "/time set <day|night|noon|midnight|value> - Set time of day",
+        "/time add <value> - Add to time of day",
+        "/time query [daytime|gametime|day] - Query current time",
         "/help - Show this help",
     ];
     for line in &help_text {
         send_message(world, entity, line);
+    }
+}
+
+fn cmd_time(world: &World, entity: hecs::Entity, args: &str, config: &ServerConfig, world_state: &mut WorldState) {
+    let parts: Vec<&str> = args.split_whitespace().collect();
+    if parts.is_empty() {
+        send_message(world, entity, "Usage: /time <set|add|query> [value]");
+        return;
+    }
+
+    match parts[0] {
+        "set" => {
+            if !is_op(world, entity, config) {
+                send_message(world, entity, "You don't have permission to use this command.");
+                return;
+            }
+            if parts.len() < 2 {
+                send_message(world, entity, "Usage: /time set <day|night|noon|midnight|value>");
+                return;
+            }
+            let time = match parts[1] {
+                "day" | "sunrise" => 0,
+                "noon" => 6000,
+                "sunset" => 12000,
+                "night" | "midnight" => 18000,
+                other => match other.parse::<i64>() {
+                    Ok(v) => v.rem_euclid(24000),
+                    Err(_) => {
+                        send_message(world, entity, "Invalid time value.");
+                        return;
+                    }
+                },
+            };
+            world_state.time_of_day = time;
+            broadcast_to_all(world, &InternalPacket::UpdateTime {
+                world_age: world_state.world_age,
+                time_of_day: world_state.time_of_day,
+            });
+            send_message(world, entity, &format!("Set time to {}", time));
+        }
+        "add" => {
+            if !is_op(world, entity, config) {
+                send_message(world, entity, "You don't have permission to use this command.");
+                return;
+            }
+            if parts.len() < 2 {
+                send_message(world, entity, "Usage: /time add <value>");
+                return;
+            }
+            let amount = match parts[1].parse::<i64>() {
+                Ok(v) => v,
+                Err(_) => {
+                    send_message(world, entity, "Invalid time value.");
+                    return;
+                }
+            };
+            world_state.time_of_day = (world_state.time_of_day + amount).rem_euclid(24000);
+            broadcast_to_all(world, &InternalPacket::UpdateTime {
+                world_age: world_state.world_age,
+                time_of_day: world_state.time_of_day,
+            });
+            send_message(world, entity, &format!("Added {} to time (now {})", amount, world_state.time_of_day));
+        }
+        "query" => {
+            if parts.len() < 2 {
+                send_message(world, entity, &format!("Time of day: {}, World age: {}", world_state.time_of_day, world_state.world_age));
+                return;
+            }
+            match parts[1] {
+                "daytime" => send_message(world, entity, &format!("Time of day: {}", world_state.time_of_day)),
+                "gametime" => send_message(world, entity, &format!("World age: {}", world_state.world_age)),
+                "day" => send_message(world, entity, &format!("Day: {}", world_state.world_age / 24000)),
+                _ => send_message(world, entity, "Usage: /time query <daytime|gametime|day>"),
+            }
+        }
+        _ => {
+            send_message(world, entity, "Usage: /time <set|add|query> [value]");
+        }
     }
 }
 
