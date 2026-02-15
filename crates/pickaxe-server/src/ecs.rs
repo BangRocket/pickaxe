@@ -1,5 +1,5 @@
 use pickaxe_protocol_core::InternalPacket;
-use pickaxe_types::{GameMode, GameProfile, Vec3d};
+use pickaxe_types::{GameMode, GameProfile, ItemStack, Vec3d};
 use std::collections::HashSet;
 use tokio::sync::mpsc;
 
@@ -75,3 +75,41 @@ pub struct PreviousRotation {
     pub yaw: f32,
     pub pitch: f32,
 }
+
+/// Player inventory: 46 slots.
+/// Slots 0: crafting output, 1-4: crafting input, 5-8: armor
+/// Slots 9-35: main inventory, 36-44: hotbar, 45: offhand
+pub struct Inventory {
+    pub slots: [Option<ItemStack>; 46],
+    pub state_id: i32,
+}
+
+impl Inventory {
+    pub fn new() -> Self {
+        Self {
+            slots: std::array::from_fn(|_| None),
+            state_id: 1,
+        }
+    }
+
+    /// Get the item in the given hotbar slot (0-8).
+    pub fn held_item(&self, hotbar_slot: u8) -> &Option<ItemStack> {
+        &self.slots[36 + hotbar_slot as usize]
+    }
+
+    /// Set a slot and increment state_id.
+    pub fn set_slot(&mut self, index: usize, item: Option<ItemStack>) {
+        if index < 46 {
+            self.slots[index] = item;
+            self.state_id = self.state_id.wrapping_add(1);
+        }
+    }
+
+    /// Convert to packet format.
+    pub fn to_slot_vec(&self) -> Vec<Option<ItemStack>> {
+        self.slots.to_vec()
+    }
+}
+
+/// Currently selected hotbar slot (0-8).
+pub struct HeldSlot(pub u8);
