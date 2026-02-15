@@ -33,12 +33,16 @@ pub struct NewPlayer {
 /// World state: chunk storage.
 pub struct WorldState {
     chunks: HashMap<ChunkPos, Chunk>,
+    pub world_age: i64,
+    pub time_of_day: i64,
 }
 
 impl WorldState {
     pub fn new() -> Self {
         Self {
             chunks: HashMap::new(),
+            world_age: 0,
+            time_of_day: 0,
         }
     }
 
@@ -151,6 +155,7 @@ pub async fn run_tick_loop(
         tick_keep_alive(&adapter, &mut world, tick_count);
         tick_entity_tracking(&mut world);
         tick_entity_movement_broadcast(&mut world);
+        tick_world_time(&world, &mut world_state, tick_count);
 
         tick_count += 1;
 
@@ -215,6 +220,12 @@ fn handle_new_player(
             "give".into(), "kill".into(),
             "say".into(), "help".into(),
         ],
+    });
+
+    // Send current world time
+    let _ = sender.send(InternalPacket::UpdateTime {
+        world_age: world_state.world_age,
+        time_of_day: world_state.time_of_day,
     });
 
     // Spawn position
@@ -957,6 +968,20 @@ fn tick_entity_movement_broadcast(world: &mut World) {
         prev_pos.0 = pos.0;
         prev_rot.yaw = rot.yaw;
         prev_rot.pitch = rot.pitch;
+    }
+}
+
+/// Advance world time each tick. Broadcast UpdateTime every 20 ticks (1 second).
+fn tick_world_time(world: &World, world_state: &mut WorldState, tick_count: u64) {
+    world_state.world_age += 1;
+    world_state.time_of_day = (world_state.time_of_day + 1) % 24000;
+
+    // Broadcast time update every 20 ticks (once per second)
+    if tick_count % 20 == 0 {
+        broadcast_to_all(world, &InternalPacket::UpdateTime {
+            world_age: world_state.world_age,
+            time_of_day: world_state.time_of_day,
+        });
     }
 }
 
