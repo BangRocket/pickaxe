@@ -170,6 +170,74 @@ pub enum InternalPacket {
         batch_size: i32,
     },
 
+    /// Spawn Entity (0x01 clientbound, protocol 767)
+    SpawnEntity {
+        entity_id: i32,
+        entity_uuid: Uuid,
+        entity_type: i32,    // entity type ID (player=128 in 1.21.1)
+        x: f64,
+        y: f64,
+        z: f64,
+        pitch: u8,           // angle as 256ths of a turn
+        yaw: u8,
+        head_yaw: u8,
+        data: i32,            // extra data (0 for players)
+        velocity_x: i16,
+        velocity_y: i16,
+        velocity_z: i16,
+    },
+
+    /// Remove Entities (0x42 clientbound, protocol 767)
+    RemoveEntities {
+        entity_ids: Vec<i32>,
+    },
+
+    /// Update Entity Position (0x2E clientbound, protocol 767)
+    /// Relative move in 1/4096ths of a block. Max ~8 blocks per packet.
+    UpdateEntityPosition {
+        entity_id: i32,
+        delta_x: i16,
+        delta_y: i16,
+        delta_z: i16,
+        on_ground: bool,
+    },
+
+    /// Update Entity Position and Rotation (0x2F clientbound, protocol 767)
+    UpdateEntityPositionAndRotation {
+        entity_id: i32,
+        delta_x: i16,
+        delta_y: i16,
+        delta_z: i16,
+        yaw: u8,
+        pitch: u8,
+        on_ground: bool,
+    },
+
+    /// Update Entity Rotation (0x30 clientbound, protocol 767)
+    UpdateEntityRotation {
+        entity_id: i32,
+        yaw: u8,
+        pitch: u8,
+        on_ground: bool,
+    },
+
+    /// Set Head Rotation (0x48 clientbound, protocol 767)
+    SetHeadRotation {
+        entity_id: i32,
+        head_yaw: u8,
+    },
+
+    /// Teleport Entity (0x70 clientbound, protocol 767)
+    TeleportEntity {
+        entity_id: i32,
+        x: f64,
+        y: f64,
+        z: f64,
+        yaw: u8,
+        pitch: u8,
+        on_ground: bool,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {
