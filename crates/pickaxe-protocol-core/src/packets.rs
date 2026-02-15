@@ -1,5 +1,5 @@
 use pickaxe_nbt::NbtValue;
-use pickaxe_types::{BlockPos, GameMode, GameProfile, TextComponent, Vec3d};
+use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, Vec3d};
 use uuid::Uuid;
 
 /// Version-independent internal packet representation.
@@ -238,6 +238,27 @@ pub enum InternalPacket {
         on_ground: bool,
     },
 
+    /// Set Container Content (0x13 CB) — sends entire inventory.
+    SetContainerContent {
+        window_id: u8,
+        state_id: i32,
+        slots: Vec<Option<ItemStack>>,
+        carried_item: Option<ItemStack>,
+    },
+
+    /// Set Container Slot (0x15 CB) — update a single slot.
+    SetContainerSlot {
+        window_id: i8,
+        state_id: i32,
+        slot: i16,
+        item: Option<ItemStack>,
+    },
+
+    /// Set Held Item (0x53 CB) — tell client which hotbar slot.
+    SetHeldItem {
+        slot: i8,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {
@@ -253,6 +274,17 @@ pub enum InternalPacket {
     /// Chat Command (0x04 serverbound, protocol 767)
     ChatCommand {
         command: String,
+    },
+
+    /// Set Held Item (0x2F SB) — player changed hotbar selection.
+    HeldItemChange {
+        slot: i16,
+    },
+
+    /// Creative Inventory Action (0x32 SB) — creative mode item set.
+    CreativeInventoryAction {
+        slot: i16,
+        item: Option<ItemStack>,
     },
 
     ConfirmTeleportation {
