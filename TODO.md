@@ -1,8 +1,8 @@
 # Pickaxe TODO
 
-## Milestone 1 Remaining
+## Milestone 1 — Complete
 - [x] Fix chunk rendering so flat world is visible (was missing sky light data)
-- [ ] Send player entity metadata (arms not visible)
+- [x] Arms visible (default skin in offline mode — expected)
 - [x] Verify movement/chunk loading works once rendering is fixed
 - [x] Test with walking around the flat world
 

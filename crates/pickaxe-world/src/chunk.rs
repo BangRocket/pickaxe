@@ -19,6 +19,9 @@ pub struct ChunkSection {
     pub block_data: Option<Vec<i64>>,
     /// Bits per entry for the block data.
     pub bits_per_entry: u8,
+    /// Flat block state array for mutation. Populated on first set_block call.
+    /// Layout: [y * 256 + z * 16 + x] = state_id
+    blocks: Option<Box<[i32; 4096]>>,
 }
 
 impl ChunkSection {
@@ -29,6 +32,7 @@ impl ChunkSection {
             palette: vec![0], // air
             block_data: None,
             bits_per_entry: 0,
+            blocks: None,
         }
     }
 
@@ -39,6 +43,7 @@ impl ChunkSection {
             palette: vec![state_id],
             block_data: None,
             bits_per_entry: 0,
+            blocks: None,
         }
     }
 
@@ -82,7 +87,114 @@ impl ChunkSection {
             palette,
             block_data: Some(data),
             bits_per_entry,
+            blocks: None,
         }
+    }
+
+    /// Get a single block's state ID.
+    pub fn get_block(&self, x: usize, y: usize, z: usize) -> i32 {
+        let index = y * 256 + z * 16 + x;
+        // If we have a flat blocks array, use it directly
+        if let Some(ref blocks) = self.blocks {
+            return blocks[index];
+        }
+        // Otherwise decode from palette
+        if self.palette.len() == 1 {
+            return self.palette[0];
+        }
+        if let Some(ref data) = self.block_data {
+            let entries_per_long = 64 / self.bits_per_entry as usize;
+            let long_index = index / entries_per_long;
+            let bit_index = (index % entries_per_long) * self.bits_per_entry as usize;
+            let mask = (1u64 << self.bits_per_entry) - 1;
+            let palette_idx = ((data[long_index] as u64 >> bit_index) & mask) as usize;
+            self.palette.get(palette_idx).copied().unwrap_or(0)
+        } else {
+            0
+        }
+    }
+
+    /// Set a single block in this section. Returns the old state ID.
+    /// Ensures the flat blocks array is populated, then re-encodes the palette.
+    pub fn set_block(&mut self, x: usize, y: usize, z: usize, state_id: i32) -> i32 {
+        self.ensure_blocks_array();
+        let index = y * 256 + z * 16 + x;
+        let blocks = self.blocks.as_mut().unwrap();
+        let old = blocks[index];
+        blocks[index] = state_id;
+        self.rebuild_palette();
+        old
+    }
+
+    /// Populate the flat blocks array from the palette encoding.
+    fn ensure_blocks_array(&mut self) {
+        if self.blocks.is_some() {
+            return;
+        }
+        let mut blocks = Box::new([0i32; 4096]);
+        if self.palette.len() == 1 {
+            let val = self.palette[0];
+            if val != 0 {
+                blocks.fill(val);
+            }
+        } else if let Some(ref data) = self.block_data {
+            let entries_per_long = 64 / self.bits_per_entry as usize;
+            let mask = (1u64 << self.bits_per_entry) - 1;
+            for i in 0..4096 {
+                let long_index = i / entries_per_long;
+                let bit_index = (i % entries_per_long) * self.bits_per_entry as usize;
+                let palette_idx = ((data[long_index] as u64 >> bit_index) & mask) as usize;
+                blocks[i] = self.palette.get(palette_idx).copied().unwrap_or(0);
+            }
+        }
+        self.blocks = Some(blocks);
+    }
+
+    /// Rebuild palette and packed data from the flat blocks array.
+    fn rebuild_palette(&mut self) {
+        let blocks = self.blocks.as_ref().unwrap();
+
+        let mut palette = Vec::new();
+        let mut palette_map = std::collections::HashMap::new();
+        let mut indices = [0u16; 4096];
+        let mut block_count: i16 = 0;
+
+        for (i, &state_id) in blocks.iter().enumerate() {
+            if state_id != 0 {
+                block_count += 1;
+            }
+            let idx = *palette_map.entry(state_id).or_insert_with(|| {
+                let idx = palette.len();
+                palette.push(state_id);
+                idx
+            });
+            indices[i] = idx as u16;
+        }
+
+        self.block_count = block_count;
+
+        if palette.len() == 1 {
+            self.palette = palette;
+            self.block_data = None;
+            self.bits_per_entry = 0;
+            return;
+        }
+
+        let bits_per_entry = std::cmp::max(4, (palette.len() as f64).log2().ceil() as u8);
+        let entries_per_long = 64 / bits_per_entry as usize;
+        let longs_needed = (4096 + entries_per_long - 1) / entries_per_long;
+        let mask = (1u64 << bits_per_entry) - 1;
+
+        let mut data = vec![0i64; longs_needed];
+        for (i, &idx) in indices.iter().enumerate() {
+            let long_index = i / entries_per_long;
+            let bit_index = (i % entries_per_long) * bits_per_entry as usize;
+            data[long_index] |= ((idx as u64 & mask) << bit_index) as i64;
+        }
+
+        self.palette = palette;
+        self.block_data = Some(data);
+        self.bits_per_entry = bits_per_entry;
     }
 
     /// Serialize this section for the chunk data packet.
@@ -138,6 +250,28 @@ impl Chunk {
         buf.to_vec()
     }
 
+    /// Get block state at chunk-local coordinates.
+    /// local_x/local_z: 0..15, world_y: absolute world Y coordinate.
+    pub fn get_block(&self, local_x: usize, world_y: i32, local_z: usize) -> i32 {
+        let section_idx = ((world_y - MIN_Y) / 16) as usize;
+        if section_idx >= SECTION_COUNT {
+            return 0;
+        }
+        let local_y = ((world_y - MIN_Y) % 16) as usize;
+        self.sections[section_idx].get_block(local_x, local_y, local_z)
+    }
+
+    /// Set block state at chunk-local coordinates. Returns the old state ID.
+    /// local_x/local_z: 0..15, world_y: absolute world Y coordinate.
+    pub fn set_block(&mut self, local_x: usize, world_y: i32, local_z: usize, state_id: i32) -> i32 {
+        let section_idx = ((world_y - MIN_Y) / 16) as usize;
+        if section_idx >= SECTION_COUNT {
+            return 0;
+        }
+        let local_y = ((world_y - MIN_Y) % 16) as usize;
+        self.sections[section_idx].set_block(local_x, local_y, local_z, state_id)
+    }
+
     /// Build a heightmap for MOTION_BLOCKING.
     /// Returns packed long array (256 entries, 9 bits each for 384 height range).
     pub fn compute_heightmap(&self) -> Vec<i64> {
@@ -149,12 +283,9 @@ impl Chunk {
                 let col_idx = z * 16 + x;
                 'scan: for section_idx in (0..SECTION_COUNT).rev() {
                     for local_y in (0..16).rev() {
-                        let section = &self.sections[section_idx];
-                        let block_state = self.get_block_state(section, x, local_y, z);
+                        let block_state = self.sections[section_idx].get_block(x, local_y, z);
                         if block_state != 0 {
-                            // World Y = MIN_Y + section_idx * 16 + local_y
                             let world_y = MIN_Y + (section_idx as i32) * 16 + local_y as i32;
-                            // Heightmap value = world_y - MIN_Y + 1 (1-indexed from bottom)
                             heights[col_idx] = (world_y - MIN_Y + 1) as u16;
                             break 'scan;
                         }
@@ -177,23 +308,6 @@ impl Chunk {
         }
 
         packed
-    }
-
-    fn get_block_state(&self, section: &ChunkSection, x: usize, y: usize, z: usize) -> i32 {
-        if section.palette.len() == 1 {
-            return section.palette[0];
-        }
-        if let Some(ref data) = section.block_data {
-            let index = y * 256 + z * 16 + x;
-            let entries_per_long = 64 / section.bits_per_entry as usize;
-            let long_index = index / entries_per_long;
-            let bit_index = (index % entries_per_long) * section.bits_per_entry as usize;
-            let mask = (1u64 << section.bits_per_entry) - 1;
-            let palette_idx = ((data[long_index] as u64 >> bit_index) & mask) as usize;
-            section.palette.get(palette_idx).copied().unwrap_or(0)
-        } else {
-            0
-        }
     }
 
     /// Build the full chunk data + light packet.
@@ -275,5 +389,53 @@ mod tests {
         chunk.sections[0] = ChunkSection::single_value(1); // bedrock
         let heightmap = chunk.compute_heightmap();
         assert_eq!(heightmap.len(), 37); // ceil(256/7) = 37
+    }
+
+    #[test]
+    fn test_section_get_block() {
+        let section = ChunkSection::single_value(1); // all stone
+        assert_eq!(section.get_block(0, 0, 0), 1);
+        assert_eq!(section.get_block(15, 15, 15), 1);
+    }
+
+    #[test]
+    fn test_section_set_block() {
+        let mut section = ChunkSection::single_value(1); // all stone
+        let old = section.set_block(5, 5, 5, 0); // set to air
+        assert_eq!(old, 1);
+        assert_eq!(section.get_block(5, 5, 5), 0);
+        assert_eq!(section.get_block(0, 0, 0), 1); // other blocks unchanged
+        assert_eq!(section.block_count, 4095);
+    }
+
+    #[test]
+    fn test_chunk_get_set_block() {
+        use crate::generator::*;
+        let mut chunk = generate_flat_chunk();
+        // Bedrock at y=-64
+        assert_eq!(chunk.get_block(0, -64, 0), BEDROCK);
+        // Grass at y=-61
+        assert_eq!(chunk.get_block(0, -61, 0), GRASS_BLOCK);
+        // Air at y=-60
+        assert_eq!(chunk.get_block(0, -60, 0), AIR);
+
+        // Break the grass block
+        let old = chunk.set_block(0, -61, 0, AIR);
+        assert_eq!(old, GRASS_BLOCK);
+        assert_eq!(chunk.get_block(0, -61, 0), AIR);
+
+        // Place stone at y=-60
+        chunk.set_block(0, -60, 0, STONE);
+        assert_eq!(chunk.get_block(0, -60, 0), STONE);
+    }
+
+    #[test]
+    fn test_section_roundtrip_after_mutation() {
+        use crate::generator::*;
+        let mut chunk = generate_flat_chunk();
+        // Break a block and verify serialization still works
+        chunk.set_block(8, -61, 8, AIR);
+        let data = chunk.serialize_sections();
+        assert!(!data.is_empty());
     }
 }

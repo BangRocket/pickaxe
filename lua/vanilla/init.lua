@@ -21,4 +21,16 @@ pickaxe.events.on("player_move", function(event)
     end
 end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
 
-pickaxe.log("Pickaxe Vanilla mod loaded - " .. "3 event handlers registered")
+-- Block break event
+pickaxe.events.on("block_break", function(event)
+    pickaxe.log("Block broken at " .. event.x .. "," .. event.y .. "," .. event.z ..
+                " by " .. event.name .. " (was block " .. event.block_id .. ")")
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+-- Block place event
+pickaxe.events.on("block_place", function(event)
+    pickaxe.log("Block placed at " .. event.x .. "," .. event.y .. "," .. event.z ..
+                " by " .. event.name .. " (block " .. event.block_id .. ")")
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+pickaxe.log("Pickaxe Vanilla mod loaded - " .. "5 event handlers registered")

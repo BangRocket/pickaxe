@@ -376,6 +376,45 @@ async fn handle_play_inner(
                             last_keep_alive = std::time::Instant::now();
                         }
                     }
+                    InternalPacket::BlockDig { status, position, sequence, .. } => {
+                        // status 0 = started digging (instant break in creative mode)
+                        if status == 0 {
+                            let old_block = server_state.set_block(&position, 0); // air
+                            // BlockUpdate MUST come before AcknowledgeBlockChange —
+                            // the ack tells the client "apply server-sent state", so
+                            // the server state must arrive first.
+                            send_packet(conn, adapter, ConnectionState::Play,
+                                &InternalPacket::BlockUpdate { position, block_id: 0 }).await?;
+                            send_packet(conn, adapter, ConnectionState::Play,
+                                &InternalPacket::AcknowledgeBlockChange { sequence }).await?;
+                            debug!("{} broke block at {:?} (was {})", profile.name, position, old_block);
+                            let _ = event_tx.send(ScriptEvent::BlockBreak {
+                                name: profile.name.clone(),
+                                x: position.x,
+                                y: position.y,
+                                z: position.z,
+                                block_id: old_block,
+                            });
+                        }
+                    }
+                    InternalPacket::BlockPlace { position, face, sequence, .. } => {
+                        let target = offset_by_face(&position, face);
+                        // Place stone for now (no inventory tracking)
+                        let block_id = 1; // stone
+                        server_state.set_block(&target, block_id);
+                        send_packet(conn, adapter, ConnectionState::Play,
+                            &InternalPacket::BlockUpdate { position: target, block_id }).await?;
+                        send_packet(conn, adapter, ConnectionState::Play,
+                            &InternalPacket::AcknowledgeBlockChange { sequence }).await?;
+                        debug!("{} placed block at {:?}", profile.name, target);
+                        let _ = event_tx.send(ScriptEvent::BlockPlace {
+                            name: profile.name.clone(),
+                            x: target.x,
+                            y: target.y,
+                            z: target.z,
+                            block_id,
+                        });
+                    }
                     InternalPacket::Unknown { packet_id, .. } => {
                         // Silently ignore unknown packets
                         let _ = packet_id;
@@ -523,6 +562,20 @@ async fn send_packet_raw(
     payload: &[u8],
 ) -> Result<()> {
     conn.write_packet(packet_id, payload).await
+}
+
+/// Offset a block position by the given face direction.
+/// Face: 0=bottom(y-1), 1=top(y+1), 2=north(z-1), 3=south(z+1), 4=west(x-1), 5=east(x+1)
+fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
+    match face {
+        0 => BlockPos::new(pos.x, pos.y - 1, pos.z),
+        1 => BlockPos::new(pos.x, pos.y + 1, pos.z),
+        2 => BlockPos::new(pos.x, pos.y, pos.z - 1),
+        3 => BlockPos::new(pos.x, pos.y, pos.z + 1),
+        4 => BlockPos::new(pos.x - 1, pos.y, pos.z),
+        5 => BlockPos::new(pos.x + 1, pos.y, pos.z),
+        _ => *pos,
+    }
 }
 
 /// Generate an offline-mode UUID from a player name (MD5 hash, version 3 style).

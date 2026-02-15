@@ -1,5 +1,5 @@
 use pickaxe_nbt::NbtValue;
-use pickaxe_types::{GameMode, GameProfile, TextComponent, Vec3d};
+use pickaxe_types::{BlockPos, GameMode, GameProfile, TextComponent, Vec3d};
 use uuid::Uuid;
 
 /// Version-independent internal packet representation.
@@ -136,6 +136,14 @@ pub enum InternalPacket {
         angle: f32,
     },
 
+    BlockUpdate {
+        position: BlockPos,
+        block_id: i32,
+    },
+    AcknowledgeBlockChange {
+        sequence: i32,
+    },
+
     // === Play (serverbound) ===
     ConfirmTeleportation {
         teleport_id: i32,
@@ -164,6 +172,22 @@ pub enum InternalPacket {
     },
     KeepAliveServerbound {
         id: i64,
+    },
+    BlockDig {
+        status: i32,
+        position: BlockPos,
+        face: u8,
+        sequence: i32,
+    },
+    BlockPlace {
+        hand: i32,
+        position: BlockPos,
+        face: u8,
+        cursor_x: f32,
+        cursor_y: f32,
+        cursor_z: f32,
+        inside_block: bool,
+        sequence: i32,
     },
 
     // === Shared ===

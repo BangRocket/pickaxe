@@ -1,6 +1,6 @@
 use pickaxe_protocol_core::InternalPacket;
-use pickaxe_types::GameProfile;
-use pickaxe_world::generate_flat_chunk;
+use pickaxe_types::{BlockPos, ChunkPos, GameProfile};
+use pickaxe_world::{generate_flat_chunk, Chunk};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::RwLock;
@@ -9,7 +9,8 @@ use std::sync::RwLock;
 pub struct ServerState {
     next_eid: AtomicI32,
     players: RwLock<HashMap<i32, PlayerEntry>>,
-    flat_chunk_template: InternalPacket,
+    /// Persistent world: chunk data keyed by chunk position.
+    chunks: RwLock<HashMap<ChunkPos, Chunk>>,
 }
 
 struct PlayerEntry {
@@ -18,13 +19,10 @@ struct PlayerEntry {
 
 impl ServerState {
     pub fn new() -> Self {
-        let chunk = generate_flat_chunk();
-        let flat_chunk_template = chunk.to_packet(0, 0);
-
         Self {
             next_eid: AtomicI32::new(1),
             players: RwLock::new(HashMap::new()),
-            flat_chunk_template,
+            chunks: RwLock::new(HashMap::new()),
         }
     }
 
@@ -48,23 +46,38 @@ impl ServerState {
         self.players.read().unwrap().len()
     }
 
+    /// Get a chunk packet, generating the flat chunk on first access.
     pub fn get_chunk_packet(&self, chunk_x: i32, chunk_z: i32) -> InternalPacket {
-        match &self.flat_chunk_template {
-            InternalPacket::ChunkDataAndUpdateLight {
-                heightmaps,
-                data,
-                block_entities,
-                light_data,
-                ..
-            } => InternalPacket::ChunkDataAndUpdateLight {
-                chunk_x,
-                chunk_z,
-                heightmaps: heightmaps.clone(),
-                data: data.clone(),
-                block_entities: block_entities.clone(),
-                light_data: light_data.clone(),
-            },
-            _ => unreachable!(),
+        let pos = ChunkPos::new(chunk_x, chunk_z);
+        let mut chunks = self.chunks.write().unwrap();
+        let chunk = chunks.entry(pos).or_insert_with(generate_flat_chunk);
+        chunk.to_packet(chunk_x, chunk_z)
+    }
+
+    /// Set a block in the world. Returns the old block state ID.
+    pub fn set_block(&self, pos: &BlockPos, state_id: i32) -> i32 {
+        let chunk_pos = pos.chunk_pos();
+        let local_x = (pos.x.rem_euclid(16)) as usize;
+        let local_z = (pos.z.rem_euclid(16)) as usize;
+        let mut chunks = self.chunks.write().unwrap();
+        let chunk = chunks.entry(chunk_pos).or_insert_with(generate_flat_chunk);
+        chunk.set_block(local_x, pos.y, local_z, state_id)
+    }
+
+    /// Get a block from the world.
+    pub fn get_block(&self, pos: &BlockPos) -> i32 {
+        let chunk_pos = pos.chunk_pos();
+        let local_x = (pos.x.rem_euclid(16)) as usize;
+        let local_z = (pos.z.rem_euclid(16)) as usize;
+        let chunks = self.chunks.read().unwrap();
+        if let Some(chunk) = chunks.get(&chunk_pos) {
+            chunk.get_block(local_x, pos.y, local_z)
+        } else {
+            // Chunk not loaded yet — generate to check
+            drop(chunks);
+            let mut chunks = self.chunks.write().unwrap();
+            let chunk = chunks.entry(chunk_pos).or_insert_with(generate_flat_chunk);
+            chunk.get_block(local_x, pos.y, local_z)
         }
     }
 }

@@ -17,6 +17,8 @@ use tracing::{error, info};
 pub enum ScriptEvent {
     PlayerJoin { name: String },
     PlayerMove { name: String, x: String, y: String, z: String },
+    BlockBreak { name: String, x: i32, y: i32, z: i32, block_id: i32 },
+    BlockPlace { name: String, x: i32, y: i32, z: i32, block_id: i32 },
 }
 
 #[tokio::main]
@@ -83,6 +85,24 @@ async fn main() -> anyhow::Result<()> {
                             ("x", &x),
                             ("y", &y),
                             ("z", &z),
+                        ]);
+                    }
+                    ScriptEvent::BlockBreak { name, x, y, z, block_id } => {
+                        scripting.fire_event("block_break", &[
+                            ("name", &name),
+                            ("x", &x.to_string()),
+                            ("y", &y.to_string()),
+                            ("z", &z.to_string()),
+                            ("block_id", &block_id.to_string()),
+                        ]);
+                    }
+                    ScriptEvent::BlockPlace { name, x, y, z, block_id } => {
+                        scripting.fire_event("block_place", &[
+                            ("name", &name),
+                            ("x", &x.to_string()),
+                            ("y", &y.to_string()),
+                            ("z", &z.to_string()),
+                            ("block_id", &block_id.to_string()),
                         ]);
                     }
                 }

@@ -2,6 +2,7 @@ use anyhow::{bail, Result};
 use bytes::{Buf, BufMut, BytesMut};
 use pickaxe_nbt::NbtValue;
 use pickaxe_protocol_core::*;
+use pickaxe_types::BlockPos;
 
 use crate::registries;
 
@@ -70,6 +71,8 @@ const CONFIG_REGISTRY_DATA: i32 = 0x07;
 const CONFIG_KNOWN_PACKS: i32 = 0x0E;
 
 // Play clientbound
+const PLAY_ACK_BLOCK_CHANGE: i32 = 0x05;
+const PLAY_BLOCK_UPDATE: i32 = 0x09;
 const PLAY_DISCONNECT: i32 = 0x1D;
 const PLAY_UNLOAD_CHUNK: i32 = 0x21;
 const PLAY_GAME_EVENT: i32 = 0x22;
@@ -248,6 +251,26 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         0x1D => {
             let on_ground = data.get_u8() != 0;
             Ok(InternalPacket::PlayerOnGround { on_ground })
+        }
+        0x24 => {
+            // block_dig (Player Action)
+            let status = read_varint(data)?;
+            let position = BlockPos::decode(data.get_u64());
+            let face = data.get_u8();
+            let sequence = read_varint(data)?;
+            Ok(InternalPacket::BlockDig { status, position, face, sequence })
+        }
+        0x38 => {
+            // block_place (Use Item On)
+            let hand = read_varint(data)?;
+            let position = BlockPos::decode(data.get_u64());
+            let face = data.get_u8();
+            let cursor_x = data.get_f32();
+            let cursor_y = data.get_f32();
+            let cursor_z = data.get_f32();
+            let inside_block = data.get_u8() != 0;
+            let sequence = read_varint(data)?;
+            Ok(InternalPacket::BlockPlace { hand, position, face, cursor_x, cursor_y, cursor_z, inside_block, sequence })
         }
         _ => Ok(InternalPacket::Unknown {
             packet_id: id,
@@ -478,6 +501,15 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             write_varint(&mut buf, PLAY_SET_DEFAULT_SPAWN);
             buf.put_u64(position.encode());
             buf.put_f32(*angle);
+        }
+        InternalPacket::BlockUpdate { position, block_id } => {
+            write_varint(&mut buf, PLAY_BLOCK_UPDATE);
+            buf.put_u64(position.encode());
+            write_varint(&mut buf, *block_id);
+        }
+        InternalPacket::AcknowledgeBlockChange { sequence } => {
+            write_varint(&mut buf, PLAY_ACK_BLOCK_CHANGE);
+            write_varint(&mut buf, *sequence);
         }
         InternalPacket::Disconnect { reason } => {
             write_varint(&mut buf, PLAY_DISCONNECT);
