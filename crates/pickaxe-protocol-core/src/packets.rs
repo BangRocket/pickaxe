@@ -163,6 +163,13 @@ pub enum InternalPacket {
     AcknowledgeBlockChange {
         sequence: i32,
     },
+    /// Set Block Destroy Stage (0x06 clientbound, protocol 767)
+    SetBlockDestroyStage {
+        entity_id: i32,
+        position: BlockPos,
+        /// 0-9 for destroy stages, -1 to remove animation
+        destroy_stage: i8,
+    },
     /// Chunk Batch Start (0x0D clientbound, protocol 767) — empty packet.
     ChunkBatchStart,
     /// Chunk Batch Finished (0x0C clientbound, protocol 767).

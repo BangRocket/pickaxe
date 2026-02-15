@@ -72,6 +72,7 @@ const CONFIG_KNOWN_PACKS: i32 = 0x0E;
 
 // Play clientbound
 const PLAY_ACK_BLOCK_CHANGE: i32 = 0x05;
+const PLAY_BLOCK_DESTROY_STAGE: i32 = 0x06;
 const PLAY_BLOCK_UPDATE: i32 = 0x09;
 const PLAY_DISCONNECT: i32 = 0x1D;
 const PLAY_UNLOAD_CHUNK: i32 = 0x21;
@@ -775,6 +776,12 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             write_varint(&mut buf, PLAY_UPDATE_TIME);
             buf.put_i64(*world_age);
             buf.put_i64(*time_of_day);
+        }
+        InternalPacket::SetBlockDestroyStage { entity_id, position, destroy_stage } => {
+            write_varint(&mut buf, PLAY_BLOCK_DESTROY_STAGE);
+            write_varint(&mut buf, *entity_id);
+            buf.put_u64(position.encode());
+            buf.put_i8(*destroy_stage);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

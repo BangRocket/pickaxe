@@ -1,5 +1,5 @@
 use pickaxe_protocol_core::InternalPacket;
-use pickaxe_types::{GameMode, GameProfile, ItemStack, Vec3d};
+use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, Vec3d};
 use std::collections::HashSet;
 use tokio::sync::mpsc;
 
@@ -113,3 +113,12 @@ impl Inventory {
 
 /// Currently selected hotbar slot (0-8).
 pub struct HeldSlot(pub u8);
+
+/// Tracks a block a player is currently breaking in survival mode.
+pub struct BreakingBlock {
+    pub position: BlockPos,
+    pub block_state: i32,
+    pub started_tick: u64,
+    pub total_ticks: u64,
+    pub last_stage: i8,
+}
