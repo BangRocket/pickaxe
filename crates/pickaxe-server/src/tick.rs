@@ -300,6 +300,14 @@ fn handle_new_player(
         },
     );
 
+    // Send initial inventory (empty)
+    let _ = sender.send(InternalPacket::SetContainerContent {
+        window_id: 0,
+        state_id: 1,
+        slots: vec![None; 46],
+        carried_item: None,
+    });
+
     // Spawn ECS entity
     world.spawn((
         EntityId(entity_id),
@@ -324,6 +332,8 @@ fn handle_new_player(
             yaw: 0.0,
             pitch: 0.0,
         },
+        Inventory::new(),
+        HeldSlot(0),
     ));
 
     inbound_receivers.insert(entity_id, new_player.packet_rx);
@@ -536,8 +546,32 @@ fn process_packet(
             sequence,
             ..
         } => {
+            // Look up the held item to determine what block to place
+            let block_id = {
+                let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let inv = world.get::<&Inventory>(entity);
+                match inv {
+                    Ok(inv) => {
+                        match inv.held_item(held_slot) {
+                            Some(item) => {
+                                pickaxe_data::item_id_to_block_state(item.item_id).unwrap_or(0)
+                            }
+                            None => 0,
+                        }
+                    }
+                    Err(_) => 0,
+                }
+            };
+
+            if block_id == 0 {
+                // Nothing to place (empty hand or non-block item)
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                }
+                return;
+            }
+
             let target = offset_by_face(&position, face);
-            let block_id = 1; // stone — no inventory tracking yet
             world_state.set_block(&target, block_id);
             // Send to placing player
             if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -613,6 +647,22 @@ fn process_packet(
                 "player_command",
                 &[("name", &name), ("command", &command)],
             );
+        }
+
+        InternalPacket::HeldItemChange { slot } => {
+            if (0..=8).contains(&slot) {
+                if let Ok(mut held) = world.get::<&mut HeldSlot>(entity) {
+                    held.0 = slot as u8;
+                }
+            }
+        }
+
+        InternalPacket::CreativeInventoryAction { slot, item } => {
+            if slot >= 0 {
+                if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                    inv.set_slot(slot as usize, item);
+                }
+            }
         }
 
         InternalPacket::Unknown { .. } => {}
