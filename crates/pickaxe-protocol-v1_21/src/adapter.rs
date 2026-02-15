@@ -96,6 +96,7 @@ const PLAY_DECLARE_COMMANDS: i32 = 0x11;
 const PLAY_SET_CONTAINER_CONTENT: i32 = 0x13;
 const PLAY_SET_CONTAINER_SLOT: i32 = 0x15;
 const PLAY_SET_HELD_ITEM: i32 = 0x53;
+const PLAY_UPDATE_TIME: i32 = 0x64;
 
 // === Decode functions ===
 
@@ -769,6 +770,11 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
 
             // Root index
             write_varint(&mut buf, 0);
+        }
+        InternalPacket::UpdateTime { world_age, time_of_day } => {
+            write_varint(&mut buf, PLAY_UPDATE_TIME);
+            buf.put_i64(*world_age);
+            buf.put_i64(*time_of_day);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

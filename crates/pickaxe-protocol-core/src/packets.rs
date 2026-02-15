@@ -170,6 +170,12 @@ pub enum InternalPacket {
         batch_size: i32,
     },
 
+    /// Update Time (0x64 clientbound, protocol 767)
+    UpdateTime {
+        world_age: i64,
+        time_of_day: i64,
+    },
+
     /// Spawn Entity (0x01 clientbound, protocol 767)
     SpawnEntity {
         entity_id: i32,
