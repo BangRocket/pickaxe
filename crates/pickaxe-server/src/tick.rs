@@ -167,6 +167,7 @@ pub async fn run_tick_loop(
 
         // 5. Tick systems
         tick_keep_alive(&adapter, &mut world, tick_count);
+        tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_item_physics(&mut world, &mut world_state, &scripting);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
@@ -342,8 +343,15 @@ fn handle_new_player(
         carried_item: None,
     });
 
-    // Spawn ECS entity
-    world.spawn((
+    // Send initial health/food bar
+    let _ = sender.send(InternalPacket::SetHealth {
+        health: 20.0,
+        food: 20,
+        saturation: 5.0,
+    });
+
+    // Spawn ECS entity (hecs supports up to 16-tuple, so we split)
+    let player_entity = world.spawn((
         EntityId(entity_id),
         Profile(profile.clone()),
         Position(spawn_pos),
@@ -368,6 +376,13 @@ fn handle_new_player(
         },
         Inventory::new(),
         HeldSlot(0),
+    ));
+    // Additional components (exceeds 16-tuple limit)
+    let _ = world.insert(player_entity, (
+        Health::default(),
+        FoodData::default(),
+        FallDistance(0.0),
+        MovementState { sprinting: false, sneaking: false },
     ));
 
     inbound_receivers.insert(entity_id, new_player.packet_rx);
@@ -481,14 +496,7 @@ fn process_packet(
             z,
             on_ground,
         } => {
-            if let Ok(mut pos) = world.get::<&mut Position>(entity) {
-                pos.0 = Vec3d::new(x, y, z);
-            }
-            if let Ok(mut og) = world.get::<&mut OnGround>(entity) {
-                og.0 = on_ground;
-            }
-            handle_chunk_updates(world, world_state, entity);
-            fire_move_event(world, world_state, entity, x, y, z, scripting);
+            handle_player_movement(world, world_state, entity, entity_id, x, y, z, None, on_ground, scripting);
         }
 
         InternalPacket::PlayerPositionAndRotation {
@@ -499,18 +507,11 @@ fn process_packet(
             pitch,
             on_ground,
         } => {
-            if let Ok(mut pos) = world.get::<&mut Position>(entity) {
-                pos.0 = Vec3d::new(x, y, z);
-            }
             if let Ok(mut rot) = world.get::<&mut Rotation>(entity) {
                 rot.yaw = yaw;
                 rot.pitch = pitch;
             }
-            if let Ok(mut og) = world.get::<&mut OnGround>(entity) {
-                og.0 = on_ground;
-            }
-            handle_chunk_updates(world, world_state, entity);
-            fire_move_event(world, world_state, entity, x, y, z, scripting);
+            handle_player_movement(world, world_state, entity, entity_id, x, y, z, None, on_ground, scripting);
         }
 
         InternalPacket::PlayerRotation {
@@ -804,7 +805,7 @@ fn process_packet(
                 "gamemode" | "gm" => cmd_gamemode(world, entity, args),
                 "tp" | "teleport" => cmd_tp(world, entity, args),
                 "give" => cmd_give(world, entity, args),
-                "kill" => cmd_kill(world, entity),
+                "kill" => cmd_kill(world, world_state, entity, entity_id, scripting),
                 "say" => cmd_say(world, args, &name),
                 "help" => cmd_help(world, entity, lua_commands),
                 "time" => cmd_time(world, entity, args, world_state),
@@ -868,8 +869,340 @@ fn process_packet(
             }
         }
 
+        InternalPacket::PlayerCommand { action, .. } => {
+            match action {
+                0 => {
+                    if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
+                        ms.sneaking = true;
+                    }
+                }
+                1 => {
+                    if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
+                        ms.sneaking = false;
+                    }
+                }
+                3 => {
+                    if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
+                        ms.sprinting = true;
+                    }
+                }
+                4 => {
+                    if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
+                        ms.sprinting = false;
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        InternalPacket::ClientCommand { action } => {
+            if action == 0 {
+                respawn_player(world, world_state, entity, entity_id, scripting);
+            }
+        }
+
         InternalPacket::Unknown { .. } => {}
         _ => {}
+    }
+}
+
+/// Handle player position update: fall distance, sprint exhaustion, jump exhaustion.
+fn handle_player_movement(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+    x: f64,
+    y: f64,
+    z: f64,
+    _rotation: Option<(f32, f32)>,
+    on_ground: bool,
+    scripting: &ScriptRuntime,
+) {
+    let old_pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(x, y, z));
+    let old_on_ground = world.get::<&OnGround>(entity).map(|og| og.0).unwrap_or(true);
+    let dy = y - old_pos.y;
+
+    // Update position and on_ground
+    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+        pos.0 = Vec3d::new(x, y, z);
+    }
+    if let Ok(mut og) = world.get::<&mut OnGround>(entity) {
+        og.0 = on_ground;
+    }
+
+    // Fall distance tracking and fall damage
+    let fall_damage = {
+        if let Ok(mut fd) = world.get::<&mut FallDistance>(entity) {
+            if on_ground {
+                let damage = if fd.0 > 3.0 {
+                    Some((fd.0 - 3.0).ceil())
+                } else {
+                    None
+                };
+                fd.0 = 0.0;
+                damage
+            } else {
+                if dy < 0.0 {
+                    fd.0 -= dy as f32; // dy is negative when falling, so subtract to accumulate
+                }
+                None
+            }
+        } else {
+            None
+        }
+    };
+    if let Some(damage) = fall_damage {
+        apply_damage(world, world_state, entity, entity_id, damage, "fall", scripting);
+    }
+
+    // Sprint exhaustion
+    let dx = x - old_pos.x;
+    let dz = z - old_pos.z;
+    let horiz_dist = ((dx * dx + dz * dz) as f32).sqrt();
+    if horiz_dist > 0.01 {
+        let sprinting = world.get::<&MovementState>(entity).map(|m| m.sprinting).unwrap_or(false);
+        if sprinting {
+            if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+                food.exhaustion += horiz_dist * 0.1;
+            }
+        }
+    }
+
+    // Jump exhaustion: transition from on_ground to !on_ground while moving upward
+    if !on_ground && old_on_ground && dy > 0.0 {
+        let sprinting = world.get::<&MovementState>(entity).map(|m| m.sprinting).unwrap_or(false);
+        if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+            food.exhaustion += if sprinting { 0.2 } else { 0.05 };
+        }
+    }
+
+    handle_chunk_updates(world, world_state, entity);
+    fire_move_event(world, world_state, entity, x, y, z, scripting);
+}
+
+/// Apply damage to a player entity with invulnerability check and Lua event.
+fn apply_damage(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+    damage: f32,
+    source: &str,
+    scripting: &ScriptRuntime,
+) {
+    // Check game mode — creative/spectator players don't take damage (except void)
+    let game_mode = world.get::<&PlayerGameMode>(entity).map(|gm| gm.0).unwrap_or(GameMode::Survival);
+    if game_mode == GameMode::Creative && source != "void" {
+        return;
+    }
+
+    // Check invulnerability
+    let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 0).unwrap_or(false);
+    if invuln {
+        return;
+    }
+
+    // Fire cancellable Lua event
+    let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+    let cancelled = scripting.fire_event_in_context(
+        "player_damage",
+        &[
+            ("name", &name),
+            ("amount", &format!("{:.1}", damage)),
+            ("source", source),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+    if cancelled {
+        return;
+    }
+
+    // Apply damage
+    let (new_health, is_dead) = {
+        let mut health = match world.get::<&mut Health>(entity) {
+            Ok(h) => h,
+            Err(_) => return,
+        };
+        health.current = (health.current - damage).max(0.0);
+        health.invulnerable_ticks = 20;
+        (health.current, health.current <= 0.0)
+    };
+
+    // Send health update to damaged player
+    let (food, sat) = world
+        .get::<&FoodData>(entity)
+        .map(|f| (f.food_level, f.saturation))
+        .unwrap_or((20, 5.0));
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetHealth {
+            health: new_health,
+            food,
+            saturation: sat,
+        });
+    }
+
+    // Broadcast hurt animation to all players
+    broadcast_to_all(world, &InternalPacket::HurtAnimation {
+        entity_id,
+        yaw: 0.0,
+    });
+
+    if is_dead {
+        handle_player_death(world, world_state, entity, entity_id, source, scripting);
+    }
+}
+
+/// Handle player death: send death screen, broadcast death message.
+fn handle_player_death(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+    source: &str,
+    scripting: &ScriptRuntime,
+) {
+    let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+
+    // Fire Lua event
+    scripting.fire_event_in_context(
+        "player_death",
+        &[("name", &name), ("source", source)],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+
+    // Death message
+    let death_msg = match source {
+        "fall" => format!("{} hit the ground too hard", name),
+        "void" => format!("{} fell out of the world", name),
+        "starve" => format!("{} starved to death", name),
+        "kill" => format!("{} was killed", name),
+        _ => format!("{} died", name),
+    };
+
+    // Send combat kill to the dead player (shows death screen)
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::PlayerCombatKill {
+            player_id: entity_id,
+            message: TextComponent::plain(&death_msg),
+        });
+    }
+
+    // Broadcast entity event 3 (death animation) to all observers
+    broadcast_to_all(world, &InternalPacket::EntityEvent {
+        entity_id,
+        event_id: 3,
+    });
+
+    // Broadcast death message to all players
+    broadcast_to_all(world, &InternalPacket::SystemChatMessage {
+        content: TextComponent::plain(&death_msg),
+        overlay: false,
+    });
+}
+
+/// Respawn a player after death: reset health/food, teleport to spawn, resend chunks.
+fn respawn_player(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    _entity_id: i32,
+    scripting: &ScriptRuntime,
+) {
+    let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+    let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+
+    // Send Respawn packet
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::Respawn {
+            dimension_type: 0,
+            dimension_name: "minecraft:overworld".to_string(),
+            hashed_seed: 0,
+            game_mode: game_mode.id(),
+            previous_game_mode: -1,
+            is_debug: false,
+            is_flat: true,
+            data_to_keep: 0x00,
+            last_death_x: None,
+            last_death_y: None,
+            last_death_z: None,
+            last_death_dimension: None,
+            portal_cooldown: 0,
+        });
+    }
+
+    // Reset health and food
+    if let Ok(mut h) = world.get::<&mut Health>(entity) {
+        h.current = 20.0;
+        h.invulnerable_ticks = 0;
+    }
+    if let Ok(mut f) = world.get::<&mut FoodData>(entity) {
+        *f = FoodData::default();
+    }
+    if let Ok(mut fd) = world.get::<&mut FallDistance>(entity) {
+        fd.0 = 0.0;
+    }
+
+    // Teleport to spawn
+    let spawn = Vec3d::new(0.5, -59.0, 0.5);
+    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+        pos.0 = spawn;
+    }
+
+    let spawn_cx = (spawn.x as i32) >> 4;
+    let spawn_cz = (spawn.z as i32) >> 4;
+
+    // Update chunk position
+    if let Ok(mut cp) = world.get::<&mut ChunkPosition>(entity) {
+        cp.chunk_x = spawn_cx;
+        cp.chunk_z = spawn_cz;
+    }
+
+    // Send position, health, chunks
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetCenterChunk {
+            chunk_x: spawn_cx,
+            chunk_z: spawn_cz,
+        });
+
+        let view_distance = world.get::<&ViewDistance>(entity).map(|vd| vd.0).unwrap_or(10);
+        send_chunks_around(&sender.0, world_state, spawn_cx, spawn_cz, view_distance);
+
+        let _ = sender.0.send(InternalPacket::SynchronizePlayerPosition {
+            position: spawn,
+            yaw: 0.0,
+            pitch: 0.0,
+            flags: 0,
+            teleport_id: 100,
+        });
+        let _ = sender.0.send(InternalPacket::SetHealth {
+            health: 20.0,
+            food: 20,
+            saturation: 5.0,
+        });
+    }
+
+    // Fire Lua event
+    scripting.fire_event_in_context(
+        "player_respawn",
+        &[("name", &name)],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+}
+
+/// Tick void damage for players below Y=-128.
+fn tick_void_damage(world: &mut World, world_state: &mut WorldState, scripting: &ScriptRuntime) {
+    let mut to_damage: Vec<(hecs::Entity, i32)> = Vec::new();
+    for (entity, (eid, pos)) in world.query::<(&EntityId, &Position)>().iter() {
+        if world.get::<&Profile>(entity).is_ok() && pos.0.y < -128.0 {
+            to_damage.push((entity, eid.0));
+        }
+    }
+    for (entity, eid) in to_damage {
+        apply_damage(world, world_state, entity, eid, 4.0, "void", scripting);
     }
 }
 
@@ -1395,6 +1728,11 @@ fn complete_block_break(
 
     // Proceed with the break
     world_state.set_block(position, 0);
+
+    // Mining exhaustion
+    if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+        food.exhaustion += 0.005;
+    }
 
     // Send block update + ack to the breaking player
     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -2147,21 +2485,20 @@ fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str) {
     );
 }
 
-fn cmd_kill(world: &mut World, entity: hecs::Entity) {
-    let spawn = Vec3d::new(0.5, -59.0, 0.5);
-    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
-        pos.0 = spawn;
+fn cmd_kill(world: &mut World, world_state: &mut WorldState, entity: hecs::Entity, entity_id: i32, scripting: &ScriptRuntime) {
+    // Set health to 0 and trigger death
+    if let Ok(mut h) = world.get::<&mut Health>(entity) {
+        h.current = 0.0;
     }
+    // Send health update
     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
-        let _ = sender.0.send(InternalPacket::SynchronizePlayerPosition {
-            position: spawn,
-            yaw: 0.0,
-            pitch: 0.0,
-            flags: 0,
-            teleport_id: 3,
+        let _ = sender.0.send(InternalPacket::SetHealth {
+            health: 0.0,
+            food: 20,
+            saturation: 5.0,
         });
     }
-    send_message(world, entity, "Killed! (respawned at spawn)");
+    handle_player_death(world, world_state, entity, entity_id, "kill", scripting);
 }
 
 fn cmd_say(world: &World, message: &str, sender_name: &str) {
