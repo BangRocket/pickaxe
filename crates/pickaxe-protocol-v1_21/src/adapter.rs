@@ -97,6 +97,8 @@ const PLAY_DECLARE_COMMANDS: i32 = 0x11;
 const PLAY_SET_CONTAINER_CONTENT: i32 = 0x13;
 const PLAY_SET_CONTAINER_SLOT: i32 = 0x15;
 const PLAY_SET_HELD_ITEM: i32 = 0x53;
+const PLAY_SET_ENTITY_METADATA: i32 = 0x58;
+const PLAY_SET_ENTITY_VELOCITY: i32 = 0x5A;
 const PLAY_UPDATE_TIME: i32 = 0x64;
 
 // === Decode functions ===
@@ -783,6 +785,23 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_u64(position.encode());
             buf.put_i8(*destroy_stage);
         }
+        InternalPacket::SetEntityMetadata { entity_id, metadata } => {
+            write_varint(&mut buf, PLAY_SET_ENTITY_METADATA);
+            write_varint(&mut buf, *entity_id);
+            for entry in metadata {
+                buf.put_u8(entry.index);
+                write_varint(&mut buf, entry.type_id);
+                buf.extend_from_slice(&entry.data);
+            }
+            buf.put_u8(0xFF); // terminator
+        }
+        InternalPacket::SetEntityVelocity { entity_id, velocity_x, velocity_y, velocity_z } => {
+            write_varint(&mut buf, PLAY_SET_ENTITY_VELOCITY);
+            write_varint(&mut buf, *entity_id);
+            buf.put_i16(*velocity_x);
+            buf.put_i16(*velocity_y);
+            buf.put_i16(*velocity_z);
+        }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }
     Ok(buf)
@@ -803,6 +822,30 @@ fn parser_to_id(parser: &str) -> i32 {
         "minecraft:time" => 42,
         _ => 5, // fallback to string
     }
+}
+
+/// Build entity metadata entries for an item entity.
+/// Index 0: byte flags (0x00), Index 8: item_stack (Slot).
+pub fn build_item_metadata(item: &pickaxe_types::ItemStack) -> Vec<EntityMetadataEntry> {
+    use pickaxe_protocol_core::EntityMetadataEntry;
+
+    // Index 0: entity flags byte — type 0 (Byte), value 0x00
+    let flags_entry = EntityMetadataEntry {
+        index: 0,
+        type_id: 0,
+        data: vec![0x00],
+    };
+
+    // Index 8: item stack — type 7 (Slot)
+    let mut slot_buf = BytesMut::new();
+    write_slot(&mut slot_buf, &Some(item.clone()));
+    let item_entry = EntityMetadataEntry {
+        index: 8,
+        type_id: 7,
+        data: slot_buf.to_vec(),
+    };
+
+    vec![flags_entry, item_entry]
 }
 
 fn encode_light_data(buf: &mut BytesMut, light: &ChunkLightData) {

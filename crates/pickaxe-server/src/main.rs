@@ -30,6 +30,9 @@ async fn main() -> anyhow::Result<()> {
         config.bind, config.port, config.max_players, config.online_mode
     );
 
+    // Shared entity ID counter
+    let next_eid = Arc::new(AtomicI32::new(1));
+
     // Initialize Lua scripting (must stay on this thread — Lua VM is !Send)
     let scripting = ScriptRuntime::new()?;
     // Shared storage for Lua-registered commands and block overrides
@@ -40,6 +43,7 @@ async fn main() -> anyhow::Result<()> {
     bridge::register_players_api(scripting.lua())?;
     bridge::register_commands_api(scripting.lua(), lua_commands.clone())?;
     bridge::register_blocks_api(scripting.lua(), block_overrides.clone())?;
+    bridge::register_entities_api(scripting.lua(), next_eid.clone())?;
     scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
@@ -49,9 +53,6 @@ async fn main() -> anyhow::Result<()> {
 
     // Channel for new players entering play state
     let (new_player_tx, new_player_rx) = mpsc::unbounded_channel::<tick::NewPlayer>();
-
-    // Shared entity ID counter
-    let next_eid = Arc::new(AtomicI32::new(1));
 
     // Player count for status responses
     let player_count = Arc::new(AtomicUsize::new(0));
@@ -66,9 +67,10 @@ async fn main() -> anyhow::Result<()> {
     // Connection handling is spawned onto the Tokio runtime (those tasks are Send).
     let tick_config = config.clone();
     let tick_player_count = player_count.clone();
+    let tick_next_eid = next_eid.clone();
 
     tokio::select! {
-        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands, block_overrides) => {
+        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands, block_overrides, tick_next_eid) => {
             error!("Tick loop exited unexpectedly");
         }
         _ = accept_loop(listener, config, new_player_tx, next_eid, player_count) => {

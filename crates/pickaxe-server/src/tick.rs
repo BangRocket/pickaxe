@@ -2,16 +2,18 @@ use crate::config::ServerConfig;
 use crate::ecs::*;
 use hecs::World;
 use pickaxe_protocol_core::{player_info_actions, CommandNode, InternalPacket, PlayerInfoEntry};
-use pickaxe_protocol_v1_21::V1_21Adapter;
+use pickaxe_protocol_v1_21::{build_item_metadata, V1_21Adapter};
 use pickaxe_scripting::ScriptRuntime;
-use pickaxe_types::{BlockPos, GameMode, GameProfile, TextComponent, Vec3d};
+use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, Vec3d};
 use pickaxe_world::{generate_flat_chunk, Chunk};
+use rand::Rng;
 use std::collections::HashMap;
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::mpsc;
 use tracing::{debug, info, warn};
+use uuid::Uuid;
 
 use pickaxe_types::ChunkPos;
 
@@ -86,6 +88,7 @@ pub async fn run_tick_loop(
     player_count: Arc<std::sync::atomic::AtomicUsize>,
     lua_commands: crate::bridge::LuaCommands,
     block_overrides: crate::bridge::BlockOverrides,
+    next_eid: Arc<AtomicI32>,
 ) {
     let adapter = V1_21Adapter::new();
     let mut world = World::new();
@@ -158,11 +161,16 @@ pub async fn run_tick_loop(
                 &scripting,
                 &lua_commands,
                 &block_overrides,
+                &next_eid,
             );
         }
 
         // 5. Tick systems
         tick_keep_alive(&adapter, &mut world, tick_count);
+        tick_item_physics(&mut world, &mut world_state, &scripting);
+        if tick_count % 4 == 0 {
+            tick_item_pickup(&mut world, &mut world_state, &scripting);
+        }
         tick_entity_tracking(&mut world);
         tick_entity_movement_broadcast(&mut world);
         tick_world_time(&world, &mut world_state, tick_count);
@@ -443,6 +451,7 @@ fn process_packet(
     scripting: &ScriptRuntime,
     lua_commands: &crate::bridge::LuaCommands,
     block_overrides: &crate::bridge::BlockOverrides,
+    next_eid: &Arc<AtomicI32>,
 ) {
     let entity_id = pkt.entity_id;
 
@@ -551,7 +560,7 @@ fn process_packet(
                         // Creative mode: instant break
                         complete_block_break(
                             world, world_state, entity, entity_id, &position, sequence,
-                            scripting, block_overrides,
+                            scripting, block_overrides, next_eid,
                         );
                     } else {
                         // Survival mode: check block hardness
@@ -577,7 +586,7 @@ fn process_packet(
                                 // Instant break (hardness == 0)
                                 complete_block_break(
                                     world, world_state, entity, entity_id, &position,
-                                    sequence, scripting, block_overrides,
+                                    sequence, scripting, block_overrides, next_eid,
                                 );
                             }
                             Some(ticks) => {
@@ -637,7 +646,7 @@ fn process_packet(
                     if valid {
                         complete_block_break(
                             world, world_state, entity, entity_id, &position, sequence,
-                            scripting, block_overrides,
+                            scripting, block_overrides, next_eid,
                         );
                     } else {
                         // Too fast or no breaking component — just ack without breaking
@@ -917,8 +926,8 @@ fn tick_keep_alive(_adapter: &V1_21Adapter, world: &mut World, tick_count: u64) 
 fn tick_entity_tracking(world: &mut World) {
     use std::collections::HashSet;
 
-    // Collect all player data
-    let mut player_data: Vec<(hecs::Entity, i32, Vec3d, f32, f32, bool, uuid::Uuid, i32, i32)> =
+    // Collect all player data (observers)
+    let mut player_data: Vec<(hecs::Entity, i32, Vec3d, f32, f32, bool, Uuid, i32, i32)> =
         Vec::new();
     for (e, (eid, pos, rot, og, profile, cp, _vd)) in world
         .query::<(
@@ -945,6 +954,28 @@ fn tick_entity_tracking(world: &mut World) {
         ));
     }
 
+    // Collect all item entities
+    struct ItemData {
+        eid: i32,
+        uuid: Uuid,
+        pos: Vec3d,
+        vel: Vec3d,
+        item: ItemStack,
+    }
+    let mut item_data: Vec<ItemData> = Vec::new();
+    for (_e, (eid, euuid, pos, vel, item_ent)) in world
+        .query::<(&EntityId, &EntityUuid, &Position, &Velocity, &ItemEntity)>()
+        .iter()
+    {
+        item_data.push(ItemData {
+            eid: eid.0,
+            uuid: euuid.0,
+            pos: pos.0,
+            vel: vel.0,
+            item: item_ent.item.clone(),
+        });
+    }
+
     for i in 0..player_data.len() {
         let (observer_entity, _observer_eid, _, _, _, _, _, obs_cx, obs_cz) = player_data[i];
 
@@ -954,6 +985,8 @@ fn tick_entity_tracking(world: &mut World) {
         };
 
         let mut should_see: HashSet<i32> = HashSet::new();
+
+        // Other players in view distance
         for j in 0..player_data.len() {
             if i == j {
                 continue;
@@ -961,6 +994,15 @@ fn tick_entity_tracking(world: &mut World) {
             let (_, target_eid, _, _, _, _, _, tgt_cx, tgt_cz) = player_data[j];
             if (tgt_cx - obs_cx).abs() <= obs_vd && (tgt_cz - obs_cz).abs() <= obs_vd {
                 should_see.insert(target_eid);
+            }
+        }
+
+        // Item entities in view distance
+        for item in &item_data {
+            let item_cx = (item.pos.x as i32) >> 4;
+            let item_cz = (item.pos.z as i32) >> 4;
+            if (item_cx - obs_cx).abs() <= obs_vd && (item_cz - obs_cz).abs() <= obs_vd {
+                should_see.insert(item.eid);
             }
         }
 
@@ -976,13 +1018,14 @@ fn tick_entity_tracking(world: &mut World) {
 
         // Spawn new entities
         for &eid in should_see.difference(&currently_tracked) {
+            // Check if it's a player
             if let Some(&(_, _, pos, yaw, pitch, _, uuid, _, _)) =
                 player_data.iter().find(|d| d.1 == eid)
             {
                 let _ = observer_sender.send(InternalPacket::SpawnEntity {
                     entity_id: eid,
                     entity_uuid: uuid,
-                    entity_type: 128, // player entity type in 1.21.1
+                    entity_type: 128, // player
                     x: pos.x,
                     y: pos.y,
                     z: pos.z,
@@ -997,6 +1040,32 @@ fn tick_entity_tracking(world: &mut World) {
                 let _ = observer_sender.send(InternalPacket::SetHeadRotation {
                     entity_id: eid,
                     head_yaw: degrees_to_angle(yaw),
+                });
+            } else if let Some(item) = item_data.iter().find(|d| d.eid == eid) {
+                // Item entity
+                let vx = (item.vel.x * 8000.0) as i16;
+                let vy = (item.vel.y * 8000.0) as i16;
+                let vz = (item.vel.z * 8000.0) as i16;
+                let _ = observer_sender.send(InternalPacket::SpawnEntity {
+                    entity_id: eid,
+                    entity_uuid: item.uuid,
+                    entity_type: 58, // item entity type
+                    x: item.pos.x,
+                    y: item.pos.y,
+                    z: item.pos.z,
+                    pitch: 0,
+                    yaw: 0,
+                    head_yaw: 0,
+                    data: 1, // required for item rendering
+                    velocity_x: vx,
+                    velocity_y: vy,
+                    velocity_z: vz,
+                });
+                // Send metadata with item slot
+                let metadata = build_item_metadata(&item.item);
+                let _ = observer_sender.send(InternalPacket::SetEntityMetadata {
+                    entity_id: eid,
+                    metadata,
                 });
             }
         }
@@ -1017,10 +1086,10 @@ fn tick_entity_tracking(world: &mut World) {
 }
 
 fn tick_entity_movement_broadcast(world: &mut World) {
-    // Collect entities that moved or rotated
-    let mut movers: Vec<(i32, Vec3d, Vec3d, f32, f32, f32, f32, bool)> = Vec::new();
+    // Collect player entities that moved or rotated (have PreviousRotation)
+    let mut player_movers: Vec<(i32, Vec3d, Vec3d, f32, f32, f32, f32, bool)> = Vec::new();
 
-    for (_e, (eid, pos, prev_pos, rot, prev_rot, og)) in world
+    for (_e, (eid, pos, prev_pos, rot, prev_rot, og, _profile)) in world
         .query::<(
             &EntityId,
             &Position,
@@ -1028,6 +1097,7 @@ fn tick_entity_movement_broadcast(world: &mut World) {
             &Rotation,
             &PreviousRotation,
             &OnGround,
+            &Profile,
         )>()
         .iter()
     {
@@ -1035,7 +1105,7 @@ fn tick_entity_movement_broadcast(world: &mut World) {
             pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
         let rot_changed = rot.yaw != prev_rot.yaw || rot.pitch != prev_rot.pitch;
         if pos_changed || rot_changed {
-            movers.push((
+            player_movers.push((
                 eid.0,
                 pos.0,
                 prev_pos.0,
@@ -1048,8 +1118,21 @@ fn tick_entity_movement_broadcast(world: &mut World) {
         }
     }
 
-    // For each mover, send packets to all observers tracking them
-    for &(mover_eid, new_pos, old_pos, yaw, pitch, _old_yaw, _old_pitch, on_ground) in &movers {
+    // Collect item entities that moved (no rotation tracking needed)
+    let mut item_movers: Vec<(i32, Vec3d, Vec3d, bool)> = Vec::new();
+    for (_e, (eid, pos, prev_pos, og, _item)) in world
+        .query::<(&EntityId, &Position, &PreviousPosition, &OnGround, &ItemEntity)>()
+        .iter()
+    {
+        let pos_changed =
+            pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
+        if pos_changed {
+            item_movers.push((eid.0, pos.0, prev_pos.0, og.0));
+        }
+    }
+
+    // For each player mover, send packets to all observers tracking them
+    for &(mover_eid, new_pos, old_pos, yaw, pitch, _old_yaw, _old_pitch, on_ground) in &player_movers {
         let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
         let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
         let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
@@ -1108,17 +1191,61 @@ fn tick_entity_movement_broadcast(world: &mut World) {
         }
     }
 
-    // Update previous positions and rotations
-    for (_e, (pos, prev_pos, rot, prev_rot)) in world
-        .query::<(
-            &Position,
-            &mut PreviousPosition,
-            &Rotation,
-            &mut PreviousRotation,
-        )>()
+    // For each item mover, send position-only updates
+    for &(mover_eid, new_pos, old_pos, on_ground) in &item_movers {
+        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
+        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
+        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
+
+        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
+            || (new_pos.y - old_pos.y).abs() > 8.0
+            || (new_pos.z - old_pos.z).abs() > 8.0;
+
+        for (_e, (eid, tracked, sender)) in world
+            .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if eid.0 == mover_eid {
+                continue;
+            }
+            if !tracked.visible.contains(&mover_eid) {
+                continue;
+            }
+
+            if needs_teleport {
+                let _ = sender.0.send(InternalPacket::TeleportEntity {
+                    entity_id: mover_eid,
+                    x: new_pos.x,
+                    y: new_pos.y,
+                    z: new_pos.z,
+                    yaw: 0,
+                    pitch: 0,
+                    on_ground,
+                });
+            } else {
+                let _ = sender.0.send(InternalPacket::UpdateEntityPosition {
+                    entity_id: mover_eid,
+                    delta_x: dx,
+                    delta_y: dy,
+                    delta_z: dz,
+                    on_ground,
+                });
+            }
+        }
+    }
+
+    // Update previous positions and rotations for all entities that have them
+    for (_e, (pos, prev_pos)) in world
+        .query::<(&Position, &mut PreviousPosition)>()
         .iter()
     {
         prev_pos.0 = pos.0;
+    }
+
+    for (_e, (rot, prev_rot)) in world
+        .query::<(&Rotation, &mut PreviousRotation)>()
+        .iter()
+    {
         prev_rot.yaw = rot.yaw;
         prev_rot.pitch = rot.pitch;
     }
@@ -1212,6 +1339,7 @@ fn complete_block_break(
     sequence: i32,
     scripting: &ScriptRuntime,
     block_overrides: &crate::bridge::BlockOverrides,
+    next_eid: &Arc<AtomicI32>,
 ) {
     let old_block = world_state.get_block(position);
 
@@ -1356,47 +1484,288 @@ fn complete_block_break(
                 None => pickaxe_data::block_state_to_drops(old_block).to_vec(),
             };
             for &drop_item_id in &drop_ids {
-                let max_stack = pickaxe_data::item_id_to_stack_size(drop_item_id).unwrap_or(64);
-                let slot_index = {
-                    let inv = match world.get::<&Inventory>(entity) {
-                        Ok(inv) => inv,
-                        Err(_) => continue,
-                    };
-                    inv.find_slot_for_item(drop_item_id, max_stack)
-                };
-
-                if let Some(slot_index) = slot_index {
-                    let (item, state_id) = {
-                        let mut inv = match world.get::<&mut Inventory>(entity) {
-                            Ok(inv) => inv,
-                            Err(_) => continue,
-                        };
-                        let new_item = match &inv.slots[slot_index] {
-                            Some(existing) => pickaxe_types::ItemStack::new(
-                                drop_item_id,
-                                existing.count.saturating_add(1),
-                            ),
-                            None => pickaxe_types::ItemStack::new(drop_item_id, 1),
-                        };
-                        inv.set_slot(slot_index, Some(new_item.clone()));
-                        (new_item, inv.state_id)
-                    };
-
-                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
-                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
-                            window_id: 0,
-                            state_id,
-                            slot: slot_index as i16,
-                            item: Some(item),
-                        });
-                    }
-                }
-                // If inventory full, silently lose the drop (for now)
+                spawn_item_entity(
+                    world,
+                    world_state,
+                    next_eid,
+                    position.x as f64 + 0.5,
+                    position.y as f64 + 0.25,
+                    position.z as f64 + 0.5,
+                    ItemStack::new(drop_item_id, 1),
+                    10, // pickup delay ticks
+                    scripting,
+                );
             }
         }
     }
 
     debug!("{} broke block at {:?} (was {})", name, position, old_block);
+}
+
+/// Spawn a dropped item entity in the world.
+pub(crate) fn spawn_item_entity(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    x: f64,
+    y: f64,
+    z: f64,
+    item: ItemStack,
+    pickup_delay: u32,
+    scripting: &ScriptRuntime,
+) -> i32 {
+    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+    let uuid = Uuid::new_v4();
+
+    let mut rng = rand::thread_rng();
+    let vx = rng.gen_range(-0.1..0.1);
+    let vy = 0.2;
+    let vz = rng.gen_range(-0.1..0.1);
+
+    let item_id = item.item_id;
+    let item_count = item.count;
+
+    world.spawn((
+        EntityId(eid),
+        EntityUuid(uuid),
+        Position(Vec3d::new(x, y, z)),
+        PreviousPosition(Vec3d::new(x, y, z)),
+        Velocity(Vec3d::new(vx, vy, vz)),
+        OnGround(false),
+        ItemEntity {
+            item,
+            pickup_delay,
+            age: 0,
+        },
+        Rotation { yaw: 0.0, pitch: 0.0 },
+    ));
+
+    // Fire entity_spawn event
+    scripting.fire_event_in_context(
+        "entity_spawn",
+        &[
+            ("entity_id", &eid.to_string()),
+            ("entity_type", "item"),
+            ("x", &format!("{:.2}", x)),
+            ("y", &format!("{:.2}", y)),
+            ("z", &format!("{:.2}", z)),
+            ("item_id", &item_id.to_string()),
+            ("item_count", &item_count.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+
+    eid
+}
+
+/// Apply physics to item entities: gravity, velocity, ground collision, despawn.
+fn tick_item_physics(world: &mut World, world_state: &mut WorldState, scripting: &ScriptRuntime) {
+    // Collect entities to despawn (age >= 6000)
+    let mut to_despawn: Vec<(hecs::Entity, i32)> = Vec::new();
+
+    // Apply physics
+    for (e, (eid, pos, vel, og, item_ent)) in world
+        .query::<(&EntityId, &mut Position, &mut Velocity, &mut OnGround, &mut ItemEntity)>()
+        .iter()
+    {
+        item_ent.age += 1;
+        if item_ent.age >= 6000 {
+            to_despawn.push((e, eid.0));
+            continue;
+        }
+
+        if item_ent.pickup_delay > 0 {
+            item_ent.pickup_delay -= 1;
+        }
+
+        // Apply gravity
+        vel.0.y -= 0.04;
+
+        // Apply velocity
+        pos.0.x += vel.0.x;
+        pos.0.y += vel.0.y;
+        pos.0.z += vel.0.z;
+
+        // Ground collision check
+        let check_pos = BlockPos::new(
+            pos.0.x.floor() as i32,
+            (pos.0.y - 0.01).floor() as i32,
+            pos.0.z.floor() as i32,
+        );
+        let block_below = world_state.get_block(&check_pos);
+        if block_below != 0 {
+            let ground_y = check_pos.y as f64 + 1.0;
+            if pos.0.y < ground_y + 0.25 {
+                pos.0.y = ground_y + 0.25;
+                vel.0.y = 0.0;
+                og.0 = true;
+            }
+        } else {
+            og.0 = false;
+        }
+
+        // Friction
+        vel.0.x *= 0.98;
+        vel.0.y *= 0.98;
+        vel.0.z *= 0.98;
+        if og.0 {
+            vel.0.x *= 0.5;
+            vel.0.z *= 0.5;
+        }
+    }
+
+    // Despawn aged-out items
+    for (entity, eid) in &to_despawn {
+        // Broadcast removal
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![*eid],
+        });
+
+        // Remove from all players' tracked entities
+        for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+            tracked.visible.remove(eid);
+        }
+
+        // Fire event
+        scripting.fire_event_in_context(
+            "entity_despawn",
+            &[
+                ("entity_id", &eid.to_string()),
+                ("reason", "timeout"),
+            ],
+            world as *mut _ as *mut (),
+            world_state as *mut _ as *mut (),
+        );
+
+        let _ = world.despawn(*entity);
+    }
+}
+
+/// Check for item pickup by nearby players. Runs every 4 ticks.
+fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: &ScriptRuntime) {
+    // Collect all pickable items
+    let mut items: Vec<(hecs::Entity, i32, Vec3d, i32, i8)> = Vec::new();
+    for (e, (eid, pos, item_ent)) in world
+        .query::<(&EntityId, &Position, &ItemEntity)>()
+        .iter()
+    {
+        if item_ent.pickup_delay == 0 {
+            items.push((e, eid.0, pos.0, item_ent.item.item_id, item_ent.item.count));
+        }
+    }
+
+    // Collect all players
+    let mut players: Vec<(hecs::Entity, i32, Vec3d, String)> = Vec::new();
+    for (e, (eid, pos, profile)) in world
+        .query::<(&EntityId, &Position, &Profile)>()
+        .iter()
+    {
+        players.push((e, eid.0, pos.0, profile.0.name.clone()));
+    }
+
+    let mut picked_up: Vec<(hecs::Entity, i32)> = Vec::new();
+
+    for &(item_entity, item_eid, item_pos, item_id, item_count) in &items {
+        for &(player_entity, _player_eid, player_pos, ref name) in &players {
+            let dx = item_pos.x - player_pos.x;
+            let dy = item_pos.y - player_pos.y;
+            let dz = item_pos.z - player_pos.z;
+            let dist_sq = dx * dx + dy * dy + dz * dz;
+
+            if dist_sq < 1.5 * 1.5 {
+                let item_name = pickaxe_data::item_id_to_name(item_id)
+                    .unwrap_or("unknown")
+                    .to_string();
+
+                // Fire cancellable event
+                let cancelled = scripting.fire_event_in_context(
+                    "item_pickup",
+                    &[
+                        ("name", name),
+                        ("item_id", &item_id.to_string()),
+                        ("item_name", &item_name),
+                        ("item_count", &item_count.to_string()),
+                        ("entity_id", &item_eid.to_string()),
+                    ],
+                    world as *mut _ as *mut (),
+                    world_state as *mut _ as *mut (),
+                );
+
+                if cancelled {
+                    continue;
+                }
+
+                // Try to give item to player
+                if give_item_to_player(world, player_entity, item_id, item_count) {
+                    picked_up.push((item_entity, item_eid));
+                    break; // Item is picked up, move to next item
+                }
+            }
+        }
+    }
+
+    // Despawn picked up items
+    for (entity, eid) in &picked_up {
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![*eid],
+        });
+
+        for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+            tracked.visible.remove(eid);
+        }
+
+        scripting.fire_event_in_context(
+            "entity_despawn",
+            &[
+                ("entity_id", &eid.to_string()),
+                ("reason", "pickup"),
+            ],
+            world as *mut _ as *mut (),
+            world_state as *mut _ as *mut (),
+        );
+
+        let _ = world.despawn(*entity);
+    }
+}
+
+/// Give an item to a player entity, returning true on success.
+fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, count: i8) -> bool {
+    let max_stack = pickaxe_data::item_id_to_stack_size(item_id).unwrap_or(64);
+    let slot_index = {
+        let inv = match world.get::<&Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return false,
+        };
+        match inv.find_slot_for_item(item_id, max_stack) {
+            Some(i) => i,
+            None => return false,
+        }
+    };
+
+    let (item, state_id) = {
+        let mut inv = match world.get::<&mut Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return false,
+        };
+        let new_item = match &inv.slots[slot_index] {
+            Some(existing) => ItemStack::new(item_id, existing.count.saturating_add(count)),
+            None => ItemStack::new(item_id, count),
+        };
+        inv.set_slot(slot_index, Some(new_item.clone()));
+        (new_item, inv.state_id)
+    };
+
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+            window_id: 0,
+            state_id,
+            slot: slot_index as i16,
+            item: Some(item),
+        });
+    }
+
+    true
 }
 
 /// Update destroy stage animation for all players currently breaking blocks.

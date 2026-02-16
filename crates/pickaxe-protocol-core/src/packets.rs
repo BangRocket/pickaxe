@@ -278,6 +278,20 @@ pub enum InternalPacket {
         slot: i8,
     },
 
+    /// Set Entity Metadata (0x58 CB) — entity metadata entries.
+    SetEntityMetadata {
+        entity_id: i32,
+        metadata: Vec<EntityMetadataEntry>,
+    },
+
+    /// Set Entity Velocity (0x5A CB) — entity velocity in 1/8000 blocks/tick.
+    SetEntityVelocity {
+        entity_id: i32,
+        velocity_x: i16,
+        velocity_y: i16,
+        velocity_z: i16,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {
@@ -389,6 +403,14 @@ pub struct PlayerInfoEntry {
     pub ping: Option<i32>,
     /// Present when UPDATE_DISPLAY_NAME action is set.
     pub display_name: Option<TextComponent>,
+}
+
+/// A single entity metadata entry for SetEntityMetadata.
+#[derive(Debug, Clone)]
+pub struct EntityMetadataEntry {
+    pub index: u8,
+    pub type_id: i32,
+    pub data: Vec<u8>,
 }
 
 #[derive(Debug, Clone)]

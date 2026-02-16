@@ -3,8 +3,10 @@ use hecs::World;
 use mlua::Lua;
 use pickaxe_protocol_core::InternalPacket;
 use pickaxe_scripting::bridge::LuaGameContext;
-use pickaxe_types::{BlockPos, GameMode, TextComponent, Vec3d};
+use pickaxe_types::{BlockPos, GameMode, ItemStack, TextComponent, Vec3d};
+use rand::Rng;
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::{Arc, Mutex};
 
 /// A command registered by a Lua mod.
@@ -516,5 +518,221 @@ pub fn register_blocks_api(lua: &Lua, overrides: BlockOverrides) -> anyhow::Resu
         .map_err(lua_err)?;
 
     pickaxe.set("blocks", blocks_table).map_err(lua_err)?;
+    Ok(())
+}
+
+// ── Entities API ──────────────────────────────────────────────────────
+
+/// Helper context that also includes next_eid for entity spawning.
+pub struct LuaEntitiesContext {
+    pub next_eid: Arc<AtomicI32>,
+}
+
+/// Register `pickaxe.entities` API on the Lua VM.
+pub fn register_entities_api(lua: &Lua, next_eid: Arc<AtomicI32>) -> anyhow::Result<()> {
+    let pickaxe: mlua::Table = lua.globals().get("pickaxe").map_err(lua_err)?;
+    let entities_table = lua.create_table().map_err(lua_err)?;
+
+    // Store next_eid in app data for entity spawning
+    lua.set_app_data(LuaEntitiesContext {
+        next_eid: next_eid.clone(),
+    });
+
+    // pickaxe.entities.spawn_item(x, y, z, item_name, count) -> entity_id or nil
+    entities_table
+        .set(
+            "spawn_item",
+            lua.create_function(
+                |lua, (x, y, z, item_name, count): (f64, f64, f64, String, Option<i8>)| {
+                    let item_name = item_name
+                        .strip_prefix("minecraft:")
+                        .unwrap_or(&item_name)
+                        .to_string();
+                    let item_id = match pickaxe_data::item_name_to_id(&item_name) {
+                        Some(id) => id,
+                        None => return Ok(mlua::Value::Nil),
+                    };
+                    let count = count.unwrap_or(1).max(1);
+
+                    let next_eid = lua
+                        .app_data_ref::<LuaEntitiesContext>()
+                        .ok_or_else(|| mlua::Error::runtime("Entities context not available"))?
+                        .next_eid
+                        .clone();
+
+                    let ctx = get_context(lua)?;
+                    let world = unsafe { &mut *(ctx.world_ptr as *mut World) };
+                    let ws = unsafe { &mut *(ctx.world_state_ptr as *mut crate::tick::WorldState) };
+
+                    // We need a scripting reference, but we can't get it from here easily.
+                    // Instead, directly spawn the entity without firing the Lua event
+                    // (the caller is already in Lua context).
+                    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+                    let uuid = uuid::Uuid::new_v4();
+
+                    let mut rng = rand::thread_rng();
+                    let vx = rng.gen_range(-0.1..0.1);
+                    let vz = rng.gen_range(-0.1..0.1);
+
+                    world.spawn((
+                        EntityId(eid),
+                        EntityUuid(uuid),
+                        Position(Vec3d::new(x, y, z)),
+                        PreviousPosition(Vec3d::new(x, y, z)),
+                        Velocity(Vec3d::new(vx, 0.2, vz)),
+                        OnGround(false),
+                        ItemEntity {
+                            item: ItemStack::new(item_id, count),
+                            pickup_delay: 10,
+                            age: 0,
+                        },
+                        Rotation {
+                            yaw: 0.0,
+                            pitch: 0.0,
+                        },
+                    ));
+
+                    let _ = ws; // touched for consistency
+                    Ok(mlua::Value::Integer(eid as i64))
+                },
+            )
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.entities.remove(entity_id) -> bool
+    entities_table
+        .set(
+            "remove",
+            lua.create_function(|lua, entity_id: i32| {
+                with_world(lua, |world| {
+                    let mut found = None;
+                    for (e, eid) in world.query::<&EntityId>().iter() {
+                        if eid.0 == entity_id {
+                            // Only remove non-player entities
+                            if world.get::<&Profile>(e).is_err() {
+                                found = Some(e);
+                            }
+                            break;
+                        }
+                    }
+                    if let Some(entity) = found {
+                        // Remove from tracked entities
+                        for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+                            tracked.visible.remove(&entity_id);
+                        }
+                        // Broadcast removal
+                        for (_e, sender) in world.query::<&ConnectionSender>().iter() {
+                            let _ = sender.0.send(InternalPacket::RemoveEntities {
+                                entity_ids: vec![entity_id],
+                            });
+                        }
+                        let _ = world.despawn(entity);
+                        true
+                    } else {
+                        false
+                    }
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.entities.get(entity_id) -> table or nil
+    entities_table
+        .set(
+            "get",
+            lua.create_function(|lua, entity_id: i32| {
+                with_world(lua, |world| -> Option<mlua::Value> {
+                    for (e, eid) in world.query::<&EntityId>().iter() {
+                        if eid.0 == entity_id {
+                            let table = lua.create_table().ok()?;
+                            let _ = table.set("id", entity_id);
+
+                            if let Ok(pos) = world.get::<&Position>(e) {
+                                let _ = table.set("x", pos.0.x);
+                                let _ = table.set("y", pos.0.y);
+                                let _ = table.set("z", pos.0.z);
+                            }
+
+                            if world.get::<&Profile>(e).is_ok() {
+                                let _ = table.set("type", "player");
+                            } else if let Ok(item_ent) = world.get::<&ItemEntity>(e) {
+                                let _ = table.set("type", "item");
+                                let _ = table.set("item_id", item_ent.item.item_id);
+                                let _ = table.set("item_count", item_ent.item.count);
+                                let item_name =
+                                    pickaxe_data::item_id_to_name(item_ent.item.item_id)
+                                        .unwrap_or("unknown");
+                                let _ = table.set("item_name", item_name);
+                                let _ = table.set("age", item_ent.age);
+                            }
+
+                            return Some(mlua::Value::Table(table));
+                        }
+                    }
+                    None
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.entities.set_velocity(entity_id, vx, vy, vz) -> bool
+    entities_table
+        .set(
+            "set_velocity",
+            lua.create_function(|lua, (entity_id, vx, vy, vz): (i32, f64, f64, f64)| {
+                with_world(lua, |world| {
+                    for (e, eid) in world.query::<&EntityId>().iter() {
+                        if eid.0 == entity_id {
+                            if let Ok(mut vel) = world.get::<&mut Velocity>(e) {
+                                vel.0 = Vec3d::new(vx, vy, vz);
+                                return true;
+                            }
+                            break;
+                        }
+                    }
+                    false
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.entities.list() -> table of entity tables
+    entities_table
+        .set(
+            "list",
+            lua.create_function(|lua, ()| {
+                with_world(lua, |world| -> Vec<mlua::Value> {
+                    let mut result = Vec::new();
+                    for (_e, (eid, pos, item_ent)) in world
+                        .query::<(&EntityId, &Position, &ItemEntity)>()
+                        .iter()
+                    {
+                        if let Ok(table) = lua.create_table() {
+                            let _ = table.set("id", eid.0);
+                            let _ = table.set("type", "item");
+                            let _ = table.set("x", pos.0.x);
+                            let _ = table.set("y", pos.0.y);
+                            let _ = table.set("z", pos.0.z);
+                            let _ = table.set("item_id", item_ent.item.item_id);
+                            let _ = table.set("item_count", item_ent.item.count);
+                            let item_name =
+                                pickaxe_data::item_id_to_name(item_ent.item.item_id)
+                                    .unwrap_or("unknown");
+                            let _ = table.set("item_name", item_name);
+                            result.push(mlua::Value::Table(table));
+                        }
+                    }
+                    result
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    pickaxe.set("entities", entities_table).map_err(lua_err)?;
     Ok(())
 }

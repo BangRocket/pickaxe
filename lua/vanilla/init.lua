@@ -8,5 +8,6 @@ dofile("lua/vanilla/player.lua")
 dofile("lua/vanilla/world.lua")
 dofile("lua/vanilla/commands.lua")
 dofile("lua/vanilla/blocks.lua")
+dofile("lua/vanilla/entities.lua")
 
 pickaxe.log("Pickaxe Vanilla mod loaded - all handlers registered")

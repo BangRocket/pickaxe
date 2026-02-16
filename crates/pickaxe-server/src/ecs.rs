@@ -2,6 +2,7 @@ use pickaxe_protocol_core::InternalPacket;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, Vec3d};
 use std::collections::HashSet;
 use tokio::sync::mpsc;
+use uuid::Uuid;
 
 /// Network entity ID assigned by the server.
 pub struct EntityId(pub i32);
@@ -69,6 +70,19 @@ impl TrackedEntities {
 
 /// Previous position — used to compute deltas for relative move packets.
 pub struct PreviousPosition(pub Vec3d);
+
+/// Entity velocity vector.
+pub struct Velocity(pub Vec3d);
+
+/// Entity's UUID (for non-player entities that need a UUID distinct from Profile).
+pub struct EntityUuid(pub Uuid);
+
+/// Marks an entity as a dropped item.
+pub struct ItemEntity {
+    pub item: ItemStack,
+    pub pickup_delay: u32,
+    pub age: u64,
+}
 
 /// Previous rotation — used to detect rotation changes.
 pub struct PreviousRotation {
