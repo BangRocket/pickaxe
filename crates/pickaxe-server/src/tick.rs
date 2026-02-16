@@ -85,6 +85,7 @@ pub async fn run_tick_loop(
     mut new_player_rx: mpsc::UnboundedReceiver<NewPlayer>,
     player_count: Arc<std::sync::atomic::AtomicUsize>,
     lua_commands: crate::bridge::LuaCommands,
+    block_overrides: crate::bridge::BlockOverrides,
 ) {
     let adapter = V1_21Adapter::new();
     let mut world = World::new();
@@ -156,6 +157,7 @@ pub async fn run_tick_loop(
                 pkt,
                 &scripting,
                 &lua_commands,
+                &block_overrides,
             );
         }
 
@@ -440,6 +442,7 @@ fn process_packet(
     pkt: InboundPacket,
     scripting: &ScriptRuntime,
     lua_commands: &crate::bridge::LuaCommands,
+    block_overrides: &crate::bridge::BlockOverrides,
 ) {
     let entity_id = pkt.entity_id;
 
@@ -548,7 +551,7 @@ fn process_packet(
                         // Creative mode: instant break
                         complete_block_break(
                             world, world_state, entity, entity_id, &position, sequence,
-                            scripting,
+                            scripting, block_overrides,
                         );
                     } else {
                         // Survival mode: check block hardness
@@ -561,7 +564,7 @@ fn process_packet(
                                 .ok()
                                 .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
                         };
-                        match calculate_break_ticks(block_state, held_item_id) {
+                        match calculate_break_ticks(block_state, held_item_id, block_overrides) {
                             None => {
                                 // Unbreakable block, just ack
                                 if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -574,7 +577,7 @@ fn process_packet(
                                 // Instant break (hardness == 0)
                                 complete_block_break(
                                     world, world_state, entity, entity_id, &position,
-                                    sequence, scripting,
+                                    sequence, scripting, block_overrides,
                                 );
                             }
                             Some(ticks) => {
@@ -634,7 +637,7 @@ fn process_packet(
                     if valid {
                         complete_block_break(
                             world, world_state, entity, entity_id, &position, sequence,
-                            scripting,
+                            scripting, block_overrides,
                         );
                     } else {
                         // Too fast or no breaking component — just ack without breaking
@@ -1137,22 +1140,59 @@ fn tick_world_time(world: &World, world_state: &mut WorldState, tick_count: u64)
 
 /// Calculate how many ticks it takes to break a block in survival mode.
 /// Returns None if the block is unbreakable, Some(0) for instant break, Some(ticks) otherwise.
-fn calculate_break_ticks(block_state: i32, held_item_id: Option<i32>) -> Option<u64> {
-    let (hardness, diggable) = pickaxe_data::block_state_to_hardness(block_state)?;
+/// Consults Lua block overrides before falling back to codegen data.
+fn calculate_break_ticks(
+    block_state: i32,
+    held_item_id: Option<i32>,
+    block_overrides: &crate::bridge::BlockOverrides,
+) -> Option<u64> {
+    let block_name = pickaxe_data::block_state_to_name(block_state);
+
+    // Get hardness: override first, then codegen
+    let (hardness, diggable) = {
+        let override_hardness = block_name.and_then(|name| {
+            block_overrides
+                .lock()
+                .ok()
+                .and_then(|map| map.get(name).and_then(|o| o.hardness))
+        });
+        match override_hardness {
+            Some(h) => (h, h >= 0.0),
+            None => pickaxe_data::block_state_to_hardness(block_state)?,
+        }
+    };
+
     if !diggable || hardness < 0.0 {
         return None;
     }
     if hardness == 0.0 {
         return Some(0);
     }
-    let has_correct_tool =
-        if let Some(required) = pickaxe_data::block_state_to_harvest_tools(block_state) {
-            held_item_id
-                .map(|id| required.contains(&id))
-                .unwrap_or(false)
-        } else {
-            true
-        };
+
+    // Get harvest tools: override first, then codegen
+    let has_correct_tool = {
+        let override_tools = block_name.and_then(|name| {
+            block_overrides
+                .lock()
+                .ok()
+                .and_then(|map| map.get(name).and_then(|o| o.harvest_tools.clone()))
+        });
+        match override_tools {
+            Some(ref tools) => held_item_id
+                .map(|id| tools.contains(&id))
+                .unwrap_or(false),
+            None => {
+                if let Some(required) = pickaxe_data::block_state_to_harvest_tools(block_state) {
+                    held_item_id
+                        .map(|id| required.contains(&id))
+                        .unwrap_or(false)
+                } else {
+                    true
+                }
+            }
+        }
+    };
+
     let seconds = if has_correct_tool {
         hardness * 1.5
     } else {
@@ -1171,6 +1211,7 @@ fn complete_block_break(
     position: &BlockPos,
     sequence: i32,
     scripting: &ScriptRuntime,
+    block_overrides: &crate::bridge::BlockOverrides,
 ) {
     let old_block = world_state.get_block(position);
 
@@ -1257,26 +1298,64 @@ fn complete_block_break(
         .unwrap_or(GameMode::Survival);
 
     if game_mode == GameMode::Survival {
-        // Check if player has the correct tool for drops
-        let has_correct_tool =
-            if let Some(required) = pickaxe_data::block_state_to_harvest_tools(old_block) {
-                let held_item_id = {
-                    let slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
-                    world
-                        .get::<&Inventory>(entity)
-                        .ok()
-                        .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
-                };
-                held_item_id
-                    .map(|id| required.contains(&id))
-                    .unwrap_or(false)
-            } else {
-                true // No tool requirement
-            };
+        let block_name = pickaxe_data::block_state_to_name(old_block);
+
+        // Check if player has the correct tool for drops (override first, then codegen)
+        let has_correct_tool = {
+            let override_tools = block_name.and_then(|name| {
+                block_overrides
+                    .lock()
+                    .ok()
+                    .and_then(|map| map.get(name).and_then(|o| o.harvest_tools.clone()))
+            });
+            match override_tools {
+                Some(ref tools) => {
+                    let held_item_id = {
+                        let slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                        world
+                            .get::<&Inventory>(entity)
+                            .ok()
+                            .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
+                    };
+                    held_item_id
+                        .map(|id| tools.contains(&id))
+                        .unwrap_or(false)
+                }
+                None => {
+                    if let Some(required) =
+                        pickaxe_data::block_state_to_harvest_tools(old_block)
+                    {
+                        let held_item_id = {
+                            let slot =
+                                world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                            world
+                                .get::<&Inventory>(entity)
+                                .ok()
+                                .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
+                        };
+                        held_item_id
+                            .map(|id| required.contains(&id))
+                            .unwrap_or(false)
+                    } else {
+                        true // No tool requirement
+                    }
+                }
+            }
+        };
 
         if has_correct_tool {
-            let drops = pickaxe_data::block_state_to_drops(old_block);
-            for &drop_item_id in drops {
+            // Get drops: override first, then codegen
+            let override_drops = block_name.and_then(|name| {
+                block_overrides
+                    .lock()
+                    .ok()
+                    .and_then(|map| map.get(name).and_then(|o| o.drops.clone()))
+            });
+            let drop_ids: Vec<i32> = match override_drops {
+                Some(ids) => ids,
+                None => pickaxe_data::block_state_to_drops(old_block).to_vec(),
+            };
+            for &drop_item_id in &drop_ids {
                 // Find first empty slot: hotbar (36-44) then main inventory (9-35)
                 let slot_index = {
                     let inv = match world.get::<&Inventory>(entity) {

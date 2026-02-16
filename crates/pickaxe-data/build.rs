@@ -339,6 +339,40 @@ fn main() {
     writeln!(out, "        _ => None,").unwrap();
     writeln!(out, "    }}").unwrap();
     writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // block_state_to_name
+    writeln!(
+        out,
+        "/// Map block state ID to block name."
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "pub fn block_state_to_name(state_id: i32) -> Option<&'static str> {{"
+    )
+    .unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        if b.min_state_id == b.max_state_id {
+            writeln!(
+                out,
+                "        {} => Some(\"{}\"),",
+                b.min_state_id, b.name
+            )
+            .unwrap();
+        } else {
+            writeln!(
+                out,
+                "        {}..={} => Some(\"{}\"),",
+                b.min_state_id, b.max_state_id, b.name
+            )
+            .unwrap();
+        }
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
 
     println!(
         "cargo:rerun-if-changed={}",

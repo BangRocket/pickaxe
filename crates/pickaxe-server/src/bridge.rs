@@ -4,6 +4,7 @@ use mlua::Lua;
 use pickaxe_protocol_core::InternalPacket;
 use pickaxe_scripting::bridge::LuaGameContext;
 use pickaxe_types::{BlockPos, GameMode, TextComponent, Vec3d};
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 /// A command registered by a Lua mod.
@@ -14,6 +15,16 @@ pub struct LuaCommand {
 
 /// Shared storage for Lua-registered commands.
 pub type LuaCommands = Arc<Mutex<Vec<LuaCommand>>>;
+
+/// Override for a block's properties (hardness, drops, harvest tools).
+pub struct BlockOverride {
+    pub hardness: Option<f64>,
+    pub drops: Option<Vec<i32>>,
+    pub harvest_tools: Option<Vec<i32>>,
+}
+
+/// Shared storage for Lua block overrides, keyed by block name.
+pub type BlockOverrides = Arc<Mutex<HashMap<String, BlockOverride>>>;
 
 fn lua_err(e: mlua::Error) -> anyhow::Error {
     anyhow::anyhow!("{}", e)
@@ -399,5 +410,118 @@ pub fn register_commands_api(lua: &Lua, lua_commands: LuaCommands) -> anyhow::Re
         .map_err(lua_err)?;
 
     pickaxe.set("commands", commands_table).map_err(lua_err)?;
+    Ok(())
+}
+
+// ── Blocks API ────────────────────────────────────────────────────────
+
+/// Register `pickaxe.blocks` API on the Lua VM.
+pub fn register_blocks_api(lua: &Lua, overrides: BlockOverrides) -> anyhow::Result<()> {
+    let pickaxe: mlua::Table = lua.globals().get("pickaxe").map_err(lua_err)?;
+    let blocks_table = lua.create_table().map_err(lua_err)?;
+
+    // pickaxe.blocks.register(name, props)
+    // props = { hardness = 1.5, drops = {"cobblestone"}, harvest_tools = {"wooden_pickaxe", ...} }
+    let overrides_clone = overrides.clone();
+    blocks_table
+        .set(
+            "register",
+            lua.create_function(move |_lua, (name, props): (String, mlua::Table)| {
+                let hardness: Option<f64> = props.get("hardness").unwrap_or(None);
+
+                let drops: Option<Vec<i32>> = match props.get::<Option<mlua::Table>>("drops") {
+                    Ok(Some(tbl)) => {
+                        let mut ids = Vec::new();
+                        for pair in tbl.sequence_values::<String>() {
+                            if let Ok(item_name) = pair {
+                                let clean = item_name
+                                    .strip_prefix("minecraft:")
+                                    .unwrap_or(&item_name)
+                                    .to_string();
+                                if let Some(id) = pickaxe_data::item_name_to_id(&clean) {
+                                    ids.push(id);
+                                }
+                            }
+                        }
+                        Some(ids)
+                    }
+                    _ => None,
+                };
+
+                let harvest_tools: Option<Vec<i32>> =
+                    match props.get::<Option<mlua::Table>>("harvest_tools") {
+                        Ok(Some(tbl)) => {
+                            let mut ids = Vec::new();
+                            for pair in tbl.sequence_values::<String>() {
+                                if let Ok(tool_name) = pair {
+                                    let clean = tool_name
+                                        .strip_prefix("minecraft:")
+                                        .unwrap_or(&tool_name)
+                                        .to_string();
+                                    if let Some(id) = pickaxe_data::item_name_to_id(&clean) {
+                                        ids.push(id);
+                                    }
+                                }
+                            }
+                            Some(ids)
+                        }
+                        _ => None,
+                    };
+
+                let mut map = overrides_clone
+                    .lock()
+                    .map_err(|e| mlua::Error::runtime(format!("Lock poisoned: {}", e)))?;
+                map.insert(
+                    name,
+                    BlockOverride {
+                        hardness,
+                        drops,
+                        harvest_tools,
+                    },
+                );
+                Ok(())
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.blocks.get_hardness(name) -> number or nil
+    let overrides_clone = overrides.clone();
+    blocks_table
+        .set(
+            "get_hardness",
+            lua.create_function(move |_lua, name: String| {
+                let map = overrides_clone
+                    .lock()
+                    .map_err(|e| mlua::Error::runtime(format!("Lock poisoned: {}", e)))?;
+                Ok(map.get(&name).and_then(|o| o.hardness))
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.blocks.get_drops(name) -> {item_name, ...} or nil
+    let overrides_clone = overrides.clone();
+    blocks_table
+        .set(
+            "get_drops",
+            lua.create_function(move |_lua, name: String| {
+                let map = overrides_clone
+                    .lock()
+                    .map_err(|e| mlua::Error::runtime(format!("Lock poisoned: {}", e)))?;
+                Ok(map.get(&name).and_then(|o| {
+                    o.drops.as_ref().map(|ids| {
+                        ids.iter()
+                            .filter_map(|id| pickaxe_data::item_id_to_name(*id))
+                            .map(|s| s.to_string())
+                            .collect::<Vec<String>>()
+                    })
+                }))
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    pickaxe.set("blocks", blocks_table).map_err(lua_err)?;
     Ok(())
 }

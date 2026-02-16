@@ -32,12 +32,14 @@ async fn main() -> anyhow::Result<()> {
 
     // Initialize Lua scripting (must stay on this thread — Lua VM is !Send)
     let scripting = ScriptRuntime::new()?;
-    // Shared storage for Lua-registered commands
+    // Shared storage for Lua-registered commands and block overrides
     let lua_commands: bridge::LuaCommands = Arc::new(Mutex::new(Vec::new()));
+    let block_overrides: bridge::BlockOverrides = Arc::new(Mutex::new(std::collections::HashMap::new()));
     // Register bridge APIs before mods load so they're available in init.lua
     bridge::register_world_api(scripting.lua())?;
     bridge::register_players_api(scripting.lua())?;
     bridge::register_commands_api(scripting.lua(), lua_commands.clone())?;
+    bridge::register_blocks_api(scripting.lua(), block_overrides.clone())?;
     scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
@@ -66,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
     let tick_player_count = player_count.clone();
 
     tokio::select! {
-        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands) => {
+        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands, block_overrides) => {
             error!("Tick loop exited unexpectedly");
         }
         _ = accept_loop(listener, config, new_player_tx, next_eid, player_count) => {
