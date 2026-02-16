@@ -657,6 +657,14 @@ fn process_packet(
                         }
                     }
                 }
+                // Drop Item (Q key — single item)
+                3 => {
+                    drop_held_item(world, world_state, entity, entity_id, false, next_eid, scripting);
+                }
+                // Drop Item Stack (Ctrl+Q — full stack)
+                4 => {
+                    drop_held_item(world, world_state, entity, entity_id, true, next_eid, scripting);
+                }
                 _ => {}
             }
         }
@@ -1502,6 +1510,124 @@ fn complete_block_break(
     debug!("{} broke block at {:?} (was {})", name, position, old_block);
 }
 
+/// Handle a player dropping an item from their held slot.
+fn drop_held_item(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    _entity_id: i32,
+    drop_stack: bool,
+    next_eid: &Arc<AtomicI32>,
+    scripting: &ScriptRuntime,
+) {
+    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+    let slot_index = 36 + held_slot as usize;
+
+    // Get the item from the slot
+    let item = {
+        let inv = match world.get::<&Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return,
+        };
+        match &inv.slots[slot_index] {
+            Some(item) => item.clone(),
+            None => return, // Nothing to drop
+        }
+    };
+
+    let drop_count = if drop_stack { item.count } else { 1 };
+    let remaining = item.count - drop_count;
+
+    // Update inventory
+    {
+        let mut inv = match world.get::<&mut Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return,
+        };
+        if remaining > 0 {
+            inv.set_slot(slot_index, Some(ItemStack::new(item.item_id, remaining)));
+        } else {
+            inv.set_slot(slot_index, None);
+        }
+    }
+
+    // Send slot update to client
+    let state_id = world
+        .get::<&Inventory>(entity)
+        .map(|inv| inv.state_id)
+        .unwrap_or(1);
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let slot_item = if remaining > 0 {
+            Some(ItemStack::new(item.item_id, remaining))
+        } else {
+            None
+        };
+        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+            window_id: 0,
+            state_id,
+            slot: slot_index as i16,
+            item: slot_item,
+        });
+    }
+
+    // Get player position and look direction for throw velocity
+    let (pos, yaw, pitch) = {
+        let p = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+        let r = world.get::<&Rotation>(entity).map(|r| (r.yaw, r.pitch)).unwrap_or((0.0, 0.0));
+        (p, r.0, r.1)
+    };
+
+    // Spawn in front of player at eye height
+    let yaw_rad = (yaw as f64).to_radians();
+    let pitch_rad = (pitch as f64).to_radians();
+    let spawn_x = pos.x - yaw_rad.sin() * 0.5;
+    let spawn_y = pos.y + 1.3; // eye height minus a bit
+    let spawn_z = pos.z + yaw_rad.cos() * 0.5;
+
+    // Throw velocity in look direction
+    let speed = 0.3;
+    let vx = -yaw_rad.sin() * pitch_rad.cos() * speed;
+    let vy = -pitch_rad.sin() * speed + 0.1;
+    let vz = yaw_rad.cos() * pitch_rad.cos() * speed;
+
+    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+    let uuid = Uuid::new_v4();
+
+    let drop_item = ItemStack::new(item.item_id, drop_count);
+    let item_id = drop_item.item_id;
+    let item_count = drop_item.count;
+
+    world.spawn((
+        EntityId(eid),
+        EntityUuid(uuid),
+        Position(Vec3d::new(spawn_x, spawn_y, spawn_z)),
+        PreviousPosition(Vec3d::new(spawn_x, spawn_y, spawn_z)),
+        Velocity(Vec3d::new(vx, vy, vz)),
+        OnGround(false),
+        ItemEntity {
+            item: drop_item,
+            pickup_delay: 40, // 2 second delay so player doesn't immediately pick it up
+            age: 0,
+        },
+        Rotation { yaw: 0.0, pitch: 0.0 },
+    ));
+
+    scripting.fire_event_in_context(
+        "entity_spawn",
+        &[
+            ("entity_id", &eid.to_string()),
+            ("entity_type", "item"),
+            ("x", &format!("{:.2}", spawn_x)),
+            ("y", &format!("{:.2}", spawn_y)),
+            ("z", &format!("{:.2}", spawn_z)),
+            ("item_id", &item_id.to_string()),
+            ("item_count", &item_count.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+}
+
 /// Spawn a dropped item entity in the world.
 pub(crate) fn spawn_item_entity(
     world: &mut World,
@@ -1577,6 +1703,16 @@ fn tick_item_physics(world: &mut World, world_state: &mut WorldState, scripting:
 
         if item_ent.pickup_delay > 0 {
             item_ent.pickup_delay -= 1;
+        }
+
+        // Skip physics when resting on ground with negligible velocity
+        if og.0
+            && vel.0.y.abs() < 0.001
+            && vel.0.x.abs() < 0.001
+            && vel.0.z.abs() < 0.001
+        {
+            vel.0 = Vec3d::new(0.0, 0.0, 0.0);
+            continue;
         }
 
         // Apply gravity
