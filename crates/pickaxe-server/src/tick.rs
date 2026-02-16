@@ -681,6 +681,36 @@ fn process_packet(
             }
 
             let target = offset_by_face(&position, face);
+
+            let name = world
+                .get::<&Profile>(entity)
+                .map(|p| p.0.name.clone())
+                .unwrap_or_default();
+
+            // Fire event BEFORE the place — handlers can cancel
+            let cancelled = scripting.fire_event_in_context(
+                "block_place",
+                &[
+                    ("name", &name),
+                    ("x", &target.x.to_string()),
+                    ("y", &target.y.to_string()),
+                    ("z", &target.z.to_string()),
+                    ("block_id", &block_id.to_string()),
+                ],
+                world as *mut _ as *mut (),
+                world_state as *mut _ as *mut (),
+            );
+
+            if cancelled {
+                // Just ack without placing
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender
+                        .0
+                        .send(InternalPacket::AcknowledgeBlockChange { sequence });
+                }
+                return;
+            }
+
             world_state.set_block(&target, block_id);
             // Send to placing player
             if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -702,23 +732,7 @@ fn process_packet(
                 },
             );
 
-            let name = world
-                .get::<&Profile>(entity)
-                .map(|p| p.0.name.clone())
-                .unwrap_or_default();
             debug!("{} placed block at {:?}", name, target);
-            scripting.fire_event_in_context(
-                "block_place",
-                &[
-                    ("name", &name),
-                    ("x", &target.x.to_string()),
-                    ("y", &target.y.to_string()),
-                    ("z", &target.z.to_string()),
-                    ("block_id", &block_id.to_string()),
-                ],
-                world as *mut _ as *mut (),
-                world_state as *mut _ as *mut (),
-            );
         }
 
         InternalPacket::ChatMessage { message, .. } => {
@@ -1147,7 +1161,8 @@ fn calculate_break_ticks(block_state: i32, held_item_id: Option<i32>) -> Option<
     Some((seconds * 20.0).ceil() as u64)
 }
 
-/// Complete a block break: set to air, send updates, handle drops, fire Lua event.
+/// Complete a block break: fire pre-event, set to air, send updates, handle drops.
+/// If the Lua event is cancelled, sends block correction to prevent desync.
 fn complete_block_break(
     world: &mut World,
     world_state: &mut WorldState,
@@ -1157,7 +1172,52 @@ fn complete_block_break(
     sequence: i32,
     scripting: &ScriptRuntime,
 ) {
-    let old_block = world_state.set_block(position, 0);
+    let old_block = world_state.get_block(position);
+
+    let name = world
+        .get::<&Profile>(entity)
+        .map(|p| p.0.name.clone())
+        .unwrap_or_default();
+
+    // Fire event BEFORE the break — handlers can cancel
+    let cancelled = scripting.fire_event_in_context(
+        "block_break",
+        &[
+            ("name", &name),
+            ("x", &position.x.to_string()),
+            ("y", &position.y.to_string()),
+            ("z", &position.z.to_string()),
+            ("block_id", &old_block.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+
+    if cancelled {
+        // Send block correction (restore original) + ack to prevent desync
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::BlockUpdate {
+                position: *position,
+                block_id: old_block,
+            });
+            let _ = sender
+                .0
+                .send(InternalPacket::AcknowledgeBlockChange { sequence });
+        }
+        // Clear destroy stage animation
+        broadcast_to_all(
+            world,
+            &InternalPacket::SetBlockDestroyStage {
+                entity_id,
+                position: *position,
+                destroy_stage: -1,
+            },
+        );
+        return;
+    }
+
+    // Proceed with the break
+    world_state.set_block(position, 0);
 
     // Send block update + ack to the breaking player
     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -1266,23 +1326,7 @@ fn complete_block_break(
         }
     }
 
-    let name = world
-        .get::<&Profile>(entity)
-        .map(|p| p.0.name.clone())
-        .unwrap_or_default();
     debug!("{} broke block at {:?} (was {})", name, position, old_block);
-    scripting.fire_event_in_context(
-        "block_break",
-        &[
-            ("name", &name),
-            ("x", &position.x.to_string()),
-            ("y", &position.y.to_string()),
-            ("z", &position.z.to_string()),
-            ("block_id", &old_block.to_string()),
-        ],
-        world as *mut _ as *mut (),
-        world_state as *mut _ as *mut (),
-    );
 }
 
 /// Update destroy stage animation for all players currently breaking blocks.
