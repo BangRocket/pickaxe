@@ -134,7 +134,7 @@ pub async fn run_tick_loop(
 
         // 3. Handle disconnected players
         for eid in &disconnected {
-            handle_disconnect(&mut world, &mut inbound_receivers, *eid, &adapter, &scripting);
+            handle_disconnect(&mut world, &mut world_state, &mut inbound_receivers, *eid, &adapter, &scripting);
         }
 
         // Update player count
@@ -359,11 +359,17 @@ fn handle_new_player(
     inbound_receivers.insert(entity_id, new_player.packet_rx);
 
     // Fire Lua event
-    scripting.fire_event("player_join", &[("name", &profile.name)]);
+    scripting.fire_event_in_context(
+        "player_join",
+        &[("name", &profile.name)],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
 }
 
 fn handle_disconnect(
     world: &mut World,
+    world_state: &mut WorldState,
     inbound_receivers: &mut HashMap<i32, mpsc::UnboundedReceiver<InboundPacket>>,
     entity_id: i32,
     _adapter: &V1_21Adapter,
@@ -413,7 +419,12 @@ fn handle_disconnect(
         }
 
         // Fire Lua event
-        scripting.fire_event("player_leave", &[("name", &player_name)]);
+        scripting.fire_event_in_context(
+            "player_leave",
+            &[("name", &player_name)],
+            world as *mut _ as *mut (),
+            world_state as *mut _ as *mut (),
+        );
     }
 }
 
@@ -460,7 +471,7 @@ fn process_packet(
                 og.0 = on_ground;
             }
             handle_chunk_updates(world, world_state, entity);
-            fire_move_event(world, entity, x, y, z, scripting);
+            fire_move_event(world, world_state, entity, x, y, z, scripting);
         }
 
         InternalPacket::PlayerPositionAndRotation {
@@ -482,7 +493,7 @@ fn process_packet(
                 og.0 = on_ground;
             }
             handle_chunk_updates(world, world_state, entity);
-            fire_move_event(world, entity, x, y, z, scripting);
+            fire_move_event(world, world_state, entity, x, y, z, scripting);
         }
 
         InternalPacket::PlayerRotation {
@@ -691,7 +702,7 @@ fn process_packet(
                 .map(|p| p.0.name.clone())
                 .unwrap_or_default();
             debug!("{} placed block at {:?}", name, target);
-            scripting.fire_event(
+            scripting.fire_event_in_context(
                 "block_place",
                 &[
                     ("name", &name),
@@ -700,6 +711,8 @@ fn process_packet(
                     ("z", &target.z.to_string()),
                     ("block_id", &block_id.to_string()),
                 ],
+                world as *mut _ as *mut (),
+                world_state as *mut _ as *mut (),
             );
         }
 
@@ -711,9 +724,11 @@ fn process_packet(
             info!("<{}> {}", name, message);
 
             // Fire Lua event
-            let cancelled = scripting.fire_event(
+            let cancelled = scripting.fire_event_in_context(
                 "player_chat",
                 &[("name", &name), ("message", &message)],
+                world as *mut _ as *mut (),
+                world_state as *mut _ as *mut (),
             );
 
             if !cancelled {
@@ -735,9 +750,11 @@ fn process_packet(
                 .unwrap_or_default();
             info!("{} issued command: /{}", name, command);
 
-            scripting.fire_event(
+            scripting.fire_event_in_context(
                 "player_command",
                 &[("name", &name), ("command", &command)],
+                world as *mut _ as *mut (),
+                world_state as *mut _ as *mut (),
             );
 
             let parts: Vec<&str> = command.splitn(2, ' ').collect();
@@ -780,7 +797,8 @@ fn process_packet(
 }
 
 fn fire_move_event(
-    world: &World,
+    world: &mut World,
+    world_state: &mut WorldState,
     entity: hecs::Entity,
     x: f64,
     y: f64,
@@ -791,7 +809,7 @@ fn fire_move_event(
         .get::<&Profile>(entity)
         .map(|p| p.0.name.clone())
         .unwrap_or_default();
-    scripting.fire_event(
+    scripting.fire_event_in_context(
         "player_move",
         &[
             ("name", &name),
@@ -799,6 +817,8 @@ fn fire_move_event(
             ("y", &format!("{:.1}", y)),
             ("z", &format!("{:.1}", z)),
         ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
     );
 }
 
@@ -1208,7 +1228,7 @@ fn complete_block_break(
         .map(|p| p.0.name.clone())
         .unwrap_or_default();
     debug!("{} broke block at {:?} (was {})", name, position, old_block);
-    scripting.fire_event(
+    scripting.fire_event_in_context(
         "block_break",
         &[
             ("name", &name),
@@ -1217,6 +1237,8 @@ fn complete_block_break(
             ("z", &position.z.to_string()),
             ("block_id", &old_block.to_string()),
         ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
     );
 }
 

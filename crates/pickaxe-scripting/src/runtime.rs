@@ -75,6 +75,24 @@ impl ScriptRuntime {
         &self.lua
     }
 
+    /// Fire event with game context available to bridge functions.
+    /// Sets app_data with raw pointers for the duration of the call.
+    pub fn fire_event_in_context(
+        &self,
+        event_name: &str,
+        data: &[(&str, &str)],
+        world: *mut (),
+        world_state: *mut (),
+    ) -> bool {
+        self.lua.set_app_data(crate::bridge::LuaGameContext {
+            world_ptr: world,
+            world_state_ptr: world_state,
+        });
+        let result = self.fire_event(event_name, data);
+        self.lua.remove_app_data::<crate::bridge::LuaGameContext>();
+        result
+    }
+
     /// Fire an event with string key-value data. Returns true if cancelled.
     pub fn fire_event(&self, event_name: &str, data: &[(&str, &str)]) -> bool {
         let bus = self.event_bus.lock().unwrap();
