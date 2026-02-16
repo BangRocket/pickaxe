@@ -168,6 +168,7 @@ pub async fn run_tick_loop(
         // 5. Tick systems
         tick_keep_alive(&adapter, &mut world, tick_count);
         tick_void_damage(&mut world, &mut world_state, &scripting);
+        tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
         tick_item_physics(&mut world, &mut world_state, &scripting);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
@@ -1203,6 +1204,101 @@ fn tick_void_damage(world: &mut World, world_state: &mut WorldState, scripting: 
     }
     for (entity, eid) in to_damage {
         apply_damage(world, world_state, entity, eid, 4.0, "void", scripting);
+    }
+}
+
+/// Tick hunger/saturation system: exhaustion drain, natural regen, starvation.
+/// Based on MC source FoodData.tick() and FoodConstants.java.
+fn tick_health_hunger(
+    world: &mut World,
+    world_state: &mut WorldState,
+    scripting: &ScriptRuntime,
+    tick_count: u64,
+) {
+    let mut starvation_damage: Vec<(hecs::Entity, i32)> = Vec::new();
+    let mut health_updates: Vec<(hecs::Entity, f32, i32, f32)> = Vec::new();
+
+    for (entity, (eid, health, food, gm)) in
+        world.query::<(&EntityId, &mut Health, &mut FoodData, &PlayerGameMode)>().iter()
+    {
+        if health.current <= 0.0 {
+            continue; // dead
+        }
+
+        // Skip hunger in creative/spectator
+        if gm.0 == GameMode::Creative || gm.0 == GameMode::Spectator {
+            continue;
+        }
+
+        // Tick invulnerability
+        if health.invulnerable_ticks > 0 {
+            health.invulnerable_ticks -= 1;
+        }
+
+        // Exhaustion drain at 4.0 threshold
+        if food.exhaustion >= 4.0 {
+            food.exhaustion -= 4.0;
+            if food.saturation > 0.0 {
+                food.saturation = (food.saturation - 1.0).max(0.0);
+            } else {
+                food.food_level = (food.food_level - 1).max(0);
+            }
+        }
+
+        let is_hurt = health.current < health.max;
+
+        // Saturated regen: food=20 and saturation>0 and hurt → heal every 10 ticks
+        if food.food_level >= 20 && food.saturation > 0.0 && is_hurt {
+            food.tick_timer += 1;
+            if food.tick_timer >= 10 {
+                let heal_amount = food.saturation.min(6.0) / 6.0;
+                health.current = (health.current + heal_amount).min(health.max);
+                food.exhaustion += food.saturation.min(6.0);
+                food.tick_timer = 0;
+            }
+        }
+        // Normal regen: food>=18, hurt → heal every 80 ticks
+        else if food.food_level >= 18 && is_hurt {
+            food.tick_timer += 1;
+            if food.tick_timer >= 80 {
+                health.current = (health.current + 1.0).min(health.max);
+                food.exhaustion += 6.0;
+                food.tick_timer = 0;
+            }
+        }
+        // Starvation: food==0 → damage every 80 ticks (won't kill below 1 HP on Normal)
+        else if food.food_level == 0 {
+            food.tick_timer += 1;
+            if food.tick_timer >= 80 {
+                if health.current > 1.0 {
+                    starvation_damage.push((entity, eid.0));
+                }
+                food.tick_timer = 0;
+            }
+        } else {
+            food.tick_timer = 0;
+        }
+
+        // Collect health updates for periodic sending
+        health_updates.push((entity, health.current, food.food_level, food.saturation));
+    }
+
+    // Apply starvation damage (outside borrow)
+    for (entity, eid) in starvation_damage {
+        apply_damage(world, world_state, entity, eid, 1.0, "starve", scripting);
+    }
+
+    // Send SetHealth every 20 ticks (1 second) to keep client in sync
+    if tick_count % 20 == 0 {
+        for (entity, health, food, sat) in health_updates {
+            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                let _ = sender.0.send(InternalPacket::SetHealth {
+                    health,
+                    food,
+                    saturation: sat,
+                });
+            }
+        }
     }
 }
 
