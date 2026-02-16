@@ -97,8 +97,14 @@ const PLAY_DECLARE_COMMANDS: i32 = 0x11;
 const PLAY_SET_CONTAINER_CONTENT: i32 = 0x13;
 const PLAY_SET_CONTAINER_SLOT: i32 = 0x15;
 const PLAY_SET_HELD_ITEM: i32 = 0x53;
+const PLAY_DAMAGE_EVENT: i32 = 0x1A;
+const PLAY_ENTITY_EVENT: i32 = 0x1F;
+const PLAY_HURT_ANIMATION: i32 = 0x24;
+const PLAY_PLAYER_COMBAT_KILL: i32 = 0x3C;
+const PLAY_RESPAWN: i32 = 0x47;
 const PLAY_SET_ENTITY_METADATA: i32 = 0x58;
 const PLAY_SET_ENTITY_VELOCITY: i32 = 0x5A;
+const PLAY_SET_HEALTH: i32 = 0x5D;
 const PLAY_UPDATE_TIME: i32 = 0x64;
 
 // === Decode functions ===
@@ -263,6 +269,11 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
                 data: vec![],
             })
         }
+        0x09 => {
+            // Client Command (respawn / request stats)
+            let action = read_varint(data)?;
+            Ok(InternalPacket::ClientCommand { action })
+        }
         0x18 => {
             let id = data.get_i64();
             Ok(InternalPacket::KeepAliveServerbound { id })
@@ -311,6 +322,13 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             let face = data.get_u8();
             let sequence = read_varint(data)?;
             Ok(InternalPacket::BlockDig { status, position, face, sequence })
+        }
+        0x25 => {
+            // Player Command (sprint/sneak/etc.)
+            let entity_id = read_varint(data)?;
+            let action = read_varint(data)?;
+            let jump_boost = read_varint(data)?;
+            Ok(InternalPacket::PlayerCommand { entity_id, action, data: jump_boost })
         }
         0x38 => {
             // block_place (Use Item On)
@@ -801,6 +819,61 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_i16(*velocity_x);
             buf.put_i16(*velocity_y);
             buf.put_i16(*velocity_z);
+        }
+        InternalPacket::SetHealth { health, food, saturation } => {
+            write_varint(&mut buf, PLAY_SET_HEALTH);
+            buf.put_f32(*health);
+            write_varint(&mut buf, *food);
+            buf.put_f32(*saturation);
+        }
+        InternalPacket::HurtAnimation { entity_id, yaw } => {
+            write_varint(&mut buf, PLAY_HURT_ANIMATION);
+            write_varint(&mut buf, *entity_id);
+            buf.put_f32(*yaw);
+        }
+        InternalPacket::EntityEvent { entity_id, event_id } => {
+            write_varint(&mut buf, PLAY_ENTITY_EVENT);
+            buf.put_i32(*entity_id); // raw i32, NOT VarInt
+            buf.put_i8(*event_id);
+        }
+        InternalPacket::PlayerCombatKill { player_id, message } => {
+            write_varint(&mut buf, PLAY_PLAYER_COMBAT_KILL);
+            write_varint(&mut buf, *player_id);
+            // Death message as NBT text component
+            let nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(message.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::Respawn {
+            dimension_type, dimension_name, hashed_seed,
+            game_mode, previous_game_mode, is_debug, is_flat,
+            data_to_keep, last_death_x, last_death_y, last_death_z,
+            last_death_dimension, portal_cooldown,
+        } => {
+            write_varint(&mut buf, PLAY_RESPAWN);
+            // CommonPlayerSpawnInfo (same structure as JoinGame)
+            write_varint(&mut buf, *dimension_type);
+            write_string(&mut buf, dimension_name);
+            buf.put_i64(*hashed_seed);
+            buf.put_u8(*game_mode);
+            buf.put_i8(*previous_game_mode);
+            buf.put_u8(*is_debug as u8);
+            buf.put_u8(*is_flat as u8);
+            // Death location
+            if let (Some(dx), Some(dy), Some(dz), Some(dim)) =
+                (last_death_x, last_death_y, last_death_z, last_death_dimension)
+            {
+                buf.put_u8(1); // has death location
+                write_string(&mut buf, dim);
+                buf.put_u64(BlockPos::new(*dx, *dy, *dz).encode());
+            } else {
+                buf.put_u8(0); // no death location
+            }
+            write_varint(&mut buf, *portal_cooldown);
+            buf.put_u8(*data_to_keep);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

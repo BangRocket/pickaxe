@@ -292,6 +292,49 @@ pub enum InternalPacket {
         velocity_z: i16,
     },
 
+    /// Set Health (0x5D clientbound, protocol 767)
+    SetHealth {
+        health: f32,
+        food: i32,
+        saturation: f32,
+    },
+
+    /// Hurt Animation (0x24 clientbound, protocol 767)
+    HurtAnimation {
+        entity_id: i32,
+        yaw: f32,
+    },
+
+    /// Entity Event (0x1F clientbound, protocol 767)
+    /// Note: entity_id is raw i32, NOT VarInt.
+    EntityEvent {
+        entity_id: i32,
+        event_id: i8,
+    },
+
+    /// Player Combat Kill (0x3C clientbound, protocol 767)
+    PlayerCombatKill {
+        player_id: i32,
+        message: TextComponent,
+    },
+
+    /// Respawn (0x47 clientbound, protocol 767)
+    Respawn {
+        dimension_type: i32,
+        dimension_name: String,
+        hashed_seed: i64,
+        game_mode: u8,
+        previous_game_mode: i8,
+        is_debug: bool,
+        is_flat: bool,
+        data_to_keep: u8,
+        last_death_x: Option<i32>,
+        last_death_y: Option<i32>,
+        last_death_z: Option<i32>,
+        last_death_dimension: Option<String>,
+        portal_cooldown: i32,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {
@@ -318,6 +361,20 @@ pub enum InternalPacket {
     CreativeInventoryAction {
         slot: i16,
         item: Option<ItemStack>,
+    },
+
+    /// Client Command (0x09 serverbound, protocol 767)
+    /// action: 0=respawn, 1=request_stats
+    ClientCommand {
+        action: i32,
+    },
+
+    /// Player Command (0x25 serverbound, protocol 767)
+    /// action: 0=start_sneak, 1=stop_sneak, 3=start_sprint, 4=stop_sprint
+    PlayerCommand {
+        entity_id: i32,
+        action: i32,
+        data: i32,
     },
 
     ConfirmTeleportation {

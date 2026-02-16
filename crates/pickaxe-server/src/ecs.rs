@@ -149,6 +149,51 @@ impl Inventory {
 /// Currently selected hotbar slot (0-8).
 pub struct HeldSlot(pub u8);
 
+/// Player health state.
+pub struct Health {
+    pub current: f32,
+    pub max: f32,
+    pub invulnerable_ticks: i32,
+}
+
+impl Default for Health {
+    fn default() -> Self {
+        Self {
+            current: 20.0,
+            max: 20.0,
+            invulnerable_ticks: 0,
+        }
+    }
+}
+
+/// Player hunger, saturation, and exhaustion state.
+pub struct FoodData {
+    pub food_level: i32,
+    pub saturation: f32,
+    pub exhaustion: f32,
+    pub tick_timer: u32,
+}
+
+impl Default for FoodData {
+    fn default() -> Self {
+        Self {
+            food_level: 20,
+            saturation: 5.0,
+            exhaustion: 0.0,
+            tick_timer: 0,
+        }
+    }
+}
+
+/// Accumulated fall distance for fall damage calculation.
+pub struct FallDistance(pub f32);
+
+/// Tracks sprint/sneak state from PlayerCommand packets.
+pub struct MovementState {
+    pub sprinting: bool,
+    pub sneaking: bool,
+}
+
 /// Tracks a block a player is currently breaking in survival mode.
 pub struct BreakingBlock {
     pub position: BlockPos,
