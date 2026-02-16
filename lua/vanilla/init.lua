@@ -7,5 +7,6 @@ pickaxe.log("Pickaxe Vanilla mod loading...")
 dofile("lua/vanilla/player.lua")
 dofile("lua/vanilla/world.lua")
 dofile("lua/vanilla/commands.lua")
+dofile("lua/vanilla/blocks.lua")
 
-pickaxe.log("Pickaxe Vanilla mod loaded - player, world, and command handlers registered")
+pickaxe.log("Pickaxe Vanilla mod loaded - all handlers registered")
