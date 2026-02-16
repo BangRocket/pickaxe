@@ -6,5 +6,6 @@ pickaxe.log("Pickaxe Vanilla mod loading...")
 -- Load domain modules
 dofile("lua/vanilla/player.lua")
 dofile("lua/vanilla/world.lua")
+dofile("lua/vanilla/commands.lua")
 
-pickaxe.log("Pickaxe Vanilla mod loaded - player and world handlers registered")
+pickaxe.log("Pickaxe Vanilla mod loaded - player, world, and command handlers registered")

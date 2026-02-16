@@ -4,6 +4,16 @@ use mlua::Lua;
 use pickaxe_protocol_core::InternalPacket;
 use pickaxe_scripting::bridge::LuaGameContext;
 use pickaxe_types::{BlockPos, GameMode, TextComponent, Vec3d};
+use std::sync::{Arc, Mutex};
+
+/// A command registered by a Lua mod.
+pub struct LuaCommand {
+    pub name: String,
+    pub handler_key: mlua::RegistryKey,
+}
+
+/// Shared storage for Lua-registered commands.
+pub type LuaCommands = Arc<Mutex<Vec<LuaCommand>>>;
 
 fn lua_err(e: mlua::Error) -> anyhow::Error {
     anyhow::anyhow!("{}", e)
@@ -357,5 +367,37 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
         .map_err(lua_err)?;
 
     pickaxe.set("players", players_table).map_err(lua_err)?;
+    Ok(())
+}
+
+// ── Commands API ──────────────────────────────────────────────────────
+
+/// Register `pickaxe.commands` API on the Lua VM.
+pub fn register_commands_api(lua: &Lua, lua_commands: LuaCommands) -> anyhow::Result<()> {
+    let pickaxe: mlua::Table = lua.globals().get("pickaxe").map_err(lua_err)?;
+    let commands_table = lua.create_table().map_err(lua_err)?;
+
+    // pickaxe.commands.register(name, handler)
+    commands_table
+        .set(
+            "register",
+            lua.create_function(move |lua, (name, handler): (String, mlua::Function)| {
+                let key = lua
+                    .create_registry_value(handler)
+                    .map_err(|e| mlua::Error::runtime(format!("Failed to store handler: {}", e)))?;
+                let mut cmds = lua_commands
+                    .lock()
+                    .map_err(|e| mlua::Error::runtime(format!("Lock poisoned: {}", e)))?;
+                cmds.push(LuaCommand {
+                    name: name.clone(),
+                    handler_key: key,
+                });
+                Ok(())
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    pickaxe.set("commands", commands_table).map_err(lua_err)?;
     Ok(())
 }

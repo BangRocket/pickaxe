@@ -84,6 +84,7 @@ pub async fn run_tick_loop(
     scripting: ScriptRuntime,
     mut new_player_rx: mpsc::UnboundedReceiver<NewPlayer>,
     player_count: Arc<std::sync::atomic::AtomicUsize>,
+    lua_commands: crate::bridge::LuaCommands,
 ) {
     let adapter = V1_21Adapter::new();
     let mut world = World::new();
@@ -112,6 +113,7 @@ pub async fn run_tick_loop(
                 &mut inbound_receivers,
                 new_player,
                 &scripting,
+                &lua_commands,
             );
         }
 
@@ -153,6 +155,7 @@ pub async fn run_tick_loop(
                 &mut world_state,
                 pkt,
                 &scripting,
+                &lua_commands,
             );
         }
 
@@ -187,6 +190,7 @@ fn handle_new_player(
     inbound_receivers: &mut HashMap<i32, mpsc::UnboundedReceiver<InboundPacket>>,
     new_player: NewPlayer,
     scripting: &ScriptRuntime,
+    lua_commands: &crate::bridge::LuaCommands,
 ) {
     let entity_id = new_player.entity_id;
     let profile = new_player.profile.clone();
@@ -218,8 +222,8 @@ fn handle_new_player(
         enforces_secure_chat: false,
     });
 
-    // Declare commands for tab completion
-    let _ = sender.send(build_command_tree());
+    // Declare commands for tab completion (includes Lua-registered commands)
+    let _ = sender.send(build_command_tree(lua_commands));
 
     // Send current world time
     let _ = sender.send(InternalPacket::UpdateTime {
@@ -435,6 +439,7 @@ fn process_packet(
     world_state: &mut WorldState,
     pkt: InboundPacket,
     scripting: &ScriptRuntime,
+    lua_commands: &crate::bridge::LuaCommands,
 ) {
     let entity_id = pkt.entity_id;
 
@@ -767,10 +772,48 @@ fn process_packet(
                 "give" => cmd_give(world, entity, args),
                 "kill" => cmd_kill(world, entity),
                 "say" => cmd_say(world, args, &name),
-                "help" => cmd_help(world, entity),
+                "help" => cmd_help(world, entity, lua_commands),
                 "time" => cmd_time(world, entity, args, world_state),
                 _ => {
-                    send_message(world, entity, &format!("Unknown command: /{}", cmd_name));
+                    // Check Lua-registered commands
+                    let handled = if let Ok(cmds) = lua_commands.lock() {
+                        if let Some(lua_cmd) = cmds.iter().find(|c| c.name == cmd_name) {
+                            let lua = scripting.lua();
+                            // Set game context so bridge APIs work inside command handlers
+                            lua.set_app_data(pickaxe_scripting::bridge::LuaGameContext {
+                                world_ptr: world as *mut _ as *mut (),
+                                world_state_ptr: world_state as *mut _ as *mut (),
+                            });
+                            let func: mlua::Result<mlua::Function> =
+                                lua.registry_value(&lua_cmd.handler_key);
+                            let result = if let Ok(func) = func {
+                                if let Err(e) = func.call::<()>((name.clone(), args.to_string())) {
+                                    warn!("Lua command /{} error: {}", cmd_name, e);
+                                    send_message(
+                                        world,
+                                        entity,
+                                        &format!("Command error: {}", e),
+                                    );
+                                }
+                                true
+                            } else {
+                                false
+                            };
+                            lua.remove_app_data::<pickaxe_scripting::bridge::LuaGameContext>();
+                            result
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    };
+                    if !handled {
+                        send_message(
+                            world,
+                            entity,
+                            &format!("Unknown command: /{}", cmd_name),
+                        );
+                    }
                 }
             }
         }
@@ -1524,7 +1567,7 @@ fn cmd_say(world: &World, message: &str, sender_name: &str) {
     );
 }
 
-fn cmd_help(world: &World, entity: hecs::Entity) {
+fn cmd_help(world: &World, entity: hecs::Entity, lua_commands: &crate::bridge::LuaCommands) {
     let help_text = [
         "=== Pickaxe Server Commands ===",
         "/gamemode <mode> - Change game mode (survival/creative/adventure/spectator)",
@@ -1540,6 +1583,14 @@ fn cmd_help(world: &World, entity: hecs::Entity) {
     ];
     for line in &help_text {
         send_message(world, entity, line);
+    }
+    if let Ok(cmds) = lua_commands.lock() {
+        if !cmds.is_empty() {
+            send_message(world, entity, "=== Mod Commands ===");
+            for cmd in cmds.iter() {
+                send_message(world, entity, &format!("/{}", cmd.name));
+            }
+        }
     }
 }
 
@@ -1759,7 +1810,7 @@ fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
 }
 
 /// Build the Declare Commands packet with the full command tree.
-fn build_command_tree() -> InternalPacket {
+fn build_command_tree(lua_commands: &crate::bridge::LuaCommands) -> InternalPacket {
     let mut nodes: Vec<CommandNode> = Vec::new();
 
     // Helper: create a literal node (type=1)
@@ -1826,6 +1877,15 @@ fn build_command_tree() -> InternalPacket {
     let time_idx = nodes.len() as i32;
     root_children.push(time_idx);
     nodes.push(lit("time", false, vec![set_idx, add_idx, query_idx]));
+
+    // Add Lua-registered commands
+    if let Ok(cmds) = lua_commands.lock() {
+        for cmd in cmds.iter() {
+            let idx = nodes.len() as i32;
+            root_children.push(idx);
+            nodes.push(lit(&cmd.name, true, vec![]));
+        }
+    }
 
     // Patch root children
     nodes[0].children = root_children;

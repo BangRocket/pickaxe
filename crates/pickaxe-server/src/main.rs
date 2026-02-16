@@ -8,7 +8,7 @@ use config::ServerConfig;
 use pickaxe_scripting::ScriptRuntime;
 use std::path::Path;
 use std::sync::atomic::{AtomicI32, AtomicUsize};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tracing::{error, info};
@@ -32,9 +32,12 @@ async fn main() -> anyhow::Result<()> {
 
     // Initialize Lua scripting (must stay on this thread — Lua VM is !Send)
     let scripting = ScriptRuntime::new()?;
+    // Shared storage for Lua-registered commands
+    let lua_commands: bridge::LuaCommands = Arc::new(Mutex::new(Vec::new()));
     // Register bridge APIs before mods load so they're available in init.lua
     bridge::register_world_api(scripting.lua())?;
     bridge::register_players_api(scripting.lua())?;
+    bridge::register_commands_api(scripting.lua(), lua_commands.clone())?;
     scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
@@ -63,7 +66,7 @@ async fn main() -> anyhow::Result<()> {
     let tick_player_count = player_count.clone();
 
     tokio::select! {
-        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count) => {
+        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands) => {
             error!("Tick loop exited unexpectedly");
         }
         _ = accept_loop(listener, config, new_player_tx, next_eid, player_count) => {
