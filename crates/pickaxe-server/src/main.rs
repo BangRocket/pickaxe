@@ -34,6 +34,7 @@ async fn main() -> anyhow::Result<()> {
     let scripting = ScriptRuntime::new()?;
     // Register bridge APIs before mods load so they're available in init.lua
     bridge::register_world_api(scripting.lua())?;
+    bridge::register_players_api(scripting.lua())?;
     scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
