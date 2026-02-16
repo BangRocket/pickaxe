@@ -1,3 +1,4 @@
+mod bridge;
 mod config;
 mod ecs;
 mod network;
@@ -31,7 +32,8 @@ async fn main() -> anyhow::Result<()> {
 
     // Initialize Lua scripting (must stay on this thread — Lua VM is !Send)
     let scripting = ScriptRuntime::new()?;
-    // Bridge registration goes here (before mod loading)
+    // Register bridge APIs before mods load so they're available in init.lua
+    bridge::register_world_api(scripting.lua())?;
     scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
