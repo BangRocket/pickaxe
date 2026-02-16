@@ -1,0 +1,3173 @@
+[
+  {
+    "id": 932,
+    "name": "copper_block",
+    "displayName": "Block of Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22938,
+    "minStateId": 22938,
+    "maxStateId": 22938,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      89
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 933,
+    "name": "exposed_copper",
+    "displayName": "Exposed Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22939,
+    "minStateId": 22939,
+    "maxStateId": 22939,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      93
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 934,
+    "name": "weathered_copper",
+    "displayName": "Weathered Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22940,
+    "minStateId": 22940,
+    "maxStateId": 22940,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      94
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 935,
+    "name": "oxidized_copper",
+    "displayName": "Oxidized Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22941,
+    "minStateId": 22941,
+    "maxStateId": 22941,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      95
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 938,
+    "name": "oxidized_cut_copper",
+    "displayName": "Oxidized Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22944,
+    "minStateId": 22944,
+    "maxStateId": 22944,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      103
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 939,
+    "name": "weathered_cut_copper",
+    "displayName": "Weathered Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22945,
+    "minStateId": 22945,
+    "maxStateId": 22945,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      102
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 940,
+    "name": "exposed_cut_copper",
+    "displayName": "Exposed Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22946,
+    "minStateId": 22946,
+    "maxStateId": 22946,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      101
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 941,
+    "name": "cut_copper",
+    "displayName": "Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22947,
+    "minStateId": 22947,
+    "maxStateId": 22947,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      100
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 942,
+    "name": "oxidized_chiseled_copper",
+    "displayName": "Oxidized Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22948,
+    "minStateId": 22948,
+    "maxStateId": 22948,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      99
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 943,
+    "name": "weathered_chiseled_copper",
+    "displayName": "Weathered Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22949,
+    "minStateId": 22949,
+    "maxStateId": 22949,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      98
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 944,
+    "name": "exposed_chiseled_copper",
+    "displayName": "Exposed Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22950,
+    "minStateId": 22950,
+    "maxStateId": 22950,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      97
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 945,
+    "name": "chiseled_copper",
+    "displayName": "Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22951,
+    "minStateId": 22951,
+    "maxStateId": 22951,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      96
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 946,
+    "name": "waxed_oxidized_chiseled_copper",
+    "displayName": "Waxed Oxidized Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22952,
+    "minStateId": 22952,
+    "maxStateId": 22952,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      119
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 947,
+    "name": "waxed_weathered_chiseled_copper",
+    "displayName": "Waxed Weathered Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22953,
+    "minStateId": 22953,
+    "maxStateId": 22953,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      118
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 948,
+    "name": "waxed_exposed_chiseled_copper",
+    "displayName": "Waxed Exposed Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22954,
+    "minStateId": 22954,
+    "maxStateId": 22954,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      117
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 949,
+    "name": "waxed_chiseled_copper",
+    "displayName": "Waxed Chiseled Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22955,
+    "minStateId": 22955,
+    "maxStateId": 22955,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      116
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 950,
+    "name": "oxidized_cut_copper_stairs",
+    "displayName": "Oxidized Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 22967,
+    "minStateId": 22956,
+    "maxStateId": 23035,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      107
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 951,
+    "name": "weathered_cut_copper_stairs",
+    "displayName": "Weathered Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23047,
+    "minStateId": 23036,
+    "maxStateId": 23115,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      106
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 952,
+    "name": "exposed_cut_copper_stairs",
+    "displayName": "Exposed Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23127,
+    "minStateId": 23116,
+    "maxStateId": 23195,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      105
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 953,
+    "name": "cut_copper_stairs",
+    "displayName": "Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23207,
+    "minStateId": 23196,
+    "maxStateId": 23275,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      104
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 954,
+    "name": "oxidized_cut_copper_slab",
+    "displayName": "Oxidized Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23279,
+    "minStateId": 23276,
+    "maxStateId": 23281,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      111
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 955,
+    "name": "weathered_cut_copper_slab",
+    "displayName": "Weathered Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23285,
+    "minStateId": 23282,
+    "maxStateId": 23287,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      110
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 956,
+    "name": "exposed_cut_copper_slab",
+    "displayName": "Exposed Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23291,
+    "minStateId": 23288,
+    "maxStateId": 23293,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      109
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 957,
+    "name": "cut_copper_slab",
+    "displayName": "Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23297,
+    "minStateId": 23294,
+    "maxStateId": 23299,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      108
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 958,
+    "name": "waxed_copper_block",
+    "displayName": "Waxed Block of Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23300,
+    "minStateId": 23300,
+    "maxStateId": 23300,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      112
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 959,
+    "name": "waxed_weathered_copper",
+    "displayName": "Waxed Weathered Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23301,
+    "minStateId": 23301,
+    "maxStateId": 23301,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      114
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 960,
+    "name": "waxed_exposed_copper",
+    "displayName": "Waxed Exposed Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23302,
+    "minStateId": 23302,
+    "maxStateId": 23302,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      113
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 961,
+    "name": "waxed_oxidized_copper",
+    "displayName": "Waxed Oxidized Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23303,
+    "minStateId": 23303,
+    "maxStateId": 23303,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      115
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 962,
+    "name": "waxed_oxidized_cut_copper",
+    "displayName": "Waxed Oxidized Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23304,
+    "minStateId": 23304,
+    "maxStateId": 23304,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      123
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 963,
+    "name": "waxed_weathered_cut_copper",
+    "displayName": "Waxed Weathered Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23305,
+    "minStateId": 23305,
+    "maxStateId": 23305,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      122
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 964,
+    "name": "waxed_exposed_cut_copper",
+    "displayName": "Waxed Exposed Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23306,
+    "minStateId": 23306,
+    "maxStateId": 23306,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      121
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 965,
+    "name": "waxed_cut_copper",
+    "displayName": "Waxed Cut Copper",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23307,
+    "minStateId": 23307,
+    "maxStateId": 23307,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      120
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 966,
+    "name": "waxed_oxidized_cut_copper_stairs",
+    "displayName": "Waxed Oxidized Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23319,
+    "minStateId": 23308,
+    "maxStateId": 23387,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      127
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 967,
+    "name": "waxed_weathered_cut_copper_stairs",
+    "displayName": "Waxed Weathered Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23399,
+    "minStateId": 23388,
+    "maxStateId": 23467,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      126
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 968,
+    "name": "waxed_exposed_cut_copper_stairs",
+    "displayName": "Waxed Exposed Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23479,
+    "minStateId": 23468,
+    "maxStateId": 23547,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      125
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 969,
+    "name": "waxed_cut_copper_stairs",
+    "displayName": "Waxed Cut Copper Stairs",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23559,
+    "minStateId": 23548,
+    "maxStateId": 23627,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      124
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 970,
+    "name": "waxed_oxidized_cut_copper_slab",
+    "displayName": "Waxed Oxidized Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23631,
+    "minStateId": 23628,
+    "maxStateId": 23633,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      131
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 971,
+    "name": "waxed_weathered_cut_copper_slab",
+    "displayName": "Waxed Weathered Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23637,
+    "minStateId": 23634,
+    "maxStateId": 23639,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      130
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 972,
+    "name": "waxed_exposed_cut_copper_slab",
+    "displayName": "Waxed Exposed Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23643,
+    "minStateId": 23640,
+    "maxStateId": 23645,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      129
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 973,
+    "name": "waxed_cut_copper_slab",
+    "displayName": "Waxed Cut Copper Slab",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23649,
+    "minStateId": 23646,
+    "maxStateId": 23651,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      128
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 974,
+    "name": "copper_door",
+    "displayName": "Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23663,
+    "minStateId": 23652,
+    "maxStateId": 23715,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      722
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 975,
+    "name": "exposed_copper_door",
+    "displayName": "Exposed Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23727,
+    "minStateId": 23716,
+    "maxStateId": 23779,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      723
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 976,
+    "name": "oxidized_copper_door",
+    "displayName": "Oxidized Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23791,
+    "minStateId": 23780,
+    "maxStateId": 23843,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      725
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 977,
+    "name": "weathered_copper_door",
+    "displayName": "Weathered Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23855,
+    "minStateId": 23844,
+    "maxStateId": 23907,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      724
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 978,
+    "name": "waxed_copper_door",
+    "displayName": "Waxed Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23919,
+    "minStateId": 23908,
+    "maxStateId": 23971,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      726
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 979,
+    "name": "waxed_exposed_copper_door",
+    "displayName": "Waxed Exposed Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 23983,
+    "minStateId": 23972,
+    "maxStateId": 24035,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      727
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 980,
+    "name": "waxed_oxidized_copper_door",
+    "displayName": "Waxed Oxidized Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24047,
+    "minStateId": 24036,
+    "maxStateId": 24099,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      729
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 981,
+    "name": "waxed_weathered_copper_door",
+    "displayName": "Waxed Weathered Copper Door",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24111,
+    "minStateId": 24100,
+    "maxStateId": 24163,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      728
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 982,
+    "name": "copper_trapdoor",
+    "displayName": "Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24179,
+    "minStateId": 24164,
+    "maxStateId": 24227,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      742
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 983,
+    "name": "exposed_copper_trapdoor",
+    "displayName": "Exposed Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24243,
+    "minStateId": 24228,
+    "maxStateId": 24291,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      743
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 984,
+    "name": "oxidized_copper_trapdoor",
+    "displayName": "Oxidized Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24307,
+    "minStateId": 24292,
+    "maxStateId": 24355,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      745
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 985,
+    "name": "weathered_copper_trapdoor",
+    "displayName": "Weathered Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24371,
+    "minStateId": 24356,
+    "maxStateId": 24419,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      744
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 986,
+    "name": "waxed_copper_trapdoor",
+    "displayName": "Waxed Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24435,
+    "minStateId": 24420,
+    "maxStateId": 24483,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      746
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 987,
+    "name": "waxed_exposed_copper_trapdoor",
+    "displayName": "Waxed Exposed Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24499,
+    "minStateId": 24484,
+    "maxStateId": 24547,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      747
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 988,
+    "name": "waxed_oxidized_copper_trapdoor",
+    "displayName": "Waxed Oxidized Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24563,
+    "minStateId": 24548,
+    "maxStateId": 24611,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      749
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 989,
+    "name": "waxed_weathered_copper_trapdoor",
+    "displayName": "Waxed Weathered Copper Trapdoor",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24627,
+    "minStateId": 24612,
+    "maxStateId": 24675,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      748
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 990,
+    "name": "copper_grate",
+    "displayName": "Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24677,
+    "minStateId": 24676,
+    "maxStateId": 24677,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1311
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 991,
+    "name": "exposed_copper_grate",
+    "displayName": "Exposed Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24679,
+    "minStateId": 24678,
+    "maxStateId": 24679,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1312
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 992,
+    "name": "weathered_copper_grate",
+    "displayName": "Weathered Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24681,
+    "minStateId": 24680,
+    "maxStateId": 24681,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1313
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 993,
+    "name": "oxidized_copper_grate",
+    "displayName": "Oxidized Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24683,
+    "minStateId": 24682,
+    "maxStateId": 24683,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1314
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 994,
+    "name": "waxed_copper_grate",
+    "displayName": "Waxed Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24685,
+    "minStateId": 24684,
+    "maxStateId": 24685,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1315
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 995,
+    "name": "waxed_exposed_copper_grate",
+    "displayName": "Waxed Exposed Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24687,
+    "minStateId": 24686,
+    "maxStateId": 24687,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1316
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 996,
+    "name": "waxed_weathered_copper_grate",
+    "displayName": "Waxed Weathered Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24689,
+    "minStateId": 24688,
+    "maxStateId": 24689,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1317
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 997,
+    "name": "waxed_oxidized_copper_grate",
+    "displayName": "Waxed Oxidized Copper Grate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24691,
+    "minStateId": 24690,
+    "maxStateId": 24691,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1318
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 998,
+    "name": "copper_bulb",
+    "displayName": "Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24695,
+    "minStateId": 24692,
+    "maxStateId": 24695,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1319
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 999,
+    "name": "exposed_copper_bulb",
+    "displayName": "Exposed Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24699,
+    "minStateId": 24696,
+    "maxStateId": 24699,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1320
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1000,
+    "name": "weathered_copper_bulb",
+    "displayName": "Weathered Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24703,
+    "minStateId": 24700,
+    "maxStateId": 24703,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1321
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1001,
+    "name": "oxidized_copper_bulb",
+    "displayName": "Oxidized Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24707,
+    "minStateId": 24704,
+    "maxStateId": 24707,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1322
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1002,
+    "name": "waxed_copper_bulb",
+    "displayName": "Waxed Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24711,
+    "minStateId": 24708,
+    "maxStateId": 24711,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1323
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1003,
+    "name": "waxed_exposed_copper_bulb",
+    "displayName": "Waxed Exposed Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24715,
+    "minStateId": 24712,
+    "maxStateId": 24715,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1324
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1004,
+    "name": "waxed_weathered_copper_bulb",
+    "displayName": "Waxed Weathered Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24719,
+    "minStateId": 24716,
+    "maxStateId": 24719,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1325
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1005,
+    "name": "waxed_oxidized_copper_bulb",
+    "displayName": "Waxed Oxidized Copper Bulb",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24723,
+    "minStateId": 24720,
+    "maxStateId": 24723,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1326
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1006,
+    "name": "lightning_rod",
+    "displayName": "Lightning Rod",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24743,
+    "minStateId": 24724,
+    "maxStateId": 24747,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      673
+    ],
+    "boundingBox": "block"
+  }
+]

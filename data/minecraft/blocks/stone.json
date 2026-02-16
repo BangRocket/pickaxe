@@ -1,0 +1,7024 @@
+[
+  {
+    "id": 1,
+    "name": "stone",
+    "displayName": "Stone",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 1,
+    "minStateId": 1,
+    "maxStateId": 1,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      35
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 2,
+    "name": "granite",
+    "displayName": "Granite",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2,
+    "minStateId": 2,
+    "maxStateId": 2,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      2
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 3,
+    "name": "polished_granite",
+    "displayName": "Polished Granite",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 3,
+    "minStateId": 3,
+    "maxStateId": 3,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      3
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 4,
+    "name": "diorite",
+    "displayName": "Diorite",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 4,
+    "minStateId": 4,
+    "maxStateId": 4,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      4
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 5,
+    "name": "polished_diorite",
+    "displayName": "Polished Diorite",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 5,
+    "minStateId": 5,
+    "maxStateId": 5,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      5
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 6,
+    "name": "andesite",
+    "displayName": "Andesite",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6,
+    "minStateId": 6,
+    "maxStateId": 6,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      6
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 7,
+    "name": "polished_andesite",
+    "displayName": "Polished Andesite",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 7,
+    "minStateId": 7,
+    "maxStateId": 7,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      7
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 12,
+    "name": "cobblestone",
+    "displayName": "Cobblestone",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 14,
+    "minStateId": 14,
+    "maxStateId": 14,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      35
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 99,
+    "name": "sandstone",
+    "displayName": "Sandstone",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 535,
+    "minStateId": 535,
+    "maxStateId": 535,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      191
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 100,
+    "name": "chiseled_sandstone",
+    "displayName": "Chiseled Sandstone",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 536,
+    "minStateId": 536,
+    "maxStateId": 536,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      192
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 101,
+    "name": "cut_sandstone",
+    "displayName": "Cut Sandstone",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 537,
+    "minStateId": 537,
+    "maxStateId": 537,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      193
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 165,
+    "name": "bricks",
+    "displayName": "Bricks",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2093,
+    "minStateId": 2093,
+    "maxStateId": 2093,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      285
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 169,
+    "name": "mossy_cobblestone",
+    "displayName": "Mossy Cobblestone",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2353,
+    "minStateId": 2353,
+    "maxStateId": 2353,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      289
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 198,
+    "name": "cobblestone_stairs",
+    "displayName": "Cobblestone Stairs",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4693,
+    "minStateId": 4682,
+    "maxStateId": 4761,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      304
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 293,
+    "name": "stone_bricks",
+    "displayName": "Stone Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6537,
+    "minStateId": 6537,
+    "maxStateId": 6537,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      340
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 294,
+    "name": "mossy_stone_bricks",
+    "displayName": "Mossy Stone Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6538,
+    "minStateId": 6538,
+    "maxStateId": 6538,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      341
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 295,
+    "name": "cracked_stone_bricks",
+    "displayName": "Cracked Stone Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6539,
+    "minStateId": 6539,
+    "maxStateId": 6539,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      342
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 296,
+    "name": "chiseled_stone_bricks",
+    "displayName": "Chiseled Stone Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6540,
+    "minStateId": 6540,
+    "maxStateId": 6540,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      343
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 297,
+    "name": "packed_mud",
+    "displayName": "Packed Mud",
+    "hardness": 1.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6541,
+    "minStateId": 6541,
+    "maxStateId": 6541,
+    "states": [],
+    "drops": [
+      344
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 298,
+    "name": "mud_bricks",
+    "displayName": "Mud Bricks",
+    "hardness": 1.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6542,
+    "minStateId": 6542,
+    "maxStateId": 6542,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      345
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 299,
+    "name": "infested_stone",
+    "displayName": "Infested Stone",
+    "hardness": 0.75,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6543,
+    "minStateId": 6543,
+    "maxStateId": 6543,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 300,
+    "name": "infested_cobblestone",
+    "displayName": "Infested Cobblestone",
+    "hardness": 1.0,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6544,
+    "minStateId": 6544,
+    "maxStateId": 6544,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 301,
+    "name": "infested_stone_bricks",
+    "displayName": "Infested Stone Bricks",
+    "hardness": 0.75,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6545,
+    "minStateId": 6545,
+    "maxStateId": 6545,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 302,
+    "name": "infested_mossy_stone_bricks",
+    "displayName": "Infested Mossy Stone Bricks",
+    "hardness": 0.75,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6546,
+    "minStateId": 6546,
+    "maxStateId": 6546,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 303,
+    "name": "infested_cracked_stone_bricks",
+    "displayName": "Infested Cracked Stone Bricks",
+    "hardness": 0.75,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6547,
+    "minStateId": 6547,
+    "maxStateId": 6547,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 304,
+    "name": "infested_chiseled_stone_bricks",
+    "displayName": "Infested Chiseled Stone Bricks",
+    "hardness": 0.75,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6548,
+    "minStateId": 6548,
+    "maxStateId": 6548,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 308,
+    "name": "iron_bars",
+    "displayName": "Iron Bars",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6772,
+    "minStateId": 6741,
+    "maxStateId": 6772,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      355
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 320,
+    "name": "brick_stairs",
+    "displayName": "Brick Stairs",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7040,
+    "minStateId": 7029,
+    "maxStateId": 7108,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      361
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 321,
+    "name": "stone_brick_stairs",
+    "displayName": "Stone Brick Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7120,
+    "minStateId": 7109,
+    "maxStateId": 7188,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      362
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 322,
+    "name": "mud_brick_stairs",
+    "displayName": "Mud Brick Stairs",
+    "hardness": 1.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7200,
+    "minStateId": 7189,
+    "maxStateId": 7268,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      363
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 337,
+    "name": "end_stone",
+    "displayName": "End Stone",
+    "hardness": 3.0,
+    "resistance": 9.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 7415,
+    "minStateId": 7415,
+    "maxStateId": 7415,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      377
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 341,
+    "name": "sandstone_stairs",
+    "displayName": "Sandstone Stairs",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7442,
+    "minStateId": 7431,
+    "maxStateId": 7510,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      380
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 353,
+    "name": "cobblestone_wall",
+    "displayName": "Cobblestone Wall",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7922,
+    "minStateId": 7919,
+    "maxStateId": 8242,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      397
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 354,
+    "name": "mossy_cobblestone_wall",
+    "displayName": "Mossy Cobblestone Wall",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8246,
+    "minStateId": 8243,
+    "maxStateId": 8566,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      398
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 419,
+    "name": "quartz_block",
+    "displayName": "Block of Quartz",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9235,
+    "minStateId": 9235,
+    "maxStateId": 9235,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      423
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 420,
+    "name": "chiseled_quartz_block",
+    "displayName": "Chiseled Quartz Block",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9236,
+    "minStateId": 9236,
+    "maxStateId": 9236,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      422
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 421,
+    "name": "quartz_pillar",
+    "displayName": "Quartz Pillar",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9238,
+    "minStateId": 9237,
+    "maxStateId": 9239,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      425
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 422,
+    "name": "quartz_stairs",
+    "displayName": "Quartz Stairs",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9251,
+    "minStateId": 9240,
+    "maxStateId": 9319,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      426
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 467,
+    "name": "prismarine",
+    "displayName": "Prismarine",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 10463,
+    "minStateId": 10463,
+    "maxStateId": 10463,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      503
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 468,
+    "name": "prismarine_bricks",
+    "displayName": "Prismarine Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 10464,
+    "minStateId": 10464,
+    "maxStateId": 10464,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      504
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 469,
+    "name": "dark_prismarine",
+    "displayName": "Dark Prismarine",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 10465,
+    "minStateId": 10465,
+    "maxStateId": 10465,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      505
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 470,
+    "name": "prismarine_stairs",
+    "displayName": "Prismarine Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10477,
+    "minStateId": 10466,
+    "maxStateId": 10545,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      506
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 471,
+    "name": "prismarine_brick_stairs",
+    "displayName": "Prismarine Brick Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10557,
+    "minStateId": 10546,
+    "maxStateId": 10625,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      507
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 472,
+    "name": "dark_prismarine_stairs",
+    "displayName": "Dark Prismarine Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10637,
+    "minStateId": 10626,
+    "maxStateId": 10705,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      508
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 473,
+    "name": "prismarine_slab",
+    "displayName": "Prismarine Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10709,
+    "minStateId": 10706,
+    "maxStateId": 10711,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      278
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 474,
+    "name": "prismarine_brick_slab",
+    "displayName": "Prismarine Brick Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10715,
+    "minStateId": 10712,
+    "maxStateId": 10717,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      279
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 475,
+    "name": "dark_prismarine_slab",
+    "displayName": "Dark Prismarine Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10721,
+    "minStateId": 10718,
+    "maxStateId": 10723,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      280
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 535,
+    "name": "red_sandstone",
+    "displayName": "Red Sandstone",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11079,
+    "minStateId": 11079,
+    "maxStateId": 11079,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      510
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 536,
+    "name": "chiseled_red_sandstone",
+    "displayName": "Chiseled Red Sandstone",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11080,
+    "minStateId": 11080,
+    "maxStateId": 11080,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      511
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 537,
+    "name": "cut_red_sandstone",
+    "displayName": "Cut Red Sandstone",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11081,
+    "minStateId": 11081,
+    "maxStateId": 11081,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      512
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 538,
+    "name": "red_sandstone_stairs",
+    "displayName": "Red Sandstone Stairs",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11093,
+    "minStateId": 11082,
+    "maxStateId": 11161,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      513
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 549,
+    "name": "stone_slab",
+    "displayName": "Stone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11225,
+    "minStateId": 11222,
+    "maxStateId": 11227,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      264
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 550,
+    "name": "smooth_stone_slab",
+    "displayName": "Smooth Stone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11231,
+    "minStateId": 11228,
+    "maxStateId": 11233,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      265
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 551,
+    "name": "sandstone_slab",
+    "displayName": "Sandstone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11237,
+    "minStateId": 11234,
+    "maxStateId": 11239,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      266
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 552,
+    "name": "cut_sandstone_slab",
+    "displayName": "Cut Sandstone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11243,
+    "minStateId": 11240,
+    "maxStateId": 11245,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      267
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 553,
+    "name": "petrified_oak_slab",
+    "displayName": "Petrified Oak Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11249,
+    "minStateId": 11246,
+    "maxStateId": 11251,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      268
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 554,
+    "name": "cobblestone_slab",
+    "displayName": "Cobblestone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11255,
+    "minStateId": 11252,
+    "maxStateId": 11257,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      269
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 555,
+    "name": "brick_slab",
+    "displayName": "Brick Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11261,
+    "minStateId": 11258,
+    "maxStateId": 11263,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      270
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 556,
+    "name": "stone_brick_slab",
+    "displayName": "Stone Brick Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11267,
+    "minStateId": 11264,
+    "maxStateId": 11269,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      271
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 557,
+    "name": "mud_brick_slab",
+    "displayName": "Mud Brick Slab",
+    "hardness": 1.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11273,
+    "minStateId": 11270,
+    "maxStateId": 11275,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      272
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 559,
+    "name": "quartz_slab",
+    "displayName": "Quartz Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11285,
+    "minStateId": 11282,
+    "maxStateId": 11287,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      274
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 560,
+    "name": "red_sandstone_slab",
+    "displayName": "Red Sandstone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11291,
+    "minStateId": 11288,
+    "maxStateId": 11293,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      275
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 561,
+    "name": "cut_red_sandstone_slab",
+    "displayName": "Cut Red Sandstone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11297,
+    "minStateId": 11294,
+    "maxStateId": 11299,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      276
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 562,
+    "name": "purpur_slab",
+    "displayName": "Purpur Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11303,
+    "minStateId": 11300,
+    "maxStateId": 11305,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      277
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 563,
+    "name": "smooth_stone",
+    "displayName": "Smooth Stone",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11306,
+    "minStateId": 11306,
+    "maxStateId": 11306,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      284
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 564,
+    "name": "smooth_sandstone",
+    "displayName": "Smooth Sandstone",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11307,
+    "minStateId": 11307,
+    "maxStateId": 11307,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      283
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 565,
+    "name": "smooth_quartz",
+    "displayName": "Smooth Quartz Block",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11308,
+    "minStateId": 11308,
+    "maxStateId": 11308,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      281
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 566,
+    "name": "smooth_red_sandstone",
+    "displayName": "Smooth Red Sandstone",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 11309,
+    "minStateId": 11309,
+    "maxStateId": 11309,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      282
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 594,
+    "name": "purpur_block",
+    "displayName": "Purpur Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12410,
+    "minStateId": 12410,
+    "maxStateId": 12410,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      295
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 595,
+    "name": "purpur_pillar",
+    "displayName": "Purpur Pillar",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12412,
+    "minStateId": 12411,
+    "maxStateId": 12413,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      296
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 596,
+    "name": "purpur_stairs",
+    "displayName": "Purpur Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12425,
+    "minStateId": 12414,
+    "maxStateId": 12493,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      297
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 597,
+    "name": "end_stone_bricks",
+    "displayName": "End Stone Bricks",
+    "hardness": 3.0,
+    "resistance": 9.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12494,
+    "minStateId": 12494,
+    "maxStateId": 12494,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      378
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 732,
+    "name": "polished_granite_stairs",
+    "displayName": "Polished Granite Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12973,
+    "minStateId": 12962,
+    "maxStateId": 13041,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      621
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 733,
+    "name": "smooth_red_sandstone_stairs",
+    "displayName": "Smooth Red Sandstone Stairs",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13053,
+    "minStateId": 13042,
+    "maxStateId": 13121,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      622
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 734,
+    "name": "mossy_stone_brick_stairs",
+    "displayName": "Mossy Stone Brick Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13133,
+    "minStateId": 13122,
+    "maxStateId": 13201,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      623
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 735,
+    "name": "polished_diorite_stairs",
+    "displayName": "Polished Diorite Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13213,
+    "minStateId": 13202,
+    "maxStateId": 13281,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      624
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 736,
+    "name": "mossy_cobblestone_stairs",
+    "displayName": "Mossy Cobblestone Stairs",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13293,
+    "minStateId": 13282,
+    "maxStateId": 13361,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      625
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 737,
+    "name": "end_stone_brick_stairs",
+    "displayName": "End Stone Brick Stairs",
+    "hardness": 3.0,
+    "resistance": 9.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13373,
+    "minStateId": 13362,
+    "maxStateId": 13441,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      626
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 738,
+    "name": "stone_stairs",
+    "displayName": "Stone Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13453,
+    "minStateId": 13442,
+    "maxStateId": 13521,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      627
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 739,
+    "name": "smooth_sandstone_stairs",
+    "displayName": "Smooth Sandstone Stairs",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13533,
+    "minStateId": 13522,
+    "maxStateId": 13601,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      628
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 740,
+    "name": "smooth_quartz_stairs",
+    "displayName": "Smooth Quartz Stairs",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13613,
+    "minStateId": 13602,
+    "maxStateId": 13681,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      629
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 741,
+    "name": "granite_stairs",
+    "displayName": "Granite Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13693,
+    "minStateId": 13682,
+    "maxStateId": 13761,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      630
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 742,
+    "name": "andesite_stairs",
+    "displayName": "Andesite Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13773,
+    "minStateId": 13762,
+    "maxStateId": 13841,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      631
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 744,
+    "name": "polished_andesite_stairs",
+    "displayName": "Polished Andesite Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 13933,
+    "minStateId": 13922,
+    "maxStateId": 14001,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      633
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 745,
+    "name": "diorite_stairs",
+    "displayName": "Diorite Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14013,
+    "minStateId": 14002,
+    "maxStateId": 14081,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      634
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 746,
+    "name": "polished_granite_slab",
+    "displayName": "Polished Granite Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14085,
+    "minStateId": 14082,
+    "maxStateId": 14087,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      639
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 747,
+    "name": "smooth_red_sandstone_slab",
+    "displayName": "Smooth Red Sandstone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14091,
+    "minStateId": 14088,
+    "maxStateId": 14093,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      640
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 748,
+    "name": "mossy_stone_brick_slab",
+    "displayName": "Mossy Stone Brick Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14097,
+    "minStateId": 14094,
+    "maxStateId": 14099,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      641
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 749,
+    "name": "polished_diorite_slab",
+    "displayName": "Polished Diorite Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14103,
+    "minStateId": 14100,
+    "maxStateId": 14105,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      642
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 750,
+    "name": "mossy_cobblestone_slab",
+    "displayName": "Mossy Cobblestone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14109,
+    "minStateId": 14106,
+    "maxStateId": 14111,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      643
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 751,
+    "name": "end_stone_brick_slab",
+    "displayName": "End Stone Brick Slab",
+    "hardness": 3.0,
+    "resistance": 9.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14115,
+    "minStateId": 14112,
+    "maxStateId": 14117,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      644
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 752,
+    "name": "smooth_sandstone_slab",
+    "displayName": "Smooth Sandstone Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14121,
+    "minStateId": 14118,
+    "maxStateId": 14123,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      645
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 753,
+    "name": "smooth_quartz_slab",
+    "displayName": "Smooth Quartz Slab",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14127,
+    "minStateId": 14124,
+    "maxStateId": 14129,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      646
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 754,
+    "name": "granite_slab",
+    "displayName": "Granite Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14133,
+    "minStateId": 14130,
+    "maxStateId": 14135,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      647
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 755,
+    "name": "andesite_slab",
+    "displayName": "Andesite Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14139,
+    "minStateId": 14136,
+    "maxStateId": 14141,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      648
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 757,
+    "name": "polished_andesite_slab",
+    "displayName": "Polished Andesite Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14151,
+    "minStateId": 14148,
+    "maxStateId": 14153,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      650
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 758,
+    "name": "diorite_slab",
+    "displayName": "Diorite Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14157,
+    "minStateId": 14154,
+    "maxStateId": 14159,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      651
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 759,
+    "name": "brick_wall",
+    "displayName": "Brick Wall",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14163,
+    "minStateId": 14160,
+    "maxStateId": 14483,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      399
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 760,
+    "name": "prismarine_wall",
+    "displayName": "Prismarine Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14487,
+    "minStateId": 14484,
+    "maxStateId": 14807,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      400
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 761,
+    "name": "red_sandstone_wall",
+    "displayName": "Red Sandstone Wall",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 14811,
+    "minStateId": 14808,
+    "maxStateId": 15131,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      401
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 762,
+    "name": "mossy_stone_brick_wall",
+    "displayName": "Mossy Stone Brick Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 15135,
+    "minStateId": 15132,
+    "maxStateId": 15455,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      402
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 763,
+    "name": "granite_wall",
+    "displayName": "Granite Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 15459,
+    "minStateId": 15456,
+    "maxStateId": 15779,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      403
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 764,
+    "name": "stone_brick_wall",
+    "displayName": "Stone Brick Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 15783,
+    "minStateId": 15780,
+    "maxStateId": 16103,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      404
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 765,
+    "name": "mud_brick_wall",
+    "displayName": "Mud Brick Wall",
+    "hardness": 1.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 16107,
+    "minStateId": 16104,
+    "maxStateId": 16427,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      405
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 767,
+    "name": "andesite_wall",
+    "displayName": "Andesite Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 16755,
+    "minStateId": 16752,
+    "maxStateId": 17075,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      407
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 769,
+    "name": "sandstone_wall",
+    "displayName": "Sandstone Wall",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 17403,
+    "minStateId": 17400,
+    "maxStateId": 17723,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      409
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 770,
+    "name": "end_stone_brick_wall",
+    "displayName": "End Stone Brick Wall",
+    "hardness": 3.0,
+    "resistance": 9.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 17727,
+    "minStateId": 17724,
+    "maxStateId": 18047,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      410
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 771,
+    "name": "diorite_wall",
+    "displayName": "Diorite Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18051,
+    "minStateId": 18048,
+    "maxStateId": 18371,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      411
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 909,
+    "name": "tuff",
+    "displayName": "Tuff",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21081,
+    "minStateId": 21081,
+    "maxStateId": 21081,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      12
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 910,
+    "name": "tuff_slab",
+    "displayName": "Tuff Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21085,
+    "minStateId": 21082,
+    "maxStateId": 21087,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      13
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 911,
+    "name": "tuff_stairs",
+    "displayName": "Tuff Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21099,
+    "minStateId": 21088,
+    "maxStateId": 21167,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      14
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 912,
+    "name": "tuff_wall",
+    "displayName": "Tuff Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21171,
+    "minStateId": 21168,
+    "maxStateId": 21491,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      15
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 913,
+    "name": "polished_tuff",
+    "displayName": "Polished Tuff",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21492,
+    "minStateId": 21492,
+    "maxStateId": 21492,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      17
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 914,
+    "name": "polished_tuff_slab",
+    "displayName": "Polished Tuff Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21496,
+    "minStateId": 21493,
+    "maxStateId": 21498,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      18
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 915,
+    "name": "polished_tuff_stairs",
+    "displayName": "Polished Tuff Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21510,
+    "minStateId": 21499,
+    "maxStateId": 21578,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      19
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 916,
+    "name": "polished_tuff_wall",
+    "displayName": "Polished Tuff Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21582,
+    "minStateId": 21579,
+    "maxStateId": 21902,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      20
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 917,
+    "name": "chiseled_tuff",
+    "displayName": "Chiseled Tuff",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21903,
+    "minStateId": 21903,
+    "maxStateId": 21903,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      16
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 918,
+    "name": "tuff_bricks",
+    "displayName": "Tuff Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21904,
+    "minStateId": 21904,
+    "maxStateId": 21904,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      21
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 919,
+    "name": "tuff_brick_slab",
+    "displayName": "Tuff Brick Slab",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21908,
+    "minStateId": 21905,
+    "maxStateId": 21910,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      22
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 920,
+    "name": "tuff_brick_stairs",
+    "displayName": "Tuff Brick Stairs",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21922,
+    "minStateId": 21911,
+    "maxStateId": 21990,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      23
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 921,
+    "name": "tuff_brick_wall",
+    "displayName": "Tuff Brick Wall",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21994,
+    "minStateId": 21991,
+    "maxStateId": 22314,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      24
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 922,
+    "name": "chiseled_tuff_bricks",
+    "displayName": "Chiseled Tuff Bricks",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22315,
+    "minStateId": 22315,
+    "maxStateId": 22315,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      25
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 923,
+    "name": "calcite",
+    "displayName": "Calcite",
+    "hardness": 0.75,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22316,
+    "minStateId": 22316,
+    "maxStateId": 22316,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      11
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1007,
+    "name": "pointed_dripstone",
+    "displayName": "Pointed Dripstone",
+    "hardness": 1.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24753,
+    "minStateId": 24748,
+    "maxStateId": 24767,
+    "states": [
+      {
+        "name": "thickness",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "tip_merge",
+          "tip",
+          "frustum",
+          "middle",
+          "base"
+        ]
+      },
+      {
+        "name": "vertical_direction",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1262
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1008,
+    "name": "dripstone_block",
+    "displayName": "Dripstone Block",
+    "hardness": 1.5,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24768,
+    "minStateId": 24768,
+    "maxStateId": 24768,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      26
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1023,
+    "name": "deepslate",
+    "displayName": "Deepslate",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24905,
+    "minStateId": 24904,
+    "maxStateId": 24906,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      9
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1024,
+    "name": "cobbled_deepslate",
+    "displayName": "Cobbled Deepslate",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24907,
+    "minStateId": 24907,
+    "maxStateId": 24907,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      9
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1025,
+    "name": "cobbled_deepslate_stairs",
+    "displayName": "Cobbled Deepslate Stairs",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24919,
+    "minStateId": 24908,
+    "maxStateId": 24987,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      635
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1026,
+    "name": "cobbled_deepslate_slab",
+    "displayName": "Cobbled Deepslate Slab",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24991,
+    "minStateId": 24988,
+    "maxStateId": 24993,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      652
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1027,
+    "name": "cobbled_deepslate_wall",
+    "displayName": "Cobbled Deepslate Wall",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24997,
+    "minStateId": 24994,
+    "maxStateId": 25317,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      415
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1028,
+    "name": "polished_deepslate",
+    "displayName": "Polished Deepslate",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 25318,
+    "minStateId": 25318,
+    "maxStateId": 25318,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      10
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1029,
+    "name": "polished_deepslate_stairs",
+    "displayName": "Polished Deepslate Stairs",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25330,
+    "minStateId": 25319,
+    "maxStateId": 25398,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      636
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1030,
+    "name": "polished_deepslate_slab",
+    "displayName": "Polished Deepslate Slab",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25402,
+    "minStateId": 25399,
+    "maxStateId": 25404,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      653
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1031,
+    "name": "polished_deepslate_wall",
+    "displayName": "Polished Deepslate Wall",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25408,
+    "minStateId": 25405,
+    "maxStateId": 25728,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      416
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1032,
+    "name": "deepslate_tiles",
+    "displayName": "Deepslate Tiles",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 25729,
+    "minStateId": 25729,
+    "maxStateId": 25729,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      348
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1033,
+    "name": "deepslate_tile_stairs",
+    "displayName": "Deepslate Tile Stairs",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25741,
+    "minStateId": 25730,
+    "maxStateId": 25809,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      638
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1034,
+    "name": "deepslate_tile_slab",
+    "displayName": "Deepslate Tile Slab",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25813,
+    "minStateId": 25810,
+    "maxStateId": 25815,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      655
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1035,
+    "name": "deepslate_tile_wall",
+    "displayName": "Deepslate Tile Wall",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25819,
+    "minStateId": 25816,
+    "maxStateId": 26139,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      418
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1036,
+    "name": "deepslate_bricks",
+    "displayName": "Deepslate Bricks",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26140,
+    "minStateId": 26140,
+    "maxStateId": 26140,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      346
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1037,
+    "name": "deepslate_brick_stairs",
+    "displayName": "Deepslate Brick Stairs",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26152,
+    "minStateId": 26141,
+    "maxStateId": 26220,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      637
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1038,
+    "name": "deepslate_brick_slab",
+    "displayName": "Deepslate Brick Slab",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26224,
+    "minStateId": 26221,
+    "maxStateId": 26226,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      654
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1039,
+    "name": "deepslate_brick_wall",
+    "displayName": "Deepslate Brick Wall",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26230,
+    "minStateId": 26227,
+    "maxStateId": 26550,
+    "states": [
+      {
+        "name": "east",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "north",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "south",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "low",
+          "tall"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      417
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1040,
+    "name": "chiseled_deepslate",
+    "displayName": "Chiseled Deepslate",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26551,
+    "minStateId": 26551,
+    "maxStateId": 26551,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      350
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1041,
+    "name": "cracked_deepslate_bricks",
+    "displayName": "Cracked Deepslate Bricks",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26552,
+    "minStateId": 26552,
+    "maxStateId": 26552,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      347
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1042,
+    "name": "cracked_deepslate_tiles",
+    "displayName": "Cracked Deepslate Tiles",
+    "hardness": 3.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26553,
+    "minStateId": 26553,
+    "maxStateId": 26553,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      349
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1043,
+    "name": "infested_deepslate",
+    "displayName": "Infested Deepslate",
+    "hardness": 1.5,
+    "resistance": 0.75,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26555,
+    "minStateId": 26554,
+    "maxStateId": 26556,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1054,
+    "name": "reinforced_deepslate",
+    "displayName": "Reinforced Deepslate",
+    "hardness": 55.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26573,
+    "minStateId": 26573,
+    "maxStateId": 26573,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  }
+]

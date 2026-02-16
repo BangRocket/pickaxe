@@ -1,0 +1,266 @@
+[
+  {
+    "id": 800,
+    "name": "apple",
+    "displayName": "Apple",
+    "stackSize": 64
+  },
+  {
+    "id": 849,
+    "name": "mushroom_stew",
+    "displayName": "Mushroom Stew",
+    "stackSize": 1
+  },
+  {
+    "id": 855,
+    "name": "bread",
+    "displayName": "Bread",
+    "stackSize": 64
+  },
+  {
+    "id": 881,
+    "name": "porkchop",
+    "displayName": "Raw Porkchop",
+    "stackSize": 64
+  },
+  {
+    "id": 882,
+    "name": "cooked_porkchop",
+    "displayName": "Cooked Porkchop",
+    "stackSize": 64
+  },
+  {
+    "id": 884,
+    "name": "golden_apple",
+    "displayName": "Golden Apple",
+    "stackSize": 64
+  },
+  {
+    "id": 885,
+    "name": "enchanted_golden_apple",
+    "displayName": "Enchanted Golden Apple",
+    "stackSize": 64
+  },
+  {
+    "id": 914,
+    "name": "milk_bucket",
+    "displayName": "Milk Bucket",
+    "stackSize": 1
+  },
+  {
+    "id": 935,
+    "name": "cod",
+    "displayName": "Raw Cod",
+    "stackSize": 64
+  },
+  {
+    "id": 936,
+    "name": "salmon",
+    "displayName": "Raw Salmon",
+    "stackSize": 64
+  },
+  {
+    "id": 937,
+    "name": "tropical_fish",
+    "displayName": "Tropical Fish",
+    "stackSize": 64
+  },
+  {
+    "id": 938,
+    "name": "pufferfish",
+    "displayName": "Pufferfish",
+    "stackSize": 64
+  },
+  {
+    "id": 939,
+    "name": "cooked_cod",
+    "displayName": "Cooked Cod",
+    "stackSize": 64
+  },
+  {
+    "id": 940,
+    "name": "cooked_salmon",
+    "displayName": "Cooked Salmon",
+    "stackSize": 64
+  },
+  {
+    "id": 963,
+    "name": "cake",
+    "displayName": "Cake",
+    "stackSize": 1
+  },
+  {
+    "id": 980,
+    "name": "cookie",
+    "displayName": "Cookie",
+    "stackSize": 64
+  },
+  {
+    "id": 984,
+    "name": "melon_slice",
+    "displayName": "Melon Slice",
+    "stackSize": 64
+  },
+  {
+    "id": 985,
+    "name": "dried_kelp",
+    "displayName": "Dried Kelp",
+    "stackSize": 64
+  },
+  {
+    "id": 988,
+    "name": "beef",
+    "displayName": "Raw Beef",
+    "stackSize": 64
+  },
+  {
+    "id": 989,
+    "name": "cooked_beef",
+    "displayName": "Steak",
+    "stackSize": 64
+  },
+  {
+    "id": 990,
+    "name": "chicken",
+    "displayName": "Raw Chicken",
+    "stackSize": 64
+  },
+  {
+    "id": 991,
+    "name": "cooked_chicken",
+    "displayName": "Cooked Chicken",
+    "stackSize": 64
+  },
+  {
+    "id": 992,
+    "name": "rotten_flesh",
+    "displayName": "Rotten Flesh",
+    "stackSize": 64
+  },
+  {
+    "id": 1000,
+    "name": "spider_eye",
+    "displayName": "Spider Eye",
+    "stackSize": 64
+  },
+  {
+    "id": 1097,
+    "name": "carrot",
+    "displayName": "Carrot",
+    "stackSize": 64
+  },
+  {
+    "id": 1098,
+    "name": "potato",
+    "displayName": "Potato",
+    "stackSize": 64
+  },
+  {
+    "id": 1099,
+    "name": "baked_potato",
+    "displayName": "Baked Potato",
+    "stackSize": 64
+  },
+  {
+    "id": 1100,
+    "name": "poisonous_potato",
+    "displayName": "Poisonous Potato",
+    "stackSize": 64
+  },
+  {
+    "id": 1102,
+    "name": "golden_carrot",
+    "displayName": "Golden Carrot",
+    "stackSize": 64
+  },
+  {
+    "id": 1111,
+    "name": "pumpkin_pie",
+    "displayName": "Pumpkin Pie",
+    "stackSize": 64
+  },
+  {
+    "id": 1118,
+    "name": "rabbit",
+    "displayName": "Raw Rabbit",
+    "stackSize": 64
+  },
+  {
+    "id": 1119,
+    "name": "cooked_rabbit",
+    "displayName": "Cooked Rabbit",
+    "stackSize": 64
+  },
+  {
+    "id": 1120,
+    "name": "rabbit_stew",
+    "displayName": "Rabbit Stew",
+    "stackSize": 1
+  },
+  {
+    "id": 1131,
+    "name": "mutton",
+    "displayName": "Raw Mutton",
+    "stackSize": 64
+  },
+  {
+    "id": 1132,
+    "name": "cooked_mutton",
+    "displayName": "Cooked Mutton",
+    "stackSize": 64
+  },
+  {
+    "id": 1150,
+    "name": "chorus_fruit",
+    "displayName": "Chorus Fruit",
+    "stackSize": 64
+  },
+  {
+    "id": 1152,
+    "name": "torchflower_seeds",
+    "displayName": "Torchflower Seeds",
+    "stackSize": 64
+  },
+  {
+    "id": 1153,
+    "name": "pitcher_pod",
+    "displayName": "Pitcher Pod",
+    "stackSize": 64
+  },
+  {
+    "id": 1154,
+    "name": "beetroot",
+    "displayName": "Beetroot",
+    "stackSize": 64
+  },
+  {
+    "id": 1156,
+    "name": "beetroot_soup",
+    "displayName": "Beetroot Soup",
+    "stackSize": 1
+  },
+  {
+    "id": 1193,
+    "name": "suspicious_stew",
+    "displayName": "Suspicious Stew",
+    "stackSize": 1
+  },
+  {
+    "id": 1216,
+    "name": "sweet_berries",
+    "displayName": "Sweet Berries",
+    "stackSize": 64
+  },
+  {
+    "id": 1217,
+    "name": "glow_berries",
+    "displayName": "Glow Berries",
+    "stackSize": 64
+  },
+  {
+    "id": 1224,
+    "name": "honey_bottle",
+    "displayName": "Honey Bottle",
+    "stackSize": 16
+  }
+]

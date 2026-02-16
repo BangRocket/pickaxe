@@ -1,0 +1,98 @@
+[
+  {
+    "id": 944,
+    "name": "white_dye",
+    "displayName": "White Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 945,
+    "name": "orange_dye",
+    "displayName": "Orange Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 946,
+    "name": "magenta_dye",
+    "displayName": "Magenta Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 947,
+    "name": "light_blue_dye",
+    "displayName": "Light Blue Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 948,
+    "name": "yellow_dye",
+    "displayName": "Yellow Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 949,
+    "name": "lime_dye",
+    "displayName": "Lime Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 950,
+    "name": "pink_dye",
+    "displayName": "Pink Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 951,
+    "name": "gray_dye",
+    "displayName": "Gray Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 952,
+    "name": "light_gray_dye",
+    "displayName": "Light Gray Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 953,
+    "name": "cyan_dye",
+    "displayName": "Cyan Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 954,
+    "name": "purple_dye",
+    "displayName": "Purple Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 955,
+    "name": "blue_dye",
+    "displayName": "Blue Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 956,
+    "name": "brown_dye",
+    "displayName": "Brown Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 957,
+    "name": "green_dye",
+    "displayName": "Green Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 958,
+    "name": "red_dye",
+    "displayName": "Red Dye",
+    "stackSize": 64
+  },
+  {
+    "id": 959,
+    "name": "black_dye",
+    "displayName": "Black Dye",
+    "stackSize": 64
+  }
+]

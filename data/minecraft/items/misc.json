@@ -1,0 +1,682 @@
+[
+  {
+    "id": 765,
+    "name": "saddle",
+    "displayName": "Saddle",
+    "stackSize": 1
+  },
+  {
+    "id": 766,
+    "name": "minecart",
+    "displayName": "Minecart",
+    "stackSize": 1
+  },
+  {
+    "id": 767,
+    "name": "chest_minecart",
+    "displayName": "Minecart with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 768,
+    "name": "furnace_minecart",
+    "displayName": "Minecart with Furnace",
+    "stackSize": 1
+  },
+  {
+    "id": 770,
+    "name": "hopper_minecart",
+    "displayName": "Minecart with Hopper",
+    "stackSize": 1
+  },
+  {
+    "id": 771,
+    "name": "carrot_on_a_stick",
+    "displayName": "Carrot on a Stick",
+    "stackSize": 1,
+    "enchantCategories": [
+      "durability",
+      "vanishing"
+    ],
+    "maxDurability": 25
+  },
+  {
+    "id": 772,
+    "name": "warped_fungus_on_a_stick",
+    "displayName": "Warped Fungus on a Stick",
+    "stackSize": 1,
+    "enchantCategories": [
+      "durability",
+      "vanishing"
+    ],
+    "maxDurability": 100
+  },
+  {
+    "id": 774,
+    "name": "oak_boat",
+    "displayName": "Oak Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 775,
+    "name": "oak_chest_boat",
+    "displayName": "Oak Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 776,
+    "name": "spruce_boat",
+    "displayName": "Spruce Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 777,
+    "name": "spruce_chest_boat",
+    "displayName": "Spruce Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 778,
+    "name": "birch_boat",
+    "displayName": "Birch Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 779,
+    "name": "birch_chest_boat",
+    "displayName": "Birch Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 780,
+    "name": "jungle_boat",
+    "displayName": "Jungle Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 781,
+    "name": "jungle_chest_boat",
+    "displayName": "Jungle Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 782,
+    "name": "acacia_boat",
+    "displayName": "Acacia Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 783,
+    "name": "acacia_chest_boat",
+    "displayName": "Acacia Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 784,
+    "name": "cherry_boat",
+    "displayName": "Cherry Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 785,
+    "name": "cherry_chest_boat",
+    "displayName": "Cherry Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 786,
+    "name": "dark_oak_boat",
+    "displayName": "Dark Oak Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 787,
+    "name": "dark_oak_chest_boat",
+    "displayName": "Dark Oak Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 788,
+    "name": "mangrove_boat",
+    "displayName": "Mangrove Boat",
+    "stackSize": 1
+  },
+  {
+    "id": 789,
+    "name": "mangrove_chest_boat",
+    "displayName": "Mangrove Boat with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 790,
+    "name": "bamboo_raft",
+    "displayName": "Bamboo Raft",
+    "stackSize": 1
+  },
+  {
+    "id": 791,
+    "name": "bamboo_chest_raft",
+    "displayName": "Bamboo Raft with Chest",
+    "stackSize": 1
+  },
+  {
+    "id": 795,
+    "name": "turtle_scute",
+    "displayName": "Turtle Scute",
+    "stackSize": 64
+  },
+  {
+    "id": 796,
+    "name": "armadillo_scute",
+    "displayName": "Armadillo Scute",
+    "stackSize": 64
+  },
+  {
+    "id": 797,
+    "name": "wolf_armor",
+    "displayName": "Wolf Armor",
+    "stackSize": 1,
+    "repairWith": [
+      "armadillo_scute"
+    ],
+    "maxDurability": 64
+  },
+  {
+    "id": 799,
+    "name": "bowl",
+    "displayName": "Bowl",
+    "stackSize": 64
+  },
+  {
+    "id": 853,
+    "name": "wheat_seeds",
+    "displayName": "Wheat Seeds",
+    "stackSize": 64
+  },
+  {
+    "id": 883,
+    "name": "painting",
+    "displayName": "Painting",
+    "stackSize": 64
+  },
+  {
+    "id": 908,
+    "name": "bucket",
+    "displayName": "Bucket",
+    "stackSize": 16
+  },
+  {
+    "id": 909,
+    "name": "water_bucket",
+    "displayName": "Water Bucket",
+    "stackSize": 1
+  },
+  {
+    "id": 910,
+    "name": "lava_bucket",
+    "displayName": "Lava Bucket",
+    "stackSize": 1
+  },
+  {
+    "id": 911,
+    "name": "powder_snow_bucket",
+    "displayName": "Powder Snow Bucket",
+    "stackSize": 1
+  },
+  {
+    "id": 915,
+    "name": "pufferfish_bucket",
+    "displayName": "Bucket of Pufferfish",
+    "stackSize": 1
+  },
+  {
+    "id": 916,
+    "name": "salmon_bucket",
+    "displayName": "Bucket of Salmon",
+    "stackSize": 1
+  },
+  {
+    "id": 917,
+    "name": "cod_bucket",
+    "displayName": "Bucket of Cod",
+    "stackSize": 1
+  },
+  {
+    "id": 918,
+    "name": "tropical_fish_bucket",
+    "displayName": "Bucket of Tropical Fish",
+    "stackSize": 1
+  },
+  {
+    "id": 919,
+    "name": "axolotl_bucket",
+    "displayName": "Bucket of Axolotl",
+    "stackSize": 1
+  },
+  {
+    "id": 920,
+    "name": "tadpole_bucket",
+    "displayName": "Bucket of Tadpole",
+    "stackSize": 1
+  },
+  {
+    "id": 943,
+    "name": "cocoa_beans",
+    "displayName": "Cocoa Beans",
+    "stackSize": 64
+  },
+  {
+    "id": 962,
+    "name": "sugar",
+    "displayName": "Sugar",
+    "stackSize": 64
+  },
+  {
+    "id": 982,
+    "name": "filled_map",
+    "displayName": "Map",
+    "stackSize": 64
+  },
+  {
+    "id": 986,
+    "name": "pumpkin_seeds",
+    "displayName": "Pumpkin Seeds",
+    "stackSize": 64
+  },
+  {
+    "id": 987,
+    "name": "melon_seeds",
+    "displayName": "Melon Seeds",
+    "stackSize": 64
+  },
+  {
+    "id": 1094,
+    "name": "item_frame",
+    "displayName": "Item Frame",
+    "stackSize": 64
+  },
+  {
+    "id": 1095,
+    "name": "glow_item_frame",
+    "displayName": "Glow Item Frame",
+    "stackSize": 64
+  },
+  {
+    "id": 1101,
+    "name": "map",
+    "displayName": "Empty Map",
+    "stackSize": 64
+  },
+  {
+    "id": 1123,
+    "name": "armor_stand",
+    "displayName": "Armor Stand",
+    "stackSize": 16
+  },
+  {
+    "id": 1130,
+    "name": "command_block_minecart",
+    "displayName": "Minecart with Command Block",
+    "stackSize": 1
+  },
+  {
+    "id": 1149,
+    "name": "end_crystal",
+    "displayName": "End Crystal",
+    "stackSize": 64
+  },
+  {
+    "id": 1151,
+    "name": "popped_chorus_fruit",
+    "displayName": "Popped Chorus Fruit",
+    "stackSize": 64
+  },
+  {
+    "id": 1155,
+    "name": "beetroot_seeds",
+    "displayName": "Beetroot Seeds",
+    "stackSize": 64
+  },
+  {
+    "id": 1163,
+    "name": "totem_of_undying",
+    "displayName": "Totem of Undying",
+    "stackSize": 1
+  },
+  {
+    "id": 1164,
+    "name": "shulker_shell",
+    "displayName": "Shulker Shell",
+    "stackSize": 64
+  },
+  {
+    "id": 1167,
+    "name": "debug_stick",
+    "displayName": "Debug Stick",
+    "stackSize": 1
+  },
+  {
+    "id": 1195,
+    "name": "flower_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1196,
+    "name": "creeper_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1197,
+    "name": "skull_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1198,
+    "name": "mojang_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1199,
+    "name": "globe_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1200,
+    "name": "piglin_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1201,
+    "name": "flow_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1202,
+    "name": "guster_banner_pattern",
+    "displayName": "Banner Pattern",
+    "stackSize": 1
+  },
+  {
+    "id": 1203,
+    "name": "goat_horn",
+    "displayName": "Goat Horn",
+    "stackSize": 1
+  },
+  {
+    "id": 1269,
+    "name": "netherite_upgrade_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1270,
+    "name": "sentry_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1271,
+    "name": "dune_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1272,
+    "name": "coast_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1273,
+    "name": "wild_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1274,
+    "name": "ward_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1275,
+    "name": "eye_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1276,
+    "name": "vex_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1277,
+    "name": "tide_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1278,
+    "name": "snout_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1279,
+    "name": "rib_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1280,
+    "name": "spire_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1281,
+    "name": "wayfinder_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1282,
+    "name": "shaper_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1283,
+    "name": "silence_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1284,
+    "name": "raiser_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1285,
+    "name": "host_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1286,
+    "name": "flow_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1287,
+    "name": "bolt_armor_trim_smithing_template",
+    "displayName": "Smithing Template",
+    "stackSize": 64
+  },
+  {
+    "id": 1288,
+    "name": "angler_pottery_sherd",
+    "displayName": "Angler Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1289,
+    "name": "archer_pottery_sherd",
+    "displayName": "Archer Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1290,
+    "name": "arms_up_pottery_sherd",
+    "displayName": "Arms Up Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1291,
+    "name": "blade_pottery_sherd",
+    "displayName": "Blade Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1292,
+    "name": "brewer_pottery_sherd",
+    "displayName": "Brewer Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1293,
+    "name": "burn_pottery_sherd",
+    "displayName": "Burn Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1294,
+    "name": "danger_pottery_sherd",
+    "displayName": "Danger Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1295,
+    "name": "explorer_pottery_sherd",
+    "displayName": "Explorer Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1296,
+    "name": "flow_pottery_sherd",
+    "displayName": "Flow Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1297,
+    "name": "friend_pottery_sherd",
+    "displayName": "Friend Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1298,
+    "name": "guster_pottery_sherd",
+    "displayName": "Guster Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1299,
+    "name": "heart_pottery_sherd",
+    "displayName": "Heart Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1300,
+    "name": "heartbreak_pottery_sherd",
+    "displayName": "Heartbreak Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1301,
+    "name": "howl_pottery_sherd",
+    "displayName": "Howl Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1302,
+    "name": "miner_pottery_sherd",
+    "displayName": "Miner Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1303,
+    "name": "mourner_pottery_sherd",
+    "displayName": "Mourner Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1304,
+    "name": "plenty_pottery_sherd",
+    "displayName": "Plenty Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1305,
+    "name": "prize_pottery_sherd",
+    "displayName": "Prize Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1306,
+    "name": "scrape_pottery_sherd",
+    "displayName": "Scrape Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1307,
+    "name": "sheaf_pottery_sherd",
+    "displayName": "Sheaf Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1308,
+    "name": "shelter_pottery_sherd",
+    "displayName": "Shelter Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1309,
+    "name": "skull_pottery_sherd",
+    "displayName": "Skull Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1310,
+    "name": "snort_pottery_sherd",
+    "displayName": "Snort Pottery Sherd",
+    "stackSize": 64
+  },
+  {
+    "id": 1328,
+    "name": "trial_key",
+    "displayName": "Trial Key",
+    "stackSize": 64
+  },
+  {
+    "id": 1329,
+    "name": "ominous_trial_key",
+    "displayName": "Ominous Trial Key",
+    "stackSize": 64
+  },
+  {
+    "id": 1331,
+    "name": "ominous_bottle",
+    "displayName": "Ominous Bottle",
+    "stackSize": 64
+  }
+]

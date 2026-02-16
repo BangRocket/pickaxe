@@ -1,0 +1,8422 @@
+[
+  {
+    "id": 13,
+    "name": "oak_planks",
+    "displayName": "Oak Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 15,
+    "minStateId": 15,
+    "maxStateId": 15,
+    "states": [],
+    "drops": [
+      36
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 14,
+    "name": "spruce_planks",
+    "displayName": "Spruce Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 16,
+    "minStateId": 16,
+    "maxStateId": 16,
+    "states": [],
+    "drops": [
+      37
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 15,
+    "name": "birch_planks",
+    "displayName": "Birch Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 17,
+    "minStateId": 17,
+    "maxStateId": 17,
+    "states": [],
+    "drops": [
+      38
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 16,
+    "name": "jungle_planks",
+    "displayName": "Jungle Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18,
+    "minStateId": 18,
+    "maxStateId": 18,
+    "states": [],
+    "drops": [
+      39
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 17,
+    "name": "acacia_planks",
+    "displayName": "Acacia Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19,
+    "minStateId": 19,
+    "maxStateId": 19,
+    "states": [],
+    "drops": [
+      40
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 18,
+    "name": "cherry_planks",
+    "displayName": "Cherry Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 20,
+    "minStateId": 20,
+    "maxStateId": 20,
+    "states": [],
+    "drops": [
+      41
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 19,
+    "name": "dark_oak_planks",
+    "displayName": "Dark Oak Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21,
+    "minStateId": 21,
+    "maxStateId": 21,
+    "states": [],
+    "drops": [
+      42
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 20,
+    "name": "mangrove_planks",
+    "displayName": "Mangrove Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22,
+    "minStateId": 22,
+    "maxStateId": 22,
+    "states": [],
+    "drops": [
+      43
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 21,
+    "name": "bamboo_planks",
+    "displayName": "Bamboo Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 23,
+    "minStateId": 23,
+    "maxStateId": 23,
+    "states": [],
+    "drops": [
+      44
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 22,
+    "name": "bamboo_mosaic",
+    "displayName": "Bamboo Mosaic",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24,
+    "minStateId": 24,
+    "maxStateId": 24,
+    "states": [],
+    "drops": [
+      47
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 23,
+    "name": "oak_sapling",
+    "displayName": "Oak Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 25,
+    "minStateId": 25,
+    "maxStateId": 26,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      48
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 24,
+    "name": "spruce_sapling",
+    "displayName": "Spruce Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 27,
+    "minStateId": 27,
+    "maxStateId": 28,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      49
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 25,
+    "name": "birch_sapling",
+    "displayName": "Birch Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 29,
+    "minStateId": 29,
+    "maxStateId": 30,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      50
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 26,
+    "name": "jungle_sapling",
+    "displayName": "Jungle Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 31,
+    "minStateId": 31,
+    "maxStateId": 32,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      51
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 27,
+    "name": "acacia_sapling",
+    "displayName": "Acacia Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 33,
+    "minStateId": 33,
+    "maxStateId": 34,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      52
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 28,
+    "name": "cherry_sapling",
+    "displayName": "Cherry Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 35,
+    "minStateId": 35,
+    "maxStateId": 36,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      53
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 29,
+    "name": "dark_oak_sapling",
+    "displayName": "Dark Oak Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 37,
+    "minStateId": 37,
+    "maxStateId": 38,
+    "states": [
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      54
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 46,
+    "name": "oak_log",
+    "displayName": "Oak Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 131,
+    "minStateId": 130,
+    "maxStateId": 132,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      132
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 47,
+    "name": "spruce_log",
+    "displayName": "Spruce Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 134,
+    "minStateId": 133,
+    "maxStateId": 135,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      133
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 48,
+    "name": "birch_log",
+    "displayName": "Birch Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 137,
+    "minStateId": 136,
+    "maxStateId": 138,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      134
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 49,
+    "name": "jungle_log",
+    "displayName": "Jungle Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 140,
+    "minStateId": 139,
+    "maxStateId": 141,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      135
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 50,
+    "name": "acacia_log",
+    "displayName": "Acacia Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 143,
+    "minStateId": 142,
+    "maxStateId": 144,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      136
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 51,
+    "name": "cherry_log",
+    "displayName": "Cherry Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 146,
+    "minStateId": 145,
+    "maxStateId": 147,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      137
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 52,
+    "name": "dark_oak_log",
+    "displayName": "Dark Oak Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 149,
+    "minStateId": 148,
+    "maxStateId": 150,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      138
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 53,
+    "name": "mangrove_log",
+    "displayName": "Mangrove Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 152,
+    "minStateId": 151,
+    "maxStateId": 153,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      139
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 56,
+    "name": "bamboo_block",
+    "displayName": "Block of Bamboo",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 160,
+    "minStateId": 159,
+    "maxStateId": 161,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      144
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 57,
+    "name": "stripped_spruce_log",
+    "displayName": "Stripped Spruce Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 163,
+    "minStateId": 162,
+    "maxStateId": 164,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      146
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 58,
+    "name": "stripped_birch_log",
+    "displayName": "Stripped Birch Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 166,
+    "minStateId": 165,
+    "maxStateId": 167,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      147
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 59,
+    "name": "stripped_jungle_log",
+    "displayName": "Stripped Jungle Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 169,
+    "minStateId": 168,
+    "maxStateId": 170,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      148
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 60,
+    "name": "stripped_acacia_log",
+    "displayName": "Stripped Acacia Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 172,
+    "minStateId": 171,
+    "maxStateId": 173,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      149
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 61,
+    "name": "stripped_cherry_log",
+    "displayName": "Stripped Cherry Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 175,
+    "minStateId": 174,
+    "maxStateId": 176,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      150
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 62,
+    "name": "stripped_dark_oak_log",
+    "displayName": "Stripped Dark Oak Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 178,
+    "minStateId": 177,
+    "maxStateId": 179,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      151
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 63,
+    "name": "stripped_oak_log",
+    "displayName": "Stripped Oak Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 181,
+    "minStateId": 180,
+    "maxStateId": 182,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      145
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 64,
+    "name": "stripped_mangrove_log",
+    "displayName": "Stripped Mangrove Log",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 184,
+    "minStateId": 183,
+    "maxStateId": 185,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      152
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 65,
+    "name": "stripped_bamboo_block",
+    "displayName": "Block of Stripped Bamboo",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 187,
+    "minStateId": 186,
+    "maxStateId": 188,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      165
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 66,
+    "name": "oak_wood",
+    "displayName": "Oak Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 190,
+    "minStateId": 189,
+    "maxStateId": 191,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      166
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 67,
+    "name": "spruce_wood",
+    "displayName": "Spruce Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 193,
+    "minStateId": 192,
+    "maxStateId": 194,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      167
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 68,
+    "name": "birch_wood",
+    "displayName": "Birch Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 196,
+    "minStateId": 195,
+    "maxStateId": 197,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      168
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 69,
+    "name": "jungle_wood",
+    "displayName": "Jungle Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 199,
+    "minStateId": 198,
+    "maxStateId": 200,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      169
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 70,
+    "name": "acacia_wood",
+    "displayName": "Acacia Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 202,
+    "minStateId": 201,
+    "maxStateId": 203,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      170
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 71,
+    "name": "cherry_wood",
+    "displayName": "Cherry Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 205,
+    "minStateId": 204,
+    "maxStateId": 206,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      171
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 72,
+    "name": "dark_oak_wood",
+    "displayName": "Dark Oak Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 208,
+    "minStateId": 207,
+    "maxStateId": 209,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      172
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 73,
+    "name": "mangrove_wood",
+    "displayName": "Mangrove Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 211,
+    "minStateId": 210,
+    "maxStateId": 212,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      173
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 74,
+    "name": "stripped_oak_wood",
+    "displayName": "Stripped Oak Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 214,
+    "minStateId": 213,
+    "maxStateId": 215,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      155
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 75,
+    "name": "stripped_spruce_wood",
+    "displayName": "Stripped Spruce Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 217,
+    "minStateId": 216,
+    "maxStateId": 218,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      156
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 76,
+    "name": "stripped_birch_wood",
+    "displayName": "Stripped Birch Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 220,
+    "minStateId": 219,
+    "maxStateId": 221,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      157
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 77,
+    "name": "stripped_jungle_wood",
+    "displayName": "Stripped Jungle Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 223,
+    "minStateId": 222,
+    "maxStateId": 224,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      158
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 78,
+    "name": "stripped_acacia_wood",
+    "displayName": "Stripped Acacia Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 226,
+    "minStateId": 225,
+    "maxStateId": 227,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      159
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 79,
+    "name": "stripped_cherry_wood",
+    "displayName": "Stripped Cherry Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 229,
+    "minStateId": 228,
+    "maxStateId": 230,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      160
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 80,
+    "name": "stripped_dark_oak_wood",
+    "displayName": "Stripped Dark Oak Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 232,
+    "minStateId": 231,
+    "maxStateId": 233,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      161
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 81,
+    "name": "stripped_mangrove_wood",
+    "displayName": "Stripped Mangrove Wood",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 235,
+    "minStateId": 234,
+    "maxStateId": 236,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      162
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 167,
+    "name": "bookshelf",
+    "displayName": "Bookshelf",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2096,
+    "minStateId": 2096,
+    "maxStateId": 2096,
+    "states": [],
+    "drops": [
+      925
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 168,
+    "name": "chiseled_bookshelf",
+    "displayName": "Chiseled Bookshelf",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2160,
+    "minStateId": 2097,
+    "maxStateId": 2352,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "slot_0_occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "slot_1_occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "slot_2_occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "slot_3_occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "slot_4_occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "slot_5_occupied",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 176,
+    "name": "oak_stairs",
+    "displayName": "Oak Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2885,
+    "minStateId": 2874,
+    "maxStateId": 2953,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      383
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 182,
+    "name": "crafting_table",
+    "displayName": "Crafting Table",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 4277,
+    "minStateId": 4277,
+    "maxStateId": 4277,
+    "states": [],
+    "drops": [
+      300
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 186,
+    "name": "oak_sign",
+    "displayName": "Oak Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4303,
+    "minStateId": 4302,
+    "maxStateId": 4333,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      886
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 187,
+    "name": "spruce_sign",
+    "displayName": "Spruce Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4335,
+    "minStateId": 4334,
+    "maxStateId": 4365,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      887
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 188,
+    "name": "birch_sign",
+    "displayName": "Birch Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4367,
+    "minStateId": 4366,
+    "maxStateId": 4397,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      888
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 189,
+    "name": "acacia_sign",
+    "displayName": "Acacia Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4399,
+    "minStateId": 4398,
+    "maxStateId": 4429,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      890
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 190,
+    "name": "cherry_sign",
+    "displayName": "Cherry Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4431,
+    "minStateId": 4430,
+    "maxStateId": 4461,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      891
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 191,
+    "name": "jungle_sign",
+    "displayName": "Jungle Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4463,
+    "minStateId": 4462,
+    "maxStateId": 4493,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      889
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 192,
+    "name": "dark_oak_sign",
+    "displayName": "Dark Oak Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4495,
+    "minStateId": 4494,
+    "maxStateId": 4525,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      892
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 193,
+    "name": "mangrove_sign",
+    "displayName": "Mangrove Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4527,
+    "minStateId": 4526,
+    "maxStateId": 4557,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      893
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 194,
+    "name": "bamboo_sign",
+    "displayName": "Bamboo Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4559,
+    "minStateId": 4558,
+    "maxStateId": 4589,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      894
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 195,
+    "name": "oak_door",
+    "displayName": "Oak Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4601,
+    "minStateId": 4590,
+    "maxStateId": 4653,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      711
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 196,
+    "name": "ladder",
+    "displayName": "Ladder",
+    "hardness": 0.4,
+    "resistance": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4655,
+    "minStateId": 4654,
+    "maxStateId": 4661,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      303
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 199,
+    "name": "oak_wall_sign",
+    "displayName": "Oak Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4763,
+    "minStateId": 4762,
+    "maxStateId": 4769,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      886
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 200,
+    "name": "spruce_wall_sign",
+    "displayName": "Spruce Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4771,
+    "minStateId": 4770,
+    "maxStateId": 4777,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      887
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 201,
+    "name": "birch_wall_sign",
+    "displayName": "Birch Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4779,
+    "minStateId": 4778,
+    "maxStateId": 4785,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      888
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 202,
+    "name": "acacia_wall_sign",
+    "displayName": "Acacia Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4787,
+    "minStateId": 4786,
+    "maxStateId": 4793,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      890
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 203,
+    "name": "cherry_wall_sign",
+    "displayName": "Cherry Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4795,
+    "minStateId": 4794,
+    "maxStateId": 4801,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      891
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 204,
+    "name": "jungle_wall_sign",
+    "displayName": "Jungle Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4803,
+    "minStateId": 4802,
+    "maxStateId": 4809,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      889
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 205,
+    "name": "dark_oak_wall_sign",
+    "displayName": "Dark Oak Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4811,
+    "minStateId": 4810,
+    "maxStateId": 4817,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      892
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 206,
+    "name": "mangrove_wall_sign",
+    "displayName": "Mangrove Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4819,
+    "minStateId": 4818,
+    "maxStateId": 4825,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      893
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 207,
+    "name": "bamboo_wall_sign",
+    "displayName": "Bamboo Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4827,
+    "minStateId": 4826,
+    "maxStateId": 4833,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      894
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 208,
+    "name": "oak_hanging_sign",
+    "displayName": "Oak Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4867,
+    "minStateId": 4834,
+    "maxStateId": 4897,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      897
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 209,
+    "name": "spruce_hanging_sign",
+    "displayName": "Spruce Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4931,
+    "minStateId": 4898,
+    "maxStateId": 4961,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      898
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 210,
+    "name": "birch_hanging_sign",
+    "displayName": "Birch Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4995,
+    "minStateId": 4962,
+    "maxStateId": 5025,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      899
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 211,
+    "name": "acacia_hanging_sign",
+    "displayName": "Acacia Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5059,
+    "minStateId": 5026,
+    "maxStateId": 5089,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      901
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 212,
+    "name": "cherry_hanging_sign",
+    "displayName": "Cherry Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5123,
+    "minStateId": 5090,
+    "maxStateId": 5153,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      902
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 213,
+    "name": "jungle_hanging_sign",
+    "displayName": "Jungle Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5187,
+    "minStateId": 5154,
+    "maxStateId": 5217,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      900
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 214,
+    "name": "dark_oak_hanging_sign",
+    "displayName": "Dark Oak Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5251,
+    "minStateId": 5218,
+    "maxStateId": 5281,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      903
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 215,
+    "name": "crimson_hanging_sign",
+    "displayName": "Crimson Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5315,
+    "minStateId": 5282,
+    "maxStateId": 5345,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      906
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 216,
+    "name": "warped_hanging_sign",
+    "displayName": "Warped Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5379,
+    "minStateId": 5346,
+    "maxStateId": 5409,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      907
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 217,
+    "name": "mangrove_hanging_sign",
+    "displayName": "Mangrove Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5443,
+    "minStateId": 5410,
+    "maxStateId": 5473,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      904
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 218,
+    "name": "bamboo_hanging_sign",
+    "displayName": "Bamboo Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5507,
+    "minStateId": 5474,
+    "maxStateId": 5537,
+    "states": [
+      {
+        "name": "attached",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      905
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 219,
+    "name": "oak_wall_hanging_sign",
+    "displayName": "Oak Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5539,
+    "minStateId": 5538,
+    "maxStateId": 5545,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      897
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 220,
+    "name": "spruce_wall_hanging_sign",
+    "displayName": "Spruce Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5547,
+    "minStateId": 5546,
+    "maxStateId": 5553,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      898
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 221,
+    "name": "birch_wall_hanging_sign",
+    "displayName": "Birch Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5555,
+    "minStateId": 5554,
+    "maxStateId": 5561,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      899
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 222,
+    "name": "acacia_wall_hanging_sign",
+    "displayName": "Acacia Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5563,
+    "minStateId": 5562,
+    "maxStateId": 5569,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      901
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 223,
+    "name": "cherry_wall_hanging_sign",
+    "displayName": "Cherry Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5571,
+    "minStateId": 5570,
+    "maxStateId": 5577,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      902
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 224,
+    "name": "jungle_wall_hanging_sign",
+    "displayName": "Jungle Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5579,
+    "minStateId": 5578,
+    "maxStateId": 5585,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      900
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 225,
+    "name": "dark_oak_wall_hanging_sign",
+    "displayName": "Dark Oak Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5587,
+    "minStateId": 5586,
+    "maxStateId": 5593,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      903
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 226,
+    "name": "mangrove_wall_hanging_sign",
+    "displayName": "Mangrove Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5595,
+    "minStateId": 5594,
+    "maxStateId": 5601,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      904
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 227,
+    "name": "crimson_wall_hanging_sign",
+    "displayName": "Crimson Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5603,
+    "minStateId": 5602,
+    "maxStateId": 5609,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      906
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 228,
+    "name": "warped_wall_hanging_sign",
+    "displayName": "Warped Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5611,
+    "minStateId": 5610,
+    "maxStateId": 5617,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      907
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 229,
+    "name": "bamboo_wall_hanging_sign",
+    "displayName": "Bamboo Hanging Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5619,
+    "minStateId": 5618,
+    "maxStateId": 5625,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      905
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 232,
+    "name": "iron_door",
+    "displayName": "Iron Door",
+    "hardness": 5.0,
+    "resistance": 5.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5663,
+    "minStateId": 5652,
+    "maxStateId": 5715,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      710
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 233,
+    "name": "oak_pressure_plate",
+    "displayName": "Oak Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5717,
+    "minStateId": 5716,
+    "maxStateId": 5717,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      699
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 234,
+    "name": "spruce_pressure_plate",
+    "displayName": "Spruce Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5719,
+    "minStateId": 5718,
+    "maxStateId": 5719,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      700
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 235,
+    "name": "birch_pressure_plate",
+    "displayName": "Birch Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5721,
+    "minStateId": 5720,
+    "maxStateId": 5721,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      701
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 236,
+    "name": "jungle_pressure_plate",
+    "displayName": "Jungle Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5723,
+    "minStateId": 5722,
+    "maxStateId": 5723,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      702
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 237,
+    "name": "acacia_pressure_plate",
+    "displayName": "Acacia Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5725,
+    "minStateId": 5724,
+    "maxStateId": 5725,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      703
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 238,
+    "name": "cherry_pressure_plate",
+    "displayName": "Cherry Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5727,
+    "minStateId": 5726,
+    "maxStateId": 5727,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      704
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 239,
+    "name": "dark_oak_pressure_plate",
+    "displayName": "Dark Oak Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5729,
+    "minStateId": 5728,
+    "maxStateId": 5729,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      705
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 240,
+    "name": "mangrove_pressure_plate",
+    "displayName": "Mangrove Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5731,
+    "minStateId": 5730,
+    "maxStateId": 5731,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      706
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 241,
+    "name": "bamboo_pressure_plate",
+    "displayName": "Bamboo Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5733,
+    "minStateId": 5732,
+    "maxStateId": 5733,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      707
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 254,
+    "name": "oak_fence",
+    "displayName": "Oak Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5848,
+    "minStateId": 5817,
+    "maxStateId": 5848,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      311
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 284,
+    "name": "oak_trapdoor",
+    "displayName": "Oak Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5976,
+    "minStateId": 5961,
+    "maxStateId": 6024,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      731
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 285,
+    "name": "spruce_trapdoor",
+    "displayName": "Spruce Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6040,
+    "minStateId": 6025,
+    "maxStateId": 6088,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      732
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 286,
+    "name": "birch_trapdoor",
+    "displayName": "Birch Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6104,
+    "minStateId": 6089,
+    "maxStateId": 6152,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      733
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 287,
+    "name": "jungle_trapdoor",
+    "displayName": "Jungle Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6168,
+    "minStateId": 6153,
+    "maxStateId": 6216,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      734
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 288,
+    "name": "acacia_trapdoor",
+    "displayName": "Acacia Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6232,
+    "minStateId": 6217,
+    "maxStateId": 6280,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      735
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 289,
+    "name": "cherry_trapdoor",
+    "displayName": "Cherry Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6296,
+    "minStateId": 6281,
+    "maxStateId": 6344,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      736
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 290,
+    "name": "dark_oak_trapdoor",
+    "displayName": "Dark Oak Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6360,
+    "minStateId": 6345,
+    "maxStateId": 6408,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      737
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 291,
+    "name": "mangrove_trapdoor",
+    "displayName": "Mangrove Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6424,
+    "minStateId": 6409,
+    "maxStateId": 6472,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      738
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 292,
+    "name": "bamboo_trapdoor",
+    "displayName": "Bamboo Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6488,
+    "minStateId": 6473,
+    "maxStateId": 6536,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      739
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 319,
+    "name": "oak_fence_gate",
+    "displayName": "Oak Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7004,
+    "minStateId": 6997,
+    "maxStateId": 7028,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      750
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 348,
+    "name": "spruce_stairs",
+    "displayName": "Spruce Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7677,
+    "minStateId": 7666,
+    "maxStateId": 7745,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      384
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 349,
+    "name": "birch_stairs",
+    "displayName": "Birch Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7757,
+    "minStateId": 7746,
+    "maxStateId": 7825,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      385
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 350,
+    "name": "jungle_stairs",
+    "displayName": "Jungle Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7837,
+    "minStateId": 7826,
+    "maxStateId": 7905,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      386
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 385,
+    "name": "oak_button",
+    "displayName": "Oak Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8620,
+    "minStateId": 8611,
+    "maxStateId": 8634,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      684
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 386,
+    "name": "spruce_button",
+    "displayName": "Spruce Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8644,
+    "minStateId": 8635,
+    "maxStateId": 8658,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      685
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 387,
+    "name": "birch_button",
+    "displayName": "Birch Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8668,
+    "minStateId": 8659,
+    "maxStateId": 8682,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      686
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 388,
+    "name": "jungle_button",
+    "displayName": "Jungle Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8692,
+    "minStateId": 8683,
+    "maxStateId": 8706,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      687
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 389,
+    "name": "acacia_button",
+    "displayName": "Acacia Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8716,
+    "minStateId": 8707,
+    "maxStateId": 8730,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      688
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 390,
+    "name": "cherry_button",
+    "displayName": "Cherry Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8740,
+    "minStateId": 8731,
+    "maxStateId": 8754,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      689
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 391,
+    "name": "dark_oak_button",
+    "displayName": "Dark Oak Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8764,
+    "minStateId": 8755,
+    "maxStateId": 8778,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      690
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 392,
+    "name": "mangrove_button",
+    "displayName": "Mangrove Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8788,
+    "minStateId": 8779,
+    "maxStateId": 8802,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      691
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 393,
+    "name": "bamboo_button",
+    "displayName": "Bamboo Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8812,
+    "minStateId": 8803,
+    "maxStateId": 8826,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      692
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 457,
+    "name": "acacia_stairs",
+    "displayName": "Acacia Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9895,
+    "minStateId": 9884,
+    "maxStateId": 9963,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      387
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 458,
+    "name": "cherry_stairs",
+    "displayName": "Cherry Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9975,
+    "minStateId": 9964,
+    "maxStateId": 10043,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      388
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 459,
+    "name": "dark_oak_stairs",
+    "displayName": "Dark Oak Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10055,
+    "minStateId": 10044,
+    "maxStateId": 10123,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      389
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 460,
+    "name": "mangrove_stairs",
+    "displayName": "Mangrove Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10135,
+    "minStateId": 10124,
+    "maxStateId": 10203,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      390
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 461,
+    "name": "bamboo_stairs",
+    "displayName": "Bamboo Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10215,
+    "minStateId": 10204,
+    "maxStateId": 10283,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      391
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 462,
+    "name": "bamboo_mosaic_stairs",
+    "displayName": "Bamboo Mosaic Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10295,
+    "minStateId": 10284,
+    "maxStateId": 10363,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      392
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 466,
+    "name": "iron_trapdoor",
+    "displayName": "Iron Trapdoor",
+    "hardness": 5.0,
+    "resistance": 5.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10414,
+    "minStateId": 10399,
+    "maxStateId": 10462,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      730
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 539,
+    "name": "oak_slab",
+    "displayName": "Oak Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11165,
+    "minStateId": 11162,
+    "maxStateId": 11167,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      252
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 540,
+    "name": "spruce_slab",
+    "displayName": "Spruce Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11171,
+    "minStateId": 11168,
+    "maxStateId": 11173,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      253
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 541,
+    "name": "birch_slab",
+    "displayName": "Birch Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11177,
+    "minStateId": 11174,
+    "maxStateId": 11179,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      254
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 542,
+    "name": "jungle_slab",
+    "displayName": "Jungle Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11183,
+    "minStateId": 11180,
+    "maxStateId": 11185,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      255
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 543,
+    "name": "acacia_slab",
+    "displayName": "Acacia Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11189,
+    "minStateId": 11186,
+    "maxStateId": 11191,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      256
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 544,
+    "name": "cherry_slab",
+    "displayName": "Cherry Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11195,
+    "minStateId": 11192,
+    "maxStateId": 11197,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      257
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 545,
+    "name": "dark_oak_slab",
+    "displayName": "Dark Oak Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11201,
+    "minStateId": 11198,
+    "maxStateId": 11203,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      258
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 546,
+    "name": "mangrove_slab",
+    "displayName": "Mangrove Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11207,
+    "minStateId": 11204,
+    "maxStateId": 11209,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      259
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 547,
+    "name": "bamboo_slab",
+    "displayName": "Bamboo Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11213,
+    "minStateId": 11210,
+    "maxStateId": 11215,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      260
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 548,
+    "name": "bamboo_mosaic_slab",
+    "displayName": "Bamboo Mosaic Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11219,
+    "minStateId": 11216,
+    "maxStateId": 11221,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      261
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 567,
+    "name": "spruce_fence_gate",
+    "displayName": "Spruce Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11317,
+    "minStateId": 11310,
+    "maxStateId": 11341,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      751
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 568,
+    "name": "birch_fence_gate",
+    "displayName": "Birch Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11349,
+    "minStateId": 11342,
+    "maxStateId": 11373,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      752
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 569,
+    "name": "jungle_fence_gate",
+    "displayName": "Jungle Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11381,
+    "minStateId": 11374,
+    "maxStateId": 11405,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      753
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 570,
+    "name": "acacia_fence_gate",
+    "displayName": "Acacia Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11413,
+    "minStateId": 11406,
+    "maxStateId": 11437,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      754
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 571,
+    "name": "cherry_fence_gate",
+    "displayName": "Cherry Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11445,
+    "minStateId": 11438,
+    "maxStateId": 11469,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      755
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 572,
+    "name": "dark_oak_fence_gate",
+    "displayName": "Dark Oak Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11477,
+    "minStateId": 11470,
+    "maxStateId": 11501,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      756
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 573,
+    "name": "mangrove_fence_gate",
+    "displayName": "Mangrove Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11509,
+    "minStateId": 11502,
+    "maxStateId": 11533,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      757
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 574,
+    "name": "bamboo_fence_gate",
+    "displayName": "Bamboo Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11541,
+    "minStateId": 11534,
+    "maxStateId": 11565,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      758
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 575,
+    "name": "spruce_fence",
+    "displayName": "Spruce Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11597,
+    "minStateId": 11566,
+    "maxStateId": 11597,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      312
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 576,
+    "name": "birch_fence",
+    "displayName": "Birch Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11629,
+    "minStateId": 11598,
+    "maxStateId": 11629,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      313
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 577,
+    "name": "jungle_fence",
+    "displayName": "Jungle Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11661,
+    "minStateId": 11630,
+    "maxStateId": 11661,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      314
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 578,
+    "name": "acacia_fence",
+    "displayName": "Acacia Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11693,
+    "minStateId": 11662,
+    "maxStateId": 11693,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      315
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 579,
+    "name": "cherry_fence",
+    "displayName": "Cherry Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11725,
+    "minStateId": 11694,
+    "maxStateId": 11725,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      316
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 580,
+    "name": "dark_oak_fence",
+    "displayName": "Dark Oak Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11757,
+    "minStateId": 11726,
+    "maxStateId": 11757,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      317
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 581,
+    "name": "mangrove_fence",
+    "displayName": "Mangrove Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11789,
+    "minStateId": 11758,
+    "maxStateId": 11789,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      318
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 582,
+    "name": "bamboo_fence",
+    "displayName": "Bamboo Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11821,
+    "minStateId": 11790,
+    "maxStateId": 11821,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      319
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 583,
+    "name": "spruce_door",
+    "displayName": "Spruce Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11833,
+    "minStateId": 11822,
+    "maxStateId": 11885,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      712
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 584,
+    "name": "birch_door",
+    "displayName": "Birch Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11897,
+    "minStateId": 11886,
+    "maxStateId": 11949,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      713
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 585,
+    "name": "jungle_door",
+    "displayName": "Jungle Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11961,
+    "minStateId": 11950,
+    "maxStateId": 12013,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      714
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 586,
+    "name": "acacia_door",
+    "displayName": "Acacia Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12025,
+    "minStateId": 12014,
+    "maxStateId": 12077,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      715
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 587,
+    "name": "cherry_door",
+    "displayName": "Cherry Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12089,
+    "minStateId": 12078,
+    "maxStateId": 12141,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      716
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 588,
+    "name": "dark_oak_door",
+    "displayName": "Dark Oak Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12153,
+    "minStateId": 12142,
+    "maxStateId": 12205,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      717
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 589,
+    "name": "mangrove_door",
+    "displayName": "Mangrove Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12217,
+    "minStateId": 12206,
+    "maxStateId": 12269,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      718
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 590,
+    "name": "bamboo_door",
+    "displayName": "Bamboo Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12281,
+    "minStateId": 12270,
+    "maxStateId": 12333,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      719
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 726,
+    "name": "bamboo_sapling",
+    "displayName": "Bamboo Shoot",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12944,
+    "minStateId": 12944,
+    "maxStateId": 12944,
+    "states": [],
+    "drops": [
+      251
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 789,
+    "name": "warped_stem",
+    "displayName": "Warped Stem",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18580,
+    "minStateId": 18579,
+    "maxStateId": 18581,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      143
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 790,
+    "name": "stripped_warped_stem",
+    "displayName": "Stripped Warped Stem",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18583,
+    "minStateId": 18582,
+    "maxStateId": 18584,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      154
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 791,
+    "name": "warped_hyphae",
+    "displayName": "Warped Hyphae",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18586,
+    "minStateId": 18585,
+    "maxStateId": 18587,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      175
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 792,
+    "name": "stripped_warped_hyphae",
+    "displayName": "Stripped Warped Hyphae",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18589,
+    "minStateId": 18588,
+    "maxStateId": 18590,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      164
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 798,
+    "name": "crimson_stem",
+    "displayName": "Crimson Stem",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18597,
+    "minStateId": 18596,
+    "maxStateId": 18598,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      142
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 799,
+    "name": "stripped_crimson_stem",
+    "displayName": "Stripped Crimson Stem",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18600,
+    "minStateId": 18599,
+    "maxStateId": 18601,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      153
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 800,
+    "name": "crimson_hyphae",
+    "displayName": "Crimson Hyphae",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18603,
+    "minStateId": 18602,
+    "maxStateId": 18604,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      174
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 801,
+    "name": "stripped_crimson_hyphae",
+    "displayName": "Stripped Crimson Hyphae",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18606,
+    "minStateId": 18605,
+    "maxStateId": 18607,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      163
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 810,
+    "name": "crimson_planks",
+    "displayName": "Crimson Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18666,
+    "minStateId": 18666,
+    "maxStateId": 18666,
+    "states": [],
+    "drops": [
+      45
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 811,
+    "name": "warped_planks",
+    "displayName": "Warped Planks",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18667,
+    "minStateId": 18667,
+    "maxStateId": 18667,
+    "states": [],
+    "drops": [
+      46
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 812,
+    "name": "crimson_slab",
+    "displayName": "Crimson Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18671,
+    "minStateId": 18668,
+    "maxStateId": 18673,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      262
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 813,
+    "name": "warped_slab",
+    "displayName": "Warped Slab",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18677,
+    "minStateId": 18674,
+    "maxStateId": 18679,
+    "states": [
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "top",
+          "bottom",
+          "double"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      263
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 814,
+    "name": "crimson_pressure_plate",
+    "displayName": "Crimson Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18681,
+    "minStateId": 18680,
+    "maxStateId": 18681,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      708
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 815,
+    "name": "warped_pressure_plate",
+    "displayName": "Warped Pressure Plate",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18683,
+    "minStateId": 18682,
+    "maxStateId": 18683,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      709
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 816,
+    "name": "crimson_fence",
+    "displayName": "Crimson Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18715,
+    "minStateId": 18684,
+    "maxStateId": 18715,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      320
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 817,
+    "name": "warped_fence",
+    "displayName": "Warped Fence",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18747,
+    "minStateId": 18716,
+    "maxStateId": 18747,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      321
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 818,
+    "name": "crimson_trapdoor",
+    "displayName": "Crimson Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18763,
+    "minStateId": 18748,
+    "maxStateId": 18811,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      740
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 819,
+    "name": "warped_trapdoor",
+    "displayName": "Warped Trapdoor",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18827,
+    "minStateId": 18812,
+    "maxStateId": 18875,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      741
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 820,
+    "name": "crimson_fence_gate",
+    "displayName": "Crimson Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18883,
+    "minStateId": 18876,
+    "maxStateId": 18907,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      759
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 821,
+    "name": "warped_fence_gate",
+    "displayName": "Warped Fence Gate",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18915,
+    "minStateId": 18908,
+    "maxStateId": 18939,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "in_wall",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      760
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 822,
+    "name": "crimson_stairs",
+    "displayName": "Crimson Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18951,
+    "minStateId": 18940,
+    "maxStateId": 19019,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      393
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 823,
+    "name": "warped_stairs",
+    "displayName": "Warped Stairs",
+    "hardness": 2.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19031,
+    "minStateId": 19020,
+    "maxStateId": 19099,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "top",
+          "bottom"
+        ]
+      },
+      {
+        "name": "shape",
+        "type": "enum",
+        "num_values": 5,
+        "values": [
+          "straight",
+          "inner_left",
+          "inner_right",
+          "outer_left",
+          "outer_right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      394
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 824,
+    "name": "crimson_button",
+    "displayName": "Crimson Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19109,
+    "minStateId": 19100,
+    "maxStateId": 19123,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      693
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 825,
+    "name": "warped_button",
+    "displayName": "Warped Button",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19133,
+    "minStateId": 19124,
+    "maxStateId": 19147,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      694
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 826,
+    "name": "crimson_door",
+    "displayName": "Crimson Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19159,
+    "minStateId": 19148,
+    "maxStateId": 19211,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      720
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 827,
+    "name": "warped_door",
+    "displayName": "Warped Door",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19223,
+    "minStateId": 19212,
+    "maxStateId": 19275,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "hinge",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      721
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 828,
+    "name": "crimson_sign",
+    "displayName": "Crimson Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19277,
+    "minStateId": 19276,
+    "maxStateId": 19307,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      895
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 829,
+    "name": "warped_sign",
+    "displayName": "Warped Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19309,
+    "minStateId": 19308,
+    "maxStateId": 19339,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      896
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 830,
+    "name": "crimson_wall_sign",
+    "displayName": "Crimson Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19341,
+    "minStateId": 19340,
+    "maxStateId": 19347,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      895
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 831,
+    "name": "warped_wall_sign",
+    "displayName": "Warped Sign",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19349,
+    "minStateId": 19348,
+    "maxStateId": 19355,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      896
+    ],
+    "boundingBox": "empty"
+  }
+]

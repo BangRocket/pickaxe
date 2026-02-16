@@ -33,6 +33,27 @@ struct Item {
     stack_size: i32,
 }
 
+/// Load all JSON files from a directory, deserialize as Vec<T>, merge, and sort by ID.
+fn load_from_dir<T: serde::de::DeserializeOwned>(dir: &Path, id_fn: fn(&T) -> i32) -> Vec<T> {
+    let mut all = Vec::new();
+    let mut entries: Vec<_> = fs::read_dir(dir)
+        .unwrap_or_else(|e| panic!("Cannot read directory {:?}: {}", dir, e))
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "json"))
+        .collect();
+    entries.sort_by_key(|e| e.file_name());
+    for entry in entries {
+        let path = entry.path();
+        let contents = fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {:?}: {}", path, e));
+        let items: Vec<T> = serde_json::from_str(&contents)
+            .unwrap_or_else(|e| panic!("Invalid JSON in {:?}: {}", path, e));
+        all.extend(items);
+    }
+    all.sort_by_key(|item| id_fn(item));
+    all
+}
+
 fn main() {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let data_dir = Path::new(&manifest_dir)
@@ -43,13 +64,11 @@ fn main() {
         .join("data/minecraft");
     let out_dir = std::env::var("OUT_DIR").unwrap();
 
-    let blocks_json = fs::read_to_string(data_dir.join("blocks.json"))
-        .expect("Missing data/minecraft/blocks.json");
-    let items_json = fs::read_to_string(data_dir.join("items.json"))
-        .expect("Missing data/minecraft/items.json");
+    let blocks_dir = data_dir.join("blocks");
+    let items_dir = data_dir.join("items");
 
-    let blocks: Vec<Block> = serde_json::from_str(&blocks_json).unwrap();
-    let items: Vec<Item> = serde_json::from_str(&items_json).unwrap();
+    let blocks: Vec<Block> = load_from_dir(&blocks_dir, |b| b.id);
+    let items: Vec<Item> = load_from_dir(&items_dir, |i| i.id);
 
     let item_by_name: HashMap<&str, &Item> = items.iter().map(|i| (i.name.as_str(), i)).collect();
 
@@ -323,10 +342,10 @@ fn main() {
 
     println!(
         "cargo:rerun-if-changed={}",
-        data_dir.join("blocks.json").display()
+        blocks_dir.display()
     );
     println!(
         "cargo:rerun-if-changed={}",
-        data_dir.join("items.json").display()
+        items_dir.display()
     );
 }

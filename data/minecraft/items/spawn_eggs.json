@@ -1,0 +1,482 @@
+[
+  {
+    "id": 1008,
+    "name": "armadillo_spawn_egg",
+    "displayName": "Armadillo Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1009,
+    "name": "allay_spawn_egg",
+    "displayName": "Allay Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1010,
+    "name": "axolotl_spawn_egg",
+    "displayName": "Axolotl Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1011,
+    "name": "bat_spawn_egg",
+    "displayName": "Bat Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1012,
+    "name": "bee_spawn_egg",
+    "displayName": "Bee Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1013,
+    "name": "blaze_spawn_egg",
+    "displayName": "Blaze Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1014,
+    "name": "bogged_spawn_egg",
+    "displayName": "Bogged Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1015,
+    "name": "breeze_spawn_egg",
+    "displayName": "Breeze Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1016,
+    "name": "cat_spawn_egg",
+    "displayName": "Cat Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1017,
+    "name": "camel_spawn_egg",
+    "displayName": "Camel Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1018,
+    "name": "cave_spider_spawn_egg",
+    "displayName": "Cave Spider Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1019,
+    "name": "chicken_spawn_egg",
+    "displayName": "Chicken Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1020,
+    "name": "cod_spawn_egg",
+    "displayName": "Cod Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1021,
+    "name": "cow_spawn_egg",
+    "displayName": "Cow Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1022,
+    "name": "creeper_spawn_egg",
+    "displayName": "Creeper Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1023,
+    "name": "dolphin_spawn_egg",
+    "displayName": "Dolphin Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1024,
+    "name": "donkey_spawn_egg",
+    "displayName": "Donkey Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1025,
+    "name": "drowned_spawn_egg",
+    "displayName": "Drowned Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1026,
+    "name": "elder_guardian_spawn_egg",
+    "displayName": "Elder Guardian Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1027,
+    "name": "ender_dragon_spawn_egg",
+    "displayName": "Ender Dragon Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1028,
+    "name": "enderman_spawn_egg",
+    "displayName": "Enderman Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1029,
+    "name": "endermite_spawn_egg",
+    "displayName": "Endermite Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1030,
+    "name": "evoker_spawn_egg",
+    "displayName": "Evoker Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1031,
+    "name": "fox_spawn_egg",
+    "displayName": "Fox Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1032,
+    "name": "frog_spawn_egg",
+    "displayName": "Frog Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1033,
+    "name": "ghast_spawn_egg",
+    "displayName": "Ghast Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1034,
+    "name": "glow_squid_spawn_egg",
+    "displayName": "Glow Squid Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1035,
+    "name": "goat_spawn_egg",
+    "displayName": "Goat Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1036,
+    "name": "guardian_spawn_egg",
+    "displayName": "Guardian Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1037,
+    "name": "hoglin_spawn_egg",
+    "displayName": "Hoglin Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1038,
+    "name": "horse_spawn_egg",
+    "displayName": "Horse Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1039,
+    "name": "husk_spawn_egg",
+    "displayName": "Husk Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1040,
+    "name": "iron_golem_spawn_egg",
+    "displayName": "Iron Golem Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1041,
+    "name": "llama_spawn_egg",
+    "displayName": "Llama Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1042,
+    "name": "magma_cube_spawn_egg",
+    "displayName": "Magma Cube Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1043,
+    "name": "mooshroom_spawn_egg",
+    "displayName": "Mooshroom Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1044,
+    "name": "mule_spawn_egg",
+    "displayName": "Mule Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1045,
+    "name": "ocelot_spawn_egg",
+    "displayName": "Ocelot Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1046,
+    "name": "panda_spawn_egg",
+    "displayName": "Panda Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1047,
+    "name": "parrot_spawn_egg",
+    "displayName": "Parrot Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1048,
+    "name": "phantom_spawn_egg",
+    "displayName": "Phantom Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1049,
+    "name": "pig_spawn_egg",
+    "displayName": "Pig Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1050,
+    "name": "piglin_spawn_egg",
+    "displayName": "Piglin Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1051,
+    "name": "piglin_brute_spawn_egg",
+    "displayName": "Piglin Brute Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1052,
+    "name": "pillager_spawn_egg",
+    "displayName": "Pillager Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1053,
+    "name": "polar_bear_spawn_egg",
+    "displayName": "Polar Bear Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1054,
+    "name": "pufferfish_spawn_egg",
+    "displayName": "Pufferfish Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1055,
+    "name": "rabbit_spawn_egg",
+    "displayName": "Rabbit Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1056,
+    "name": "ravager_spawn_egg",
+    "displayName": "Ravager Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1057,
+    "name": "salmon_spawn_egg",
+    "displayName": "Salmon Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1058,
+    "name": "sheep_spawn_egg",
+    "displayName": "Sheep Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1059,
+    "name": "shulker_spawn_egg",
+    "displayName": "Shulker Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1060,
+    "name": "silverfish_spawn_egg",
+    "displayName": "Silverfish Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1061,
+    "name": "skeleton_spawn_egg",
+    "displayName": "Skeleton Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1062,
+    "name": "skeleton_horse_spawn_egg",
+    "displayName": "Skeleton Horse Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1063,
+    "name": "slime_spawn_egg",
+    "displayName": "Slime Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1064,
+    "name": "sniffer_spawn_egg",
+    "displayName": "Sniffer Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1065,
+    "name": "snow_golem_spawn_egg",
+    "displayName": "Snow Golem Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1066,
+    "name": "spider_spawn_egg",
+    "displayName": "Spider Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1067,
+    "name": "squid_spawn_egg",
+    "displayName": "Squid Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1068,
+    "name": "stray_spawn_egg",
+    "displayName": "Stray Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1069,
+    "name": "strider_spawn_egg",
+    "displayName": "Strider Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1070,
+    "name": "tadpole_spawn_egg",
+    "displayName": "Tadpole Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1071,
+    "name": "trader_llama_spawn_egg",
+    "displayName": "Trader Llama Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1072,
+    "name": "tropical_fish_spawn_egg",
+    "displayName": "Tropical Fish Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1073,
+    "name": "turtle_spawn_egg",
+    "displayName": "Turtle Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1074,
+    "name": "vex_spawn_egg",
+    "displayName": "Vex Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1075,
+    "name": "villager_spawn_egg",
+    "displayName": "Villager Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1076,
+    "name": "vindicator_spawn_egg",
+    "displayName": "Vindicator Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1077,
+    "name": "wandering_trader_spawn_egg",
+    "displayName": "Wandering Trader Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1078,
+    "name": "warden_spawn_egg",
+    "displayName": "Warden Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1079,
+    "name": "witch_spawn_egg",
+    "displayName": "Witch Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1080,
+    "name": "wither_spawn_egg",
+    "displayName": "Wither Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1081,
+    "name": "wither_skeleton_spawn_egg",
+    "displayName": "Wither Skeleton Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1082,
+    "name": "wolf_spawn_egg",
+    "displayName": "Wolf Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1083,
+    "name": "zoglin_spawn_egg",
+    "displayName": "Zoglin Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1084,
+    "name": "zombie_spawn_egg",
+    "displayName": "Zombie Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1085,
+    "name": "zombie_horse_spawn_egg",
+    "displayName": "Zombie Horse Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1086,
+    "name": "zombie_villager_spawn_egg",
+    "displayName": "Zombie Villager Spawn Egg",
+    "stackSize": 64
+  },
+  {
+    "id": 1087,
+    "name": "zombified_piglin_spawn_egg",
+    "displayName": "Zombified Piglin Spawn Egg",
+    "stackSize": 64
+  }
+]

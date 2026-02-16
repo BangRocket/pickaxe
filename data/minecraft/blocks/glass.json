@@ -1,0 +1,1111 @@
+[
+  {
+    "id": 94,
+    "name": "glass",
+    "displayName": "Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 519,
+    "minStateId": 519,
+    "maxStateId": 519,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 268,
+    "name": "white_stained_glass",
+    "displayName": "White Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5945,
+    "minStateId": 5945,
+    "maxStateId": 5945,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 269,
+    "name": "orange_stained_glass",
+    "displayName": "Orange Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5946,
+    "minStateId": 5946,
+    "maxStateId": 5946,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 270,
+    "name": "magenta_stained_glass",
+    "displayName": "Magenta Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5947,
+    "minStateId": 5947,
+    "maxStateId": 5947,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 271,
+    "name": "light_blue_stained_glass",
+    "displayName": "Light Blue Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5948,
+    "minStateId": 5948,
+    "maxStateId": 5948,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 272,
+    "name": "yellow_stained_glass",
+    "displayName": "Yellow Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5949,
+    "minStateId": 5949,
+    "maxStateId": 5949,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 273,
+    "name": "lime_stained_glass",
+    "displayName": "Lime Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5950,
+    "minStateId": 5950,
+    "maxStateId": 5950,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 274,
+    "name": "pink_stained_glass",
+    "displayName": "Pink Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5951,
+    "minStateId": 5951,
+    "maxStateId": 5951,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 275,
+    "name": "gray_stained_glass",
+    "displayName": "Gray Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5952,
+    "minStateId": 5952,
+    "maxStateId": 5952,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 276,
+    "name": "light_gray_stained_glass",
+    "displayName": "Light Gray Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5953,
+    "minStateId": 5953,
+    "maxStateId": 5953,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 277,
+    "name": "cyan_stained_glass",
+    "displayName": "Cyan Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5954,
+    "minStateId": 5954,
+    "maxStateId": 5954,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 278,
+    "name": "purple_stained_glass",
+    "displayName": "Purple Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5955,
+    "minStateId": 5955,
+    "maxStateId": 5955,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 279,
+    "name": "blue_stained_glass",
+    "displayName": "Blue Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5956,
+    "minStateId": 5956,
+    "maxStateId": 5956,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 280,
+    "name": "brown_stained_glass",
+    "displayName": "Brown Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5957,
+    "minStateId": 5957,
+    "maxStateId": 5957,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 281,
+    "name": "green_stained_glass",
+    "displayName": "Green Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5958,
+    "minStateId": 5958,
+    "maxStateId": 5958,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 282,
+    "name": "red_stained_glass",
+    "displayName": "Red Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5959,
+    "minStateId": 5959,
+    "maxStateId": 5959,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 283,
+    "name": "black_stained_glass",
+    "displayName": "Black Stained Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5960,
+    "minStateId": 5960,
+    "maxStateId": 5960,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 310,
+    "name": "glass_pane",
+    "displayName": "Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6810,
+    "minStateId": 6779,
+    "maxStateId": 6810,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 441,
+    "name": "white_stained_glass_pane",
+    "displayName": "White Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9403,
+    "minStateId": 9372,
+    "maxStateId": 9403,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 442,
+    "name": "orange_stained_glass_pane",
+    "displayName": "Orange Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9435,
+    "minStateId": 9404,
+    "maxStateId": 9435,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 443,
+    "name": "magenta_stained_glass_pane",
+    "displayName": "Magenta Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9467,
+    "minStateId": 9436,
+    "maxStateId": 9467,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 444,
+    "name": "light_blue_stained_glass_pane",
+    "displayName": "Light Blue Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9499,
+    "minStateId": 9468,
+    "maxStateId": 9499,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 445,
+    "name": "yellow_stained_glass_pane",
+    "displayName": "Yellow Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9531,
+    "minStateId": 9500,
+    "maxStateId": 9531,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 446,
+    "name": "lime_stained_glass_pane",
+    "displayName": "Lime Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9563,
+    "minStateId": 9532,
+    "maxStateId": 9563,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 447,
+    "name": "pink_stained_glass_pane",
+    "displayName": "Pink Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9595,
+    "minStateId": 9564,
+    "maxStateId": 9595,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 448,
+    "name": "gray_stained_glass_pane",
+    "displayName": "Gray Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9627,
+    "minStateId": 9596,
+    "maxStateId": 9627,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 449,
+    "name": "light_gray_stained_glass_pane",
+    "displayName": "Light Gray Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9659,
+    "minStateId": 9628,
+    "maxStateId": 9659,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 450,
+    "name": "cyan_stained_glass_pane",
+    "displayName": "Cyan Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9691,
+    "minStateId": 9660,
+    "maxStateId": 9691,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 451,
+    "name": "purple_stained_glass_pane",
+    "displayName": "Purple Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9723,
+    "minStateId": 9692,
+    "maxStateId": 9723,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 452,
+    "name": "blue_stained_glass_pane",
+    "displayName": "Blue Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9755,
+    "minStateId": 9724,
+    "maxStateId": 9755,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 453,
+    "name": "brown_stained_glass_pane",
+    "displayName": "Brown Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9787,
+    "minStateId": 9756,
+    "maxStateId": 9787,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 454,
+    "name": "green_stained_glass_pane",
+    "displayName": "Green Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9819,
+    "minStateId": 9788,
+    "maxStateId": 9819,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 455,
+    "name": "red_stained_glass_pane",
+    "displayName": "Red Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9851,
+    "minStateId": 9820,
+    "maxStateId": 9851,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 456,
+    "name": "black_stained_glass_pane",
+    "displayName": "Black Stained Glass Pane",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9883,
+    "minStateId": 9852,
+    "maxStateId": 9883,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 924,
+    "name": "tinted_glass",
+    "displayName": "Tinted Glass",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22317,
+    "minStateId": 22317,
+    "maxStateId": 22317,
+    "states": [],
+    "drops": [
+      189
+    ],
+    "boundingBox": "block"
+  }
+]

@@ -1,0 +1,2839 @@
+[
+  {
+    "id": 30,
+    "name": "mangrove_propagule",
+    "displayName": "Mangrove Propagule",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 44,
+    "minStateId": 39,
+    "maxStateId": 78,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 5,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "hanging",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 54,
+    "name": "mangrove_roots",
+    "displayName": "Mangrove Roots",
+    "hardness": 0.7,
+    "resistance": 0.7,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 155,
+    "minStateId": 154,
+    "maxStateId": 155,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      140
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 55,
+    "name": "muddy_mangrove_roots",
+    "displayName": "Muddy Mangrove Roots",
+    "hardness": 0.7,
+    "resistance": 0.7,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 157,
+    "minStateId": 156,
+    "maxStateId": 158,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      141
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 82,
+    "name": "oak_leaves",
+    "displayName": "Oak Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 264,
+    "minStateId": 237,
+    "maxStateId": 264,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 83,
+    "name": "spruce_leaves",
+    "displayName": "Spruce Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 292,
+    "minStateId": 265,
+    "maxStateId": 292,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 84,
+    "name": "birch_leaves",
+    "displayName": "Birch Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 320,
+    "minStateId": 293,
+    "maxStateId": 320,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 85,
+    "name": "jungle_leaves",
+    "displayName": "Jungle Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 348,
+    "minStateId": 321,
+    "maxStateId": 348,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 86,
+    "name": "acacia_leaves",
+    "displayName": "Acacia Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 376,
+    "minStateId": 349,
+    "maxStateId": 376,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 87,
+    "name": "cherry_leaves",
+    "displayName": "Cherry Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 404,
+    "minStateId": 377,
+    "maxStateId": 404,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 88,
+    "name": "dark_oak_leaves",
+    "displayName": "Dark Oak Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 432,
+    "minStateId": 405,
+    "maxStateId": 432,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      54
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 89,
+    "name": "mangrove_leaves",
+    "displayName": "Mangrove Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 460,
+    "minStateId": 433,
+    "maxStateId": 460,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 90,
+    "name": "azalea_leaves",
+    "displayName": "Azalea Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 488,
+    "minStateId": 461,
+    "maxStateId": 488,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 91,
+    "name": "flowering_azalea_leaves",
+    "displayName": "Flowering Azalea Leaves",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "leaves;mineable/hoe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 516,
+    "minStateId": 489,
+    "maxStateId": 516,
+    "states": [
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "persistent",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 123,
+    "name": "short_grass",
+    "displayName": "Short Grass",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2005,
+    "minStateId": 2005,
+    "maxStateId": 2005,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 124,
+    "name": "fern",
+    "displayName": "Fern",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2006,
+    "minStateId": 2006,
+    "maxStateId": 2006,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 125,
+    "name": "dead_bush",
+    "displayName": "Dead Bush",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2007,
+    "minStateId": 2007,
+    "maxStateId": 2007,
+    "states": [],
+    "drops": [
+      0
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 126,
+    "name": "seagrass",
+    "displayName": "Seagrass",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 2008,
+    "minStateId": 2008,
+    "maxStateId": 2008,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 127,
+    "name": "tall_seagrass",
+    "displayName": "Tall Seagrass",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 2010,
+    "minStateId": 2009,
+    "maxStateId": 2010,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 147,
+    "name": "dandelion",
+    "displayName": "Dandelion",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2075,
+    "minStateId": 2075,
+    "maxStateId": 2075,
+    "states": [],
+    "drops": [
+      218
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 148,
+    "name": "torchflower",
+    "displayName": "Torchflower",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2076,
+    "minStateId": 2076,
+    "maxStateId": 2076,
+    "states": [],
+    "drops": [
+      231
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 149,
+    "name": "poppy",
+    "displayName": "Poppy",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2077,
+    "minStateId": 2077,
+    "maxStateId": 2077,
+    "states": [],
+    "drops": [
+      219
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 150,
+    "name": "blue_orchid",
+    "displayName": "Blue Orchid",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2078,
+    "minStateId": 2078,
+    "maxStateId": 2078,
+    "states": [],
+    "drops": [
+      220
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 151,
+    "name": "allium",
+    "displayName": "Allium",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2079,
+    "minStateId": 2079,
+    "maxStateId": 2079,
+    "states": [],
+    "drops": [
+      221
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 152,
+    "name": "azure_bluet",
+    "displayName": "Azure Bluet",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2080,
+    "minStateId": 2080,
+    "maxStateId": 2080,
+    "states": [],
+    "drops": [
+      222
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 153,
+    "name": "red_tulip",
+    "displayName": "Red Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2081,
+    "minStateId": 2081,
+    "maxStateId": 2081,
+    "states": [],
+    "drops": [
+      223
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 154,
+    "name": "orange_tulip",
+    "displayName": "Orange Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2082,
+    "minStateId": 2082,
+    "maxStateId": 2082,
+    "states": [],
+    "drops": [
+      224
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 155,
+    "name": "white_tulip",
+    "displayName": "White Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2083,
+    "minStateId": 2083,
+    "maxStateId": 2083,
+    "states": [],
+    "drops": [
+      225
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 156,
+    "name": "pink_tulip",
+    "displayName": "Pink Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2084,
+    "minStateId": 2084,
+    "maxStateId": 2084,
+    "states": [],
+    "drops": [
+      226
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 157,
+    "name": "oxeye_daisy",
+    "displayName": "Oxeye Daisy",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2085,
+    "minStateId": 2085,
+    "maxStateId": 2085,
+    "states": [],
+    "drops": [
+      227
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 158,
+    "name": "cornflower",
+    "displayName": "Cornflower",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2086,
+    "minStateId": 2086,
+    "maxStateId": 2086,
+    "states": [],
+    "drops": [
+      228
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 159,
+    "name": "wither_rose",
+    "displayName": "Wither Rose",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2087,
+    "minStateId": 2087,
+    "maxStateId": 2087,
+    "states": [],
+    "drops": [
+      230
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 160,
+    "name": "lily_of_the_valley",
+    "displayName": "Lily of the Valley",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2088,
+    "minStateId": 2088,
+    "maxStateId": 2088,
+    "states": [],
+    "drops": [
+      229
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 161,
+    "name": "brown_mushroom",
+    "displayName": "Brown Mushroom",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 1,
+    "filterLight": 0,
+    "defaultState": 2089,
+    "minStateId": 2089,
+    "maxStateId": 2089,
+    "states": [],
+    "drops": [
+      234
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 162,
+    "name": "red_mushroom",
+    "displayName": "Red Mushroom",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2090,
+    "minStateId": 2090,
+    "maxStateId": 2090,
+    "states": [],
+    "drops": [
+      235
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 183,
+    "name": "wheat",
+    "displayName": "Wheat Crops",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 4278,
+    "minStateId": 4278,
+    "maxStateId": 4285,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 8,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      }
+    ],
+    "drops": [
+      853
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 250,
+    "name": "cactus",
+    "displayName": "Cactus",
+    "hardness": 0.4,
+    "resistance": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5782,
+    "minStateId": 5782,
+    "maxStateId": 5797,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      308
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 252,
+    "name": "sugar_cane",
+    "displayName": "Sugar Cane",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5799,
+    "minStateId": 5799,
+    "maxStateId": 5814,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      243
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 264,
+    "name": "carved_pumpkin",
+    "displayName": "Carved Pumpkin",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 5866,
+    "minStateId": 5866,
+    "maxStateId": 5869,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      323
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 265,
+    "name": "jack_o_lantern",
+    "displayName": "Jack o'Lantern",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "gourd;mineable/axe",
+    "transparent": false,
+    "emitLight": 15,
+    "filterLight": 15,
+    "defaultState": 5870,
+    "minStateId": 5870,
+    "maxStateId": 5873,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      324
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 305,
+    "name": "brown_mushroom_block",
+    "displayName": "Brown Mushroom Block",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6549,
+    "minStateId": 6549,
+    "maxStateId": 6612,
+    "states": [
+      {
+        "name": "down",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      0
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 306,
+    "name": "red_mushroom_block",
+    "displayName": "Red Mushroom Block",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6613,
+    "minStateId": 6613,
+    "maxStateId": 6676,
+    "states": [
+      {
+        "name": "down",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      235
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 307,
+    "name": "mushroom_stem",
+    "displayName": "Mushroom Stem",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6677,
+    "minStateId": 6677,
+    "maxStateId": 6740,
+    "states": [
+      {
+        "name": "down",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 311,
+    "name": "pumpkin",
+    "displayName": "Pumpkin",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "gourd;mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6811,
+    "minStateId": 6811,
+    "maxStateId": 6811,
+    "states": [],
+    "drops": [
+      322
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 312,
+    "name": "melon",
+    "displayName": "Melon",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "gourd;mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 6812,
+    "minStateId": 6812,
+    "maxStateId": 6812,
+    "states": [],
+    "drops": [
+      984
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 313,
+    "name": "attached_pumpkin_stem",
+    "displayName": "Attached Pumpkin Stem",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6813,
+    "minStateId": 6813,
+    "maxStateId": 6816,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      0
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 314,
+    "name": "attached_melon_stem",
+    "displayName": "Attached Melon Stem",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6817,
+    "minStateId": 6817,
+    "maxStateId": 6820,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      0
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 315,
+    "name": "pumpkin_stem",
+    "displayName": "Pumpkin Stem",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6821,
+    "minStateId": 6821,
+    "maxStateId": 6828,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 8,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      }
+    ],
+    "drops": [
+      0
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 316,
+    "name": "melon_stem",
+    "displayName": "Melon Stem",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6829,
+    "minStateId": 6829,
+    "maxStateId": 6836,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 8,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      }
+    ],
+    "drops": [
+      0
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 317,
+    "name": "vine",
+    "displayName": "Vines",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "vine_or_glow_lichen;plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6868,
+    "minStateId": 6837,
+    "maxStateId": 6868,
+    "states": [
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 318,
+    "name": "glow_lichen",
+    "displayName": "Glow Lichen",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "vine_or_glow_lichen;plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6996,
+    "minStateId": 6869,
+    "maxStateId": 6996,
+    "states": [
+      {
+        "name": "down",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 324,
+    "name": "lily_pad",
+    "displayName": "Lily Pad",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7271,
+    "minStateId": 7271,
+    "maxStateId": 7271,
+    "states": [],
+    "drops": [
+      365
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 328,
+    "name": "nether_wart",
+    "displayName": "Nether Wart",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7385,
+    "minStateId": 7385,
+    "maxStateId": 7388,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ],
+    "drops": [
+      997
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 340,
+    "name": "cocoa",
+    "displayName": "Cocoa",
+    "hardness": 0.2,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7419,
+    "minStateId": 7419,
+    "maxStateId": 7430,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 3,
+        "values": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      943
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 383,
+    "name": "carrots",
+    "displayName": "Carrots",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8595,
+    "minStateId": 8595,
+    "maxStateId": 8602,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 8,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      }
+    ],
+    "drops": [
+      1097
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 384,
+    "name": "potatoes",
+    "displayName": "Potatoes",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8603,
+    "minStateId": 8603,
+    "maxStateId": 8610,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 8,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      }
+    ],
+    "drops": [
+      1098
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 477,
+    "name": "hay_block",
+    "displayName": "Hay Bale",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/hoe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 10726,
+    "minStateId": 10725,
+    "maxStateId": 10727,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      445
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 497,
+    "name": "sunflower",
+    "displayName": "Sunflower",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10748,
+    "minStateId": 10747,
+    "maxStateId": 10748,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [
+      465
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 498,
+    "name": "lilac",
+    "displayName": "Lilac",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10750,
+    "minStateId": 10749,
+    "maxStateId": 10750,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [
+      466
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 499,
+    "name": "rose_bush",
+    "displayName": "Rose Bush",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10752,
+    "minStateId": 10751,
+    "maxStateId": 10752,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [
+      467
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 500,
+    "name": "peony",
+    "displayName": "Peony",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10754,
+    "minStateId": 10753,
+    "maxStateId": 10754,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [
+      468
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 501,
+    "name": "tall_grass",
+    "displayName": "Tall Grass",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10756,
+    "minStateId": 10755,
+    "maxStateId": 10756,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 502,
+    "name": "large_fern",
+    "displayName": "Large Fern",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10758,
+    "minStateId": 10757,
+    "maxStateId": 10758,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 592,
+    "name": "chorus_plant",
+    "displayName": "Chorus Plant",
+    "hardness": 0.4,
+    "resistance": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12403,
+    "minStateId": 12340,
+    "maxStateId": 12403,
+    "states": [
+      {
+        "name": "down",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      0
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 593,
+    "name": "chorus_flower",
+    "displayName": "Chorus Flower",
+    "hardness": 0.4,
+    "resistance": 0.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12404,
+    "minStateId": 12404,
+    "maxStateId": 12409,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 6,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 598,
+    "name": "torchflower_crop",
+    "displayName": "Torchflower Crop",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12495,
+    "minStateId": 12495,
+    "maxStateId": 12496,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      1152
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 599,
+    "name": "pitcher_crop",
+    "displayName": "Pitcher Crop",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12498,
+    "minStateId": 12497,
+    "maxStateId": 12506,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 5,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [
+      1153
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 600,
+    "name": "pitcher_plant",
+    "displayName": "Pitcher Plant",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12508,
+    "minStateId": 12507,
+    "maxStateId": 12508,
+    "states": [
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      }
+    ],
+    "drops": [
+      232
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 601,
+    "name": "beetroots",
+    "displayName": "Beetroots",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12509,
+    "minStateId": 12509,
+    "maxStateId": 12512,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ],
+    "drops": [
+      1155
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 678,
+    "name": "kelp",
+    "displayName": "Kelp",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12760,
+    "minStateId": 12760,
+    "maxStateId": 12785,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 26,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25"
+        ]
+      }
+    ],
+    "drops": [
+      244
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 679,
+    "name": "kelp_plant",
+    "displayName": "Kelp Plant",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12786,
+    "minStateId": 12786,
+    "maxStateId": 12786,
+    "states": [],
+    "drops": [
+      244
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 680,
+    "name": "dried_kelp_block",
+    "displayName": "Dried Kelp Block",
+    "hardness": 0.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/hoe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12787,
+    "minStateId": 12787,
+    "maxStateId": 12787,
+    "states": [],
+    "drops": [
+      923
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 723,
+    "name": "sea_pickle",
+    "displayName": "Sea Pickle",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 6,
+    "filterLight": 1,
+    "defaultState": 12933,
+    "minStateId": 12933,
+    "maxStateId": 12940,
+    "states": [
+      {
+        "name": "pickles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      201
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 727,
+    "name": "bamboo",
+    "displayName": "Bamboo",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12945,
+    "minStateId": 12945,
+    "maxStateId": 12956,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      },
+      {
+        "name": "leaves",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "none",
+          "small",
+          "large"
+        ]
+      },
+      {
+        "name": "stage",
+        "type": "int",
+        "num_values": 2,
+        "values": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "drops": [
+      251
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 788,
+    "name": "sweet_berry_bush",
+    "displayName": "Sweet Berry Bush",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18575,
+    "minStateId": 18575,
+    "maxStateId": 18578,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1009,
+    "name": "cave_vines",
+    "displayName": "Cave Vines",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24770,
+    "minStateId": 24769,
+    "maxStateId": 24820,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 26,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25"
+        ]
+      },
+      {
+        "name": "berries",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1010,
+    "name": "cave_vines_plant",
+    "displayName": "Cave Vines Plant",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24822,
+    "minStateId": 24821,
+    "maxStateId": 24822,
+    "states": [
+      {
+        "name": "berries",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1011,
+    "name": "spore_blossom",
+    "displayName": "Spore Blossom",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24823,
+    "minStateId": 24823,
+    "maxStateId": 24823,
+    "states": [],
+    "drops": [
+      233
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1012,
+    "name": "azalea",
+    "displayName": "Azalea",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24824,
+    "minStateId": 24824,
+    "maxStateId": 24824,
+    "states": [],
+    "drops": [
+      197
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1013,
+    "name": "flowering_azalea",
+    "displayName": "Flowering Azalea",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24825,
+    "minStateId": 24825,
+    "maxStateId": 24825,
+    "states": [],
+    "drops": [
+      198
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1014,
+    "name": "moss_carpet",
+    "displayName": "Moss Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24826,
+    "minStateId": 24826,
+    "maxStateId": 24826,
+    "states": [],
+    "drops": [
+      245
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1015,
+    "name": "pink_petals",
+    "displayName": "Pink Petals",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24827,
+    "minStateId": 24827,
+    "maxStateId": 24842,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "flower_amount",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      }
+    ],
+    "drops": [
+      246
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1016,
+    "name": "moss_block",
+    "displayName": "Moss Block",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/hoe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 24843,
+    "minStateId": 24843,
+    "maxStateId": 24843,
+    "states": [],
+    "drops": [
+      247
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1017,
+    "name": "big_dripleaf",
+    "displayName": "Big Dripleaf",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24845,
+    "minStateId": 24844,
+    "maxStateId": 24875,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "tilt",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "none",
+          "unstable",
+          "partial",
+          "full"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      249
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1018,
+    "name": "big_dripleaf_stem",
+    "displayName": "Big Dripleaf Stem",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24877,
+    "minStateId": 24876,
+    "maxStateId": 24883,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      249
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1019,
+    "name": "small_dripleaf",
+    "displayName": "Small Dripleaf",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24887,
+    "minStateId": 24884,
+    "maxStateId": 24899,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "half",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "upper",
+          "lower"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1020,
+    "name": "hanging_roots",
+    "displayName": "Hanging Roots",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "plant;mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 24901,
+    "minStateId": 24900,
+    "maxStateId": 24901,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  }
+]

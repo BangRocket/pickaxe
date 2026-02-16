@@ -1,0 +1,2128 @@
+[
+  {
+    "id": 0,
+    "name": "air",
+    "displayName": "Air",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 0,
+    "minStateId": 0,
+    "maxStateId": 0,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 31,
+    "name": "bedrock",
+    "displayName": "Bedrock",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 79,
+    "minStateId": 79,
+    "maxStateId": 79,
+    "states": [],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 32,
+    "name": "water",
+    "displayName": "Water",
+    "hardness": 100.0,
+    "resistance": 100.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 80,
+    "minStateId": 80,
+    "maxStateId": 95,
+    "states": [
+      {
+        "name": "level",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 33,
+    "name": "lava",
+    "displayName": "Lava",
+    "hardness": 100.0,
+    "resistance": 100.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 1,
+    "defaultState": 96,
+    "minStateId": 96,
+    "maxStateId": 111,
+    "states": [
+      {
+        "name": "level",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 92,
+    "name": "sponge",
+    "displayName": "Sponge",
+    "hardness": 0.6,
+    "resistance": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/hoe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 517,
+    "minStateId": 517,
+    "maxStateId": 517,
+    "states": [],
+    "drops": [
+      186
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 93,
+    "name": "wet_sponge",
+    "displayName": "Wet Sponge",
+    "hardness": 0.6,
+    "resistance": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/hoe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 518,
+    "minStateId": 518,
+    "maxStateId": 518,
+    "states": [],
+    "drops": [
+      187
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 122,
+    "name": "cobweb",
+    "displayName": "Cobweb",
+    "hardness": 4.0,
+    "resistance": 4.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "coweb",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 2004,
+    "minStateId": 2004,
+    "maxStateId": 2004,
+    "states": [],
+    "harvestTools": {
+      "818": true,
+      "823": true,
+      "828": true,
+      "833": true,
+      "838": true,
+      "843": true,
+      "983": true
+    },
+    "drops": [
+      850
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 170,
+    "name": "obsidian",
+    "displayName": "Obsidian",
+    "hardness": 50.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2354,
+    "minStateId": 2354,
+    "maxStateId": 2354,
+    "states": [],
+    "harvestTools": {
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      290
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 173,
+    "name": "fire",
+    "displayName": "Fire",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0,
+    "defaultState": 2391,
+    "minStateId": 2360,
+    "maxStateId": 2871,
+    "states": [
+      {
+        "name": "age",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "east",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "north",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "south",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "up",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "west",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 174,
+    "name": "soul_fire",
+    "displayName": "Soul Fire",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 10,
+    "filterLight": 0,
+    "defaultState": 2872,
+    "minStateId": 2872,
+    "maxStateId": 2872,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 175,
+    "name": "spawner",
+    "displayName": "Monster Spawner",
+    "hardness": 5.0,
+    "resistance": 5.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 2873,
+    "minStateId": 2873,
+    "maxStateId": 2873,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 177,
+    "name": "chest",
+    "displayName": "Chest",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 2955,
+    "minStateId": 2954,
+    "maxStateId": 2977,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "type",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "single",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      299
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 185,
+    "name": "furnace",
+    "displayName": "Furnace",
+    "hardness": 3.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 4295,
+    "minStateId": 4294,
+    "maxStateId": 4301,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      302
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 329,
+    "name": "enchanting_table",
+    "displayName": "Enchanting Table",
+    "hardness": 5.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 7,
+    "filterLight": 0,
+    "defaultState": 7389,
+    "minStateId": 7389,
+    "maxStateId": 7389,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      375
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 330,
+    "name": "brewing_stand",
+    "displayName": "Brewing Stand",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 1,
+    "filterLight": 0,
+    "defaultState": 7397,
+    "minStateId": 7390,
+    "maxStateId": 7397,
+    "states": [
+      {
+        "name": "has_bottle_0",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "has_bottle_1",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "has_bottle_2",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1004
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 331,
+    "name": "cauldron",
+    "displayName": "Cauldron",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7398,
+    "minStateId": 7398,
+    "maxStateId": 7398,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1005
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 332,
+    "name": "water_cauldron",
+    "displayName": "Water Cauldron",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7399,
+    "minStateId": 7399,
+    "maxStateId": 7401,
+    "states": [
+      {
+        "name": "level",
+        "type": "int",
+        "num_values": 3,
+        "values": [
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1005
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 333,
+    "name": "lava_cauldron",
+    "displayName": "Lava Cauldron",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0,
+    "defaultState": 7402,
+    "minStateId": 7402,
+    "maxStateId": 7402,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1005
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 334,
+    "name": "powder_snow_cauldron",
+    "displayName": "Powder Snow Cauldron",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 7403,
+    "minStateId": 7403,
+    "maxStateId": 7405,
+    "states": [
+      {
+        "name": "level",
+        "type": "int",
+        "num_values": 3,
+        "values": [
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1005
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 335,
+    "name": "end_portal",
+    "displayName": "End Portal",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0,
+    "defaultState": 7406,
+    "minStateId": 7406,
+    "maxStateId": 7406,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 336,
+    "name": "end_portal_frame",
+    "displayName": "End Portal Frame",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 1,
+    "filterLight": 0,
+    "defaultState": 7411,
+    "minStateId": 7407,
+    "maxStateId": 7414,
+    "states": [
+      {
+        "name": "eye",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 338,
+    "name": "dragon_egg",
+    "displayName": "Dragon Egg",
+    "hardness": 3.0,
+    "resistance": 9.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 1,
+    "filterLight": 0,
+    "defaultState": 7416,
+    "minStateId": 7416,
+    "maxStateId": 7416,
+    "states": [],
+    "drops": [
+      379
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 344,
+    "name": "ender_chest",
+    "displayName": "Ender Chest",
+    "hardness": 22.5,
+    "resistance": 600.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 7,
+    "filterLight": 0,
+    "defaultState": 7514,
+    "minStateId": 7513,
+    "maxStateId": 7520,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      290
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 351,
+    "name": "command_block",
+    "displayName": "Command Block",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 7912,
+    "minStateId": 7906,
+    "maxStateId": 7917,
+    "states": [
+      {
+        "name": "conditional",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "harvestTools": {},
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 352,
+    "name": "beacon",
+    "displayName": "Beacon",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 1,
+    "defaultState": 7918,
+    "minStateId": 7918,
+    "maxStateId": 7918,
+    "states": [],
+    "drops": [
+      396
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 463,
+    "name": "slime_block",
+    "displayName": "Slime Block",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 10364,
+    "minStateId": 10364,
+    "maxStateId": 10364,
+    "states": [],
+    "drops": [
+      664
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 464,
+    "name": "barrier",
+    "displayName": "Barrier",
+    "hardness": -1.0,
+    "resistance": 3600000.8,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10366,
+    "minStateId": 10365,
+    "maxStateId": 10366,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 465,
+    "name": "light",
+    "displayName": "Light",
+    "hardness": -1.0,
+    "resistance": 3600000.8,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0,
+    "defaultState": 10398,
+    "minStateId": 10367,
+    "maxStateId": 10398,
+    "states": [
+      {
+        "name": "level",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 603,
+    "name": "end_gateway",
+    "displayName": "End Gateway",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 1,
+    "defaultState": 12514,
+    "minStateId": 12514,
+    "maxStateId": 12514,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 604,
+    "name": "repeating_command_block",
+    "displayName": "Repeating Command Block",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12521,
+    "minStateId": 12515,
+    "maxStateId": 12526,
+    "states": [
+      {
+        "name": "conditional",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "harvestTools": {},
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 605,
+    "name": "chain_command_block",
+    "displayName": "Chain Command Block",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12533,
+    "minStateId": 12527,
+    "maxStateId": 12538,
+    "states": [
+      {
+        "name": "conditional",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "harvestTools": {},
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 611,
+    "name": "structure_void",
+    "displayName": "Structure Void",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12549,
+    "minStateId": 12549,
+    "maxStateId": 12549,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 681,
+    "name": "turtle_egg",
+    "displayName": "Turtle Egg",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12788,
+    "minStateId": 12788,
+    "maxStateId": 12799,
+    "states": [
+      {
+        "name": "eggs",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "hatch",
+        "type": "int",
+        "num_values": 3,
+        "values": [
+          "0",
+          "1",
+          "2"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 682,
+    "name": "sniffer_egg",
+    "displayName": "Sniffer Egg",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12800,
+    "minStateId": 12800,
+    "maxStateId": 12802,
+    "states": [
+      {
+        "name": "hatch",
+        "type": "int",
+        "num_values": 3,
+        "values": [
+          "0",
+          "1",
+          "2"
+        ]
+      }
+    ],
+    "drops": [
+      588
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 725,
+    "name": "conduit",
+    "displayName": "Conduit",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 1,
+    "defaultState": 12942,
+    "minStateId": 12942,
+    "maxStateId": 12943,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      620
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 729,
+    "name": "void_air",
+    "displayName": "Void Air",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12958,
+    "minStateId": 12958,
+    "maxStateId": 12958,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 730,
+    "name": "cave_air",
+    "displayName": "Cave Air",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12959,
+    "minStateId": 12959,
+    "maxStateId": 12959,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 731,
+    "name": "bubble_column",
+    "displayName": "Bubble Column",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12960,
+    "minStateId": 12960,
+    "maxStateId": 12961,
+    "states": [
+      {
+        "name": "drag",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 772,
+    "name": "scaffolding",
+    "displayName": "Scaffolding",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18403,
+    "minStateId": 18372,
+    "maxStateId": 18403,
+    "states": [
+      {
+        "name": "bottom",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "distance",
+        "type": "int",
+        "num_values": 8,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      656
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 773,
+    "name": "loom",
+    "displayName": "Loom",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18404,
+    "minStateId": 18404,
+    "maxStateId": 18407,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1194
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 774,
+    "name": "barrel",
+    "displayName": "Barrel",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18409,
+    "minStateId": 18408,
+    "maxStateId": 18419,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "open",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1205
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 775,
+    "name": "smoker",
+    "displayName": "Smoker",
+    "hardness": 3.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18421,
+    "minStateId": 18420,
+    "maxStateId": 18427,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1206
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 776,
+    "name": "blast_furnace",
+    "displayName": "Blast Furnace",
+    "hardness": 3.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18429,
+    "minStateId": 18428,
+    "maxStateId": 18435,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1207
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 777,
+    "name": "cartography_table",
+    "displayName": "Cartography Table",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18436,
+    "minStateId": 18436,
+    "maxStateId": 18436,
+    "states": [],
+    "drops": [
+      1208
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 778,
+    "name": "fletching_table",
+    "displayName": "Fletching Table",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18437,
+    "minStateId": 18437,
+    "maxStateId": 18437,
+    "states": [],
+    "drops": [
+      1209
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 779,
+    "name": "grindstone",
+    "displayName": "Grindstone",
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18442,
+    "minStateId": 18438,
+    "maxStateId": 18449,
+    "states": [
+      {
+        "name": "face",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "floor",
+          "wall",
+          "ceiling"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1210
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 780,
+    "name": "lectern",
+    "displayName": "Lectern",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18453,
+    "minStateId": 18450,
+    "maxStateId": 18465,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "has_book",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      670
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 781,
+    "name": "smithing_table",
+    "displayName": "Smithing Table",
+    "hardness": 2.5,
+    "resistance": 2.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 18466,
+    "minStateId": 18466,
+    "maxStateId": 18466,
+    "states": [],
+    "drops": [
+      1211
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 782,
+    "name": "stonecutter",
+    "displayName": "Stonecutter",
+    "hardness": 3.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18467,
+    "minStateId": 18467,
+    "maxStateId": 18470,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1212
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 786,
+    "name": "campfire",
+    "displayName": "Campfire",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0,
+    "defaultState": 18514,
+    "minStateId": 18511,
+    "maxStateId": 18542,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "signal_fire",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      804
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 787,
+    "name": "soul_campfire",
+    "displayName": "Soul Campfire",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 10,
+    "filterLight": 0,
+    "defaultState": 18546,
+    "minStateId": 18543,
+    "maxStateId": 18574,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "signal_fire",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      327
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 832,
+    "name": "structure_block",
+    "displayName": "Structure Block",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19357,
+    "minStateId": 19356,
+    "maxStateId": 19359,
+    "states": [
+      {
+        "name": "mode",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "save",
+          "load",
+          "corner",
+          "data"
+        ]
+      }
+    ],
+    "harvestTools": {},
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 833,
+    "name": "jigsaw",
+    "displayName": "Jigsaw Block",
+    "hardness": -1.0,
+    "resistance": 3600000.0,
+    "stackSize": 64,
+    "diggable": false,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19370,
+    "minStateId": 19360,
+    "maxStateId": 19371,
+    "states": [
+      {
+        "name": "orientation",
+        "type": "enum",
+        "num_values": 12,
+        "values": [
+          "down_east",
+          "down_north",
+          "down_south",
+          "down_west",
+          "up_east",
+          "up_north",
+          "up_south",
+          "up_west",
+          "west_up",
+          "east_up",
+          "north_up",
+          "south_up"
+        ]
+      }
+    ],
+    "harvestTools": {},
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 834,
+    "name": "composter",
+    "displayName": "Composter",
+    "hardness": 0.6,
+    "resistance": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19372,
+    "minStateId": 19372,
+    "maxStateId": 19380,
+    "states": [
+      {
+        "name": "level",
+        "type": "int",
+        "num_values": 9,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ]
+      }
+    ],
+    "drops": [
+      1204
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 836,
+    "name": "bee_nest",
+    "displayName": "Bee Nest",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19397,
+    "minStateId": 19397,
+    "maxStateId": 19420,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "honey_level",
+        "type": "int",
+        "num_values": 6,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 837,
+    "name": "beehive",
+    "displayName": "Beehive",
+    "hardness": 0.6,
+    "resistance": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19421,
+    "minStateId": 19421,
+    "maxStateId": 19444,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "honey_level",
+        "type": "int",
+        "num_values": 6,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    ],
+    "drops": [
+      1223
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 838,
+    "name": "honey_block",
+    "displayName": "Honey Block",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 19445,
+    "minStateId": 19445,
+    "maxStateId": 19445,
+    "states": [],
+    "drops": [
+      665
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 839,
+    "name": "honeycomb_block",
+    "displayName": "Honeycomb Block",
+    "hardness": 0.6,
+    "resistance": 0.6,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19446,
+    "minStateId": 19446,
+    "maxStateId": 19446,
+    "states": [],
+    "drops": [
+      1225
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1053,
+    "name": "frogspawn",
+    "displayName": "Frogspawn",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26572,
+    "minStateId": 26572,
+    "maxStateId": 26572,
+    "states": [],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 1056,
+    "name": "crafter",
+    "displayName": "Crafter",
+    "hardness": 1.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26635,
+    "minStateId": 26590,
+    "maxStateId": 26637,
+    "states": [
+      {
+        "name": "crafting",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "orientation",
+        "type": "enum",
+        "num_values": 12,
+        "values": [
+          "down_east",
+          "down_north",
+          "down_south",
+          "down_west",
+          "up_east",
+          "up_north",
+          "up_south",
+          "up_west",
+          "west_up",
+          "east_up",
+          "north_up",
+          "south_up"
+        ]
+      },
+      {
+        "name": "triggered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      981
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1057,
+    "name": "trial_spawner",
+    "displayName": "Trial Spawner",
+    "hardness": 50.0,
+    "resistance": 50.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 26644,
+    "minStateId": 26638,
+    "maxStateId": 26649,
+    "states": [
+      {
+        "name": "ominous",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "trial_spawner_state",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "inactive",
+          "waiting_for_players",
+          "active",
+          "waiting_for_reward_ejection",
+          "ejecting_reward",
+          "cooldown"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1058,
+    "name": "vault",
+    "displayName": "Vault",
+    "hardness": 50.0,
+    "resistance": 50.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 6,
+    "filterLight": 1,
+    "defaultState": 26654,
+    "minStateId": 26650,
+    "maxStateId": 26681,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "ominous",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "vault_state",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "inactive",
+          "active",
+          "unlocking",
+          "ejecting"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1059,
+    "name": "heavy_core",
+    "displayName": "Heavy Core",
+    "hardness": 10.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26683,
+    "minStateId": 26682,
+    "maxStateId": 26683,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      85
+    ],
+    "boundingBox": "block"
+  }
+]

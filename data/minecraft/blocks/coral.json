@@ -1,0 +1,1272 @@
+[
+  {
+    "id": 683,
+    "name": "dead_tube_coral_block",
+    "displayName": "Dead Tube Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12803,
+    "minStateId": 12803,
+    "maxStateId": 12803,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      589
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 684,
+    "name": "dead_brain_coral_block",
+    "displayName": "Dead Brain Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12804,
+    "minStateId": 12804,
+    "maxStateId": 12804,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      590
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 685,
+    "name": "dead_bubble_coral_block",
+    "displayName": "Dead Bubble Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12805,
+    "minStateId": 12805,
+    "maxStateId": 12805,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      591
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 686,
+    "name": "dead_fire_coral_block",
+    "displayName": "Dead Fire Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12806,
+    "minStateId": 12806,
+    "maxStateId": 12806,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      592
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 687,
+    "name": "dead_horn_coral_block",
+    "displayName": "Dead Horn Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12807,
+    "minStateId": 12807,
+    "maxStateId": 12807,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      593
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 688,
+    "name": "tube_coral_block",
+    "displayName": "Tube Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12808,
+    "minStateId": 12808,
+    "maxStateId": 12808,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      589
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 689,
+    "name": "brain_coral_block",
+    "displayName": "Brain Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12809,
+    "minStateId": 12809,
+    "maxStateId": 12809,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      590
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 690,
+    "name": "bubble_coral_block",
+    "displayName": "Bubble Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12810,
+    "minStateId": 12810,
+    "maxStateId": 12810,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      591
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 691,
+    "name": "fire_coral_block",
+    "displayName": "Fire Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12811,
+    "minStateId": 12811,
+    "maxStateId": 12811,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      592
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 692,
+    "name": "horn_coral_block",
+    "displayName": "Horn Coral Block",
+    "hardness": 1.5,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12812,
+    "minStateId": 12812,
+    "maxStateId": 12812,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      593
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 693,
+    "name": "dead_tube_coral",
+    "displayName": "Dead Tube Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12813,
+    "minStateId": 12813,
+    "maxStateId": 12814,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 694,
+    "name": "dead_brain_coral",
+    "displayName": "Dead Brain Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12815,
+    "minStateId": 12815,
+    "maxStateId": 12816,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 695,
+    "name": "dead_bubble_coral",
+    "displayName": "Dead Bubble Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12817,
+    "minStateId": 12817,
+    "maxStateId": 12818,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 696,
+    "name": "dead_fire_coral",
+    "displayName": "Dead Fire Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12819,
+    "minStateId": 12819,
+    "maxStateId": 12820,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 697,
+    "name": "dead_horn_coral",
+    "displayName": "Dead Horn Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12821,
+    "minStateId": 12821,
+    "maxStateId": 12822,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 698,
+    "name": "tube_coral",
+    "displayName": "Tube Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12823,
+    "minStateId": 12823,
+    "maxStateId": 12824,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 699,
+    "name": "brain_coral",
+    "displayName": "Brain Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12825,
+    "minStateId": 12825,
+    "maxStateId": 12826,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 700,
+    "name": "bubble_coral",
+    "displayName": "Bubble Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12827,
+    "minStateId": 12827,
+    "maxStateId": 12828,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 701,
+    "name": "fire_coral",
+    "displayName": "Fire Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12829,
+    "minStateId": 12829,
+    "maxStateId": 12830,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 702,
+    "name": "horn_coral",
+    "displayName": "Horn Coral",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12831,
+    "minStateId": 12831,
+    "maxStateId": 12832,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 703,
+    "name": "dead_tube_coral_fan",
+    "displayName": "Dead Tube Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12833,
+    "minStateId": 12833,
+    "maxStateId": 12834,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 704,
+    "name": "dead_brain_coral_fan",
+    "displayName": "Dead Brain Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12835,
+    "minStateId": 12835,
+    "maxStateId": 12836,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 705,
+    "name": "dead_bubble_coral_fan",
+    "displayName": "Dead Bubble Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12837,
+    "minStateId": 12837,
+    "maxStateId": 12838,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 706,
+    "name": "dead_fire_coral_fan",
+    "displayName": "Dead Fire Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12839,
+    "minStateId": 12839,
+    "maxStateId": 12840,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 707,
+    "name": "dead_horn_coral_fan",
+    "displayName": "Dead Horn Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12841,
+    "minStateId": 12841,
+    "maxStateId": 12842,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 708,
+    "name": "tube_coral_fan",
+    "displayName": "Tube Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12843,
+    "minStateId": 12843,
+    "maxStateId": 12844,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 709,
+    "name": "brain_coral_fan",
+    "displayName": "Brain Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12845,
+    "minStateId": 12845,
+    "maxStateId": 12846,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 710,
+    "name": "bubble_coral_fan",
+    "displayName": "Bubble Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12847,
+    "minStateId": 12847,
+    "maxStateId": 12848,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 711,
+    "name": "fire_coral_fan",
+    "displayName": "Fire Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12849,
+    "minStateId": 12849,
+    "maxStateId": 12850,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 712,
+    "name": "horn_coral_fan",
+    "displayName": "Horn Coral Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12851,
+    "minStateId": 12851,
+    "maxStateId": 12852,
+    "states": [
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 713,
+    "name": "dead_tube_coral_wall_fan",
+    "displayName": "Dead Tube Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12853,
+    "minStateId": 12853,
+    "maxStateId": 12860,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 714,
+    "name": "dead_brain_coral_wall_fan",
+    "displayName": "Dead Brain Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12861,
+    "minStateId": 12861,
+    "maxStateId": 12868,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 715,
+    "name": "dead_bubble_coral_wall_fan",
+    "displayName": "Dead Bubble Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12869,
+    "minStateId": 12869,
+    "maxStateId": 12876,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 716,
+    "name": "dead_fire_coral_wall_fan",
+    "displayName": "Dead Fire Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12877,
+    "minStateId": 12877,
+    "maxStateId": 12884,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 717,
+    "name": "dead_horn_coral_wall_fan",
+    "displayName": "Dead Horn Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12885,
+    "minStateId": 12885,
+    "maxStateId": 12892,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 718,
+    "name": "tube_coral_wall_fan",
+    "displayName": "Tube Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12893,
+    "minStateId": 12893,
+    "maxStateId": 12900,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 719,
+    "name": "brain_coral_wall_fan",
+    "displayName": "Brain Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12901,
+    "minStateId": 12901,
+    "maxStateId": 12908,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 720,
+    "name": "bubble_coral_wall_fan",
+    "displayName": "Bubble Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12909,
+    "minStateId": 12909,
+    "maxStateId": 12916,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 721,
+    "name": "fire_coral_wall_fan",
+    "displayName": "Fire Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12917,
+    "minStateId": 12917,
+    "maxStateId": 12924,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 722,
+    "name": "horn_coral_wall_fan",
+    "displayName": "Horn Coral Wall Fan",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12925,
+    "minStateId": 12925,
+    "maxStateId": 12932,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "empty"
+  }
+]

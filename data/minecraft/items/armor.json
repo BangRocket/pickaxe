@@ -1,0 +1,484 @@
+[
+  {
+    "id": 773,
+    "name": "elytra",
+    "displayName": "Elytra",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "phantom_membrane"
+    ],
+    "maxDurability": 432
+  },
+  {
+    "id": 794,
+    "name": "turtle_helmet",
+    "displayName": "Turtle Shell",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "turtle_scute"
+    ],
+    "maxDurability": 275
+  },
+  {
+    "id": 856,
+    "name": "leather_helmet",
+    "displayName": "Leather Cap",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "leather"
+    ],
+    "maxDurability": 55
+  },
+  {
+    "id": 857,
+    "name": "leather_chestplate",
+    "displayName": "Leather Tunic",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "leather"
+    ],
+    "maxDurability": 80
+  },
+  {
+    "id": 858,
+    "name": "leather_leggings",
+    "displayName": "Leather Pants",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "leg_armor",
+      "vanishing"
+    ],
+    "repairWith": [
+      "leather"
+    ],
+    "maxDurability": 75
+  },
+  {
+    "id": 859,
+    "name": "leather_boots",
+    "displayName": "Leather Boots",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "foot_armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "leather"
+    ],
+    "maxDurability": 65
+  },
+  {
+    "id": 860,
+    "name": "chainmail_helmet",
+    "displayName": "Chainmail Helmet",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 165
+  },
+  {
+    "id": 861,
+    "name": "chainmail_chestplate",
+    "displayName": "Chainmail Chestplate",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 240
+  },
+  {
+    "id": 862,
+    "name": "chainmail_leggings",
+    "displayName": "Chainmail Leggings",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "leg_armor",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 225
+  },
+  {
+    "id": 863,
+    "name": "chainmail_boots",
+    "displayName": "Chainmail Boots",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "foot_armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 195
+  },
+  {
+    "id": 864,
+    "name": "iron_helmet",
+    "displayName": "Iron Helmet",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 165
+  },
+  {
+    "id": 865,
+    "name": "iron_chestplate",
+    "displayName": "Iron Chestplate",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 240
+  },
+  {
+    "id": 866,
+    "name": "iron_leggings",
+    "displayName": "Iron Leggings",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "leg_armor",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 225
+  },
+  {
+    "id": 867,
+    "name": "iron_boots",
+    "displayName": "Iron Boots",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "foot_armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "iron_ingot"
+    ],
+    "maxDurability": 195
+  },
+  {
+    "id": 868,
+    "name": "diamond_helmet",
+    "displayName": "Diamond Helmet",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "diamond"
+    ],
+    "maxDurability": 363
+  },
+  {
+    "id": 869,
+    "name": "diamond_chestplate",
+    "displayName": "Diamond Chestplate",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "diamond"
+    ],
+    "maxDurability": 528
+  },
+  {
+    "id": 870,
+    "name": "diamond_leggings",
+    "displayName": "Diamond Leggings",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "leg_armor",
+      "vanishing"
+    ],
+    "repairWith": [
+      "diamond"
+    ],
+    "maxDurability": 495
+  },
+  {
+    "id": 871,
+    "name": "diamond_boots",
+    "displayName": "Diamond Boots",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "foot_armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "diamond"
+    ],
+    "maxDurability": 429
+  },
+  {
+    "id": 872,
+    "name": "golden_helmet",
+    "displayName": "Golden Helmet",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "gold_ingot"
+    ],
+    "maxDurability": 77
+  },
+  {
+    "id": 873,
+    "name": "golden_chestplate",
+    "displayName": "Golden Chestplate",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "gold_ingot"
+    ],
+    "maxDurability": 112
+  },
+  {
+    "id": 874,
+    "name": "golden_leggings",
+    "displayName": "Golden Leggings",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "leg_armor",
+      "vanishing"
+    ],
+    "repairWith": [
+      "gold_ingot"
+    ],
+    "maxDurability": 105
+  },
+  {
+    "id": 875,
+    "name": "golden_boots",
+    "displayName": "Golden Boots",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "foot_armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "gold_ingot"
+    ],
+    "maxDurability": 91
+  },
+  {
+    "id": 876,
+    "name": "netherite_helmet",
+    "displayName": "Netherite Helmet",
+    "stackSize": 1,
+    "enchantCategories": [
+      "head_armor",
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "netherite_ingot"
+    ],
+    "maxDurability": 407
+  },
+  {
+    "id": 877,
+    "name": "netherite_chestplate",
+    "displayName": "Netherite Chestplate",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "netherite_ingot"
+    ],
+    "maxDurability": 592
+  },
+  {
+    "id": 878,
+    "name": "netherite_leggings",
+    "displayName": "Netherite Leggings",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "durability",
+      "leg_armor",
+      "vanishing"
+    ],
+    "repairWith": [
+      "netherite_ingot"
+    ],
+    "maxDurability": 555
+  },
+  {
+    "id": 879,
+    "name": "netherite_boots",
+    "displayName": "Netherite Boots",
+    "stackSize": 1,
+    "enchantCategories": [
+      "equippable",
+      "armor",
+      "foot_armor",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "netherite_ingot"
+    ],
+    "maxDurability": 481
+  },
+  {
+    "id": 1124,
+    "name": "iron_horse_armor",
+    "displayName": "Iron Horse Armor",
+    "stackSize": 1
+  },
+  {
+    "id": 1125,
+    "name": "golden_horse_armor",
+    "displayName": "Golden Horse Armor",
+    "stackSize": 1
+  },
+  {
+    "id": 1126,
+    "name": "diamond_horse_armor",
+    "displayName": "Diamond Horse Armor",
+    "stackSize": 1
+  },
+  {
+    "id": 1127,
+    "name": "leather_horse_armor",
+    "displayName": "Leather Horse Armor",
+    "stackSize": 1
+  },
+  {
+    "id": 1162,
+    "name": "shield",
+    "displayName": "Shield",
+    "stackSize": 1,
+    "enchantCategories": [
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "oak_planks",
+      "spruce_planks",
+      "birch_planks",
+      "jungle_planks",
+      "acacia_planks",
+      "cherry_planks",
+      "dark_oak_planks",
+      "mangrove_planks",
+      "bamboo_planks",
+      "crimson_planks",
+      "warped_planks"
+    ],
+    "maxDurability": 336
+  }
+]

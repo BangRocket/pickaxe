@@ -1,0 +1,8403 @@
+[
+  {
+    "id": 103,
+    "name": "white_bed",
+    "displayName": "White Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1691,
+    "minStateId": 1688,
+    "maxStateId": 1703,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 104,
+    "name": "orange_bed",
+    "displayName": "Orange Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1707,
+    "minStateId": 1704,
+    "maxStateId": 1719,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 105,
+    "name": "magenta_bed",
+    "displayName": "Magenta Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1723,
+    "minStateId": 1720,
+    "maxStateId": 1735,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 106,
+    "name": "light_blue_bed",
+    "displayName": "Light Blue Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1739,
+    "minStateId": 1736,
+    "maxStateId": 1751,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 107,
+    "name": "yellow_bed",
+    "displayName": "Yellow Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1755,
+    "minStateId": 1752,
+    "maxStateId": 1767,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 108,
+    "name": "lime_bed",
+    "displayName": "Lime Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1771,
+    "minStateId": 1768,
+    "maxStateId": 1783,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 109,
+    "name": "pink_bed",
+    "displayName": "Pink Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1787,
+    "minStateId": 1784,
+    "maxStateId": 1799,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 110,
+    "name": "gray_bed",
+    "displayName": "Gray Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1803,
+    "minStateId": 1800,
+    "maxStateId": 1815,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 111,
+    "name": "light_gray_bed",
+    "displayName": "Light Gray Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1819,
+    "minStateId": 1816,
+    "maxStateId": 1831,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 112,
+    "name": "cyan_bed",
+    "displayName": "Cyan Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1835,
+    "minStateId": 1832,
+    "maxStateId": 1847,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 113,
+    "name": "purple_bed",
+    "displayName": "Purple Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1851,
+    "minStateId": 1848,
+    "maxStateId": 1863,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 114,
+    "name": "blue_bed",
+    "displayName": "Blue Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1867,
+    "minStateId": 1864,
+    "maxStateId": 1879,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 115,
+    "name": "brown_bed",
+    "displayName": "Brown Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1883,
+    "minStateId": 1880,
+    "maxStateId": 1895,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 116,
+    "name": "green_bed",
+    "displayName": "Green Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1899,
+    "minStateId": 1896,
+    "maxStateId": 1911,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 117,
+    "name": "red_bed",
+    "displayName": "Red Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1915,
+    "minStateId": 1912,
+    "maxStateId": 1927,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 118,
+    "name": "black_bed",
+    "displayName": "Black Bed",
+    "hardness": 0.2,
+    "resistance": 0.2,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 1931,
+    "minStateId": 1928,
+    "maxStateId": 1943,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "occupied",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "part",
+        "type": "enum",
+        "num_values": 2,
+        "values": [
+          "head",
+          "foot"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 130,
+    "name": "white_wool",
+    "displayName": "White Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2047,
+    "minStateId": 2047,
+    "maxStateId": 2047,
+    "states": [],
+    "drops": [
+      202
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 131,
+    "name": "orange_wool",
+    "displayName": "Orange Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2048,
+    "minStateId": 2048,
+    "maxStateId": 2048,
+    "states": [],
+    "drops": [
+      203
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 132,
+    "name": "magenta_wool",
+    "displayName": "Magenta Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2049,
+    "minStateId": 2049,
+    "maxStateId": 2049,
+    "states": [],
+    "drops": [
+      204
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 133,
+    "name": "light_blue_wool",
+    "displayName": "Light Blue Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2050,
+    "minStateId": 2050,
+    "maxStateId": 2050,
+    "states": [],
+    "drops": [
+      205
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 134,
+    "name": "yellow_wool",
+    "displayName": "Yellow Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2051,
+    "minStateId": 2051,
+    "maxStateId": 2051,
+    "states": [],
+    "drops": [
+      206
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 135,
+    "name": "lime_wool",
+    "displayName": "Lime Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2052,
+    "minStateId": 2052,
+    "maxStateId": 2052,
+    "states": [],
+    "drops": [
+      207
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 136,
+    "name": "pink_wool",
+    "displayName": "Pink Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2053,
+    "minStateId": 2053,
+    "maxStateId": 2053,
+    "states": [],
+    "drops": [
+      208
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 137,
+    "name": "gray_wool",
+    "displayName": "Gray Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2054,
+    "minStateId": 2054,
+    "maxStateId": 2054,
+    "states": [],
+    "drops": [
+      209
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 138,
+    "name": "light_gray_wool",
+    "displayName": "Light Gray Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2055,
+    "minStateId": 2055,
+    "maxStateId": 2055,
+    "states": [],
+    "drops": [
+      210
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 139,
+    "name": "cyan_wool",
+    "displayName": "Cyan Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2056,
+    "minStateId": 2056,
+    "maxStateId": 2056,
+    "states": [],
+    "drops": [
+      211
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 140,
+    "name": "purple_wool",
+    "displayName": "Purple Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2057,
+    "minStateId": 2057,
+    "maxStateId": 2057,
+    "states": [],
+    "drops": [
+      212
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 141,
+    "name": "blue_wool",
+    "displayName": "Blue Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2058,
+    "minStateId": 2058,
+    "maxStateId": 2058,
+    "states": [],
+    "drops": [
+      213
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 142,
+    "name": "brown_wool",
+    "displayName": "Brown Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2059,
+    "minStateId": 2059,
+    "maxStateId": 2059,
+    "states": [],
+    "drops": [
+      214
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 143,
+    "name": "green_wool",
+    "displayName": "Green Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2060,
+    "minStateId": 2060,
+    "maxStateId": 2060,
+    "states": [],
+    "drops": [
+      215
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 144,
+    "name": "red_wool",
+    "displayName": "Red Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2061,
+    "minStateId": 2061,
+    "maxStateId": 2061,
+    "states": [],
+    "drops": [
+      216
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 145,
+    "name": "black_wool",
+    "displayName": "Black Wool",
+    "hardness": 0.8,
+    "resistance": 0.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "wool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2062,
+    "minStateId": 2062,
+    "maxStateId": 2062,
+    "states": [],
+    "drops": [
+      217
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 171,
+    "name": "torch",
+    "displayName": "Torch",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 14,
+    "filterLight": 0,
+    "defaultState": 2355,
+    "minStateId": 2355,
+    "maxStateId": 2355,
+    "states": [],
+    "drops": [
+      291
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 172,
+    "name": "wall_torch",
+    "displayName": "Torch",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 14,
+    "filterLight": 0,
+    "defaultState": 2356,
+    "minStateId": 2356,
+    "maxStateId": 2359,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      291
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 260,
+    "name": "soul_torch",
+    "displayName": "Soul Torch",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 10,
+    "filterLight": 0,
+    "defaultState": 5858,
+    "minStateId": 5858,
+    "maxStateId": 5858,
+    "states": [],
+    "drops": [
+      331
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 261,
+    "name": "soul_wall_torch",
+    "displayName": "Soul Torch",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 10,
+    "filterLight": 0,
+    "defaultState": 5859,
+    "minStateId": 5859,
+    "maxStateId": 5862,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      331
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 266,
+    "name": "cake",
+    "displayName": "Cake",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 5874,
+    "minStateId": 5874,
+    "maxStateId": 5880,
+    "states": [
+      {
+        "name": "bites",
+        "type": "int",
+        "num_values": 7,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ]
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 309,
+    "name": "chain",
+    "displayName": "Chain",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 6776,
+    "minStateId": 6773,
+    "maxStateId": 6778,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      356
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 355,
+    "name": "flower_pot",
+    "displayName": "Flower Pot",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8567,
+    "minStateId": 8567,
+    "maxStateId": 8567,
+    "states": [],
+    "drops": [
+      1096
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 356,
+    "name": "potted_torchflower",
+    "displayName": "Potted Torchflower",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8568,
+    "minStateId": 8568,
+    "maxStateId": 8568,
+    "states": [],
+    "drops": [
+      1096,
+      231
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 357,
+    "name": "potted_oak_sapling",
+    "displayName": "Potted Oak Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8569,
+    "minStateId": 8569,
+    "maxStateId": 8569,
+    "states": [],
+    "drops": [
+      1096,
+      48
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 358,
+    "name": "potted_spruce_sapling",
+    "displayName": "Potted Spruce Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8570,
+    "minStateId": 8570,
+    "maxStateId": 8570,
+    "states": [],
+    "drops": [
+      1096,
+      49
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 359,
+    "name": "potted_birch_sapling",
+    "displayName": "Potted Birch Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8571,
+    "minStateId": 8571,
+    "maxStateId": 8571,
+    "states": [],
+    "drops": [
+      1096,
+      50
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 360,
+    "name": "potted_jungle_sapling",
+    "displayName": "Potted Jungle Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8572,
+    "minStateId": 8572,
+    "maxStateId": 8572,
+    "states": [],
+    "drops": [
+      1096,
+      51
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 361,
+    "name": "potted_acacia_sapling",
+    "displayName": "Potted Acacia Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8573,
+    "minStateId": 8573,
+    "maxStateId": 8573,
+    "states": [],
+    "drops": [
+      1096,
+      52
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 362,
+    "name": "potted_cherry_sapling",
+    "displayName": "Potted Cherry Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8574,
+    "minStateId": 8574,
+    "maxStateId": 8574,
+    "states": [],
+    "drops": [
+      1096,
+      53
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 363,
+    "name": "potted_dark_oak_sapling",
+    "displayName": "Potted Dark Oak Sapling",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8575,
+    "minStateId": 8575,
+    "maxStateId": 8575,
+    "states": [],
+    "drops": [
+      1096,
+      54
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 364,
+    "name": "potted_mangrove_propagule",
+    "displayName": "Potted Mangrove Propagule",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8576,
+    "minStateId": 8576,
+    "maxStateId": 8576,
+    "states": [],
+    "drops": [
+      1096,
+      55
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 365,
+    "name": "potted_fern",
+    "displayName": "Potted Fern",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8577,
+    "minStateId": 8577,
+    "maxStateId": 8577,
+    "states": [],
+    "drops": [
+      1096,
+      196
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 366,
+    "name": "potted_dandelion",
+    "displayName": "Potted Dandelion",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8578,
+    "minStateId": 8578,
+    "maxStateId": 8578,
+    "states": [],
+    "drops": [
+      1096,
+      218
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 367,
+    "name": "potted_poppy",
+    "displayName": "Potted Poppy",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8579,
+    "minStateId": 8579,
+    "maxStateId": 8579,
+    "states": [],
+    "drops": [
+      1096,
+      219
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 368,
+    "name": "potted_blue_orchid",
+    "displayName": "Potted Blue Orchid",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8580,
+    "minStateId": 8580,
+    "maxStateId": 8580,
+    "states": [],
+    "drops": [
+      1096,
+      220
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 369,
+    "name": "potted_allium",
+    "displayName": "Potted Allium",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8581,
+    "minStateId": 8581,
+    "maxStateId": 8581,
+    "states": [],
+    "drops": [
+      1096,
+      221
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 370,
+    "name": "potted_azure_bluet",
+    "displayName": "Potted Azure Bluet",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8582,
+    "minStateId": 8582,
+    "maxStateId": 8582,
+    "states": [],
+    "drops": [
+      1096,
+      222
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 371,
+    "name": "potted_red_tulip",
+    "displayName": "Potted Red Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8583,
+    "minStateId": 8583,
+    "maxStateId": 8583,
+    "states": [],
+    "drops": [
+      1096,
+      223
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 372,
+    "name": "potted_orange_tulip",
+    "displayName": "Potted Orange Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8584,
+    "minStateId": 8584,
+    "maxStateId": 8584,
+    "states": [],
+    "drops": [
+      1096,
+      224
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 373,
+    "name": "potted_white_tulip",
+    "displayName": "Potted White Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8585,
+    "minStateId": 8585,
+    "maxStateId": 8585,
+    "states": [],
+    "drops": [
+      1096,
+      225
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 374,
+    "name": "potted_pink_tulip",
+    "displayName": "Potted Pink Tulip",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8586,
+    "minStateId": 8586,
+    "maxStateId": 8586,
+    "states": [],
+    "drops": [
+      1096,
+      226
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 375,
+    "name": "potted_oxeye_daisy",
+    "displayName": "Potted Oxeye Daisy",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8587,
+    "minStateId": 8587,
+    "maxStateId": 8587,
+    "states": [],
+    "drops": [
+      1096,
+      227
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 376,
+    "name": "potted_cornflower",
+    "displayName": "Potted Cornflower",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8588,
+    "minStateId": 8588,
+    "maxStateId": 8588,
+    "states": [],
+    "drops": [
+      1096,
+      228
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 377,
+    "name": "potted_lily_of_the_valley",
+    "displayName": "Potted Lily of the Valley",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8589,
+    "minStateId": 8589,
+    "maxStateId": 8589,
+    "states": [],
+    "drops": [
+      1096,
+      229
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 378,
+    "name": "potted_wither_rose",
+    "displayName": "Potted Wither Rose",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8590,
+    "minStateId": 8590,
+    "maxStateId": 8590,
+    "states": [],
+    "drops": [
+      1096,
+      230
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 379,
+    "name": "potted_red_mushroom",
+    "displayName": "Potted Red Mushroom",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8591,
+    "minStateId": 8591,
+    "maxStateId": 8591,
+    "states": [],
+    "drops": [
+      1096,
+      235
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 380,
+    "name": "potted_brown_mushroom",
+    "displayName": "Potted Brown Mushroom",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8592,
+    "minStateId": 8592,
+    "maxStateId": 8592,
+    "states": [],
+    "drops": [
+      1096,
+      234
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 381,
+    "name": "potted_dead_bush",
+    "displayName": "Potted Dead Bush",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8593,
+    "minStateId": 8593,
+    "maxStateId": 8593,
+    "states": [],
+    "drops": [
+      1096,
+      199
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 382,
+    "name": "potted_cactus",
+    "displayName": "Potted Cactus",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8594,
+    "minStateId": 8594,
+    "maxStateId": 8594,
+    "states": [],
+    "drops": [
+      1096,
+      308
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 394,
+    "name": "skeleton_skull",
+    "displayName": "Skeleton Skull",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8843,
+    "minStateId": 8827,
+    "maxStateId": 8858,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1103
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 395,
+    "name": "skeleton_wall_skull",
+    "displayName": "Skeleton Skull",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8860,
+    "minStateId": 8859,
+    "maxStateId": 8866,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1103
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 396,
+    "name": "wither_skeleton_skull",
+    "displayName": "Wither Skeleton Skull",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8883,
+    "minStateId": 8867,
+    "maxStateId": 8898,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1104
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 397,
+    "name": "wither_skeleton_wall_skull",
+    "displayName": "Wither Skeleton Skull",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8900,
+    "minStateId": 8899,
+    "maxStateId": 8906,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1104
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 398,
+    "name": "zombie_head",
+    "displayName": "Zombie Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8923,
+    "minStateId": 8907,
+    "maxStateId": 8938,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1106
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 399,
+    "name": "zombie_wall_head",
+    "displayName": "Zombie Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8940,
+    "minStateId": 8939,
+    "maxStateId": 8946,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1106
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 400,
+    "name": "player_head",
+    "displayName": "Player Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8963,
+    "minStateId": 8947,
+    "maxStateId": 8978,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1105
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 401,
+    "name": "player_wall_head",
+    "displayName": "Player Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 8980,
+    "minStateId": 8979,
+    "maxStateId": 8986,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1105
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 402,
+    "name": "creeper_head",
+    "displayName": "Creeper Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9003,
+    "minStateId": 8987,
+    "maxStateId": 9018,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1107
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 403,
+    "name": "creeper_wall_head",
+    "displayName": "Creeper Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9020,
+    "minStateId": 9019,
+    "maxStateId": 9026,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1107
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 404,
+    "name": "dragon_head",
+    "displayName": "Dragon Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9043,
+    "minStateId": 9027,
+    "maxStateId": 9058,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1108
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 405,
+    "name": "dragon_wall_head",
+    "displayName": "Dragon Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9060,
+    "minStateId": 9059,
+    "maxStateId": 9066,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1108
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 406,
+    "name": "piglin_head",
+    "displayName": "Piglin Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9083,
+    "minStateId": 9067,
+    "maxStateId": 9098,
+    "states": [
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1109
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 407,
+    "name": "piglin_wall_head",
+    "displayName": "Piglin Head",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9100,
+    "minStateId": 9099,
+    "maxStateId": 9106,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1109
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 408,
+    "name": "anvil",
+    "displayName": "Anvil",
+    "hardness": 5.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9107,
+    "minStateId": 9107,
+    "maxStateId": 9110,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      419
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 409,
+    "name": "chipped_anvil",
+    "displayName": "Chipped Anvil",
+    "hardness": 5.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9111,
+    "minStateId": 9111,
+    "maxStateId": 9114,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      420
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 410,
+    "name": "damaged_anvil",
+    "displayName": "Damaged Anvil",
+    "hardness": 5.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 9115,
+    "minStateId": 9115,
+    "maxStateId": 9118,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      421
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 425,
+    "name": "white_terracotta",
+    "displayName": "White Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9356,
+    "minStateId": 9356,
+    "maxStateId": 9356,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      427
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 426,
+    "name": "orange_terracotta",
+    "displayName": "Orange Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9357,
+    "minStateId": 9357,
+    "maxStateId": 9357,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      428
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 427,
+    "name": "magenta_terracotta",
+    "displayName": "Magenta Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9358,
+    "minStateId": 9358,
+    "maxStateId": 9358,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      429
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 428,
+    "name": "light_blue_terracotta",
+    "displayName": "Light Blue Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9359,
+    "minStateId": 9359,
+    "maxStateId": 9359,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      430
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 429,
+    "name": "yellow_terracotta",
+    "displayName": "Yellow Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9360,
+    "minStateId": 9360,
+    "maxStateId": 9360,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      431
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 430,
+    "name": "lime_terracotta",
+    "displayName": "Lime Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9361,
+    "minStateId": 9361,
+    "maxStateId": 9361,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      432
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 431,
+    "name": "pink_terracotta",
+    "displayName": "Pink Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9362,
+    "minStateId": 9362,
+    "maxStateId": 9362,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      433
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 432,
+    "name": "gray_terracotta",
+    "displayName": "Gray Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9363,
+    "minStateId": 9363,
+    "maxStateId": 9363,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      434
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 433,
+    "name": "light_gray_terracotta",
+    "displayName": "Light Gray Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9364,
+    "minStateId": 9364,
+    "maxStateId": 9364,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      435
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 434,
+    "name": "cyan_terracotta",
+    "displayName": "Cyan Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9365,
+    "minStateId": 9365,
+    "maxStateId": 9365,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      436
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 435,
+    "name": "purple_terracotta",
+    "displayName": "Purple Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9366,
+    "minStateId": 9366,
+    "maxStateId": 9366,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      437
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 436,
+    "name": "blue_terracotta",
+    "displayName": "Blue Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9367,
+    "minStateId": 9367,
+    "maxStateId": 9367,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      438
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 437,
+    "name": "brown_terracotta",
+    "displayName": "Brown Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9368,
+    "minStateId": 9368,
+    "maxStateId": 9368,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      439
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 438,
+    "name": "green_terracotta",
+    "displayName": "Green Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9369,
+    "minStateId": 9369,
+    "maxStateId": 9369,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      440
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 439,
+    "name": "red_terracotta",
+    "displayName": "Red Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9370,
+    "minStateId": 9370,
+    "maxStateId": 9370,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      441
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 440,
+    "name": "black_terracotta",
+    "displayName": "Black Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9371,
+    "minStateId": 9371,
+    "maxStateId": 9371,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      442
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 476,
+    "name": "sea_lantern",
+    "displayName": "Sea Lantern",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 15,
+    "filterLight": 15,
+    "defaultState": 10724,
+    "minStateId": 10724,
+    "maxStateId": 10724,
+    "states": [],
+    "drops": [
+      1117
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 478,
+    "name": "white_carpet",
+    "displayName": "White Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10728,
+    "minStateId": 10728,
+    "maxStateId": 10728,
+    "states": [],
+    "drops": [
+      446
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 479,
+    "name": "orange_carpet",
+    "displayName": "Orange Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10729,
+    "minStateId": 10729,
+    "maxStateId": 10729,
+    "states": [],
+    "drops": [
+      447
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 480,
+    "name": "magenta_carpet",
+    "displayName": "Magenta Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10730,
+    "minStateId": 10730,
+    "maxStateId": 10730,
+    "states": [],
+    "drops": [
+      448
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 481,
+    "name": "light_blue_carpet",
+    "displayName": "Light Blue Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10731,
+    "minStateId": 10731,
+    "maxStateId": 10731,
+    "states": [],
+    "drops": [
+      449
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 482,
+    "name": "yellow_carpet",
+    "displayName": "Yellow Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10732,
+    "minStateId": 10732,
+    "maxStateId": 10732,
+    "states": [],
+    "drops": [
+      450
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 483,
+    "name": "lime_carpet",
+    "displayName": "Lime Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10733,
+    "minStateId": 10733,
+    "maxStateId": 10733,
+    "states": [],
+    "drops": [
+      451
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 484,
+    "name": "pink_carpet",
+    "displayName": "Pink Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10734,
+    "minStateId": 10734,
+    "maxStateId": 10734,
+    "states": [],
+    "drops": [
+      452
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 485,
+    "name": "gray_carpet",
+    "displayName": "Gray Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10735,
+    "minStateId": 10735,
+    "maxStateId": 10735,
+    "states": [],
+    "drops": [
+      453
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 486,
+    "name": "light_gray_carpet",
+    "displayName": "Light Gray Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10736,
+    "minStateId": 10736,
+    "maxStateId": 10736,
+    "states": [],
+    "drops": [
+      454
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 487,
+    "name": "cyan_carpet",
+    "displayName": "Cyan Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10737,
+    "minStateId": 10737,
+    "maxStateId": 10737,
+    "states": [],
+    "drops": [
+      455
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 488,
+    "name": "purple_carpet",
+    "displayName": "Purple Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10738,
+    "minStateId": 10738,
+    "maxStateId": 10738,
+    "states": [],
+    "drops": [
+      456
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 489,
+    "name": "blue_carpet",
+    "displayName": "Blue Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10739,
+    "minStateId": 10739,
+    "maxStateId": 10739,
+    "states": [],
+    "drops": [
+      457
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 490,
+    "name": "brown_carpet",
+    "displayName": "Brown Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10740,
+    "minStateId": 10740,
+    "maxStateId": 10740,
+    "states": [],
+    "drops": [
+      458
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 491,
+    "name": "green_carpet",
+    "displayName": "Green Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10741,
+    "minStateId": 10741,
+    "maxStateId": 10741,
+    "states": [],
+    "drops": [
+      459
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 492,
+    "name": "red_carpet",
+    "displayName": "Red Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10742,
+    "minStateId": 10742,
+    "maxStateId": 10742,
+    "states": [],
+    "drops": [
+      460
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 493,
+    "name": "black_carpet",
+    "displayName": "Black Carpet",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10743,
+    "minStateId": 10743,
+    "maxStateId": 10743,
+    "states": [],
+    "drops": [
+      461
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 494,
+    "name": "terracotta",
+    "displayName": "Terracotta",
+    "hardness": 1.25,
+    "resistance": 4.2,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 10744,
+    "minStateId": 10744,
+    "maxStateId": 10744,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      462
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 503,
+    "name": "white_banner",
+    "displayName": "White Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10759,
+    "minStateId": 10759,
+    "maxStateId": 10774,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1133
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 504,
+    "name": "orange_banner",
+    "displayName": "Orange Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10775,
+    "minStateId": 10775,
+    "maxStateId": 10790,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1134
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 505,
+    "name": "magenta_banner",
+    "displayName": "Magenta Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10791,
+    "minStateId": 10791,
+    "maxStateId": 10806,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1135
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 506,
+    "name": "light_blue_banner",
+    "displayName": "Light Blue Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10807,
+    "minStateId": 10807,
+    "maxStateId": 10822,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1136
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 507,
+    "name": "yellow_banner",
+    "displayName": "Yellow Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10823,
+    "minStateId": 10823,
+    "maxStateId": 10838,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1137
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 508,
+    "name": "lime_banner",
+    "displayName": "Lime Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10839,
+    "minStateId": 10839,
+    "maxStateId": 10854,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1138
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 509,
+    "name": "pink_banner",
+    "displayName": "Pink Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10855,
+    "minStateId": 10855,
+    "maxStateId": 10870,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1139
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 510,
+    "name": "gray_banner",
+    "displayName": "Gray Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10871,
+    "minStateId": 10871,
+    "maxStateId": 10886,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1140
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 511,
+    "name": "light_gray_banner",
+    "displayName": "Light Gray Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10887,
+    "minStateId": 10887,
+    "maxStateId": 10902,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1141
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 512,
+    "name": "cyan_banner",
+    "displayName": "Cyan Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10903,
+    "minStateId": 10903,
+    "maxStateId": 10918,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1142
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 513,
+    "name": "purple_banner",
+    "displayName": "Purple Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10919,
+    "minStateId": 10919,
+    "maxStateId": 10934,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1143
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 514,
+    "name": "blue_banner",
+    "displayName": "Blue Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10935,
+    "minStateId": 10935,
+    "maxStateId": 10950,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1144
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 515,
+    "name": "brown_banner",
+    "displayName": "Brown Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10951,
+    "minStateId": 10951,
+    "maxStateId": 10966,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1145
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 516,
+    "name": "green_banner",
+    "displayName": "Green Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10967,
+    "minStateId": 10967,
+    "maxStateId": 10982,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1146
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 517,
+    "name": "red_banner",
+    "displayName": "Red Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10983,
+    "minStateId": 10983,
+    "maxStateId": 10998,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1147
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 518,
+    "name": "black_banner",
+    "displayName": "Black Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 10999,
+    "minStateId": 10999,
+    "maxStateId": 11014,
+    "states": [
+      {
+        "name": "rotation",
+        "type": "int",
+        "num_values": 16,
+        "values": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15"
+        ]
+      }
+    ],
+    "drops": [
+      1148
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 519,
+    "name": "white_wall_banner",
+    "displayName": "White Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11015,
+    "minStateId": 11015,
+    "maxStateId": 11018,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1133
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 520,
+    "name": "orange_wall_banner",
+    "displayName": "Orange Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11019,
+    "minStateId": 11019,
+    "maxStateId": 11022,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1134
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 521,
+    "name": "magenta_wall_banner",
+    "displayName": "Magenta Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11023,
+    "minStateId": 11023,
+    "maxStateId": 11026,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1135
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 522,
+    "name": "light_blue_wall_banner",
+    "displayName": "Light Blue Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11027,
+    "minStateId": 11027,
+    "maxStateId": 11030,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1136
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 523,
+    "name": "yellow_wall_banner",
+    "displayName": "Yellow Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11031,
+    "minStateId": 11031,
+    "maxStateId": 11034,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1137
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 524,
+    "name": "lime_wall_banner",
+    "displayName": "Lime Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11035,
+    "minStateId": 11035,
+    "maxStateId": 11038,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1138
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 525,
+    "name": "pink_wall_banner",
+    "displayName": "Pink Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11039,
+    "minStateId": 11039,
+    "maxStateId": 11042,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1139
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 526,
+    "name": "gray_wall_banner",
+    "displayName": "Gray Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11043,
+    "minStateId": 11043,
+    "maxStateId": 11046,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1140
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 527,
+    "name": "light_gray_wall_banner",
+    "displayName": "Light Gray Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11047,
+    "minStateId": 11047,
+    "maxStateId": 11050,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1141
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 528,
+    "name": "cyan_wall_banner",
+    "displayName": "Cyan Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11051,
+    "minStateId": 11051,
+    "maxStateId": 11054,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1142
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 529,
+    "name": "purple_wall_banner",
+    "displayName": "Purple Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11055,
+    "minStateId": 11055,
+    "maxStateId": 11058,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1143
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 530,
+    "name": "blue_wall_banner",
+    "displayName": "Blue Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11059,
+    "minStateId": 11059,
+    "maxStateId": 11062,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1144
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 531,
+    "name": "brown_wall_banner",
+    "displayName": "Brown Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11063,
+    "minStateId": 11063,
+    "maxStateId": 11066,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1145
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 532,
+    "name": "green_wall_banner",
+    "displayName": "Green Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11067,
+    "minStateId": 11067,
+    "maxStateId": 11070,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1146
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 533,
+    "name": "red_wall_banner",
+    "displayName": "Red Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11071,
+    "minStateId": 11071,
+    "maxStateId": 11074,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1147
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 534,
+    "name": "black_wall_banner",
+    "displayName": "Black Banner",
+    "hardness": 1.0,
+    "resistance": 1.0,
+    "stackSize": 16,
+    "diggable": true,
+    "material": "mineable/axe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 11075,
+    "minStateId": 11075,
+    "maxStateId": 11078,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "drops": [
+      1148
+    ],
+    "boundingBox": "empty"
+  },
+  {
+    "id": 591,
+    "name": "end_rod",
+    "displayName": "End Rod",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 14,
+    "filterLight": 0,
+    "defaultState": 12338,
+    "minStateId": 12334,
+    "maxStateId": 12339,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      292
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 613,
+    "name": "shulker_box",
+    "displayName": "Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12566,
+    "minStateId": 12562,
+    "maxStateId": 12567,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      522
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 614,
+    "name": "white_shulker_box",
+    "displayName": "White Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12572,
+    "minStateId": 12568,
+    "maxStateId": 12573,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      523
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 615,
+    "name": "orange_shulker_box",
+    "displayName": "Orange Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12578,
+    "minStateId": 12574,
+    "maxStateId": 12579,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      524
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 616,
+    "name": "magenta_shulker_box",
+    "displayName": "Magenta Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12584,
+    "minStateId": 12580,
+    "maxStateId": 12585,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      525
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 617,
+    "name": "light_blue_shulker_box",
+    "displayName": "Light Blue Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12590,
+    "minStateId": 12586,
+    "maxStateId": 12591,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      526
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 618,
+    "name": "yellow_shulker_box",
+    "displayName": "Yellow Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12596,
+    "minStateId": 12592,
+    "maxStateId": 12597,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      527
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 619,
+    "name": "lime_shulker_box",
+    "displayName": "Lime Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12602,
+    "minStateId": 12598,
+    "maxStateId": 12603,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      528
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 620,
+    "name": "pink_shulker_box",
+    "displayName": "Pink Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12608,
+    "minStateId": 12604,
+    "maxStateId": 12609,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      529
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 621,
+    "name": "gray_shulker_box",
+    "displayName": "Gray Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12614,
+    "minStateId": 12610,
+    "maxStateId": 12615,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      530
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 622,
+    "name": "light_gray_shulker_box",
+    "displayName": "Light Gray Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12620,
+    "minStateId": 12616,
+    "maxStateId": 12621,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      531
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 623,
+    "name": "cyan_shulker_box",
+    "displayName": "Cyan Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12626,
+    "minStateId": 12622,
+    "maxStateId": 12627,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      532
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 624,
+    "name": "purple_shulker_box",
+    "displayName": "Purple Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12632,
+    "minStateId": 12628,
+    "maxStateId": 12633,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      533
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 625,
+    "name": "blue_shulker_box",
+    "displayName": "Blue Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12638,
+    "minStateId": 12634,
+    "maxStateId": 12639,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      534
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 626,
+    "name": "brown_shulker_box",
+    "displayName": "Brown Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12644,
+    "minStateId": 12640,
+    "maxStateId": 12645,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      535
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 627,
+    "name": "green_shulker_box",
+    "displayName": "Green Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12650,
+    "minStateId": 12646,
+    "maxStateId": 12651,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      536
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 628,
+    "name": "red_shulker_box",
+    "displayName": "Red Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12656,
+    "minStateId": 12652,
+    "maxStateId": 12657,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      537
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 629,
+    "name": "black_shulker_box",
+    "displayName": "Black Shulker Box",
+    "hardness": 2.0,
+    "resistance": 2.0,
+    "stackSize": 1,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 1,
+    "defaultState": 12662,
+    "minStateId": 12658,
+    "maxStateId": 12663,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      }
+    ],
+    "drops": [
+      538
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 630,
+    "name": "white_glazed_terracotta",
+    "displayName": "White Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12664,
+    "minStateId": 12664,
+    "maxStateId": 12667,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      539
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 631,
+    "name": "orange_glazed_terracotta",
+    "displayName": "Orange Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12668,
+    "minStateId": 12668,
+    "maxStateId": 12671,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      540
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 632,
+    "name": "magenta_glazed_terracotta",
+    "displayName": "Magenta Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12672,
+    "minStateId": 12672,
+    "maxStateId": 12675,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      541
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 633,
+    "name": "light_blue_glazed_terracotta",
+    "displayName": "Light Blue Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12676,
+    "minStateId": 12676,
+    "maxStateId": 12679,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      542
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 634,
+    "name": "yellow_glazed_terracotta",
+    "displayName": "Yellow Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12680,
+    "minStateId": 12680,
+    "maxStateId": 12683,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      543
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 635,
+    "name": "lime_glazed_terracotta",
+    "displayName": "Lime Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12684,
+    "minStateId": 12684,
+    "maxStateId": 12687,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      544
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 636,
+    "name": "pink_glazed_terracotta",
+    "displayName": "Pink Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12688,
+    "minStateId": 12688,
+    "maxStateId": 12691,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      545
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 637,
+    "name": "gray_glazed_terracotta",
+    "displayName": "Gray Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12692,
+    "minStateId": 12692,
+    "maxStateId": 12695,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      546
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 638,
+    "name": "light_gray_glazed_terracotta",
+    "displayName": "Light Gray Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12696,
+    "minStateId": 12696,
+    "maxStateId": 12699,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      547
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 639,
+    "name": "cyan_glazed_terracotta",
+    "displayName": "Cyan Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12700,
+    "minStateId": 12700,
+    "maxStateId": 12703,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      548
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 640,
+    "name": "purple_glazed_terracotta",
+    "displayName": "Purple Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12704,
+    "minStateId": 12704,
+    "maxStateId": 12707,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      549
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 641,
+    "name": "blue_glazed_terracotta",
+    "displayName": "Blue Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12708,
+    "minStateId": 12708,
+    "maxStateId": 12711,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      550
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 642,
+    "name": "brown_glazed_terracotta",
+    "displayName": "Brown Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12712,
+    "minStateId": 12712,
+    "maxStateId": 12715,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      551
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 643,
+    "name": "green_glazed_terracotta",
+    "displayName": "Green Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12716,
+    "minStateId": 12716,
+    "maxStateId": 12719,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      552
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 644,
+    "name": "red_glazed_terracotta",
+    "displayName": "Red Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12720,
+    "minStateId": 12720,
+    "maxStateId": 12723,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      553
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 645,
+    "name": "black_glazed_terracotta",
+    "displayName": "Black Glazed Terracotta",
+    "hardness": 1.4,
+    "resistance": 1.4,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12724,
+    "minStateId": 12724,
+    "maxStateId": 12727,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      554
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 646,
+    "name": "white_concrete",
+    "displayName": "White Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12728,
+    "minStateId": 12728,
+    "maxStateId": 12728,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      555
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 647,
+    "name": "orange_concrete",
+    "displayName": "Orange Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12729,
+    "minStateId": 12729,
+    "maxStateId": 12729,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      556
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 648,
+    "name": "magenta_concrete",
+    "displayName": "Magenta Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12730,
+    "minStateId": 12730,
+    "maxStateId": 12730,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      557
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 649,
+    "name": "light_blue_concrete",
+    "displayName": "Light Blue Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12731,
+    "minStateId": 12731,
+    "maxStateId": 12731,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      558
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 650,
+    "name": "yellow_concrete",
+    "displayName": "Yellow Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12732,
+    "minStateId": 12732,
+    "maxStateId": 12732,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      559
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 651,
+    "name": "lime_concrete",
+    "displayName": "Lime Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12733,
+    "minStateId": 12733,
+    "maxStateId": 12733,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      560
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 652,
+    "name": "pink_concrete",
+    "displayName": "Pink Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12734,
+    "minStateId": 12734,
+    "maxStateId": 12734,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      561
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 653,
+    "name": "gray_concrete",
+    "displayName": "Gray Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12735,
+    "minStateId": 12735,
+    "maxStateId": 12735,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      562
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 654,
+    "name": "light_gray_concrete",
+    "displayName": "Light Gray Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12736,
+    "minStateId": 12736,
+    "maxStateId": 12736,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      563
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 655,
+    "name": "cyan_concrete",
+    "displayName": "Cyan Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12737,
+    "minStateId": 12737,
+    "maxStateId": 12737,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      564
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 656,
+    "name": "purple_concrete",
+    "displayName": "Purple Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12738,
+    "minStateId": 12738,
+    "maxStateId": 12738,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      565
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 657,
+    "name": "blue_concrete",
+    "displayName": "Blue Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12739,
+    "minStateId": 12739,
+    "maxStateId": 12739,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      566
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 658,
+    "name": "brown_concrete",
+    "displayName": "Brown Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12740,
+    "minStateId": 12740,
+    "maxStateId": 12740,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      567
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 659,
+    "name": "green_concrete",
+    "displayName": "Green Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12741,
+    "minStateId": 12741,
+    "maxStateId": 12741,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      568
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 660,
+    "name": "red_concrete",
+    "displayName": "Red Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12742,
+    "minStateId": 12742,
+    "maxStateId": 12742,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      569
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 661,
+    "name": "black_concrete",
+    "displayName": "Black Concrete",
+    "hardness": 1.8,
+    "resistance": 1.8,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12743,
+    "minStateId": 12743,
+    "maxStateId": 12743,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      570
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 662,
+    "name": "white_concrete_powder",
+    "displayName": "White Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12744,
+    "minStateId": 12744,
+    "maxStateId": 12744,
+    "states": [],
+    "drops": [
+      571
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 663,
+    "name": "orange_concrete_powder",
+    "displayName": "Orange Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12745,
+    "minStateId": 12745,
+    "maxStateId": 12745,
+    "states": [],
+    "drops": [
+      572
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 664,
+    "name": "magenta_concrete_powder",
+    "displayName": "Magenta Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12746,
+    "minStateId": 12746,
+    "maxStateId": 12746,
+    "states": [],
+    "drops": [
+      573
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 665,
+    "name": "light_blue_concrete_powder",
+    "displayName": "Light Blue Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12747,
+    "minStateId": 12747,
+    "maxStateId": 12747,
+    "states": [],
+    "drops": [
+      574
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 666,
+    "name": "yellow_concrete_powder",
+    "displayName": "Yellow Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12748,
+    "minStateId": 12748,
+    "maxStateId": 12748,
+    "states": [],
+    "drops": [
+      575
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 667,
+    "name": "lime_concrete_powder",
+    "displayName": "Lime Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12749,
+    "minStateId": 12749,
+    "maxStateId": 12749,
+    "states": [],
+    "drops": [
+      576
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 668,
+    "name": "pink_concrete_powder",
+    "displayName": "Pink Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12750,
+    "minStateId": 12750,
+    "maxStateId": 12750,
+    "states": [],
+    "drops": [
+      577
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 669,
+    "name": "gray_concrete_powder",
+    "displayName": "Gray Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12751,
+    "minStateId": 12751,
+    "maxStateId": 12751,
+    "states": [],
+    "drops": [
+      578
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 670,
+    "name": "light_gray_concrete_powder",
+    "displayName": "Light Gray Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12752,
+    "minStateId": 12752,
+    "maxStateId": 12752,
+    "states": [],
+    "drops": [
+      579
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 671,
+    "name": "cyan_concrete_powder",
+    "displayName": "Cyan Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12753,
+    "minStateId": 12753,
+    "maxStateId": 12753,
+    "states": [],
+    "drops": [
+      580
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 672,
+    "name": "purple_concrete_powder",
+    "displayName": "Purple Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12754,
+    "minStateId": 12754,
+    "maxStateId": 12754,
+    "states": [],
+    "drops": [
+      581
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 673,
+    "name": "blue_concrete_powder",
+    "displayName": "Blue Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12755,
+    "minStateId": 12755,
+    "maxStateId": 12755,
+    "states": [],
+    "drops": [
+      582
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 674,
+    "name": "brown_concrete_powder",
+    "displayName": "Brown Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12756,
+    "minStateId": 12756,
+    "maxStateId": 12756,
+    "states": [],
+    "drops": [
+      583
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 675,
+    "name": "green_concrete_powder",
+    "displayName": "Green Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12757,
+    "minStateId": 12757,
+    "maxStateId": 12757,
+    "states": [],
+    "drops": [
+      584
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 676,
+    "name": "red_concrete_powder",
+    "displayName": "Red Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12758,
+    "minStateId": 12758,
+    "maxStateId": 12758,
+    "states": [],
+    "drops": [
+      585
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 677,
+    "name": "black_concrete_powder",
+    "displayName": "Black Concrete Powder",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/shovel",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 12759,
+    "minStateId": 12759,
+    "maxStateId": 12759,
+    "states": [],
+    "drops": [
+      586
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 728,
+    "name": "potted_bamboo",
+    "displayName": "Potted Bamboo",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 12957,
+    "minStateId": 12957,
+    "maxStateId": 12957,
+    "states": [],
+    "drops": [
+      1096,
+      251
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 783,
+    "name": "bell",
+    "displayName": "Bell",
+    "hardness": 5.0,
+    "resistance": 5.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 18472,
+    "minStateId": 18471,
+    "maxStateId": 18502,
+    "states": [
+      {
+        "name": "attachment",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "floor",
+          "ceiling",
+          "single_wall",
+          "double_wall"
+        ]
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "powered",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1213
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 784,
+    "name": "lantern",
+    "displayName": "Lantern",
+    "hardness": 3.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 15,
+    "filterLight": 0,
+    "defaultState": 18506,
+    "minStateId": 18503,
+    "maxStateId": 18506,
+    "states": [
+      {
+        "name": "hanging",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1214
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 785,
+    "name": "soul_lantern",
+    "displayName": "Soul Lantern",
+    "hardness": 3.5,
+    "resistance": 3.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 10,
+    "filterLight": 0,
+    "defaultState": 18510,
+    "minStateId": 18507,
+    "maxStateId": 18510,
+    "states": [
+      {
+        "name": "hanging",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      1215
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 844,
+    "name": "potted_crimson_fungus",
+    "displayName": "Potted Crimson Fungus",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19455,
+    "minStateId": 19455,
+    "maxStateId": 19455,
+    "states": [],
+    "drops": [
+      1096,
+      236
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 845,
+    "name": "potted_warped_fungus",
+    "displayName": "Potted Warped Fungus",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19456,
+    "minStateId": 19456,
+    "maxStateId": 19456,
+    "states": [],
+    "drops": [
+      1096,
+      237
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 846,
+    "name": "potted_crimson_roots",
+    "displayName": "Potted Crimson Roots",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19457,
+    "minStateId": 19457,
+    "maxStateId": 19457,
+    "states": [],
+    "drops": [
+      1096,
+      238
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 847,
+    "name": "potted_warped_roots",
+    "displayName": "Potted Warped Roots",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 19458,
+    "minStateId": 19458,
+    "maxStateId": 19458,
+    "states": [],
+    "drops": [
+      1096,
+      239
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 869,
+    "name": "candle",
+    "displayName": "Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20728,
+    "minStateId": 20725,
+    "maxStateId": 20740,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1241
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 870,
+    "name": "white_candle",
+    "displayName": "White Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20744,
+    "minStateId": 20741,
+    "maxStateId": 20756,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1242
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 871,
+    "name": "orange_candle",
+    "displayName": "Orange Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20760,
+    "minStateId": 20757,
+    "maxStateId": 20772,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1243
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 872,
+    "name": "magenta_candle",
+    "displayName": "Magenta Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20776,
+    "minStateId": 20773,
+    "maxStateId": 20788,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1244
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 873,
+    "name": "light_blue_candle",
+    "displayName": "Light Blue Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20792,
+    "minStateId": 20789,
+    "maxStateId": 20804,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1245
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 874,
+    "name": "yellow_candle",
+    "displayName": "Yellow Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20808,
+    "minStateId": 20805,
+    "maxStateId": 20820,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1246
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 875,
+    "name": "lime_candle",
+    "displayName": "Lime Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20824,
+    "minStateId": 20821,
+    "maxStateId": 20836,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1247
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 876,
+    "name": "pink_candle",
+    "displayName": "Pink Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20840,
+    "minStateId": 20837,
+    "maxStateId": 20852,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1248
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 877,
+    "name": "gray_candle",
+    "displayName": "Gray Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20856,
+    "minStateId": 20853,
+    "maxStateId": 20868,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1249
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 878,
+    "name": "light_gray_candle",
+    "displayName": "Light Gray Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20872,
+    "minStateId": 20869,
+    "maxStateId": 20884,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1250
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 879,
+    "name": "cyan_candle",
+    "displayName": "Cyan Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20888,
+    "minStateId": 20885,
+    "maxStateId": 20900,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1251
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 880,
+    "name": "purple_candle",
+    "displayName": "Purple Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20904,
+    "minStateId": 20901,
+    "maxStateId": 20916,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1252
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 881,
+    "name": "blue_candle",
+    "displayName": "Blue Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20920,
+    "minStateId": 20917,
+    "maxStateId": 20932,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1253
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 882,
+    "name": "brown_candle",
+    "displayName": "Brown Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20936,
+    "minStateId": 20933,
+    "maxStateId": 20948,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1254
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 883,
+    "name": "green_candle",
+    "displayName": "Green Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20952,
+    "minStateId": 20949,
+    "maxStateId": 20964,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1255
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 884,
+    "name": "red_candle",
+    "displayName": "Red Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20968,
+    "minStateId": 20965,
+    "maxStateId": 20980,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1256
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 885,
+    "name": "black_candle",
+    "displayName": "Black Candle",
+    "hardness": 0.1,
+    "resistance": 0.1,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20984,
+    "minStateId": 20981,
+    "maxStateId": 20996,
+    "states": [
+      {
+        "name": "candles",
+        "type": "int",
+        "num_values": 4,
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1257
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 886,
+    "name": "candle_cake",
+    "displayName": "Cake with Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 20998,
+    "minStateId": 20997,
+    "maxStateId": 20998,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1241
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 887,
+    "name": "white_candle_cake",
+    "displayName": "Cake with White Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21000,
+    "minStateId": 20999,
+    "maxStateId": 21000,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1242
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 888,
+    "name": "orange_candle_cake",
+    "displayName": "Cake with Orange Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21002,
+    "minStateId": 21001,
+    "maxStateId": 21002,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1243
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 889,
+    "name": "magenta_candle_cake",
+    "displayName": "Cake with Magenta Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21004,
+    "minStateId": 21003,
+    "maxStateId": 21004,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1244
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 890,
+    "name": "light_blue_candle_cake",
+    "displayName": "Cake with Light Blue Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21006,
+    "minStateId": 21005,
+    "maxStateId": 21006,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1245
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 891,
+    "name": "yellow_candle_cake",
+    "displayName": "Cake with Yellow Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21008,
+    "minStateId": 21007,
+    "maxStateId": 21008,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1246
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 892,
+    "name": "lime_candle_cake",
+    "displayName": "Cake with Lime Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21010,
+    "minStateId": 21009,
+    "maxStateId": 21010,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1247
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 893,
+    "name": "pink_candle_cake",
+    "displayName": "Cake with Pink Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21012,
+    "minStateId": 21011,
+    "maxStateId": 21012,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1248
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 894,
+    "name": "gray_candle_cake",
+    "displayName": "Cake with Gray Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21014,
+    "minStateId": 21013,
+    "maxStateId": 21014,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1249
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 895,
+    "name": "light_gray_candle_cake",
+    "displayName": "Cake with Light Gray Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21016,
+    "minStateId": 21015,
+    "maxStateId": 21016,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1250
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 896,
+    "name": "cyan_candle_cake",
+    "displayName": "Cake with Cyan Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21018,
+    "minStateId": 21017,
+    "maxStateId": 21018,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1251
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 897,
+    "name": "purple_candle_cake",
+    "displayName": "Cake with Purple Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21020,
+    "minStateId": 21019,
+    "maxStateId": 21020,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1252
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 898,
+    "name": "blue_candle_cake",
+    "displayName": "Cake with Blue Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21022,
+    "minStateId": 21021,
+    "maxStateId": 21022,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1253
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 899,
+    "name": "brown_candle_cake",
+    "displayName": "Cake with Brown Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21024,
+    "minStateId": 21023,
+    "maxStateId": 21024,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1254
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 900,
+    "name": "green_candle_cake",
+    "displayName": "Cake with Green Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21026,
+    "minStateId": 21025,
+    "maxStateId": 21026,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1255
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 901,
+    "name": "red_candle_cake",
+    "displayName": "Cake with Red Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21028,
+    "minStateId": 21027,
+    "maxStateId": 21028,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1256
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 902,
+    "name": "black_candle_cake",
+    "displayName": "Cake with Black Candle",
+    "hardness": 0.5,
+    "resistance": 0.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 21030,
+    "minStateId": 21029,
+    "maxStateId": 21030,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      1257
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1048,
+    "name": "potted_azalea_bush",
+    "displayName": "Potted Azalea",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26561,
+    "minStateId": 26561,
+    "maxStateId": 26561,
+    "states": [],
+    "drops": [
+      1096,
+      197
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1049,
+    "name": "potted_flowering_azalea_bush",
+    "displayName": "Potted Flowering Azalea",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26562,
+    "minStateId": 26562,
+    "maxStateId": 26562,
+    "states": [],
+    "drops": [
+      1096,
+      198
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1050,
+    "name": "ochre_froglight",
+    "displayName": "Ochre Froglight",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 15,
+    "filterLight": 15,
+    "defaultState": 26564,
+    "minStateId": 26563,
+    "maxStateId": 26565,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      1263
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1051,
+    "name": "verdant_froglight",
+    "displayName": "Verdant Froglight",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 15,
+    "filterLight": 15,
+    "defaultState": 26567,
+    "minStateId": 26566,
+    "maxStateId": 26568,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      1264
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1052,
+    "name": "pearlescent_froglight",
+    "displayName": "Pearlescent Froglight",
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": false,
+    "emitLight": 15,
+    "filterLight": 15,
+    "defaultState": 26570,
+    "minStateId": 26569,
+    "maxStateId": 26571,
+    "states": [
+      {
+        "name": "axis",
+        "type": "enum",
+        "num_values": 3,
+        "values": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    ],
+    "drops": [
+      1265
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1055,
+    "name": "decorated_pot",
+    "displayName": "Decorated Pot",
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "default",
+    "transparent": true,
+    "emitLight": 0,
+    "filterLight": 0,
+    "defaultState": 26583,
+    "minStateId": 26574,
+    "maxStateId": 26589,
+    "states": [
+      {
+        "name": "cracked",
+        "type": "bool",
+        "num_values": 2
+      },
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 4,
+        "values": [
+          "north",
+          "south",
+          "west",
+          "east"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      288
+    ],
+    "boundingBox": "block"
+  }
+]

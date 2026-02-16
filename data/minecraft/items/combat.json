@@ -1,0 +1,127 @@
+[
+  {
+    "id": 769,
+    "name": "tnt_minecart",
+    "displayName": "Minecart with TNT",
+    "stackSize": 1
+  },
+  {
+    "id": 801,
+    "name": "bow",
+    "displayName": "Bow",
+    "stackSize": 1,
+    "enchantCategories": [
+      "bow",
+      "durability",
+      "vanishing"
+    ],
+    "maxDurability": 384
+  },
+  {
+    "id": 802,
+    "name": "arrow",
+    "displayName": "Arrow",
+    "stackSize": 64
+  },
+  {
+    "id": 912,
+    "name": "snowball",
+    "displayName": "Snowball",
+    "stackSize": 16
+  },
+  {
+    "id": 927,
+    "name": "egg",
+    "displayName": "Egg",
+    "stackSize": 16
+  },
+  {
+    "id": 993,
+    "name": "ender_pearl",
+    "displayName": "Ender Pearl",
+    "stackSize": 16
+  },
+  {
+    "id": 1006,
+    "name": "ender_eye",
+    "displayName": "Eye of Ender",
+    "stackSize": 64
+  },
+  {
+    "id": 1089,
+    "name": "fire_charge",
+    "displayName": "Fire Charge",
+    "stackSize": 64
+  },
+  {
+    "id": 1090,
+    "name": "wind_charge",
+    "displayName": "Wind Charge",
+    "stackSize": 64
+  },
+  {
+    "id": 1093,
+    "name": "mace",
+    "displayName": "Mace",
+    "stackSize": 1,
+    "enchantCategories": [
+      "weapon",
+      "mace",
+      "fire_aspect",
+      "durability",
+      "vanishing"
+    ],
+    "repairWith": [
+      "breeze_rod"
+    ],
+    "maxDurability": 500
+  },
+  {
+    "id": 1112,
+    "name": "firework_rocket",
+    "displayName": "Firework Rocket",
+    "stackSize": 64
+  },
+  {
+    "id": 1113,
+    "name": "firework_star",
+    "displayName": "Firework Star",
+    "stackSize": 64
+  },
+  {
+    "id": 1159,
+    "name": "spectral_arrow",
+    "displayName": "Spectral Arrow",
+    "stackSize": 64
+  },
+  {
+    "id": 1160,
+    "name": "tipped_arrow",
+    "displayName": "Tipped Arrow",
+    "stackSize": 64
+  },
+  {
+    "id": 1188,
+    "name": "trident",
+    "displayName": "Trident",
+    "stackSize": 1,
+    "enchantCategories": [
+      "trident",
+      "durability",
+      "vanishing"
+    ],
+    "maxDurability": 250
+  },
+  {
+    "id": 1192,
+    "name": "crossbow",
+    "displayName": "Crossbow",
+    "stackSize": 1,
+    "enchantCategories": [
+      "durability",
+      "crossbow",
+      "vanishing"
+    ],
+    "maxDurability": 465
+  }
+]

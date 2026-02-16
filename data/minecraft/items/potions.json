@@ -1,0 +1,86 @@
+[
+  {
+    "id": 994,
+    "name": "blaze_rod",
+    "displayName": "Blaze Rod",
+    "stackSize": 64
+  },
+  {
+    "id": 995,
+    "name": "ghast_tear",
+    "displayName": "Ghast Tear",
+    "stackSize": 64
+  },
+  {
+    "id": 997,
+    "name": "nether_wart",
+    "displayName": "Nether Wart",
+    "stackSize": 64
+  },
+  {
+    "id": 998,
+    "name": "potion",
+    "displayName": "Potion",
+    "stackSize": 1
+  },
+  {
+    "id": 999,
+    "name": "glass_bottle",
+    "displayName": "Glass Bottle",
+    "stackSize": 64
+  },
+  {
+    "id": 1001,
+    "name": "fermented_spider_eye",
+    "displayName": "Fermented Spider Eye",
+    "stackSize": 64
+  },
+  {
+    "id": 1002,
+    "name": "blaze_powder",
+    "displayName": "Blaze Powder",
+    "stackSize": 64
+  },
+  {
+    "id": 1003,
+    "name": "magma_cream",
+    "displayName": "Magma Cream",
+    "stackSize": 64
+  },
+  {
+    "id": 1004,
+    "name": "brewing_stand",
+    "displayName": "Brewing Stand",
+    "stackSize": 64
+  },
+  {
+    "id": 1007,
+    "name": "glistering_melon_slice",
+    "displayName": "Glistering Melon Slice",
+    "stackSize": 64
+  },
+  {
+    "id": 1088,
+    "name": "experience_bottle",
+    "displayName": "Bottle o' Enchanting",
+    "stackSize": 64
+  },
+  {
+    "id": 1157,
+    "name": "dragon_breath",
+    "displayName": "Dragon's Breath",
+    "stackSize": 64
+  },
+  {
+    "id": 1158,
+    "name": "splash_potion",
+    "displayName": "Splash Potion",
+    "stackSize": 1
+  },
+  {
+    "id": 1161,
+    "name": "lingering_potion",
+    "displayName": "Lingering Potion",
+    "stackSize": 1
+  }
+]

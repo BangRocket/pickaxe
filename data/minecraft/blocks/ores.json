@@ -1,0 +1,976 @@
+[
+  {
+    "id": 39,
+    "name": "gold_ore",
+    "displayName": "Gold Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 123,
+    "minStateId": 123,
+    "maxStateId": 123,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      814
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 40,
+    "name": "deepslate_gold_ore",
+    "displayName": "Deepslate Gold Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 124,
+    "minStateId": 124,
+    "maxStateId": 124,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      814
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 41,
+    "name": "iron_ore",
+    "displayName": "Iron Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 125,
+    "minStateId": 125,
+    "maxStateId": 125,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      810
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 42,
+    "name": "deepslate_iron_ore",
+    "displayName": "Deepslate Iron Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 126,
+    "minStateId": 126,
+    "maxStateId": 126,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      810
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 43,
+    "name": "coal_ore",
+    "displayName": "Coal Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 127,
+    "minStateId": 127,
+    "maxStateId": 127,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      803
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 44,
+    "name": "deepslate_coal_ore",
+    "displayName": "Deepslate Coal Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 128,
+    "minStateId": 128,
+    "maxStateId": 128,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      803
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 45,
+    "name": "nether_gold_ore",
+    "displayName": "Nether Gold Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 129,
+    "minStateId": 129,
+    "maxStateId": 129,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      996
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 95,
+    "name": "lapis_ore",
+    "displayName": "Lapis Lazuli Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 520,
+    "minStateId": 520,
+    "maxStateId": 520,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      807
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 96,
+    "name": "deepslate_lapis_ore",
+    "displayName": "Deepslate Lapis Lazuli Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 521,
+    "minStateId": 521,
+    "maxStateId": 521,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      807
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 97,
+    "name": "lapis_block",
+    "displayName": "Block of Lapis Lazuli",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 522,
+    "minStateId": 522,
+    "maxStateId": 522,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      190
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 163,
+    "name": "gold_block",
+    "displayName": "Block of Gold",
+    "hardness": 3.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2091,
+    "minStateId": 2091,
+    "maxStateId": 2091,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      90
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 164,
+    "name": "iron_block",
+    "displayName": "Block of Iron",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 2092,
+    "minStateId": 2092,
+    "maxStateId": 2092,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      88
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 179,
+    "name": "diamond_ore",
+    "displayName": "Diamond Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 4274,
+    "minStateId": 4274,
+    "maxStateId": 4274,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      805
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 180,
+    "name": "deepslate_diamond_ore",
+    "displayName": "Deepslate Diamond Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 4275,
+    "minStateId": 4275,
+    "maxStateId": 4275,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      805
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 181,
+    "name": "diamond_block",
+    "displayName": "Block of Diamond",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 4276,
+    "minStateId": 4276,
+    "maxStateId": 4276,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      91
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 242,
+    "name": "redstone_ore",
+    "displayName": "Redstone Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 5735,
+    "minStateId": 5734,
+    "maxStateId": 5735,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      657
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 243,
+    "name": "deepslate_redstone_ore",
+    "displayName": "Deepslate Redstone Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 5737,
+    "minStateId": 5736,
+    "maxStateId": 5737,
+    "states": [
+      {
+        "name": "lit",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      657
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 342,
+    "name": "emerald_ore",
+    "displayName": "Emerald Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 7511,
+    "minStateId": 7511,
+    "maxStateId": 7511,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      806
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 343,
+    "name": "deepslate_emerald_ore",
+    "displayName": "Deepslate Emerald Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 7512,
+    "minStateId": 7512,
+    "maxStateId": 7512,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      806
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 347,
+    "name": "emerald_block",
+    "displayName": "Block of Emerald",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 7665,
+    "minStateId": 7665,
+    "maxStateId": 7665,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      382
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 417,
+    "name": "nether_quartz_ore",
+    "displayName": "Nether Quartz Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 9224,
+    "minStateId": 9224,
+    "maxStateId": 9224,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      808
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 495,
+    "name": "coal_block",
+    "displayName": "Block of Coal",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 10745,
+    "minStateId": 10745,
+    "maxStateId": 10745,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      81
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 840,
+    "name": "netherite_block",
+    "displayName": "Block of Netherite",
+    "hardness": 50.0,
+    "resistance": 1200.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 19447,
+    "minStateId": 19447,
+    "maxStateId": 19447,
+    "states": [],
+    "harvestTools": {
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      92
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 903,
+    "name": "amethyst_block",
+    "displayName": "Block of Amethyst",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21031,
+    "minStateId": 21031,
+    "maxStateId": 21031,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      86
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 904,
+    "name": "budding_amethyst",
+    "displayName": "Budding Amethyst",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 21032,
+    "minStateId": 21032,
+    "maxStateId": 21032,
+    "states": [],
+    "harvestTools": {
+      "820": true,
+      "825": true,
+      "830": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 905,
+    "name": "amethyst_cluster",
+    "displayName": "Amethyst Cluster",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 5,
+    "filterLight": 0,
+    "defaultState": 21042,
+    "minStateId": 21033,
+    "maxStateId": 21044,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [
+      809
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 906,
+    "name": "large_amethyst_bud",
+    "displayName": "Large Amethyst Bud",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 4,
+    "filterLight": 0,
+    "defaultState": 21054,
+    "minStateId": 21045,
+    "maxStateId": 21056,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 907,
+    "name": "medium_amethyst_bud",
+    "displayName": "Medium Amethyst Bud",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 2,
+    "filterLight": 0,
+    "defaultState": 21066,
+    "minStateId": 21057,
+    "maxStateId": 21068,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 908,
+    "name": "small_amethyst_bud",
+    "displayName": "Small Amethyst Bud",
+    "hardness": 1.5,
+    "resistance": 1.5,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "mineable/pickaxe",
+    "transparent": true,
+    "emitLight": 1,
+    "filterLight": 0,
+    "defaultState": 21078,
+    "minStateId": 21069,
+    "maxStateId": 21080,
+    "states": [
+      {
+        "name": "facing",
+        "type": "enum",
+        "num_values": 6,
+        "values": [
+          "north",
+          "east",
+          "south",
+          "west",
+          "up",
+          "down"
+        ]
+      },
+      {
+        "name": "waterlogged",
+        "type": "bool",
+        "num_values": 2
+      }
+    ],
+    "drops": [],
+    "boundingBox": "block"
+  },
+  {
+    "id": 936,
+    "name": "copper_ore",
+    "displayName": "Copper Ore",
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22942,
+    "minStateId": 22942,
+    "maxStateId": 22942,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      812
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 937,
+    "name": "deepslate_copper_ore",
+    "displayName": "Deepslate Copper Ore",
+    "hardness": 4.5,
+    "resistance": 3.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 22943,
+    "minStateId": 22943,
+    "maxStateId": 22943,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      812
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1045,
+    "name": "raw_iron_block",
+    "displayName": "Block of Raw Iron",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26558,
+    "minStateId": 26558,
+    "maxStateId": 26558,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      82
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1046,
+    "name": "raw_copper_block",
+    "displayName": "Block of Raw Copper",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26559,
+    "minStateId": 26559,
+    "maxStateId": 26559,
+    "states": [],
+    "harvestTools": {
+      "825": true,
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      83
+    ],
+    "boundingBox": "block"
+  },
+  {
+    "id": 1047,
+    "name": "raw_gold_block",
+    "displayName": "Block of Raw Gold",
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "stackSize": 64,
+    "diggable": true,
+    "material": "incorrect_for_wooden_tool",
+    "transparent": false,
+    "emitLight": 0,
+    "filterLight": 15,
+    "defaultState": 26560,
+    "minStateId": 26560,
+    "maxStateId": 26560,
+    "states": [],
+    "harvestTools": {
+      "835": true,
+      "840": true,
+      "845": true
+    },
+    "drops": [
+      84
+    ],
+    "boundingBox": "block"
+  }
+]

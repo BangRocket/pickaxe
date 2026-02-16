@@ -1,0 +1,314 @@
+[
+  {
+    "id": 657,
+    "name": "redstone",
+    "displayName": "Redstone Dust",
+    "stackSize": 64
+  },
+  {
+    "id": 803,
+    "name": "coal",
+    "displayName": "Coal",
+    "stackSize": 64
+  },
+  {
+    "id": 804,
+    "name": "charcoal",
+    "displayName": "Charcoal",
+    "stackSize": 64
+  },
+  {
+    "id": 805,
+    "name": "diamond",
+    "displayName": "Diamond",
+    "stackSize": 64
+  },
+  {
+    "id": 806,
+    "name": "emerald",
+    "displayName": "Emerald",
+    "stackSize": 64
+  },
+  {
+    "id": 807,
+    "name": "lapis_lazuli",
+    "displayName": "Lapis Lazuli",
+    "stackSize": 64
+  },
+  {
+    "id": 808,
+    "name": "quartz",
+    "displayName": "Nether Quartz",
+    "stackSize": 64
+  },
+  {
+    "id": 809,
+    "name": "amethyst_shard",
+    "displayName": "Amethyst Shard",
+    "stackSize": 64
+  },
+  {
+    "id": 810,
+    "name": "raw_iron",
+    "displayName": "Raw Iron",
+    "stackSize": 64
+  },
+  {
+    "id": 811,
+    "name": "iron_ingot",
+    "displayName": "Iron Ingot",
+    "stackSize": 64
+  },
+  {
+    "id": 812,
+    "name": "raw_copper",
+    "displayName": "Raw Copper",
+    "stackSize": 64
+  },
+  {
+    "id": 813,
+    "name": "copper_ingot",
+    "displayName": "Copper Ingot",
+    "stackSize": 64
+  },
+  {
+    "id": 814,
+    "name": "raw_gold",
+    "displayName": "Raw Gold",
+    "stackSize": 64
+  },
+  {
+    "id": 815,
+    "name": "gold_ingot",
+    "displayName": "Gold Ingot",
+    "stackSize": 64
+  },
+  {
+    "id": 816,
+    "name": "netherite_ingot",
+    "displayName": "Netherite Ingot",
+    "stackSize": 64
+  },
+  {
+    "id": 817,
+    "name": "netherite_scrap",
+    "displayName": "Netherite Scrap",
+    "stackSize": 64
+  },
+  {
+    "id": 848,
+    "name": "stick",
+    "displayName": "Stick",
+    "stackSize": 64
+  },
+  {
+    "id": 850,
+    "name": "string",
+    "displayName": "String",
+    "stackSize": 64
+  },
+  {
+    "id": 851,
+    "name": "feather",
+    "displayName": "Feather",
+    "stackSize": 64
+  },
+  {
+    "id": 852,
+    "name": "gunpowder",
+    "displayName": "Gunpowder",
+    "stackSize": 64
+  },
+  {
+    "id": 880,
+    "name": "flint",
+    "displayName": "Flint",
+    "stackSize": 64
+  },
+  {
+    "id": 913,
+    "name": "leather",
+    "displayName": "Leather",
+    "stackSize": 64
+  },
+  {
+    "id": 921,
+    "name": "brick",
+    "displayName": "Brick",
+    "stackSize": 64
+  },
+  {
+    "id": 922,
+    "name": "clay_ball",
+    "displayName": "Clay Ball",
+    "stackSize": 64
+  },
+  {
+    "id": 924,
+    "name": "paper",
+    "displayName": "Paper",
+    "stackSize": 64
+  },
+  {
+    "id": 925,
+    "name": "book",
+    "displayName": "Book",
+    "stackSize": 64
+  },
+  {
+    "id": 926,
+    "name": "slime_ball",
+    "displayName": "Slimeball",
+    "stackSize": 64
+  },
+  {
+    "id": 930,
+    "name": "bundle",
+    "displayName": "Bundle",
+    "stackSize": 1
+  },
+  {
+    "id": 934,
+    "name": "glowstone_dust",
+    "displayName": "Glowstone Dust",
+    "stackSize": 64
+  },
+  {
+    "id": 941,
+    "name": "ink_sac",
+    "displayName": "Ink Sac",
+    "stackSize": 64
+  },
+  {
+    "id": 942,
+    "name": "glow_ink_sac",
+    "displayName": "Glow Ink Sac",
+    "stackSize": 64
+  },
+  {
+    "id": 960,
+    "name": "bone_meal",
+    "displayName": "Bone Meal",
+    "stackSize": 64
+  },
+  {
+    "id": 961,
+    "name": "bone",
+    "displayName": "Bone",
+    "stackSize": 64
+  },
+  {
+    "id": 996,
+    "name": "gold_nugget",
+    "displayName": "Gold Nugget",
+    "stackSize": 64
+  },
+  {
+    "id": 1091,
+    "name": "writable_book",
+    "displayName": "Book and Quill",
+    "stackSize": 1
+  },
+  {
+    "id": 1092,
+    "name": "written_book",
+    "displayName": "Written Book",
+    "stackSize": 16
+  },
+  {
+    "id": 1110,
+    "name": "nether_star",
+    "displayName": "Nether Star",
+    "stackSize": 64
+  },
+  {
+    "id": 1114,
+    "name": "enchanted_book",
+    "displayName": "Enchanted Book",
+    "stackSize": 1
+  },
+  {
+    "id": 1115,
+    "name": "nether_brick",
+    "displayName": "Nether Brick",
+    "stackSize": 64
+  },
+  {
+    "id": 1116,
+    "name": "prismarine_shard",
+    "displayName": "Prismarine Shard",
+    "stackSize": 64
+  },
+  {
+    "id": 1117,
+    "name": "prismarine_crystals",
+    "displayName": "Prismarine Crystals",
+    "stackSize": 64
+  },
+  {
+    "id": 1121,
+    "name": "rabbit_foot",
+    "displayName": "Rabbit's Foot",
+    "stackSize": 64
+  },
+  {
+    "id": 1122,
+    "name": "rabbit_hide",
+    "displayName": "Rabbit Hide",
+    "stackSize": 64
+  },
+  {
+    "id": 1165,
+    "name": "iron_nugget",
+    "displayName": "Iron Nugget",
+    "stackSize": 64
+  },
+  {
+    "id": 1166,
+    "name": "knowledge_book",
+    "displayName": "Knowledge Book",
+    "stackSize": 1
+  },
+  {
+    "id": 1187,
+    "name": "disc_fragment_5",
+    "displayName": "Disc Fragment",
+    "stackSize": 64
+  },
+  {
+    "id": 1189,
+    "name": "phantom_membrane",
+    "displayName": "Phantom Membrane",
+    "stackSize": 64
+  },
+  {
+    "id": 1190,
+    "name": "nautilus_shell",
+    "displayName": "Nautilus Shell",
+    "stackSize": 64
+  },
+  {
+    "id": 1191,
+    "name": "heart_of_the_sea",
+    "displayName": "Heart of the Sea",
+    "stackSize": 64
+  },
+  {
+    "id": 1221,
+    "name": "honeycomb",
+    "displayName": "Honeycomb",
+    "stackSize": 64
+  },
+  {
+    "id": 1267,
+    "name": "echo_shard",
+    "displayName": "Echo Shard",
+    "stackSize": 64
+  },
+  {
+    "id": 1332,
+    "name": "breeze_rod",
+    "displayName": "Breeze Rod",
+    "stackSize": 64
+  }
+]
