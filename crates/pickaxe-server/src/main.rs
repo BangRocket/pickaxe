@@ -30,7 +30,9 @@ async fn main() -> anyhow::Result<()> {
     );
 
     // Initialize Lua scripting (must stay on this thread — Lua VM is !Send)
-    let scripting = ScriptRuntime::new(&[Path::new("lua")])?;
+    let scripting = ScriptRuntime::new()?;
+    // Bridge registration goes here (before mod loading)
+    scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously
     scripting.fire_event("server_start", &[]);

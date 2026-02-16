@@ -20,7 +20,7 @@ pub struct ScriptRuntime {
 }
 
 impl ScriptRuntime {
-    pub fn new(mod_dirs: &[&Path]) -> anyhow::Result<Self> {
+    pub fn new() -> anyhow::Result<Self> {
         let lua = Lua::new();
         let event_bus = Arc::new(Mutex::new(EventBus::new()));
         let override_registry = Arc::new(Mutex::new(OverrideRegistry::new()));
@@ -28,6 +28,16 @@ impl ScriptRuntime {
 
         setup_globals(&lua, event_bus.clone(), callbacks.clone())?;
 
+        Ok(Self {
+            lua,
+            event_bus,
+            override_registry,
+            callbacks,
+        })
+    }
+
+    /// Discover and load mods from the given directories.
+    pub fn load_mods(&self, mod_dirs: &[&Path]) -> anyhow::Result<()> {
         let mut manifests = Vec::new();
         for dir in mod_dirs {
             if dir.exists() {
@@ -45,25 +55,24 @@ impl ScriptRuntime {
                 "Loading mod: {} v{}",
                 manifest.mod_info.name, manifest.mod_info.version
             );
-            if let Err(e) = crate::sandbox::load_mod(&lua, manifest) {
+            if let Err(e) = crate::sandbox::load_mod(&self.lua, manifest) {
                 error!("Failed to load mod '{}': {}", manifest.mod_info.id, e);
             }
         }
 
-        let bus = event_bus.lock().unwrap();
+        let bus = self.event_bus.lock().unwrap();
         info!(
             "Scripting initialized: {} events, {} listeners",
             bus.event_count(),
             bus.listener_count()
         );
-        drop(bus);
 
-        Ok(Self {
-            lua,
-            event_bus,
-            override_registry,
-            callbacks,
-        })
+        Ok(())
+    }
+
+    /// Access the underlying Lua VM.
+    pub fn lua(&self) -> &Lua {
+        &self.lua
     }
 
     /// Fire an event with string key-value data. Returns true if cancelled.
