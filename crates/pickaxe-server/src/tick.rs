@@ -1356,39 +1356,30 @@ fn complete_block_break(
                 None => pickaxe_data::block_state_to_drops(old_block).to_vec(),
             };
             for &drop_item_id in &drop_ids {
-                // Find first empty slot: hotbar (36-44) then main inventory (9-35)
+                let max_stack = pickaxe_data::item_id_to_stack_size(drop_item_id).unwrap_or(64);
                 let slot_index = {
                     let inv = match world.get::<&Inventory>(entity) {
                         Ok(inv) => inv,
                         Err(_) => continue,
                     };
-                    let mut found = None;
-                    for i in 36..=44 {
-                        if inv.slots[i].is_none() {
-                            found = Some(i);
-                            break;
-                        }
-                    }
-                    if found.is_none() {
-                        for i in 9..=35 {
-                            if inv.slots[i].is_none() {
-                                found = Some(i);
-                                break;
-                            }
-                        }
-                    }
-                    found
+                    inv.find_slot_for_item(drop_item_id, max_stack)
                 };
 
                 if let Some(slot_index) = slot_index {
-                    let item = pickaxe_types::ItemStack::new(drop_item_id, 1);
-                    let state_id = {
+                    let (item, state_id) = {
                         let mut inv = match world.get::<&mut Inventory>(entity) {
                             Ok(inv) => inv,
                             Err(_) => continue,
                         };
-                        inv.set_slot(slot_index, Some(item.clone()));
-                        inv.state_id
+                        let new_item = match &inv.slots[slot_index] {
+                            Some(existing) => pickaxe_types::ItemStack::new(
+                                drop_item_id,
+                                existing.count.saturating_add(1),
+                            ),
+                            None => pickaxe_types::ItemStack::new(drop_item_id, 1),
+                        };
+                        inv.set_slot(slot_index, Some(new_item.clone()));
+                        (new_item, inv.state_id)
                     };
 
                     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -1603,27 +1594,13 @@ fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str) {
         }
     };
 
+    let max_stack = pickaxe_data::item_id_to_stack_size(item_id).unwrap_or(64);
     let slot_index = {
         let inv = match world.get::<&Inventory>(entity) {
             Ok(inv) => inv,
             Err(_) => return,
         };
-        let mut found = None;
-        for i in 36..=44 {
-            if inv.slots[i].is_none() {
-                found = Some(i);
-                break;
-            }
-        }
-        if found.is_none() {
-            for i in 9..=35 {
-                if inv.slots[i].is_none() {
-                    found = Some(i);
-                    break;
-                }
-            }
-        }
-        match found {
+        match inv.find_slot_for_item(item_id, max_stack) {
             Some(i) => i,
             None => {
                 send_message(world, entity, "Inventory is full!");
@@ -1632,14 +1609,20 @@ fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str) {
         }
     };
 
-    let state_id = {
+    let (item, state_id) = {
         let mut inv = match world.get::<&mut Inventory>(entity) {
             Ok(inv) => inv,
             Err(_) => return,
         };
-        let item = pickaxe_types::ItemStack::new(item_id, count);
-        inv.set_slot(slot_index, Some(item));
-        inv.state_id
+        let new_item = match &inv.slots[slot_index] {
+            Some(existing) => pickaxe_types::ItemStack::new(
+                item_id,
+                existing.count.saturating_add(count),
+            ),
+            None => pickaxe_types::ItemStack::new(item_id, count),
+        };
+        inv.set_slot(slot_index, Some(new_item.clone()));
+        (new_item, inv.state_id)
     };
 
     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -1647,7 +1630,7 @@ fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str) {
             window_id: 0,
             state_id,
             slot: slot_index as i16,
-            item: Some(pickaxe_types::ItemStack::new(item_id, count)),
+            item: Some(item),
         });
     }
 

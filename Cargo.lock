@@ -554,6 +554,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "hecs",
+ "mlua",
  "pickaxe-data",
  "pickaxe-events",
  "pickaxe-nbt",

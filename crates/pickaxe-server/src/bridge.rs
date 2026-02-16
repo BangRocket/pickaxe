@@ -77,41 +77,34 @@ fn find_player_by_name(world: &World, name: &str) -> Option<hecs::Entity> {
 }
 
 /// Give an item to a player entity, returning true on success.
+/// Stacks into existing matching slots before using empty ones.
 fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, count: i8) -> bool {
+    let max_stack = pickaxe_data::item_id_to_stack_size(item_id).unwrap_or(64);
     let slot_index = {
         let inv = match world.get::<&Inventory>(entity) {
             Ok(inv) => inv,
             Err(_) => return false,
         };
-        let mut found = None;
-        for i in 36..=44 {
-            if inv.slots[i].is_none() {
-                found = Some(i);
-                break;
-            }
-        }
-        if found.is_none() {
-            for i in 9..=35 {
-                if inv.slots[i].is_none() {
-                    found = Some(i);
-                    break;
-                }
-            }
-        }
-        match found {
+        match inv.find_slot_for_item(item_id, max_stack) {
             Some(i) => i,
             None => return false, // inventory full
         }
     };
 
-    let item = pickaxe_types::ItemStack::new(item_id, count);
-    let state_id = {
+    let (item, state_id) = {
         let mut inv = match world.get::<&mut Inventory>(entity) {
             Ok(inv) => inv,
             Err(_) => return false,
         };
-        inv.set_slot(slot_index, Some(item.clone()));
-        inv.state_id
+        let new_item = match &inv.slots[slot_index] {
+            Some(existing) => pickaxe_types::ItemStack::new(
+                item_id,
+                existing.count.saturating_add(count),
+            ),
+            None => pickaxe_types::ItemStack::new(item_id, count),
+        };
+        inv.set_slot(slot_index, Some(new_item.clone()));
+        (new_item, inv.state_id)
     };
 
     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {

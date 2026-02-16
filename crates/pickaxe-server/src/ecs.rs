@@ -105,6 +105,27 @@ impl Inventory {
         }
     }
 
+    /// Find a slot to add an item to: first tries stacking into an existing
+    /// matching slot, then finds the first empty slot. Searches hotbar (36-44)
+    /// first, then main inventory (9-35). Returns the slot index if found.
+    pub fn find_slot_for_item(&self, item_id: i32, max_stack: i32) -> Option<usize> {
+        // Try stacking into existing slots: hotbar first, then main
+        for i in (36..=44).chain(9..=35) {
+            if let Some(ref existing) = self.slots[i] {
+                if existing.item_id == item_id && (existing.count as i32) < max_stack {
+                    return Some(i);
+                }
+            }
+        }
+        // Then find an empty slot
+        for i in (36..=44).chain(9..=35) {
+            if self.slots[i].is_none() {
+                return Some(i);
+            }
+        }
+        None
+    }
+
     /// Convert to packet format.
     pub fn to_slot_vec(&self) -> Vec<Option<ItemStack>> {
         self.slots.to_vec()
