@@ -169,6 +169,91 @@ pub fn register_world_api(lua: &Lua) -> anyhow::Result<()> {
         )
         .map_err(lua_err)?;
 
+    // pickaxe.world.get_block_entity(x, y, z) -> table or nil
+    world_table
+        .set(
+            "get_block_entity",
+            lua.create_function(|lua, (x, y, z): (i32, i32, i32)| {
+                with_world_state(lua, |ws| -> Option<mlua::Value> {
+                    let pos = BlockPos::new(x, y, z);
+                    match ws.get_block_entity(&pos)? {
+                        crate::tick::BlockEntity::Chest { inventory } => {
+                            let table = lua.create_table().ok()?;
+                            let _ = table.set("type", "chest");
+                            let items = lua.create_table().ok()?;
+                            for (i, slot) in inventory.iter().enumerate() {
+                                if let Some(item) = slot {
+                                    let item_table = lua.create_table().ok()?;
+                                    let _ = item_table.set("id", item.item_id);
+                                    let _ = item_table.set(
+                                        "name",
+                                        pickaxe_data::item_id_to_name(item.item_id)
+                                            .unwrap_or("unknown"),
+                                    );
+                                    let _ = item_table.set("count", item.count);
+                                    let _ = item_table.set("slot", i + 1);
+                                    let _ = items.set(i + 1, item_table);
+                                }
+                            }
+                            let _ = table.set("items", items);
+                            Some(mlua::Value::Table(table))
+                        }
+                        crate::tick::BlockEntity::Furnace {
+                            input,
+                            fuel,
+                            output,
+                            burn_time,
+                            cook_progress,
+                            cook_total,
+                            ..
+                        } => {
+                            let table = lua.create_table().ok()?;
+                            let _ = table.set("type", "furnace");
+                            let _ = table.set("burn_time", *burn_time);
+                            let _ = table.set("cook_progress", *cook_progress);
+                            let _ = table.set("cook_total", *cook_total);
+                            if let Some(item) = input {
+                                let t = lua.create_table().ok()?;
+                                let _ = t.set("id", item.item_id);
+                                let _ = t.set(
+                                    "name",
+                                    pickaxe_data::item_id_to_name(item.item_id)
+                                        .unwrap_or("unknown"),
+                                );
+                                let _ = t.set("count", item.count);
+                                let _ = table.set("input", t);
+                            }
+                            if let Some(item) = fuel {
+                                let t = lua.create_table().ok()?;
+                                let _ = t.set("id", item.item_id);
+                                let _ = t.set(
+                                    "name",
+                                    pickaxe_data::item_id_to_name(item.item_id)
+                                        .unwrap_or("unknown"),
+                                );
+                                let _ = t.set("count", item.count);
+                                let _ = table.set("fuel", t);
+                            }
+                            if let Some(item) = output {
+                                let t = lua.create_table().ok()?;
+                                let _ = t.set("id", item.item_id);
+                                let _ = t.set(
+                                    "name",
+                                    pickaxe_data::item_id_to_name(item.item_id)
+                                        .unwrap_or("unknown"),
+                                );
+                                let _ = t.set("count", item.count);
+                                let _ = table.set("output", t);
+                            }
+                            Some(mlua::Value::Table(table))
+                        }
+                    }
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
     pickaxe.set("world", world_table).map_err(lua_err)?;
     Ok(())
 }
