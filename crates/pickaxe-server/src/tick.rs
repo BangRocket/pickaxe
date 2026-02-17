@@ -11,7 +11,7 @@ use pickaxe_protocol_v1_21::{build_item_metadata, build_sleeping_metadata, build
 use pickaxe_region::RegionStorage;
 use pickaxe_scripting::ScriptRuntime;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, Vec3d};
-use pickaxe_world::{generate_flat_chunk, Chunk};
+use pickaxe_world::{generate_flat_chunk_at, Chunk};
 use rand::Rng;
 use std::collections::HashMap;
 use std::io::{Read as _, Write as _};
@@ -595,8 +595,8 @@ impl WorldState {
                     }
                 }
             }
-            // Generate (save deferred until modification via set_block)
-            let chunk = generate_flat_chunk();
+            // Generate with ore distribution based on chunk coordinates
+            let chunk = generate_flat_chunk_at(pos.x, pos.z);
             self.chunks.insert(pos, chunk);
         }
         self.chunks.get_mut(&pos).unwrap()
@@ -895,7 +895,7 @@ fn handle_new_player(
     };
 
     // Determine values from saved data or defaults
-    let spawn_pos = saved.as_ref().map(|s| s.position).unwrap_or(Vec3d::new(0.5, -59.0, 0.5));
+    let spawn_pos = saved.as_ref().map(|s| s.position).unwrap_or(Vec3d::new(0.5, -49.0, 0.5));
     let player_yaw = saved.as_ref().map(|s| s.yaw).unwrap_or(0.0);
     let player_pitch = saved.as_ref().map(|s| s.pitch).unwrap_or(0.0);
     let player_game_mode = saved.as_ref().map(|s| s.game_mode).unwrap_or(GameMode::Survival);
@@ -990,7 +990,7 @@ fn handle_new_player(
     let (spawn_block_pos, spawn_angle) = if let Some((pos, angle)) = player_spawn_point {
         (pos, angle)
     } else {
-        (BlockPos::new(0, -60, 0), 0.0)
+        (BlockPos::new(0, -50, 0), 0.0)
     };
     let _ = sender.send(InternalPacket::SetDefaultSpawnPosition {
         position: spawn_block_pos,
@@ -3808,11 +3808,11 @@ fn tick_mob_spawning(
     let spawn_x = player_pos.x + angle.cos() * dist;
     let spawn_z = player_pos.z + angle.sin() * dist;
 
-    // Find ground level (scan down from Y=-55 which is surface in flat world)
+    // Find ground level (scan down from surface in flat world)
     let bx = spawn_x.floor() as i32;
     let bz = spawn_z.floor() as i32;
     let mut spawn_y = None;
-    for y in (-60..=-55).rev() {
+    for y in (-60..=-45).rev() {
         let block = world_state.get_block_if_loaded(&BlockPos::new(bx, y, bz));
         let above = world_state.get_block_if_loaded(&BlockPos::new(bx, y + 1, bz));
         let above2 = world_state.get_block_if_loaded(&BlockPos::new(bx, y + 2, bz));
@@ -3950,10 +3950,10 @@ fn respawn_player(
             (Vec3d::new(x, y, z), sp.yaw)
         } else {
             // Bed destroyed — fall back to world spawn
-            (Vec3d::new(0.5, -59.0, 0.5), 0.0)
+            (Vec3d::new(0.5, -49.0, 0.5), 0.0)
         }
     } else {
-        (Vec3d::new(0.5, -59.0, 0.5), 0.0)
+        (Vec3d::new(0.5, -49.0, 0.5), 0.0)
     };
 
     if let Ok(mut pos) = world.get::<&mut Position>(entity) {
@@ -5188,8 +5188,8 @@ fn tick_lightning(
     // Find ground level (scan down from surface in flat world)
     let bx = strike_x.floor() as i32;
     let bz = strike_z.floor() as i32;
-    let mut strike_y = -59.0; // default flat world surface
-    for y in (-60..=-55).rev() {
+    let mut strike_y = -49.0; // default flat world surface
+    for y in (-60..=-45).rev() {
         let block = world_state.get_block_if_loaded(&BlockPos::new(bx, y, bz));
         if let Some(b) = block {
             if b != 0 {

@@ -7,7 +7,7 @@ end)
 
 -- /spawn — teleport to spawn
 pickaxe.commands.register("spawn", function(player_name, args)
-    pickaxe.players.teleport(player_name, 0.5, -59.0, 0.5)
+    pickaxe.players.teleport(player_name, 0.5, -49.0, 0.5)
     pickaxe.players.send_message(player_name, "Teleported to spawn!")
 end)
 

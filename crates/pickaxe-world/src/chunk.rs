@@ -526,15 +526,15 @@ mod tests {
         use crate::generator::*;
         let chunk = generate_flat_chunk();
         let section = &chunk.sections[0];
-        assert_eq!(section.palette.len(), 4);
-        assert_eq!(section.bits_per_entry, 4);
-        assert_eq!(section.block_count, 1024);
+        // New layout: bedrock(1) + stone+ores(10) + dirt(2) + grass(1) = 14 layers
+        // At least bedrock, stone, dirt, grass, air + ores in palette
+        assert!(section.palette.len() >= 4);
+        assert!(section.block_count > 1024); // more blocks than the old 4-layer layout
 
         let mut buf = BytesMut::new();
         section.write_to(&mut buf);
         let block_count_val = i16::from_be_bytes([buf[0], buf[1]]);
-        assert_eq!(block_count_val, 1024);
-        assert_eq!(buf[2], 4); // bits_per_entry
+        assert!(block_count_val > 1024);
     }
 
     #[test]
@@ -571,19 +571,21 @@ mod tests {
         let mut chunk = generate_flat_chunk();
         // Bedrock at y=-64
         assert_eq!(chunk.get_block(0, -64, 0), BEDROCK);
-        // Grass at y=-61
-        assert_eq!(chunk.get_block(0, -61, 0), GRASS_BLOCK);
-        // Air at y=-60
-        assert_eq!(chunk.get_block(0, -60, 0), AIR);
+        // Grass at y=-51
+        assert_eq!(chunk.get_block(0, -51, 0), GRASS_BLOCK);
+        // Air at y=-50
+        assert_eq!(chunk.get_block(0, -50, 0), AIR);
+        // Dirt at y=-52
+        assert_eq!(chunk.get_block(0, -52, 0), DIRT);
 
         // Break the grass block
-        let old = chunk.set_block(0, -61, 0, AIR);
+        let old = chunk.set_block(0, -51, 0, AIR);
         assert_eq!(old, GRASS_BLOCK);
-        assert_eq!(chunk.get_block(0, -61, 0), AIR);
+        assert_eq!(chunk.get_block(0, -51, 0), AIR);
 
-        // Place stone at y=-60
-        chunk.set_block(0, -60, 0, STONE);
-        assert_eq!(chunk.get_block(0, -60, 0), STONE);
+        // Place stone at y=-50
+        chunk.set_block(0, -50, 0, STONE);
+        assert_eq!(chunk.get_block(0, -50, 0), STONE);
     }
 
     #[test]
@@ -591,7 +593,7 @@ mod tests {
         use crate::generator::*;
         let mut chunk = generate_flat_chunk();
         // Break a block and verify serialization still works
-        chunk.set_block(8, -61, 8, AIR);
+        chunk.set_block(8, -51, 8, AIR);
         let data = chunk.serialize_sections();
         assert!(!data.is_empty());
     }
@@ -603,10 +605,12 @@ mod tests {
         let nbt = chunk.to_nbt(0, 0, 1000);
         let restored = Chunk::from_nbt(&nbt).unwrap();
         assert_eq!(restored.get_block(0, -64, 0), BEDROCK);
-        assert_eq!(restored.get_block(0, -63, 0), DIRT);
-        assert_eq!(restored.get_block(0, -62, 0), DIRT);
-        assert_eq!(restored.get_block(0, -61, 0), GRASS_BLOCK);
-        assert_eq!(restored.get_block(0, -60, 0), AIR);
+        // y=-63 is stone (may have ore at 0,0 due to hash, check stone layer exists)
+        let block_63 = restored.get_block(0, -63, 0);
+        assert_ne!(block_63, AIR, "y=-63 should not be air");
+        assert_eq!(restored.get_block(0, -52, 0), DIRT);
+        assert_eq!(restored.get_block(0, -51, 0), GRASS_BLOCK);
+        assert_eq!(restored.get_block(0, -50, 0), AIR);
         assert_eq!(restored.get_block(8, -64, 8), BEDROCK);
     }
 
@@ -614,13 +618,13 @@ mod tests {
     fn test_chunk_nbt_roundtrip_after_mutation() {
         use crate::generator::*;
         let mut chunk = generate_flat_chunk();
-        chunk.set_block(5, -61, 5, STONE);
-        chunk.set_block(10, -60, 10, DIRT);
+        chunk.set_block(5, -51, 5, STONE);
+        chunk.set_block(10, -50, 10, DIRT);
         let nbt = chunk.to_nbt(3, -2, 500);
         let restored = Chunk::from_nbt(&nbt).unwrap();
-        assert_eq!(restored.get_block(5, -61, 5), STONE);
-        assert_eq!(restored.get_block(10, -60, 10), DIRT);
-        assert_eq!(restored.get_block(0, -61, 0), GRASS_BLOCK);
+        assert_eq!(restored.get_block(5, -51, 5), STONE);
+        assert_eq!(restored.get_block(10, -50, 10), DIRT);
+        assert_eq!(restored.get_block(0, -51, 0), GRASS_BLOCK);
     }
 
     #[test]
