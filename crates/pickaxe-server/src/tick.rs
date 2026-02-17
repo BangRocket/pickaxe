@@ -883,8 +883,12 @@ fn process_packet(
                     }
                 }
                 3 => {
-                    if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
-                        ms.sprinting = true;
+                    // MC: can't sprint if food < 6 (SPRINT_LEVEL)
+                    let food_level = world.get::<&FoodData>(entity).map(|f| f.food_level).unwrap_or(20);
+                    if food_level >= 6 {
+                        if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
+                            ms.sprinting = true;
+                        }
                     }
                 }
                 4 => {
@@ -957,7 +961,7 @@ fn handle_player_movement(
         apply_damage(world, world_state, entity, entity_id, damage, "fall", scripting);
     }
 
-    // Sprint exhaustion
+    // Sprint exhaustion (MC: 0.1 per meter while sprinting)
     let dx = x - old_pos.x;
     let dz = z - old_pos.z;
     let horiz_dist = ((dx * dx + dz * dz) as f32).sqrt();
@@ -965,16 +969,17 @@ fn handle_player_movement(
         let sprinting = world.get::<&MovementState>(entity).map(|m| m.sprinting).unwrap_or(false);
         if sprinting {
             if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
-                food.exhaustion += horiz_dist * 0.1;
+                food.exhaustion = (food.exhaustion + horiz_dist * 0.1).min(40.0);
             }
         }
     }
 
     // Jump exhaustion: transition from on_ground to !on_ground while moving upward
+    // MC: 0.05 normal jump, 0.2 sprint jump
     if !on_ground && old_on_ground && dy > 0.0 {
         let sprinting = world.get::<&MovementState>(entity).map(|m| m.sprinting).unwrap_or(false);
         if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
-            food.exhaustion += if sprinting { 0.2 } else { 0.05 };
+            food.exhaustion = (food.exhaustion + if sprinting { 0.2 } else { 0.05 }).min(40.0);
         }
     }
 
@@ -998,8 +1003,8 @@ fn apply_damage(
         return;
     }
 
-    // Check invulnerability
-    let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 0).unwrap_or(false);
+    // Check invulnerability — MC checks invulnerableTime > 10 (half the 20-tick cooldown)
+    let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 10).unwrap_or(false);
     if invuln {
         return;
     }
@@ -1030,6 +1035,11 @@ fn apply_damage(
         health.invulnerable_ticks = 20;
         (health.current, health.current <= 0.0)
     };
+
+    // Damage exhaustion (MC: causeFoodExhaustion with DamageSource.getExhaustion, default 0.1)
+    if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+        food.exhaustion = (food.exhaustion + 0.1).min(40.0);
+    }
 
     // Send health update to damaged player
     let (food, sat) = world
@@ -1217,6 +1227,7 @@ fn tick_health_hunger(
 ) {
     let mut starvation_damage: Vec<(hecs::Entity, i32)> = Vec::new();
     let mut health_updates: Vec<(hecs::Entity, f32, i32, f32)> = Vec::new();
+    let mut sprint_stop: Vec<hecs::Entity> = Vec::new();
 
     for (entity, (eid, health, food, gm)) in
         world.query::<(&EntityId, &mut Health, &mut FoodData, &PlayerGameMode)>().iter()
@@ -1235,6 +1246,9 @@ fn tick_health_hunger(
             health.invulnerable_ticks -= 1;
         }
 
+        // Cap exhaustion at 40.0 (MC: exhaustionLevel capped at 40.0F)
+        food.exhaustion = food.exhaustion.min(40.0);
+
         // Exhaustion drain at 4.0 threshold
         if food.exhaustion >= 4.0 {
             food.exhaustion -= 4.0;
@@ -1245,6 +1259,11 @@ fn tick_health_hunger(
             }
         }
 
+        // MC: can't sprint if food < 6 (SPRINT_LEVEL)
+        if food.food_level < 6 {
+            sprint_stop.push(entity);
+        }
+
         let is_hurt = health.current < health.max;
 
         // Saturated regen: food=20 and saturation>0 and hurt → heal every 10 ticks
@@ -1253,7 +1272,7 @@ fn tick_health_hunger(
             if food.tick_timer >= 10 {
                 let heal_amount = food.saturation.min(6.0) / 6.0;
                 health.current = (health.current + heal_amount).min(health.max);
-                food.exhaustion += food.saturation.min(6.0);
+                food.exhaustion = (food.exhaustion + food.saturation.min(6.0)).min(40.0);
                 food.tick_timer = 0;
             }
         }
@@ -1262,11 +1281,13 @@ fn tick_health_hunger(
             food.tick_timer += 1;
             if food.tick_timer >= 80 {
                 health.current = (health.current + 1.0).min(health.max);
-                food.exhaustion += 6.0;
+                food.exhaustion = (food.exhaustion + 6.0).min(40.0);
                 food.tick_timer = 0;
             }
         }
-        // Starvation: food==0 → damage every 80 ticks (won't kill below 1 HP on Normal)
+        // Starvation: food==0 → damage every 80 ticks
+        // MC: EASY caps at 5.0HP, NORMAL caps at 1.0HP, HARD no cap
+        // We implement Normal difficulty behavior
         else if food.food_level == 0 {
             food.tick_timer += 1;
             if food.tick_timer >= 80 {
@@ -1286,6 +1307,13 @@ fn tick_health_hunger(
     // Apply starvation damage (outside borrow)
     for (entity, eid) in starvation_damage {
         apply_damage(world, world_state, entity, eid, 1.0, "starve", scripting);
+    }
+
+    // Force stop sprinting for players with food < 6 (MC: SPRINT_LEVEL)
+    for entity in sprint_stop {
+        if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
+            ms.sprinting = false;
+        }
     }
 
     // Send SetHealth every 20 ticks (1 second) to keep client in sync
@@ -1825,9 +1853,9 @@ fn complete_block_break(
     // Proceed with the break
     world_state.set_block(position, 0);
 
-    // Mining exhaustion
+    // Mining exhaustion (MC: 0.005 per block broken)
     if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
-        food.exhaustion += 0.005;
+        food.exhaustion = (food.exhaustion + 0.005).min(40.0);
     }
 
     // Send block update + ack to the breaking player

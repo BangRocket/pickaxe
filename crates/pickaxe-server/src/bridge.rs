@@ -231,6 +231,7 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
                     if let Ok(f) = world.get::<&FoodData>(entity) {
                         let _ = table.set("food", f.food_level);
                         let _ = table.set("saturation", f.saturation);
+                        let _ = table.set("exhaustion", f.exhaustion);
                     }
                     Some(mlua::Value::Table(table))
                 })
@@ -381,7 +382,7 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
         )
         .map_err(lua_err)?;
 
-    // pickaxe.players.get_health(name) -> {health, max_health, food, saturation} or nil
+    // pickaxe.players.get_health(name) -> {health, max_health, food, saturation, exhaustion} or nil
     players_table
         .set(
             "get_health",
@@ -395,6 +396,7 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
                     let _ = table.set("max_health", h.max);
                     let _ = table.set("food", f.food_level);
                     let _ = table.set("saturation", f.saturation);
+                    let _ = table.set("exhaustion", f.exhaustion);
                     Some(mlua::Value::Table(table))
                 })
             })
@@ -469,6 +471,8 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
         .map_err(lua_err)?;
 
     // pickaxe.players.damage(name, amount, source?) -> bool
+    // Respects invulnerability, triggers death if health reaches 0.
+    // Does NOT fire player_damage Lua event (caller IS Lua — avoids re-entrancy).
     players_table
         .set(
             "damage",
@@ -478,24 +482,76 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
                         Some(e) => e,
                         None => return false,
                     };
-                    let source = source.as_deref().unwrap_or("lua");
-                    if let Ok(mut h) = world.get::<&mut Health>(entity) {
-                        h.current = (h.current - amount).max(0.0);
+                    let source_str = source.as_deref().unwrap_or("lua");
+
+                    // Check creative immunity (except void)
+                    let gm = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                    if gm == GameMode::Creative && source_str != "void" {
+                        return false;
                     }
-                    let (health, food, sat) = {
-                        let h = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(0.0);
-                        let (f, s) = world.get::<&FoodData>(entity).map(|f| (f.food_level, f.saturation)).unwrap_or((20, 5.0));
-                        (h, f, s)
+
+                    // Check invulnerability (MC: invulnerableTime > 10)
+                    let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 10).unwrap_or(false);
+                    if invuln {
+                        return false;
+                    }
+
+                    // Apply damage
+                    let (new_health, is_dead) = {
+                        let mut h = match world.get::<&mut Health>(entity) {
+                            Ok(h) => h,
+                            Err(_) => return false,
+                        };
+                        h.current = (h.current - amount).max(0.0);
+                        h.invulnerable_ticks = 20;
+                        (h.current, h.current <= 0.0)
                     };
+
+                    // Damage exhaustion (MC: 0.1 per damage event)
+                    if let Ok(mut f) = world.get::<&mut FoodData>(entity) {
+                        f.exhaustion = (f.exhaustion + 0.1).min(40.0);
+                    }
+
+                    // Send health update
+                    let (food, sat) = world
+                        .get::<&FoodData>(entity)
+                        .map(|f| (f.food_level, f.saturation))
+                        .unwrap_or((20, 5.0));
                     let eid = world.get::<&EntityId>(entity).map(|e| e.0).unwrap_or(0);
                     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
-                        let _ = sender.0.send(InternalPacket::SetHealth { health, food, saturation: sat });
+                        let _ = sender.0.send(InternalPacket::SetHealth {
+                            health: new_health,
+                            food,
+                            saturation: sat,
+                        });
                     }
+
                     // Broadcast hurt animation
+                    let hurt = InternalPacket::HurtAnimation { entity_id: eid, yaw: 0.0 };
                     for (_e, sender) in world.query::<&ConnectionSender>().iter() {
-                        let _ = sender.0.send(InternalPacket::HurtAnimation { entity_id: eid, yaw: 0.0 });
+                        let _ = sender.0.send(hurt.clone());
                     }
-                    let _ = source; // used for event context
+
+                    // Handle death
+                    if is_dead {
+                        let death_msg = format!("{} died", name);
+                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                            let _ = sender.0.send(InternalPacket::PlayerCombatKill {
+                                player_id: eid,
+                                message: TextComponent::plain(&death_msg),
+                            });
+                        }
+                        let death_event = InternalPacket::EntityEvent { entity_id: eid, event_id: 3 };
+                        let death_chat = InternalPacket::SystemChatMessage {
+                            content: TextComponent::plain(&death_msg),
+                            overlay: false,
+                        };
+                        for (_e, sender) in world.query::<&ConnectionSender>().iter() {
+                            let _ = sender.0.send(death_event.clone());
+                            let _ = sender.0.send(death_chat.clone());
+                        }
+                    }
+
                     true
                 })
             })
@@ -524,6 +580,81 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
                     };
                     if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
                         let _ = sender.0.send(InternalPacket::SetHealth { health, food, saturation: sat });
+                    }
+                    true
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.get_exhaustion(name) -> number or nil
+    players_table
+        .set(
+            "get_exhaustion",
+            lua.create_function(|lua, name: String| {
+                with_world(lua, |world| -> Option<f32> {
+                    let entity = find_player_by_name(world, &name)?;
+                    let f = world.get::<&FoodData>(entity).ok()?;
+                    Some(f.exhaustion)
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.set_exhaustion(name, value) -> bool
+    players_table
+        .set(
+            "set_exhaustion",
+            lua.create_function(|lua, (name, value): (String, f32)| {
+                with_world(lua, |world| {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return false,
+                    };
+                    if let Ok(mut f) = world.get::<&mut FoodData>(entity) {
+                        f.exhaustion = value.clamp(0.0, 40.0);
+                    }
+                    true
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.feed(name, nutrition, saturation_modifier) -> bool
+    // MC formula: foodLevel = clamp(foodLevel + nutrition, 0, 20)
+    //             saturation = clamp(saturation + nutrition * saturation_modifier * 2.0, 0, foodLevel)
+    players_table
+        .set(
+            "feed",
+            lua.create_function(|lua, (name, nutrition, sat_mod): (String, i32, f32)| {
+                with_world(lua, |world| {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return false,
+                    };
+                    if let Ok(mut f) = world.get::<&mut FoodData>(entity) {
+                        f.food_level = (f.food_level + nutrition).clamp(0, 20);
+                        f.saturation = (f.saturation + nutrition as f32 * sat_mod * 2.0)
+                            .clamp(0.0, f.food_level as f32);
+                    }
+                    // Send update to client
+                    let (health, food, sat) = {
+                        let h = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(20.0);
+                        let (fl, s) = world
+                            .get::<&FoodData>(entity)
+                            .map(|f| (f.food_level, f.saturation))
+                            .unwrap_or((20, 5.0));
+                        (h, fl, s)
+                    };
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetHealth {
+                            health,
+                            food,
+                            saturation: sat,
+                        });
                     }
                     true
                 })
