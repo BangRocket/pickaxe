@@ -335,6 +335,25 @@ pub enum InternalPacket {
         portal_cooldown: i32,
     },
 
+    /// Open Screen (0x33 CB) — open a container GUI.
+    OpenScreen {
+        container_id: i32,
+        menu_type: i32,
+        title: TextComponent,
+    },
+
+    /// Container Close (0x12 CB) — server tells client to close container.
+    ContainerClose {
+        container_id: i32,
+    },
+
+    /// Set Container Data (0x14 CB) — furnace progress bars.
+    SetContainerData {
+        container_id: u8,
+        property: i16,
+        value: i16,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {
@@ -375,6 +394,22 @@ pub enum InternalPacket {
         entity_id: i32,
         action: i32,
         data: i32,
+    },
+
+    /// Container Click (0x0E SB) — client clicked in a container.
+    ContainerClick {
+        window_id: u8,
+        state_id: i32,
+        slot: i16,
+        button: i8,
+        mode: i32,
+        changed_slots: Vec<(i16, Option<ItemStack>)>,
+        carried_item: Option<ItemStack>,
+    },
+
+    /// Close Container (0x0F SB) — client closed a container.
+    ClientCloseContainer {
+        container_id: u8,
     },
 
     ConfirmTeleportation {

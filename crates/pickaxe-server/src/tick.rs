@@ -316,6 +316,23 @@ pub fn run_saver_task(
     }
 }
 
+/// Block entity data for container blocks.
+#[derive(Debug, Clone)]
+pub enum BlockEntity {
+    Chest {
+        inventory: [Option<ItemStack>; 27],
+    },
+    Furnace {
+        input: Option<ItemStack>,
+        fuel: Option<ItemStack>,
+        output: Option<ItemStack>,
+        burn_time: i16,
+        burn_duration: i16,
+        cook_progress: i16,
+        cook_total: i16,
+    },
+}
+
 /// World state: chunk storage.
 pub struct WorldState {
     chunks: HashMap<ChunkPos, Chunk>,
@@ -324,6 +341,7 @@ pub struct WorldState {
     pub tick_count: u64,
     region_storage: RegionStorage,
     pub save_tx: mpsc::UnboundedSender<SaveOp>,
+    pub block_entities: HashMap<BlockPos, BlockEntity>,
 }
 
 impl WorldState {
@@ -335,6 +353,7 @@ impl WorldState {
             tick_count: 0,
             region_storage,
             save_tx,
+            block_entities: HashMap::new(),
         }
     }
 
@@ -390,6 +409,22 @@ impl WorldState {
         let local_z = (pos.z.rem_euclid(16)) as usize;
         self.ensure_chunk(chunk_pos);
         self.chunks.get(&chunk_pos).unwrap().get_block(local_x, pos.y, local_z)
+    }
+
+    pub fn get_block_entity(&self, pos: &BlockPos) -> Option<&BlockEntity> {
+        self.block_entities.get(pos)
+    }
+
+    pub fn get_block_entity_mut(&mut self, pos: &BlockPos) -> Option<&mut BlockEntity> {
+        self.block_entities.get_mut(pos)
+    }
+
+    pub fn set_block_entity(&mut self, pos: BlockPos, entity: BlockEntity) {
+        self.block_entities.insert(pos, entity);
+    }
+
+    pub fn remove_block_entity(&mut self, pos: &BlockPos) -> Option<BlockEntity> {
+        self.block_entities.remove(pos)
     }
 }
 
@@ -1137,6 +1172,23 @@ fn process_packet(
             }
 
             world_state.set_block(&target, block_id);
+
+            // Create block entity for container blocks
+            let block_name = pickaxe_data::block_state_to_name(block_id).unwrap_or("");
+            match block_name {
+                "chest" => {
+                    world_state.set_block_entity(target, BlockEntity::Chest {
+                        inventory: std::array::from_fn(|_| None),
+                    });
+                }
+                "furnace" => {
+                    world_state.set_block_entity(target, BlockEntity::Furnace {
+                        input: None, fuel: None, output: None,
+                        burn_time: 0, burn_duration: 0, cook_progress: 0, cook_total: 200,
+                    });
+                }
+                _ => {}
+            }
 
             // Consume item from inventory (survival mode only)
             let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
@@ -2386,6 +2438,25 @@ fn complete_block_break(
                     scripting,
                 );
             }
+        }
+    }
+
+    // Remove block entity and drop contents
+    if let Some(block_entity) = world_state.remove_block_entity(position) {
+        let items: Vec<ItemStack> = match block_entity {
+            BlockEntity::Chest { inventory } => {
+                inventory.into_iter().flatten().collect()
+            }
+            BlockEntity::Furnace { input, fuel, output, .. } => {
+                [input, fuel, output].into_iter().flatten().collect()
+            }
+        };
+        for item in items {
+            spawn_item_entity(
+                world, world_state, next_eid,
+                position.x as f64 + 0.5, position.y as f64 + 0.5, position.z as f64 + 0.5,
+                item, 10, scripting,
+            );
         }
     }
 

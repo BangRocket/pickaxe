@@ -105,6 +105,9 @@ const PLAY_RESPAWN: i32 = 0x47;
 const PLAY_SET_ENTITY_METADATA: i32 = 0x58;
 const PLAY_SET_ENTITY_VELOCITY: i32 = 0x5A;
 const PLAY_SET_HEALTH: i32 = 0x5D;
+const PLAY_CONTAINER_CLOSE: i32 = 0x12;
+const PLAY_SET_CONTAINER_DATA: i32 = 0x14;
+const PLAY_OPEN_SCREEN: i32 = 0x33;
 const PLAY_UPDATE_TIME: i32 = 0x64;
 
 // === Decode functions ===
@@ -342,9 +345,28 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             Ok(InternalPacket::BlockPlace { hand, position, face, cursor_x, cursor_y, cursor_z, inside_block, sequence })
         }
         0x0E => {
-            // ClickContainer — complex, skip for now
-            data.advance(data.remaining());
-            Ok(InternalPacket::Unknown { packet_id: id, data: vec![] })
+            // Container Click
+            let window_id = read_u8(data)?;
+            let state_id = read_varint(data)?;
+            let slot = read_i16(data)?;
+            let button = read_i8(data)?;
+            let mode = read_varint(data)?;
+            let count = read_varint(data)? as usize;
+            let mut changed_slots = Vec::with_capacity(count);
+            for _ in 0..count {
+                let loc = read_i16(data)?;
+                let item = read_slot(data).map_err(|e| anyhow::anyhow!("{}", e))?;
+                changed_slots.push((loc, item));
+            }
+            let carried_item = read_slot(data).map_err(|e| anyhow::anyhow!("{}", e))?;
+            Ok(InternalPacket::ContainerClick {
+                window_id, state_id, slot, button, mode, changed_slots, carried_item,
+            })
+        }
+        0x0F => {
+            // Close Container (serverbound)
+            let container_id = read_u8(data)?;
+            Ok(InternalPacket::ClientCloseContainer { container_id })
         }
         0x2F => {
             // SetHeldItem (serverbound)
@@ -873,6 +895,28 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             }
             write_varint(&mut buf, *portal_cooldown);
             buf.put_u8(*data_to_keep);
+        }
+        InternalPacket::OpenScreen { container_id, menu_type, title } => {
+            write_varint(&mut buf, PLAY_OPEN_SCREEN);
+            write_varint(&mut buf, *container_id);
+            write_varint(&mut buf, *menu_type);
+            // Title as NBT text component
+            let nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(title.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::ContainerClose { container_id } => {
+            write_varint(&mut buf, PLAY_CONTAINER_CLOSE);
+            write_varint(&mut buf, *container_id);
+        }
+        InternalPacket::SetContainerData { container_id, property, value } => {
+            write_varint(&mut buf, PLAY_SET_CONTAINER_DATA);
+            buf.put_u8(*container_id);
+            buf.put_i16(*property);
+            buf.put_i16(*value);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }
