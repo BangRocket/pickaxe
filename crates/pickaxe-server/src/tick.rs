@@ -401,6 +401,11 @@ fn serialize_level_dat(world_state: &WorldState, _config: &ServerConfig) -> Vec<
             "Difficulty" => NbtValue::Byte(2),
             "hardcore" => NbtValue::Byte(0),
             "allowCommands" => NbtValue::Byte(1),
+            "raining" => NbtValue::Byte(world_state.raining as i8),
+            "thundering" => NbtValue::Byte(world_state.thundering as i8),
+            "rainTime" => NbtValue::Int(world_state.rain_time),
+            "thunderTime" => NbtValue::Int(world_state.thunder_time),
+            "clearWeatherTime" => NbtValue::Int(world_state.clear_weather_time),
             "Version" => nbt_compound! {
                 "Name" => NbtValue::String("1.21.1".into()),
                 "Id" => NbtValue::Int(767)
@@ -416,8 +421,19 @@ fn serialize_level_dat(world_state: &WorldState, _config: &ServerConfig) -> Vec<
     encoder.finish().unwrap_or_default()
 }
 
-/// Load world_age and time_of_day from a gzip-compressed level.dat file.
-fn load_level_dat(path: &std::path::Path) -> Option<(i64, i64)> {
+/// Deserialized level.dat data.
+struct LevelDatData {
+    world_age: i64,
+    time_of_day: i64,
+    raining: bool,
+    thundering: bool,
+    rain_time: i32,
+    thunder_time: i32,
+    clear_weather_time: i32,
+}
+
+/// Load world state from a gzip-compressed level.dat file.
+fn load_level_dat(path: &std::path::Path) -> Option<LevelDatData> {
     let data = std::fs::read(path).ok()?;
     let mut decoder = GzDecoder::new(&data[..]);
     let mut decompressed = Vec::new();
@@ -427,7 +443,20 @@ fn load_level_dat(path: &std::path::Path) -> Option<(i64, i64)> {
     let data_nbt = nbt.get("Data")?;
     let world_age = data_nbt.get("Time")?.as_long()?;
     let time_of_day = data_nbt.get("DayTime")?.as_long()?;
-    Some((world_age, time_of_day))
+    let raining = data_nbt.get("raining").and_then(|v| v.as_byte()).unwrap_or(0) != 0;
+    let thundering = data_nbt.get("thundering").and_then(|v| v.as_byte()).unwrap_or(0) != 0;
+    let rain_time = data_nbt.get("rainTime").and_then(|v| v.as_int()).unwrap_or(0);
+    let thunder_time = data_nbt.get("thunderTime").and_then(|v| v.as_int()).unwrap_or(0);
+    let clear_weather_time = data_nbt.get("clearWeatherTime").and_then(|v| v.as_int()).unwrap_or(0);
+    Some(LevelDatData {
+        world_age,
+        time_of_day,
+        raining,
+        thundering,
+        rain_time,
+        thunder_time,
+        clear_weather_time,
+    })
 }
 
 /// Operations queued for the background saver task.
@@ -516,6 +545,14 @@ pub struct WorldState {
     region_storage: RegionStorage,
     pub save_tx: mpsc::UnboundedSender<SaveOp>,
     pub block_entities: HashMap<BlockPos, BlockEntity>,
+    // Weather state
+    pub raining: bool,
+    pub thundering: bool,
+    pub rain_time: i32,      // ticks until rain toggles
+    pub thunder_time: i32,   // ticks until thunder toggles
+    pub clear_weather_time: i32,
+    pub rain_level: f32,     // 0.0-1.0, gradual transition
+    pub thunder_level: f32,  // 0.0-1.0, gradual transition
 }
 
 impl WorldState {
@@ -528,6 +565,13 @@ impl WorldState {
             region_storage,
             save_tx,
             block_entities: HashMap::new(),
+            raining: false,
+            thundering: false,
+            rain_time: 12000 + rand::random::<i32>().unsigned_abs() as i32 % 168000,
+            thunder_time: 12000 + rand::random::<i32>().unsigned_abs() as i32 % 168000,
+            clear_weather_time: 0,
+            rain_level: 0.0,
+            thunder_level: 0.0,
         }
     }
 
@@ -650,12 +694,24 @@ pub async fn run_tick_loop(
     let mut world = World::new();
     let mut world_state = WorldState::new(region_storage, save_tx);
 
-    // Load level.dat if it exists (restores world_age and time_of_day)
+    // Load level.dat if it exists (restores world_age, time_of_day, weather)
     let level_dat_path = PathBuf::from(&config.world_dir).join("level.dat");
-    if let Some((world_age, time_of_day)) = load_level_dat(&level_dat_path) {
-        world_state.world_age = world_age;
-        world_state.time_of_day = time_of_day;
-        info!("Loaded level.dat: world_age={}, time_of_day={}", world_age, time_of_day);
+    if let Some(level_data) = load_level_dat(&level_dat_path) {
+        world_state.world_age = level_data.world_age;
+        world_state.time_of_day = level_data.time_of_day;
+        world_state.raining = level_data.raining;
+        world_state.thundering = level_data.thundering;
+        world_state.rain_time = level_data.rain_time;
+        world_state.thunder_time = level_data.thunder_time;
+        world_state.clear_weather_time = level_data.clear_weather_time;
+        if level_data.raining {
+            world_state.rain_level = 1.0;
+        }
+        if level_data.thundering {
+            world_state.thunder_level = 1.0;
+        }
+        info!("Loaded level.dat: world_age={}, time_of_day={}, raining={}, thundering={}",
+            level_data.world_age, level_data.time_of_day, level_data.raining, level_data.thundering);
     }
 
     // Pre-generate spawn chunks so the first player join is instant
@@ -779,6 +835,8 @@ pub async fn run_tick_loop(
         tick_entity_tracking(&mut world);
         tick_entity_movement_broadcast(&mut world);
         tick_world_time(&world, &mut world_state, tick_count);
+        tick_weather_cycle(&world, &mut world_state, &scripting);
+        tick_lightning(&mut world, &mut world_state, &next_eid, &scripting);
         tick_block_breaking(&mut world, tick_count);
 
         // Periodic player/world data save (every 60 seconds = 1200 ticks)
@@ -937,6 +995,22 @@ fn handle_new_player(
         position: spawn_block_pos,
         angle: spawn_angle,
     });
+
+    // Send current weather state to new player
+    if world_state.raining {
+        let _ = sender.send(InternalPacket::GameEvent {
+            event: 1, // START_RAINING
+            value: 0.0,
+        });
+        let _ = sender.send(InternalPacket::GameEvent {
+            event: 7, // RAIN_LEVEL_CHANGE
+            value: world_state.rain_level,
+        });
+        let _ = sender.send(InternalPacket::GameEvent {
+            event: 8, // THUNDER_LEVEL_CHANGE
+            value: world_state.thunder_level,
+        });
+    }
 
     // Send tab list: add this player to all existing players, and all existing to this player
     // First, send all existing players to the new player
@@ -4515,6 +4589,282 @@ fn tick_world_time(world: &World, world_state: &mut WorldState, tick_count: u64)
     }
 }
 
+/// Advance the weather cycle. Matches vanilla MC logic:
+/// - Rain/thunder timers count down, toggling state when they reach 0
+/// - Rain/thunder levels transition gradually at ±0.01 per tick
+/// - GameEvent packets are broadcast when levels change
+fn tick_weather_cycle(world: &World, world_state: &mut WorldState, scripting: &ScriptRuntime) {
+    let was_raining = world_state.raining;
+
+    if world_state.clear_weather_time > 0 {
+        world_state.clear_weather_time -= 1;
+        world_state.thunder_time = if world_state.thundering { 0 } else { 1 };
+        world_state.rain_time = if world_state.raining { 0 } else { 1 };
+        world_state.thundering = false;
+        world_state.raining = false;
+    } else {
+        // Thunder timer
+        if world_state.thunder_time > 0 {
+            world_state.thunder_time -= 1;
+            if world_state.thunder_time == 0 {
+                world_state.thundering = !world_state.thundering;
+            }
+        } else if world_state.thundering {
+            // Duration: 3600-15600 ticks (3-13 minutes)
+            world_state.thunder_time = 3600 + rand::random::<i32>().unsigned_abs() as i32 % 12000;
+        } else {
+            // Delay: 12000-180000 ticks (10-150 minutes)
+            world_state.thunder_time = 12000 + rand::random::<i32>().unsigned_abs() as i32 % 168000;
+        }
+
+        // Rain timer
+        if world_state.rain_time > 0 {
+            world_state.rain_time -= 1;
+            if world_state.rain_time == 0 {
+                world_state.raining = !world_state.raining;
+            }
+        } else if world_state.raining {
+            // Duration: 12000-24000 ticks (10-20 minutes)
+            world_state.rain_time = 12000 + rand::random::<i32>().unsigned_abs() as i32 % 12000;
+        } else {
+            // Delay: 12000-180000 ticks (10-150 minutes)
+            world_state.rain_time = 12000 + rand::random::<i32>().unsigned_abs() as i32 % 168000;
+        }
+    }
+
+    // Gradual level transitions (±0.01 per tick, clamped to 0.0-1.0)
+    let old_rain_level = world_state.rain_level;
+    let old_thunder_level = world_state.thunder_level;
+
+    if world_state.raining {
+        world_state.rain_level = (world_state.rain_level + 0.01).min(1.0);
+    } else {
+        world_state.rain_level = (world_state.rain_level - 0.01).max(0.0);
+    }
+
+    if world_state.thundering {
+        world_state.thunder_level = (world_state.thunder_level + 0.01).min(1.0);
+    } else {
+        world_state.thunder_level = (world_state.thunder_level - 0.01).max(0.0);
+    }
+
+    // Broadcast level changes
+    if world_state.rain_level != old_rain_level {
+        broadcast_to_all(world, &InternalPacket::GameEvent {
+            event: 7, // RAIN_LEVEL_CHANGE
+            value: world_state.rain_level,
+        });
+    }
+
+    if world_state.thunder_level != old_thunder_level {
+        broadcast_to_all(world, &InternalPacket::GameEvent {
+            event: 8, // THUNDER_LEVEL_CHANGE
+            value: world_state.thunder_level,
+        });
+    }
+
+    // Start/stop rain events
+    if was_raining != world_state.raining {
+        if world_state.raining {
+            broadcast_to_all(world, &InternalPacket::GameEvent {
+                event: 1, // START_RAINING
+                value: 0.0,
+            });
+        } else {
+            broadcast_to_all(world, &InternalPacket::GameEvent {
+                event: 2, // STOP_RAINING
+                value: 0.0,
+            });
+        }
+
+        // Also send current levels after state change
+        broadcast_to_all(world, &InternalPacket::GameEvent {
+            event: 7,
+            value: world_state.rain_level,
+        });
+        broadcast_to_all(world, &InternalPacket::GameEvent {
+            event: 8,
+            value: world_state.thunder_level,
+        });
+
+        // Fire Lua event
+        let weather = if world_state.thundering {
+            "thunder"
+        } else if world_state.raining {
+            "rain"
+        } else {
+            "clear"
+        };
+        scripting.fire_event_in_context(
+            "weather_change",
+            &[("weather", weather)],
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+        );
+    }
+}
+
+/// Strike lightning at a position. Deals 5 damage to entities within 3 blocks.
+fn strike_lightning(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    x: f64,
+    y: f64,
+    z: f64,
+    scripting: &ScriptRuntime,
+) {
+    // Spawn lightning bolt entity (type 120) briefly for visual effect
+    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+    let uuid = Uuid::new_v4();
+    broadcast_to_all(world, &InternalPacket::SpawnEntity {
+        entity_id: eid,
+        entity_uuid: uuid,
+        entity_type: 120, // lightning_bolt
+        x,
+        y,
+        z,
+        pitch: 0,
+        yaw: 0,
+        head_yaw: 0,
+        data: 0,
+        velocity_x: 0,
+        velocity_y: 0,
+        velocity_z: 0,
+    });
+
+    // Play thunder sound
+    play_sound_at_entity(world, x, y, z, "entity.lightning_bolt.thunder", SOUND_WEATHER, 10000.0, 1.0);
+    play_sound_at_entity(world, x, y, z, "entity.lightning_bolt.impact", SOUND_WEATHER, 2.0, 1.0);
+
+    // Damage nearby entities (players and mobs) within 3 blocks
+    let damage_radius = 3.0_f64;
+    let lightning_damage = 5.0_f32;
+
+    // Damage players
+    let mut player_hits: Vec<(hecs::Entity, i32)> = Vec::new();
+    for (entity, (entity_id, pos, _profile)) in world.query::<(&EntityId, &Position, &Profile)>().iter() {
+        let dx = pos.0.x - x;
+        let dy = pos.0.y - y;
+        let dz = pos.0.z - z;
+        if (dx * dx + dy * dy + dz * dz).sqrt() < damage_radius {
+            player_hits.push((entity, entity_id.0));
+        }
+    }
+    for (entity, entity_id) in player_hits {
+        apply_damage(world, world_state, entity, entity_id, lightning_damage, "lightning", scripting);
+    }
+
+    // Damage mobs
+    let mut mob_hits: Vec<(hecs::Entity, i32)> = Vec::new();
+    for (entity, (entity_id, pos, _mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+        let dx = pos.0.x - x;
+        let dy = pos.0.y - y;
+        let dz = pos.0.z - z;
+        if (dx * dx + dy * dy + dz * dz).sqrt() < damage_radius {
+            mob_hits.push((entity, entity_id.0));
+        }
+    }
+    for (entity, entity_id) in mob_hits {
+        // Simple damage to mobs
+        let died = {
+            if let Ok(mut mob) = world.get::<&mut MobEntity>(entity) {
+                mob.health -= lightning_damage;
+                mob.health <= 0.0
+            } else {
+                false
+            }
+        };
+        if died {
+            let mob_type = world.get::<&MobEntity>(entity).map(|m| m.mob_type).unwrap_or(0);
+            let (_, _, death_sound) = pickaxe_data::mob_sounds(mob_type);
+            let mob_pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(x, y, z));
+            play_sound_at_entity(world, mob_pos.x, mob_pos.y, mob_pos.z, death_sound, SOUND_HOSTILE, 1.0, 1.0);
+            broadcast_to_all(world, &InternalPacket::EntityEvent {
+                entity_id,
+                event_id: 3,
+            });
+            let _ = world.despawn(entity);
+            broadcast_to_all(world, &InternalPacket::RemoveEntities {
+                entity_ids: vec![entity_id],
+            });
+            for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
+                tracked.visible.remove(&entity_id);
+            }
+        }
+    }
+
+    // Remove lightning entity after a brief delay (we'll use RemoveEntities immediately
+    // since the client handles the visual effect duration itself)
+    broadcast_to_all(world, &InternalPacket::RemoveEntities {
+        entity_ids: vec![eid],
+    });
+
+    // Fire Lua event
+    scripting.fire_event_in_context(
+        "lightning_strike",
+        &[
+            ("x", &x.to_string()),
+            ("y", &y.to_string()),
+            ("z", &z.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+}
+
+/// Tick thunderstorm lightning. During thunder, randomly strike near players.
+fn tick_lightning(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    scripting: &ScriptRuntime,
+) {
+    // Only during thunderstorms
+    if world_state.thunder_level <= 0.0 {
+        return;
+    }
+
+    // MC: 1 in 100000 chance per loaded chunk per tick.
+    // Simplified: 1 in 2000 chance per tick (about once per 100s during thunder)
+    if rand::random::<u32>() % 2000 != 0 {
+        return;
+    }
+
+    // Pick a random player to strike near
+    let player_positions: Vec<Vec3d> = world.query::<(&Position, &Profile)>().iter()
+        .map(|(_, (p, _))| p.0)
+        .collect();
+
+    if player_positions.is_empty() {
+        return;
+    }
+
+    let player_pos = player_positions[rand::random::<usize>() % player_positions.len()];
+
+    // Random offset within 64 blocks
+    let angle = rand::random::<f64>() * 2.0 * std::f64::consts::PI;
+    let dist = rand::random::<f64>() * 64.0;
+    let strike_x = player_pos.x + angle.cos() * dist;
+    let strike_z = player_pos.z + angle.sin() * dist;
+
+    // Find ground level (scan down from surface in flat world)
+    let bx = strike_x.floor() as i32;
+    let bz = strike_z.floor() as i32;
+    let mut strike_y = -59.0; // default flat world surface
+    for y in (-60..=-55).rev() {
+        let block = world_state.get_block_if_loaded(&BlockPos::new(bx, y, bz));
+        if let Some(b) = block {
+            if b != 0 {
+                strike_y = (y + 1) as f64;
+                break;
+            }
+        }
+    }
+
+    strike_lightning(world, world_state, next_eid, strike_x, strike_y, strike_z, scripting);
+}
+
 /// Calculate how many ticks it takes to break a block in survival mode.
 /// Returns None if the block is unbreakable, Some(0) for instant break, Some(ticks) otherwise.
 /// Consults Lua block overrides before falling back to codegen data.
@@ -5913,6 +6263,7 @@ fn damage_held_item(world: &mut World, entity: hecs::Entity, entity_id: i32, amo
 }
 
 /// SoundSource enum ordinal values matching MC SoundSource.
+const SOUND_WEATHER: u8 = 3;
 const SOUND_BLOCKS: u8 = 4;
 const SOUND_HOSTILE: u8 = 5;
 const SOUND_NEUTRAL: u8 = 6;

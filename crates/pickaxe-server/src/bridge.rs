@@ -265,6 +265,64 @@ pub fn register_world_api(lua: &Lua) -> anyhow::Result<()> {
         )
         .map_err(lua_err)?;
 
+    // pickaxe.world.get_weather() -> "clear" | "rain" | "thunder"
+    world_table
+        .set(
+            "get_weather",
+            lua.create_function(|lua, ()| {
+                with_world_state(lua, |ws| {
+                    if ws.thundering {
+                        "thunder"
+                    } else if ws.raining {
+                        "rain"
+                    } else {
+                        "clear"
+                    }
+                    .to_string()
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.world.set_weather(type, duration_ticks)
+    // type: "clear" | "rain" | "thunder"
+    world_table
+        .set(
+            "set_weather",
+            lua.create_function(|lua, (weather_type, duration): (String, Option<i32>)| {
+                with_world_state(lua, |ws| {
+                    let duration = duration.unwrap_or(6000);
+                    match weather_type.as_str() {
+                        "clear" => {
+                            ws.raining = false;
+                            ws.thundering = false;
+                            ws.clear_weather_time = duration;
+                            ws.rain_time = 0;
+                            ws.thunder_time = 0;
+                        }
+                        "rain" => {
+                            ws.raining = true;
+                            ws.thundering = false;
+                            ws.clear_weather_time = 0;
+                            ws.rain_time = duration;
+                            ws.thunder_time = 0;
+                        }
+                        "thunder" => {
+                            ws.raining = true;
+                            ws.thundering = true;
+                            ws.clear_weather_time = 0;
+                            ws.rain_time = duration;
+                            ws.thunder_time = duration;
+                        }
+                        _ => {}
+                    }
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
     pickaxe.set("world", world_table).map_err(lua_err)?;
     Ok(())
 }
