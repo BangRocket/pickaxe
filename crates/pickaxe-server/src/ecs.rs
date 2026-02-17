@@ -287,6 +287,20 @@ pub struct MobEntity {
     pub no_damage_ticks: i32,   // invulnerability after hit
 }
 
+/// Player air supply for drowning mechanics.
+/// Max is 300 (15 seconds), decreases by 1/tick when submerged,
+/// increases by 4/tick when out of water.
+pub struct AirSupply {
+    pub current: i32,
+    pub max: i32,
+}
+
+impl Default for AirSupply {
+    fn default() -> Self {
+        Self { current: 300, max: 300 }
+    }
+}
+
 /// Current AI behavior state for a mob.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum MobAiState {

@@ -661,6 +661,61 @@ pub fn bed_set_occupied(state_id: i32, occupied: bool) -> i32 {
     base + facing * 4 + (occupied as i32) * 2 + part
 }
 
+// === Fluid Data ===
+
+/// Water source block state ID (level=0).
+pub const WATER_SOURCE: i32 = 80;
+/// Lava source block state ID (level=0).
+pub const LAVA_SOURCE: i32 = 96;
+
+/// Check if a block state is any water block (source or flowing, state IDs 80-95).
+pub fn is_water(state_id: i32) -> bool {
+    (80..=95).contains(&state_id)
+}
+
+/// Check if a block state is any lava block (source or flowing, state IDs 96-111).
+pub fn is_lava(state_id: i32) -> bool {
+    (96..=111).contains(&state_id)
+}
+
+/// Get the water level (0=source/full, 1-7=flowing height, 8-15=falling).
+/// Returns None if not a water block.
+pub fn water_level(state_id: i32) -> Option<i32> {
+    if is_water(state_id) {
+        Some(state_id - 80)
+    } else {
+        None
+    }
+}
+
+/// Get the fluid height as a fraction of a block (0.0-1.0).
+/// Source blocks (level 0) have height 8/9 ≈ 0.889.
+/// Flowing blocks have height = (8 - level) / 9.
+/// Falling blocks (level 8-15) have height 1.0.
+pub fn fluid_height(state_id: i32) -> f64 {
+    if is_water(state_id) {
+        let level = state_id - 80;
+        if level == 0 {
+            8.0 / 9.0
+        } else if level >= 8 {
+            1.0 // falling water
+        } else {
+            (8 - level) as f64 / 9.0
+        }
+    } else if is_lava(state_id) {
+        let level = state_id - 96;
+        if level == 0 {
+            8.0 / 9.0
+        } else if level >= 8 {
+            1.0 // falling lava
+        } else {
+            (8 - level) as f64 / 9.0
+        }
+    } else {
+        0.0
+    }
+}
+
 // === Mob Data ===
 
 /// Mob type constants (protocol entity type IDs for MC 1.21.1).

@@ -818,6 +818,7 @@ pub async fn run_tick_loop(
         tick_keep_alive(&adapter, &mut world, tick_count);
         tick_attack_cooldown(&mut world);
         tick_void_damage(&mut world, &mut world_state, &scripting);
+        tick_drowning_and_lava(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
         tick_eating(&mut world);
         tick_sleeping(&mut world, &mut world_state, &scripting);
@@ -1127,6 +1128,7 @@ fn handle_new_player(
         MovementState { sprinting: false, sneaking: false },
         AttackCooldown::default(),
         player_xp,
+        AirSupply::default(),
     ));
     if let Some((pos, yaw)) = player_spawn_point {
         let _ = world.insert_one(player_entity, SpawnPoint { position: pos, yaw });
@@ -4029,6 +4031,124 @@ fn tick_buttons(world: &mut World, world_state: &mut WorldState) {
                 "block.wooden_button.click_off"
             };
             play_sound_at_block(world, &position, sound, SOUND_BLOCKS, 1.0, 1.0);
+        }
+    }
+}
+
+/// Tick drowning and lava damage for all players.
+/// Checks eye position for water submersion (eye at Y + 1.62).
+/// Air decreases 1/tick when submerged, deals 2 HP every 20 ticks (at air == -20).
+/// Air recovers +4/tick when not submerged.
+fn tick_drowning_and_lava(
+    world: &mut World,
+    world_state: &mut WorldState,
+    scripting: &ScriptRuntime,
+) {
+    // Collect player data for fluid checks
+    struct FluidCheck {
+        entity: hecs::Entity,
+        eid: i32,
+        pos: Vec3d,
+        game_mode: GameMode,
+    }
+    let mut checks: Vec<FluidCheck> = Vec::new();
+    for (entity, (eid, pos, gm, _profile)) in world
+        .query::<(&EntityId, &Position, &PlayerGameMode, &Profile)>()
+        .iter()
+    {
+        checks.push(FluidCheck {
+            entity,
+            eid: eid.0,
+            pos: pos.0,
+            game_mode: gm.0,
+        });
+    }
+
+    let mut drown_damage: Vec<(hecs::Entity, i32)> = Vec::new();
+    let mut lava_damage: Vec<(hecs::Entity, i32)> = Vec::new();
+    let mut air_updates: Vec<(hecs::Entity, i32, i32)> = Vec::new(); // entity, eid, new_air
+
+    for check in &checks {
+        if check.game_mode == GameMode::Creative || check.game_mode == GameMode::Spectator {
+            continue;
+        }
+
+        // Check if player's eye is in water (eye at Y + 1.62)
+        let eye_y = check.pos.y + 1.62;
+        let eye_block_pos = BlockPos::new(
+            check.pos.x.floor() as i32,
+            eye_y.floor() as i32,
+            check.pos.z.floor() as i32,
+        );
+        let eye_block = world_state.get_block(&eye_block_pos);
+        let eye_in_water = if pickaxe_data::is_water(eye_block) {
+            let fluid_top = eye_block_pos.y as f64 + pickaxe_data::fluid_height(eye_block);
+            fluid_top > eye_y
+        } else {
+            false
+        };
+
+        // Check if player is standing in lava (feet level)
+        let feet_block_pos = BlockPos::new(
+            check.pos.x.floor() as i32,
+            check.pos.y.floor() as i32,
+            check.pos.z.floor() as i32,
+        );
+        let feet_block = world_state.get_block(&feet_block_pos);
+        let in_lava = pickaxe_data::is_lava(feet_block);
+
+        // Handle air supply
+        if let Ok(mut air) = world.get::<&mut AirSupply>(check.entity) {
+            let old_air = air.current;
+
+            if eye_in_water {
+                air.current -= 1;
+                if air.current == -20 {
+                    air.current = 0;
+                    drown_damage.push((check.entity, check.eid));
+                }
+            } else if air.current < air.max {
+                air.current = (air.current + 4).min(air.max);
+            }
+
+            if air.current != old_air {
+                air_updates.push((check.entity, check.eid, air.current));
+            }
+        }
+
+        // Lava damage every 10 ticks (0.5s)
+        if in_lava {
+            lava_damage.push((check.entity, check.eid));
+        }
+    }
+
+    // Apply drown damage (2 HP)
+    for (entity, eid) in drown_damage {
+        apply_damage(world, world_state, entity, eid, 2.0, "drowning", scripting);
+    }
+
+    // Apply lava damage (4 HP, but only every 10 ticks to avoid instant death)
+    for (entity, eid) in lava_damage {
+        let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 0).unwrap_or(false);
+        if !invuln {
+            apply_damage(world, world_state, entity, eid, 4.0, "lava", scripting);
+        }
+    }
+
+    // Send air supply metadata to clients
+    for (entity, eid, air) in air_updates {
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            use pickaxe_protocol_core::EntityMetadataEntry;
+            let mut data = Vec::new();
+            pickaxe_protocol_core::write_varint_vec(&mut data, air);
+            let _ = sender.0.send(InternalPacket::SetEntityMetadata {
+                entity_id: eid,
+                metadata: vec![EntityMetadataEntry {
+                    index: 1,    // DATA_AIR_SUPPLY_ID
+                    type_id: 1,  // VarInt
+                    data,
+                }],
+            });
         }
     }
 }
