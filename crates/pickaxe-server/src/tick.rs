@@ -55,6 +55,120 @@ struct PlayerSaveData {
     slots: [Option<ItemStack>; 46],
 }
 
+/// Serialize a block entity to vanilla-compatible NBT for chunk storage.
+fn serialize_block_entity(pos: &BlockPos, be: &BlockEntity) -> NbtValue {
+    match be {
+        BlockEntity::Chest { inventory } => {
+            let mut items = Vec::new();
+            for (i, slot) in inventory.iter().enumerate() {
+                if let Some(item) = slot {
+                    let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("air");
+                    items.push(nbt_compound! {
+                        "Slot" => NbtValue::Byte(i as i8),
+                        "id" => NbtValue::String(format!("minecraft:{}", name)),
+                        "Count" => NbtValue::Byte(item.count)
+                    });
+                }
+            }
+            nbt_compound! {
+                "id" => NbtValue::String("minecraft:chest".into()),
+                "x" => NbtValue::Int(pos.x),
+                "y" => NbtValue::Int(pos.y),
+                "z" => NbtValue::Int(pos.z),
+                "Items" => NbtValue::List(items)
+            }
+        }
+        BlockEntity::Furnace { input, fuel, output, burn_time, burn_duration: _, cook_progress, cook_total } => {
+            let mut items = Vec::new();
+            for (i, slot) in [input, fuel, output].iter().enumerate() {
+                if let Some(item) = slot {
+                    let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("air");
+                    items.push(nbt_compound! {
+                        "Slot" => NbtValue::Byte(i as i8),
+                        "id" => NbtValue::String(format!("minecraft:{}", name)),
+                        "Count" => NbtValue::Byte(item.count)
+                    });
+                }
+            }
+            nbt_compound! {
+                "id" => NbtValue::String("minecraft:furnace".into()),
+                "x" => NbtValue::Int(pos.x),
+                "y" => NbtValue::Int(pos.y),
+                "z" => NbtValue::Int(pos.z),
+                "Items" => NbtValue::List(items),
+                "BurnTime" => NbtValue::Short(*burn_time),
+                "CookTime" => NbtValue::Short(*cook_progress),
+                "CookTimeTotal" => NbtValue::Short(*cook_total)
+            }
+        }
+    }
+}
+
+/// Deserialize a block entity from vanilla NBT.
+fn deserialize_block_entity(nbt: &NbtValue) -> Option<(BlockPos, BlockEntity)> {
+    let id = nbt.get("id")?.as_str()?;
+    let x = nbt.get("x")?.as_int()?;
+    let y = nbt.get("y")?.as_int()?;
+    let z = nbt.get("z")?.as_int()?;
+    let pos = BlockPos::new(x, y, z);
+
+    let short_id = id.strip_prefix("minecraft:").unwrap_or(id);
+
+    match short_id {
+        "chest" => {
+            let mut inventory: [Option<ItemStack>; 27] = std::array::from_fn(|_| None);
+            if let Some(items_list) = nbt.get("Items").and_then(|v| v.as_list()) {
+                for item_nbt in items_list {
+                    let slot = item_nbt.get("Slot").and_then(|v| v.as_byte())? as usize;
+                    let item_id_str = item_nbt.get("id").and_then(|v| v.as_str())?;
+                    let name = item_id_str.strip_prefix("minecraft:").unwrap_or(item_id_str);
+                    let item_id = pickaxe_data::item_name_to_id(name)?;
+                    let count = item_nbt.get("Count").and_then(|v| v.as_byte()).unwrap_or(1);
+                    if slot < 27 {
+                        inventory[slot] = Some(ItemStack { item_id, count });
+                    }
+                }
+            }
+            Some((pos, BlockEntity::Chest { inventory }))
+        }
+        "furnace" => {
+            let mut input = None;
+            let mut fuel = None;
+            let mut output = None;
+            if let Some(items_list) = nbt.get("Items").and_then(|v| v.as_list()) {
+                for item_nbt in items_list {
+                    let slot = item_nbt.get("Slot").and_then(|v| v.as_byte()).unwrap_or(-1);
+                    let item_id_str = match item_nbt.get("id").and_then(|v| v.as_str()) {
+                        Some(s) => s,
+                        None => continue,
+                    };
+                    let name = item_id_str.strip_prefix("minecraft:").unwrap_or(item_id_str);
+                    let item_id = match pickaxe_data::item_name_to_id(name) {
+                        Some(id) => id,
+                        None => continue,
+                    };
+                    let count = item_nbt.get("Count").and_then(|v| v.as_byte()).unwrap_or(1);
+                    let stack = ItemStack { item_id, count };
+                    match slot {
+                        0 => input = Some(stack),
+                        1 => fuel = Some(stack),
+                        2 => output = Some(stack),
+                        _ => {}
+                    }
+                }
+            }
+            let burn_time = nbt.get("BurnTime").and_then(|v| v.as_short()).unwrap_or(0);
+            let cook_progress = nbt.get("CookTime").and_then(|v| v.as_short()).unwrap_or(0);
+            let cook_total = nbt.get("CookTimeTotal").and_then(|v| v.as_short()).unwrap_or(200);
+            Some((pos, BlockEntity::Furnace {
+                input, fuel, output,
+                burn_time, burn_duration: burn_time, cook_progress, cook_total,
+            }))
+        }
+        _ => None,
+    }
+}
+
 /// Serialize a player entity's ECS components to gzip-compressed vanilla-compatible NBT.
 fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>> {
     let pos = world.get::<&Position>(entity).ok()?;
@@ -212,6 +326,18 @@ fn save_all_players(world: &World, save_tx: &mpsc::UnboundedSender<SaveOp>) {
     }
 }
 
+/// Save all chunks that contain block entities.
+fn save_block_entity_chunks(world_state: &WorldState) {
+    use std::collections::HashSet;
+    let mut saved_chunks = HashSet::new();
+    for pos in world_state.block_entities.keys() {
+        let chunk_pos = pos.chunk_pos();
+        if saved_chunks.insert(chunk_pos) {
+            world_state.queue_chunk_save(chunk_pos);
+        }
+    }
+}
+
 /// Serialize level.dat to gzip-compressed NBT (vanilla-compatible format).
 fn serialize_level_dat(world_state: &WorldState, _config: &ServerConfig) -> Vec<u8> {
     let nbt = nbt_compound! {
@@ -364,6 +490,14 @@ impl WorldState {
             if let Ok(Some(nbt_bytes)) = self.region_storage.read_chunk(pos.x, pos.z) {
                 if let Ok((_, nbt)) = NbtValue::read_root_named(&nbt_bytes) {
                     if let Some(chunk) = Chunk::from_nbt(&nbt) {
+                        // Load block entities from chunk NBT
+                        if let Some(be_list) = nbt.get("block_entities").and_then(|v| v.as_list()) {
+                            for be_nbt in be_list {
+                                if let Some((be_pos, be)) = deserialize_block_entity(be_nbt) {
+                                    self.block_entities.insert(be_pos, be);
+                                }
+                            }
+                        }
                         self.chunks.insert(pos, chunk);
                         return self.chunks.get_mut(&pos).unwrap();
                     }
@@ -379,7 +513,21 @@ impl WorldState {
     /// Queue a chunk for background saving.
     fn queue_chunk_save(&self, pos: ChunkPos) {
         if let Some(chunk) = self.chunks.get(&pos) {
-            let nbt = chunk.to_nbt(pos.x, pos.z, self.world_age);
+            let mut nbt = chunk.to_nbt(pos.x, pos.z, self.world_age);
+            // Inject block entities for this chunk
+            let chunk_min_x = pos.x * 16;
+            let chunk_min_z = pos.z * 16;
+            let mut be_list = Vec::new();
+            for (be_pos, be) in &self.block_entities {
+                if be_pos.x >= chunk_min_x && be_pos.x < chunk_min_x + 16
+                    && be_pos.z >= chunk_min_z && be_pos.z < chunk_min_z + 16
+                {
+                    be_list.push(serialize_block_entity(be_pos, be));
+                }
+            }
+            if let NbtValue::Compound(ref mut entries) = nbt {
+                entries.push(("block_entities".into(), NbtValue::List(be_list)));
+            }
             let mut buf = BytesMut::new();
             nbt.write_root_named("", &mut buf);
             let _ = self.save_tx.send(SaveOp::Chunk(pos.x, pos.z, buf.to_vec()));
@@ -481,6 +629,8 @@ pub async fn run_tick_loop(
             info!("Shutting down...");
             // Save all players
             save_all_players(&world, &world_state.save_tx);
+            // Save all chunks containing block entities
+            save_block_entity_chunks(&world_state);
             // Save level.dat
             let level_data = serialize_level_dat(&world_state, &config);
             let _ = world_state.save_tx.send(SaveOp::LevelDat(level_data));
@@ -569,6 +719,7 @@ pub async fn run_tick_loop(
         // Periodic player/world data save (every 60 seconds = 1200 ticks)
         if tick_count % 1200 == 0 && tick_count > 0 {
             save_all_players(&world, &world_state.save_tx);
+            save_block_entity_chunks(&world_state);
             let level_data = serialize_level_dat(&world_state, &config);
             let _ = world_state.save_tx.send(SaveOp::LevelDat(level_data));
         }
@@ -1573,6 +1724,14 @@ fn close_container(
                 pos.x, pos.y + 1.0, pos.z,
                 item.clone(), 0, scripting);
         }
+    }
+
+    // Save chunk for block entity containers (chest/furnace)
+    match &open.menu {
+        Menu::Chest { pos } | Menu::Furnace { pos } => {
+            world_state.queue_chunk_save(pos.chunk_pos());
+        }
+        _ => {}
     }
 
     let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
