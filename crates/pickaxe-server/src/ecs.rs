@@ -262,3 +262,15 @@ pub struct BreakingBlock {
     pub total_ticks: u64,
     pub last_stage: i8,
 }
+
+/// Player's bed spawn point for respawning.
+pub struct SpawnPoint {
+    pub position: BlockPos,
+    pub yaw: f32,
+}
+
+/// Tracks that a player is currently sleeping in a bed.
+pub struct SleepingState {
+    pub bed_pos: BlockPos,
+    pub sleep_timer: u32, // ticks spent sleeping; skip at 100
+}

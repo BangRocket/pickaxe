@@ -7,7 +7,7 @@ use flate2::Compression;
 use hecs::World;
 use pickaxe_nbt::{nbt_compound, nbt_list, NbtValue};
 use pickaxe_protocol_core::{player_info_actions, CommandNode, InternalPacket, PlayerInfoEntry};
-use pickaxe_protocol_v1_21::{build_item_metadata, V1_21Adapter};
+use pickaxe_protocol_v1_21::{build_item_metadata, build_sleeping_metadata, build_wake_metadata, V1_21Adapter};
 use pickaxe_region::RegionStorage;
 use pickaxe_scripting::ScriptRuntime;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, Vec3d};
@@ -56,6 +56,7 @@ struct PlayerSaveData {
     xp_level: i32,
     xp_progress: f32,
     xp_total: i32,
+    spawn_point: Option<(BlockPos, f32)>, // bed position + yaw
 }
 
 /// Serialize a block entity to vanilla-compatible NBT for chunk storage.
@@ -184,6 +185,7 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
     let held = world.get::<&HeldSlot>(entity).ok()?;
     let gm = world.get::<&PlayerGameMode>(entity).ok()?;
     let xp = world.get::<&ExperienceData>(entity).ok();
+    let spawn_point = world.get::<&SpawnPoint>(entity).ok();
 
     // Build inventory NBT list with vanilla slot mapping
     let mut inv_items = Vec::new();
@@ -215,7 +217,7 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
         }
     }
 
-    let nbt = nbt_compound! {
+    let mut nbt = nbt_compound! {
         "DataVersion" => NbtValue::Int(3955),
         "Pos" => nbt_list![
             NbtValue::Double(pos.0.x),
@@ -240,6 +242,17 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
         "XpP" => NbtValue::Float(xp.as_ref().map(|x| x.progress).unwrap_or(0.0)),
         "XpTotal" => NbtValue::Int(xp.as_ref().map(|x| x.total_xp).unwrap_or(0))
     };
+
+    // Add bed spawn point if set (vanilla format)
+    if let Some(sp) = spawn_point {
+        if let NbtValue::Compound(ref mut entries) = nbt {
+            entries.push(("SpawnX".into(), NbtValue::Int(sp.position.x)));
+            entries.push(("SpawnY".into(), NbtValue::Int(sp.position.y)));
+            entries.push(("SpawnZ".into(), NbtValue::Int(sp.position.z)));
+            entries.push(("SpawnAngle".into(), NbtValue::Float(sp.yaw)));
+            entries.push(("SpawnDimension".into(), NbtValue::String("minecraft:overworld".into())));
+        }
+    }
 
     let mut buf = BytesMut::new();
     nbt.write_root_named("", &mut buf);
@@ -325,6 +338,14 @@ fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
     let xp_progress = nbt.get("XpP").and_then(|v| v.as_float()).unwrap_or(0.0);
     let xp_total = nbt.get("XpTotal").and_then(|v| v.as_int()).unwrap_or(0);
 
+    // Read bed spawn point (vanilla format: SpawnX, SpawnY, SpawnZ, SpawnAngle)
+    let spawn_point = nbt.get("SpawnX").and_then(|v| v.as_int()).and_then(|sx| {
+        let sy = nbt.get("SpawnY")?.as_int()?;
+        let sz = nbt.get("SpawnZ")?.as_int()?;
+        let angle = nbt.get("SpawnAngle").and_then(|v| v.as_float()).unwrap_or(0.0);
+        Some((BlockPos::new(sx, sy, sz), angle))
+    });
+
     Some(PlayerSaveData {
         position: Vec3d::new(x, y, z),
         yaw,
@@ -340,6 +361,7 @@ fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
         xp_level,
         xp_progress,
         xp_total,
+        spawn_point,
     })
 }
 
@@ -734,6 +756,7 @@ pub async fn run_tick_loop(
         tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
         tick_eating(&mut world);
+        tick_sleeping(&mut world, &mut world_state, &scripting);
         tick_buttons(&mut world, &mut world_state);
         tick_item_physics(&mut world, &mut world_state, &scripting);
         if tick_count % 4 == 0 {
@@ -831,6 +854,7 @@ fn handle_new_player(
         inv.slots = s.slots.clone();
         inv
     }).unwrap_or_else(Inventory::new);
+    let player_spawn_point = saved.as_ref().and_then(|s| s.spawn_point);
 
     // Send Join Game
     let _ = sender.send(InternalPacket::JoinGame {
@@ -891,9 +915,14 @@ fn handle_new_player(
     });
 
     // Default spawn position (must come after GameEvent)
+    let (spawn_block_pos, spawn_angle) = if let Some((pos, angle)) = player_spawn_point {
+        (pos, angle)
+    } else {
+        (BlockPos::new(0, -60, 0), 0.0)
+    };
     let _ = sender.send(InternalPacket::SetDefaultSpawnPosition {
-        position: BlockPos::new(0, -60, 0),
-        angle: 0.0,
+        position: spawn_block_pos,
+        angle: spawn_angle,
     });
 
     // Send tab list: add this player to all existing players, and all existing to this player
@@ -1012,6 +1041,9 @@ fn handle_new_player(
         AttackCooldown::default(),
         player_xp,
     ));
+    if let Some((pos, yaw)) = player_spawn_point {
+        let _ = world.insert_one(player_entity, SpawnPoint { position: pos, yaw });
+    }
 
     inbound_receivers.insert(entity_id, new_player.packet_rx);
 
@@ -1049,6 +1081,24 @@ fn handle_disconnect(
     }
 
     if let Some(entity) = to_despawn {
+        // Clean up sleeping state (unset bed occupied)
+        if let Ok(sleeping) = world.get::<&SleepingState>(entity) {
+            let bed_pos = sleeping.bed_pos;
+            let head_block = world_state.get_block(&bed_pos);
+            if pickaxe_data::is_bed(head_block) {
+                let new_state = pickaxe_data::bed_set_occupied(head_block, false);
+                world_state.set_block(&bed_pos, new_state);
+                let facing = pickaxe_data::bed_facing(head_block);
+                let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+                let foot_pos = BlockPos::new(bed_pos.x - dx, bed_pos.y, bed_pos.z - dz);
+                let foot_block = world_state.get_block(&foot_pos);
+                if pickaxe_data::is_bed(foot_block) {
+                    let new_foot = pickaxe_data::bed_set_occupied(foot_block, false);
+                    world_state.set_block(&foot_pos, new_foot);
+                }
+            }
+        }
+
         // Clean up open container (crafting grid items are lost on disconnect)
         let _ = world.remove_one::<OpenContainer>(entity);
 
@@ -1424,6 +1474,15 @@ fn process_packet(
                 }
             }
 
+            // Check if the target block is a bed — try to sleep
+            if pickaxe_data::is_bed(target_block) && !sneaking {
+                try_sleep_in_bed(world, world_state, entity, entity_id, &position, target_block, scripting);
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                }
+                return;
+            }
+
             // Look up the held item to determine what block to place
             let block_id = {
                 let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
@@ -1450,6 +1509,69 @@ fn process_packet(
             }
 
             let target = offset_by_face(&position, face);
+
+            // Special handling for bed placement (2-block structure)
+            if pickaxe_data::is_bed(block_id) {
+                let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+                let facing = pickaxe_data::yaw_to_facing(yaw);
+                let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+                let head_pos = BlockPos::new(target.x + dx, target.y, target.z + dz);
+
+                // Check if head position is clear
+                let head_block = world_state.get_block(&head_pos);
+                if head_block != 0 {
+                    // Can't place bed — head position blocked
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                    }
+                    return;
+                }
+
+                // Find the bed's min state from the block_id
+                let bed_min = block_id - ((block_id - 1688) % 16);
+                let foot_state = pickaxe_data::bed_state(bed_min, facing, false, false);
+                let head_state = pickaxe_data::bed_state(bed_min, facing, false, true);
+
+                world_state.set_block(&target, foot_state);
+                world_state.set_block(&head_pos, head_state);
+
+                broadcast_to_all(world, &InternalPacket::BlockUpdate { position: target, block_id: foot_state });
+                broadcast_to_all(world, &InternalPacket::BlockUpdate { position: head_pos, block_id: head_state });
+
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                }
+
+                // Play placement sound
+                play_sound_at_block(world, &target, "block.wood.place", SOUND_BLOCKS, 1.0, 0.8);
+
+                // Consume item (survival mode)
+                let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                if game_mode != GameMode::Creative {
+                    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                    let slot_index = 36 + held_slot as usize;
+                    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                        if let Some(ref item) = inv.slots[slot_index] {
+                            if item.count > 1 {
+                                let mut new_item = item.clone();
+                                new_item.count -= 1;
+                                inv.set_slot(slot_index, Some(new_item));
+                            } else {
+                                inv.set_slot(slot_index, None);
+                            }
+                            let state_id = inv.state_id;
+                            let slot_item = inv.slots[slot_index].clone();
+                            drop(inv);
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                    window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                });
+                            }
+                        }
+                    }
+                }
+                return;
+            }
 
             let name = world
                 .get::<&Profile>(entity)
@@ -1676,6 +1798,10 @@ fn process_packet(
                     if let Ok(mut ms) = world.get::<&mut MovementState>(entity) {
                         ms.sneaking = false;
                     }
+                }
+                2 => {
+                    // STOP_SLEEPING — player clicked "Leave Bed"
+                    wake_player(world, world_state, entity, entity_id);
                 }
                 3 => {
                     // MC: can't sprint if food < 6 (SPRINT_LEVEL)
@@ -2177,6 +2303,11 @@ fn handle_player_movement(
     on_ground: bool,
     scripting: &ScriptRuntime,
 ) {
+    // Ignore movement while sleeping
+    if world.get::<&SleepingState>(entity).is_ok() {
+        return;
+    }
+
     let old_pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(x, y, z));
     let old_on_ground = world.get::<&OnGround>(entity).map(|og| og.0).unwrap_or(true);
     let dy = y - old_pos.y;
@@ -2448,6 +2579,11 @@ fn apply_damage(
     // Cancel eating on damage
     let _ = world.remove_one::<EatingState>(entity);
 
+    // Wake up if sleeping
+    if world.get::<&SleepingState>(entity).is_ok() {
+        wake_player(world, world_state, entity, entity_id);
+    }
+
     // Apply armor damage reduction (not for void/starvation)
     let final_damage = if source != "void" && source != "starvation" {
         // Sum armor defense and toughness from equipped armor pieces
@@ -2614,6 +2750,282 @@ fn handle_player_death(
     }
 }
 
+/// Try to make a player sleep in a bed.
+fn try_sleep_in_bed(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+    clicked_pos: &BlockPos,
+    bed_state: i32,
+    scripting: &ScriptRuntime,
+) {
+    let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+
+    // Already sleeping?
+    if world.get::<&SleepingState>(entity).is_ok() {
+        return;
+    }
+
+    // Dead?
+    let health = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(20.0);
+    if health <= 0.0 {
+        return;
+    }
+
+    // Determine the head block position (sleep always targets head)
+    let head_pos = if pickaxe_data::bed_is_head(bed_state) {
+        *clicked_pos
+    } else {
+        let facing = pickaxe_data::bed_facing(bed_state);
+        let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+        BlockPos::new(clicked_pos.x + dx, clicked_pos.y, clicked_pos.z + dz)
+    };
+
+    // Check bed not occupied
+    let head_block = world_state.get_block(&head_pos);
+    if pickaxe_data::is_bed(head_block) {
+        // Check occupied property
+        let state_offset = (head_block - 1688) % 16;
+        let occupied = (state_offset / 2) % 2 == 1;
+        if occupied {
+            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                let _ = sender.0.send(InternalPacket::SystemChatMessage {
+                    content: TextComponent::plain("This bed is occupied"),
+                    overlay: true,
+                });
+            }
+            return;
+        }
+    }
+
+    // Check nighttime: time_of_day 12542..=23459 is valid sleep time (MC source)
+    let time = world_state.time_of_day % 24000;
+    let is_night = time >= 12542 || time < 0; // thunderstorms also allow, but we don't have weather
+    if !is_night {
+        // Set spawn point even if can't sleep (MC behavior)
+        let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+        let _ = world.insert_one(entity, SpawnPoint { position: head_pos, yaw });
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SystemChatMessage {
+                content: TextComponent::plain("You can only sleep at night"),
+                overlay: true,
+            });
+        }
+        return;
+    }
+
+    // Set spawn point
+    let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+    let _ = world.insert_one(entity, SpawnPoint { position: head_pos, yaw });
+
+    // Send "set spawn" message and update client spawn position
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetDefaultSpawnPosition {
+            position: head_pos,
+            angle: yaw,
+        });
+    }
+
+    // Set bed block occupied
+    let new_head_state = pickaxe_data::bed_set_occupied(head_block, true);
+    world_state.set_block(&head_pos, new_head_state);
+    broadcast_to_all(world, &InternalPacket::BlockUpdate {
+        position: head_pos,
+        block_id: new_head_state,
+    });
+
+    // Also set foot block occupied
+    let facing = pickaxe_data::bed_facing(head_block);
+    let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+    let foot_pos = BlockPos::new(head_pos.x - dx, head_pos.y, head_pos.z - dz);
+    let foot_block = world_state.get_block(&foot_pos);
+    if pickaxe_data::is_bed(foot_block) {
+        let new_foot_state = pickaxe_data::bed_set_occupied(foot_block, true);
+        world_state.set_block(&foot_pos, new_foot_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: foot_pos,
+            block_id: new_foot_state,
+        });
+    }
+
+    // Move player to bed position (bed Y + 0.6875)
+    let bed_x = head_pos.x as f64 + 0.5;
+    let bed_y = head_pos.y as f64 + 0.6875;
+    let bed_z = head_pos.z as f64 + 0.5;
+    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+        pos.0 = Vec3d::new(bed_x, bed_y, bed_z);
+    }
+
+    // Set sleeping pose via entity metadata (broadcast to all players)
+    let metadata = build_sleeping_metadata(&head_pos);
+    broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+        entity_id,
+        metadata,
+    });
+
+    // Add sleeping state component
+    let _ = world.insert_one(entity, SleepingState {
+        bed_pos: head_pos,
+        sleep_timer: 0,
+    });
+
+    // Fire Lua event
+    scripting.fire_event_in_context(
+        "player_sleep",
+        &[
+            ("name", &name),
+            ("x", &head_pos.x.to_string()),
+            ("y", &head_pos.y.to_string()),
+            ("z", &head_pos.z.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+
+    debug!("{} is now sleeping at {:?}", name, head_pos);
+}
+
+/// Wake a player up from sleeping.
+fn wake_player(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+) {
+    let sleeping = match world.get::<&SleepingState>(entity) {
+        Ok(s) => s.bed_pos,
+        Err(_) => return,
+    };
+
+    // Broadcast wake-up animation (action 2)
+    broadcast_to_all(world, &InternalPacket::EntityAnimation {
+        entity_id,
+        animation: 2, // WAKE_UP
+    });
+
+    // Clear sleeping pose metadata
+    let metadata = build_wake_metadata();
+    broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+        entity_id,
+        metadata,
+    });
+
+    // Set bed block unoccupied
+    let head_block = world_state.get_block(&sleeping);
+    if pickaxe_data::is_bed(head_block) {
+        let new_state = pickaxe_data::bed_set_occupied(head_block, false);
+        world_state.set_block(&sleeping, new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: sleeping,
+            block_id: new_state,
+        });
+
+        // Also unset foot block
+        let facing = pickaxe_data::bed_facing(head_block);
+        let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+        let foot_pos = BlockPos::new(sleeping.x - dx, sleeping.y, sleeping.z - dz);
+        let foot_block = world_state.get_block(&foot_pos);
+        if pickaxe_data::is_bed(foot_block) {
+            let new_foot = pickaxe_data::bed_set_occupied(foot_block, false);
+            world_state.set_block(&foot_pos, new_foot);
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position: foot_pos,
+                block_id: new_foot,
+            });
+        }
+    }
+
+    // Teleport player to stand-up position (beside the bed)
+    let facing = pickaxe_data::bed_facing(head_block);
+    let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+    // Stand-up position: foot side of the bed, offset by 1 in the opposite facing direction
+    let stand_x = sleeping.x as f64 + 0.5 - dx as f64;
+    let stand_y = sleeping.y as f64 + 0.6;
+    let stand_z = sleeping.z as f64 + 0.5 - dz as f64;
+    if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+        pos.0 = Vec3d::new(stand_x, stand_y, stand_z);
+    }
+
+    // Send teleport to the sleeping player
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SynchronizePlayerPosition {
+            position: Vec3d::new(stand_x, stand_y, stand_z),
+            yaw: 0.0,
+            pitch: 0.0,
+            flags: 0,
+            teleport_id: 200,
+        });
+    }
+
+    // Remove sleeping state
+    let _ = world.remove_one::<SleepingState>(entity);
+}
+
+/// Tick sleeping: increment timers, check for night skip when all players are sleeping.
+fn tick_sleeping(
+    world: &mut World,
+    world_state: &mut WorldState,
+    scripting: &ScriptRuntime,
+) {
+    // Count total players and sleeping players
+    let mut total_players = 0u32;
+    let mut sleeping_long_enough = 0u32;
+    let mut all_sleepers: Vec<(hecs::Entity, i32)> = Vec::new();
+
+    // Increment sleep timers
+    for (entity, (eid, sleep)) in world.query_mut::<(&EntityId, &mut SleepingState)>() {
+        sleep.sleep_timer += 1;
+        all_sleepers.push((entity, eid.0));
+        if sleep.sleep_timer >= 100 {
+            sleeping_long_enough += 1;
+        }
+    }
+
+    // Count total players
+    for _ in world.query::<&Profile>().iter() {
+        total_players += 1;
+    }
+
+    // Check for night skip: all players must be sleeping long enough
+    if total_players > 0 && sleeping_long_enough == total_players {
+        // Advance time to dawn (time_of_day = 0 of next day cycle)
+        let time = world_state.time_of_day;
+        let skip_ticks = if time >= 12542 {
+            24000 - time
+        } else {
+            // Already past dawn, shouldn't happen but handle gracefully
+            0
+        };
+
+        if skip_ticks > 0 {
+            world_state.time_of_day = 0;
+            world_state.world_age += skip_ticks;
+
+            // Broadcast time update immediately
+            broadcast_to_all(world, &InternalPacket::UpdateTime {
+                world_age: world_state.world_age,
+                time_of_day: world_state.time_of_day,
+            });
+
+            // Fire Lua event
+            scripting.fire_event_in_context(
+                "night_skip",
+                &[],
+                world as *mut _ as *mut (),
+                world_state as *mut _ as *mut (),
+            );
+
+            info!("All players sleeping — skipping night (advanced {} ticks)", skip_ticks);
+        }
+
+        // Wake all sleeping players
+        for (entity, eid) in all_sleepers {
+            wake_player(world, world_state, entity, eid);
+        }
+    }
+}
+
 /// Respawn a player after death: reset health/food, teleport to spawn, resend chunks.
 fn respawn_player(
     world: &mut World,
@@ -2656,8 +3068,25 @@ fn respawn_player(
         fd.0 = 0.0;
     }
 
-    // Teleport to spawn
-    let spawn = Vec3d::new(0.5, -59.0, 0.5);
+    // Determine spawn point: use bed spawn if available and bed still exists
+    let (spawn, spawn_yaw) = if let Ok(sp) = world.get::<&SpawnPoint>(entity) {
+        let bed_block = world_state.get_block(&sp.position);
+        if pickaxe_data::is_bed(bed_block) {
+            // Spawn beside the bed (foot side)
+            let facing = pickaxe_data::bed_facing(bed_block);
+            let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+            let x = sp.position.x as f64 + 0.5 - dx as f64;
+            let y = sp.position.y as f64 + 0.6;
+            let z = sp.position.z as f64 + 0.5 - dz as f64;
+            (Vec3d::new(x, y, z), sp.yaw)
+        } else {
+            // Bed destroyed — fall back to world spawn
+            (Vec3d::new(0.5, -59.0, 0.5), 0.0)
+        }
+    } else {
+        (Vec3d::new(0.5, -59.0, 0.5), 0.0)
+    };
+
     if let Ok(mut pos) = world.get::<&mut Position>(entity) {
         pos.0 = spawn;
     }
@@ -2683,7 +3112,7 @@ fn respawn_player(
 
         let _ = sender.0.send(InternalPacket::SynchronizePlayerPosition {
             position: spawn,
-            yaw: 0.0,
+            yaw: spawn_yaw,
             pitch: 0.0,
             flags: 0,
             teleport_id: 100,
@@ -3488,6 +3917,42 @@ fn complete_block_break(
 
     // Proceed with the break
     world_state.set_block(position, 0);
+
+    // Special handling for beds: break other half and wake sleeping players
+    if pickaxe_data::is_bed(old_block) {
+        let facing = pickaxe_data::bed_facing(old_block);
+        let (dx, dz) = pickaxe_data::bed_head_offset(facing);
+        let other_pos = if pickaxe_data::bed_is_head(old_block) {
+            // Broke head, remove foot
+            BlockPos::new(position.x - dx, position.y, position.z - dz)
+        } else {
+            // Broke foot, remove head
+            BlockPos::new(position.x + dx, position.y, position.z + dz)
+        };
+        let other_block = world_state.get_block(&other_pos);
+        if pickaxe_data::is_bed(other_block) {
+            world_state.set_block(&other_pos, 0);
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position: other_pos,
+                block_id: 0,
+            });
+        }
+        // Wake any player sleeping in this bed
+        let head_pos = if pickaxe_data::bed_is_head(old_block) {
+            *position
+        } else {
+            other_pos
+        };
+        let mut sleepers_to_wake: Vec<(hecs::Entity, i32)> = Vec::new();
+        for (e, (eid, sleep)) in world.query::<(&EntityId, &SleepingState)>().iter() {
+            if sleep.bed_pos == head_pos {
+                sleepers_to_wake.push((e, eid.0));
+            }
+        }
+        for (e, eid) in sleepers_to_wake {
+            wake_player(world, world_state, e, eid);
+        }
+    }
 
     // Mining exhaustion (MC: 0.005 per block broken)
     if let Ok(mut food) = world.get::<&mut FoodData>(entity) {

@@ -362,6 +362,32 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         });
     }
 
+    // Beds: 3 wool + 3 planks
+    for (wool, bed) in [
+        ("white_wool", "white_bed"),
+        ("orange_wool", "orange_bed"),
+        ("magenta_wool", "magenta_bed"),
+        ("light_blue_wool", "light_blue_bed"),
+        ("yellow_wool", "yellow_bed"),
+        ("lime_wool", "lime_bed"),
+        ("pink_wool", "pink_bed"),
+        ("gray_wool", "gray_bed"),
+        ("light_gray_wool", "light_gray_bed"),
+        ("cyan_wool", "cyan_bed"),
+        ("purple_wool", "purple_bed"),
+        ("blue_wool", "blue_bed"),
+        ("brown_wool", "brown_bed"),
+        ("green_wool", "green_bed"),
+        ("red_wool", "red_bed"),
+        ("black_wool", "black_bed"),
+    ] {
+        let w = id(wool);
+        recipes.push(CraftingRecipe {
+            pattern: [w, w, w, p, p, p, 0, 0, 0],
+            result_id: id(bed), result_count: 1, width: 3, height: 2,
+        });
+    }
+
     recipes
 }
 
@@ -538,6 +564,101 @@ pub fn item_attack_damage(item_name: &str) -> f32 {
         "golden_shovel" => 2.5,
         _ => 1.0,
     }
+}
+
+// Bed block state IDs: 16 states per color, 16 bed colors (white through black).
+// State = min + facing*4 + occupied*2 + part
+// facing: north=0, south=1, west=2, east=3
+// occupied: false=0, true=1
+// part: head=0, foot=1
+const BED_MIN_STATE: i32 = 1688; // white_bed min
+const BED_MAX_STATE: i32 = 1943; // black_bed max
+
+/// Returns true if the given block state is a bed block.
+pub fn is_bed(state_id: i32) -> bool {
+    (BED_MIN_STATE..=BED_MAX_STATE).contains(&state_id)
+}
+
+/// Returns the facing direction index (0=north, 1=south, 2=west, 3=east) for a bed state.
+pub fn bed_facing(state_id: i32) -> i32 {
+    if !is_bed(state_id) { return 0; }
+    let rel = (state_id - BED_MIN_STATE) % 16;
+    rel / 4
+}
+
+/// Returns true if this bed state is the head part (not the foot).
+pub fn bed_is_head(state_id: i32) -> bool {
+    if !is_bed(state_id) { return false; }
+    let rel = (state_id - BED_MIN_STATE) % 16;
+    (rel % 2) == 0 // part: head=0, foot=1
+}
+
+/// Returns the offset from foot to head for a bed facing direction.
+/// facing: north=0 → (0,0,-1), south=1 → (0,0,1), west=2 → (-1,0,0), east=3 → (1,0,0)
+/// Wait — in MC, beds: the HEAD is in the direction the player faces WHEN LYING DOWN.
+/// foot → head: north → south (z+1), south → north (z-1), west → east (x+1), east → west (x-1)
+/// Actually in MC: facing is direction the head faces away from the foot.
+/// A north-facing bed: foot is at z, head is at z-1 (the head faces north).
+/// No wait — checking BedBlock.java: headPos = pos.relative(state.getValue(FACING))
+/// So for facing=north: head = foot + north = foot + (0,0,-1)
+pub fn bed_head_offset(facing: i32) -> (i32, i32) {
+    match facing {
+        0 => (0, -1),  // north: dz=-1
+        1 => (0, 1),   // south: dz=+1
+        2 => (-1, 0),  // west: dx=-1
+        3 => (1, 0),   // east: dx=+1
+        _ => (0, 0),
+    }
+}
+
+/// Returns the facing index for a given yaw angle (player's look direction).
+/// Used when placing beds to determine facing.
+pub fn yaw_to_facing(yaw: f32) -> i32 {
+    // MC facing: south=0, west=1, north=2, east=3 in some contexts
+    // But bed facing: north=0, south=1, west=2, east=3
+    let angle = ((yaw % 360.0) + 360.0) % 360.0;
+    if angle >= 315.0 || angle < 45.0 { 1 }   // south (yaw 0 = looking south)
+    else if angle < 135.0 { 2 }                 // west
+    else if angle < 225.0 { 0 }                 // north
+    else { 3 }                                   // east
+}
+
+/// Compute bed block state for a given bed color's min state, facing, occupied, and part.
+pub fn bed_state(min_state: i32, facing: i32, occupied: bool, is_head: bool) -> i32 {
+    min_state + facing * 4 + (occupied as i32) * 2 + (!is_head as i32)
+}
+
+/// Returns the min state ID for a bed item (by item name), or None.
+pub fn bed_min_state_for_item(item_name: &str) -> Option<i32> {
+    match item_name {
+        "white_bed" => Some(1688),
+        "orange_bed" => Some(1704),
+        "magenta_bed" => Some(1720),
+        "light_blue_bed" => Some(1736),
+        "yellow_bed" => Some(1752),
+        "lime_bed" => Some(1768),
+        "pink_bed" => Some(1784),
+        "gray_bed" => Some(1800),
+        "light_gray_bed" => Some(1816),
+        "cyan_bed" => Some(1832),
+        "purple_bed" => Some(1848),
+        "blue_bed" => Some(1864),
+        "brown_bed" => Some(1880),
+        "green_bed" => Some(1896),
+        "red_bed" => Some(1912),
+        "black_bed" => Some(1928),
+        _ => None,
+    }
+}
+
+/// Toggle the occupied state of a bed block state.
+pub fn bed_set_occupied(state_id: i32, occupied: bool) -> i32 {
+    if !is_bed(state_id) { return state_id; }
+    let rel = (state_id - BED_MIN_STATE) % 16;
+    let base = state_id - rel;
+    let facing = rel / 4;
+    let part = rel % 2;
+    base + facing * 4 + (occupied as i32) * 2 + part
 }
 
 #[cfg(test)]
@@ -719,5 +840,54 @@ mod tests {
         assert_eq!(item_attack_damage("diamond_sword"), 7.0);
         assert_eq!(item_attack_damage("netherite_axe"), 10.0);
         assert_eq!(item_attack_damage("stone"), 1.0);
+    }
+
+    #[test]
+    fn test_bed_data() {
+        // All bed states are in range 1688..=1943
+        assert!(is_bed(1688)); // white bed foot
+        assert!(is_bed(1943)); // black bed head
+        assert!(!is_bed(1687));
+        assert!(!is_bed(1944));
+        assert!(!is_bed(0)); // air
+
+        // Bed state encoding: min + facing*4 + occupied*2 + part
+        // White bed (min=1688), north facing (0), not occupied
+        assert_eq!(bed_state(1688, 0, false, false), 1689); // foot = +1 (is_head=false → +1)
+        assert_eq!(bed_state(1688, 0, false, true), 1688);  // head = +0
+
+        // bed_is_head: state_offset % 2 == 0 means head (part=0=head, part=1=foot)
+        assert!(bed_is_head(1688)); // head
+        assert!(!bed_is_head(1689)); // foot
+
+        // Facing extraction: north=0, south=1, west=2, east=3
+        assert_eq!(bed_facing(1688), 0); // north
+        assert_eq!(bed_facing(1692), 1); // south
+        assert_eq!(bed_facing(1696), 2); // west
+        assert_eq!(bed_facing(1700), 3); // east
+
+        // Head offset by facing (foot → head direction)
+        assert_eq!(bed_head_offset(0), (0, -1));  // north: -Z
+        assert_eq!(bed_head_offset(1), (0, 1));   // south: +Z
+        assert_eq!(bed_head_offset(2), (-1, 0));  // west: -X
+        assert_eq!(bed_head_offset(3), (1, 0));   // east: +X
+
+        // Yaw to facing: yaw 0 = south in MC
+        assert_eq!(yaw_to_facing(0.0), 1);    // south
+        assert_eq!(yaw_to_facing(90.0), 2);   // west
+        assert_eq!(yaw_to_facing(180.0), 0);  // north
+        assert_eq!(yaw_to_facing(-90.0), 3);  // east
+
+        // Set occupied
+        let head_unoccupied = bed_state(1688, 0, false, true); // 1688
+        let head_occupied = bed_set_occupied(head_unoccupied, true);
+        assert_eq!(head_occupied, head_unoccupied + 2);
+        assert_eq!(bed_set_occupied(head_occupied, false), head_unoccupied);
+
+        // Bed crafting recipes exist (white bed = 3 white_wool + 3 planks)
+        let white_bed_id = item_name_to_id("white_bed").unwrap();
+        let recipe = crafting_recipes().iter().find(|r| r.result_id == white_bed_id);
+        assert!(recipe.is_some(), "White bed crafting recipe should exist");
+        assert_eq!(recipe.unwrap().result_count, 1);
     }
 }

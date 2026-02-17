@@ -1040,6 +1040,68 @@ fn parser_to_id(parser: &str) -> i32 {
 
 /// Build entity metadata entries for an item entity.
 /// Index 0: byte flags (0x00), Index 8: item_stack (Slot).
+/// Build metadata entries to set a player's sleeping pose + sleeping position.
+/// Pose index 6 = type 21 (Pose), value 2 (SLEEPING).
+/// Sleeping pos index 14 = type 11 (Optional<BlockPos>), value present + encoded BlockPos.
+pub fn build_sleeping_metadata(bed_pos: &BlockPos) -> Vec<EntityMetadataEntry> {
+    use pickaxe_protocol_core::EntityMetadataEntry;
+
+    // Index 6: Pose = SLEEPING (ordinal 2), type_id 21 (Pose = VarInt)
+    let mut pose_data = Vec::new();
+    let mut pose_buf = BytesMut::new();
+    write_varint(&mut pose_buf, 2); // Pose.SLEEPING = 2
+    pose_data.extend_from_slice(&pose_buf);
+
+    let pose_entry = EntityMetadataEntry {
+        index: 6,
+        type_id: 21,
+        data: pose_data,
+    };
+
+    // Index 14: Sleeping position = Optional<BlockPos>, type_id 11
+    // Encoding: boolean present (true) + packed BlockPos (i64)
+    let mut pos_data = Vec::new();
+    pos_data.push(1u8); // present = true
+    let packed = ((bed_pos.x as i64 & 0x3FFFFFF) << 38)
+        | ((bed_pos.z as i64 & 0x3FFFFFF) << 12)
+        | (bed_pos.y as i64 & 0xFFF);
+    pos_data.extend_from_slice(&packed.to_be_bytes());
+
+    let pos_entry = EntityMetadataEntry {
+        index: 14,
+        type_id: 11,
+        data: pos_data,
+    };
+
+    vec![pose_entry, pos_entry]
+}
+
+/// Build metadata entries to clear sleeping pose (set to STANDING) and clear sleeping position.
+pub fn build_wake_metadata() -> Vec<EntityMetadataEntry> {
+    use pickaxe_protocol_core::EntityMetadataEntry;
+
+    // Index 6: Pose = STANDING (ordinal 0)
+    let mut pose_data = Vec::new();
+    let mut pose_buf = BytesMut::new();
+    write_varint(&mut pose_buf, 0); // Pose.STANDING = 0
+    pose_data.extend_from_slice(&pose_buf);
+
+    let pose_entry = EntityMetadataEntry {
+        index: 6,
+        type_id: 21,
+        data: pose_data,
+    };
+
+    // Index 14: Sleeping position = Optional<BlockPos> = absent
+    let pos_entry = EntityMetadataEntry {
+        index: 14,
+        type_id: 11,
+        data: vec![0u8], // present = false
+    };
+
+    vec![pose_entry, pos_entry]
+}
+
 pub fn build_item_metadata(item: &pickaxe_types::ItemStack) -> Vec<EntityMetadataEntry> {
     use pickaxe_protocol_core::EntityMetadataEntry;
 
