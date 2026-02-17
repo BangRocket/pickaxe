@@ -305,6 +305,18 @@ pub struct BowDrawState {
     pub hand: i32,           // which hand holds the bow
 }
 
+/// Tracks when a player is actively blocking with a shield.
+pub struct BlockingState {
+    pub start_tick: u64,     // when blocking started (effective after 5 ticks)
+    pub hand: i32,           // 0=main, 1=off
+}
+
+/// Shield use cooldown after being hit by an axe.
+/// Cannot use shield while cooldown_ticks > 0.
+pub struct ShieldCooldown {
+    pub remaining_ticks: u32,
+}
+
 /// Player air supply for drowning mechanics.
 /// Max is 300 (15 seconds), decreases by 1/tick when submerged,
 /// increases by 4/tick when out of water.

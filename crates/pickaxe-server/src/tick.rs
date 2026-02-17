@@ -817,6 +817,7 @@ pub async fn run_tick_loop(
         // 5. Tick systems
         tick_keep_alive(&adapter, &mut world, tick_count);
         tick_attack_cooldown(&mut world);
+        tick_shield_cooldown(&mut world);
         tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_drowning_and_lava(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
@@ -1443,8 +1444,23 @@ fn process_packet(
                 4 => {
                     drop_held_item(world, world_state, entity, entity_id, true, next_eid, scripting);
                 }
-                // Release Use Item (status 5) — fires bow arrow
+                // Release Use Item (status 5) — fires bow arrow or stops shield block
                 5 => {
+                    // Check if player was blocking with shield — stop blocking
+                    if world.get::<&BlockingState>(entity).is_ok() {
+                        let _ = world.remove_one::<BlockingState>(entity);
+                        // Clear entity metadata for blocking
+                        broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+                            entity_id,
+                            metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                                index: 8,
+                                type_id: 0,
+                                data: vec![0],
+                            }],
+                        });
+                        return;
+                    }
+
                     // Check if player is drawing a bow
                     let bow_draw = match world.get::<&BowDrawState>(entity) {
                         Ok(draw) => (draw.start_tick, draw.hand),
@@ -1972,8 +1988,18 @@ fn process_packet(
                 if let Ok(mut held) = world.get::<&mut HeldSlot>(entity) {
                     held.0 = slot as u8;
                 }
-                // Cancel bow draw if switching slots
+                // Cancel bow draw / shield block if switching slots
                 let _ = world.remove_one::<BowDrawState>(entity);
+                if world.remove_one::<BlockingState>(entity).is_ok() {
+                    broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+                        entity_id,
+                        metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                            index: 8,
+                            type_id: 0,
+                            data: vec![0],
+                        }],
+                    });
+                }
                 // Broadcast mainhand equipment change
                 send_equipment_update(world, entity, entity_id);
             }
@@ -2062,6 +2088,30 @@ fn process_packet(
                     None => return,
                 }
             };
+
+            // Check if item is a shield
+            let shield_id = pickaxe_data::item_name_to_id("shield").unwrap_or(1162);
+            if item_id == shield_id {
+                // Check for shield cooldown
+                let on_cooldown = world.get::<&ShieldCooldown>(entity).is_ok();
+                if !on_cooldown {
+                    let _ = world.insert_one(entity, BlockingState {
+                        start_tick: world_state.tick_count,
+                        hand,
+                    });
+                    // Send entity metadata: living entity flags bit 0 (using item) + bit 1 if offhand
+                    let flags: u8 = if hand == 1 { 0x03 } else { 0x01 };
+                    broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+                        entity_id,
+                        metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                            index: 8, // LivingEntity hand states (byte)
+                            type_id: 0, // byte type
+                            data: vec![flags],
+                        }],
+                    });
+                }
+                return;
+            }
 
             // Check if item is a bow
             let bow_id = pickaxe_data::item_name_to_id("bow").unwrap_or(801);
@@ -2714,8 +2764,42 @@ fn handle_attack(
     if is_mob {
         attack_mob(world, world_state, attacker, _attacker_eid, target, target_eid_val, damage, is_critical, scripting, next_eid);
     } else {
+        // Check if target is blocking and attacker has an axe — disable shield
+        let attacker_has_axe = {
+            let inv = world.get::<&Inventory>(attacker);
+            if let Ok(inv) = inv {
+                if let Some(ref item) = inv.slots[36 + held_slot as usize] {
+                    let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("");
+                    pickaxe_data::is_axe(name)
+                } else { false }
+            } else { false }
+        };
+        let target_is_blocking = world.get::<&BlockingState>(target).is_ok();
+
         // PvP: Apply damage to target player
         apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
+
+        // If target was blocking and attacker used axe, disable their shield
+        if attacker_has_axe && target_is_blocking {
+            let _ = world.remove_one::<BlockingState>(target);
+            let _ = world.insert_one(target, ShieldCooldown { remaining_ticks: 100 });
+            // Clear blocking metadata
+            broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+                entity_id: target_eid_val,
+                metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                    index: 8,
+                    type_id: 0,
+                    data: vec![0],
+                }],
+            });
+            // Broadcast shield disable event (entity event 30)
+            broadcast_to_all(world, &InternalPacket::EntityEvent {
+                entity_id: target_eid_val,
+                event_id: 30, // shield disable
+            });
+            let target_pos = world.get::<&Position>(target).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+            play_sound_at_entity(world, target_pos.x, target_pos.y, target_pos.z, "item.shield.break", SOUND_PLAYERS, 1.0, 1.0);
+        }
     }
 
     // Tool durability loss on attack (2 per hit, survival only)
@@ -2812,6 +2896,72 @@ fn apply_damage(
         return;
     }
 
+    // Shield blocking check — shields block everything except void, starvation, drowning, lava, lightning, fall
+    let blockable = !matches!(source, "void" | "starve" | "starvation" | "drowning" | "lava" | "lightning" | "fall");
+    let shield_blocked = if blockable {
+        // Extract blocking info first to avoid borrow conflicts
+        let blocking_info = world.get::<&BlockingState>(entity)
+            .ok()
+            .map(|b| (b.start_tick, b.hand));
+        if let Some((start_tick, _shield_hand)) = blocking_info {
+            world_state.tick_count.saturating_sub(start_tick) >= 5
+        } else {
+            false
+        }
+    } else {
+        false
+    };
+
+    if shield_blocked {
+        let shield_hand = world.get::<&BlockingState>(entity).map(|b| b.hand).unwrap_or(0);
+        // Apply shield durability damage (minimum 3)
+        let dur_damage = (damage.floor() as i32).max(3);
+        let shield_slot = if shield_hand == 1 { 45 } else {
+            let hs = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+            36 + hs as usize
+        };
+        let mut shield_broke = false;
+        if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+            if let Some(ref mut shield_item) = inv.slots[shield_slot] {
+                let new_damage = shield_item.damage + dur_damage;
+                if shield_item.max_damage > 0 && new_damage >= shield_item.max_damage {
+                    inv.slots[shield_slot] = None;
+                    shield_broke = true;
+                } else {
+                    shield_item.damage = new_damage;
+                }
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                        window_id: 0,
+                        state_id: inv.state_id,
+                        slot: shield_slot as i16,
+                        item: inv.slots[shield_slot].clone(),
+                    });
+                }
+            }
+        }
+        if shield_broke {
+            let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+            play_sound_at_entity(world, pos.x, pos.y, pos.z, "item.shield.break", SOUND_PLAYERS, 1.0, 1.0);
+            // Remove blocking state since shield broke
+            let _ = world.remove_one::<BlockingState>(entity);
+            // Clear blocking metadata
+            broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+                entity_id,
+                metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                    index: 8,
+                    type_id: 0,
+                    data: vec![0],
+                }],
+            });
+        } else {
+            let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+            play_sound_at_entity(world, pos.x, pos.y, pos.z, "item.shield.block", SOUND_PLAYERS, 1.0, 1.0);
+        }
+        // Damage fully blocked — return
+        return;
+    }
+
     // Fire cancellable Lua event
     let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
     let cancelled = scripting.fire_event_in_context(
@@ -2828,8 +2978,18 @@ fn apply_damage(
         return;
     }
 
-    // Cancel eating on damage
+    // Cancel eating and blocking on damage
     let _ = world.remove_one::<EatingState>(entity);
+    if world.remove_one::<BlockingState>(entity).is_ok() {
+        broadcast_to_all(world, &InternalPacket::SetEntityMetadata {
+            entity_id,
+            metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                index: 8,
+                type_id: 0,
+                data: vec![0],
+            }],
+        });
+    }
 
     // Wake up if sleeping
     if world.get::<&SleepingState>(entity).is_ok() {
@@ -4179,6 +4339,21 @@ fn tick_attack_cooldown(world: &mut World) {
         if cd.ticks_since_last_attack < 100 {
             cd.ticks_since_last_attack += 1;
         }
+    }
+}
+
+fn tick_shield_cooldown(world: &mut World) {
+    let mut expired: Vec<hecs::Entity> = Vec::new();
+    for (e, cd) in world.query_mut::<&mut ShieldCooldown>() {
+        if cd.remaining_ticks > 0 {
+            cd.remaining_ticks -= 1;
+        }
+        if cd.remaining_ticks == 0 {
+            expired.push(e);
+        }
+    }
+    for e in expired {
+        let _ = world.remove_one::<ShieldCooldown>(e);
     }
 }
 

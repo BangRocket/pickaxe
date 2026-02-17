@@ -403,6 +403,13 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         result_id: id("arrow"), result_count: 4, width: 1, height: 3,
     });
 
+    // Shield: iron ingot + planks
+    let iron = id("iron_ingot");
+    recipes.push(CraftingRecipe {
+        pattern: [p, iron, p, p, p, p, 0, p, 0],
+        result_id: id("shield"), result_count: 1, width: 3, height: 3,
+    });
+
     recipes
 }
 
@@ -579,6 +586,11 @@ pub fn item_attack_damage(item_name: &str) -> f32 {
         "golden_shovel" => 2.5,
         _ => 1.0,
     }
+}
+
+/// Returns true if the given item name is an axe (can disable shields).
+pub fn is_axe(item_name: &str) -> bool {
+    matches!(item_name, "wooden_axe" | "stone_axe" | "iron_axe" | "golden_axe" | "diamond_axe" | "netherite_axe")
 }
 
 // Bed block state IDs: 16 states per color, 16 bed colors (white through black).
