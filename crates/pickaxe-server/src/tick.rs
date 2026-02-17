@@ -706,6 +706,7 @@ pub async fn run_tick_loop(
         tick_keep_alive(&adapter, &mut world, tick_count);
         tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
+        tick_eating(&mut world);
         tick_item_physics(&mut world, &mut world_state, &scripting);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
@@ -1572,6 +1573,45 @@ fn process_packet(
             handle_container_click(world, world_state, entity, window_id, state_id, slot, button, mode, changed_slots, carried_item);
         }
 
+        InternalPacket::UseItem { hand, sequence } => {
+            // Acknowledge the action
+            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+            }
+
+            // Get the item in the used hand
+            let item_id = {
+                let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let inv = match world.get::<&Inventory>(entity) {
+                    Ok(inv) => inv,
+                    Err(_) => return,
+                };
+                let slot_idx = if hand == 1 { 45 } else { 36 + held_slot as usize };
+                match &inv.slots[slot_idx] {
+                    Some(item) => item.item_id,
+                    None => return,
+                }
+            };
+
+            // Check if the item is food
+            if let Some(props) = pickaxe_data::food_properties(item_id) {
+                // Check if player can eat (not full, or canAlwaysEat)
+                let food_level = world.get::<&FoodData>(entity).map(|f| f.food_level).unwrap_or(20);
+                if food_level >= 20 && !props.can_always_eat {
+                    return;
+                }
+
+                // Start eating — add EatingState component
+                let _ = world.insert_one(entity, EatingState {
+                    remaining_ticks: props.eat_ticks,
+                    hand,
+                    item_id,
+                    nutrition: props.nutrition,
+                    saturation_modifier: props.saturation_modifier,
+                });
+            }
+        }
+
         InternalPacket::Unknown { .. } => {}
         _ => {}
     }
@@ -1983,6 +2023,13 @@ fn handle_player_movement(
         og.0 = on_ground;
     }
 
+    // Cancel eating if player moved horizontally
+    let dx = x - old_pos.x;
+    let dz = z - old_pos.z;
+    if dx * dx + dz * dz > 0.0001 {
+        let _ = world.remove_one::<EatingState>(entity);
+    }
+
     // Fall distance tracking and fall damage
     let fall_damage = {
         if let Ok(mut fd) = world.get::<&mut FallDistance>(entity) {
@@ -2071,6 +2118,9 @@ fn apply_damage(
     if cancelled {
         return;
     }
+
+    // Cancel eating on damage
+    let _ = world.remove_one::<EatingState>(entity);
 
     // Apply damage
     let (new_health, is_dead) = {
@@ -2373,6 +2423,89 @@ fn tick_health_hunger(
                     saturation: sat,
                 });
             }
+        }
+    }
+}
+
+/// Tick eating progress: decrement timer, consume food when done.
+fn tick_eating(world: &mut World) {
+    let mut finished: Vec<(hecs::Entity, i32, i32, f32, i32)> = Vec::new();
+
+    for (entity, eating) in world.query::<&mut EatingState>().iter() {
+        eating.remaining_ticks -= 1;
+        if eating.remaining_ticks <= 0 {
+            finished.push((
+                entity,
+                eating.hand,
+                eating.nutrition,
+                eating.saturation_modifier,
+                eating.item_id,
+            ));
+        }
+    }
+
+    for (entity, hand, nutrition, sat_mod, item_id) in finished {
+        // Remove the EatingState component
+        let _ = world.remove_one::<EatingState>(entity);
+
+        // Apply food restoration
+        if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+            food.food_level = (food.food_level + nutrition).min(20);
+            let sat_gain = nutrition as f32 * sat_mod * 2.0;
+            food.saturation = (food.saturation + sat_gain).min(food.food_level as f32);
+        }
+
+        // Consume the item from the hand slot
+        let held_slot = world
+            .get::<&HeldSlot>(entity)
+            .map(|h| h.0)
+            .unwrap_or(0);
+        let slot_idx = if hand == 1 { 45 } else { 36 + held_slot as usize };
+        let new_slot_item = {
+            let mut inv = match world.get::<&mut Inventory>(entity) {
+                Ok(inv) => inv,
+                Err(_) => continue,
+            };
+            if let Some(ref mut item) = inv.slots[slot_idx] {
+                if item.item_id == item_id {
+                    item.count -= 1;
+                    if item.count <= 0 {
+                        inv.slots[slot_idx] = None;
+                    }
+                }
+            }
+            inv.state_id = inv.state_id.wrapping_add(1);
+            (inv.slots[slot_idx].clone(), inv.state_id)
+        };
+
+        // Send slot update to client
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                window_id: 0,
+                state_id: new_slot_item.1,
+                slot: slot_idx as i16,
+                item: new_slot_item.0,
+            });
+        }
+
+        // Send updated health/food/saturation
+        let (health, food_level, saturation) = {
+            let h = world
+                .get::<&Health>(entity)
+                .map(|h| h.current)
+                .unwrap_or(20.0);
+            let f = world
+                .get::<&FoodData>(entity)
+                .map(|f| (f.food_level, f.saturation))
+                .unwrap_or((20, 5.0));
+            (h, f.0, f.1)
+        };
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SetHealth {
+                health,
+                food: food_level,
+                saturation,
+            });
         }
     }
 }

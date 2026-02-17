@@ -457,6 +457,12 @@ pub enum InternalPacket {
         sequence: i32,
     },
 
+    /// Use Item (0x39 SB) — right-click with item in air (eat, drink, shoot).
+    UseItem {
+        hand: i32,
+        sequence: i32,
+    },
+
     // === Shared ===
     Disconnect {
         reason: TextComponent,

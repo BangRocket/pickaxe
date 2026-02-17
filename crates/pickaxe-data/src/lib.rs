@@ -26,10 +26,68 @@ pub fn smelting_result(item_id: i32) -> Option<(i32, i16)> {
         "oak_log" | "spruce_log" | "birch_log" | "jungle_log" | "acacia_log"
         | "dark_oak_log" => ("charcoal", 200),
         "clay_ball" => ("brick", 200),
+        "beef" => ("cooked_beef", 200),
+        "porkchop" => ("cooked_porkchop", 200),
+        "chicken" => ("cooked_chicken", 200),
+        "mutton" => ("cooked_mutton", 200),
+        "rabbit" => ("cooked_rabbit", 200),
+        "cod" => ("cooked_cod", 200),
+        "salmon" => ("cooked_salmon", 200),
+        "potato" => ("baked_potato", 200),
         _ => return None,
     };
     let result_id = item_name_to_id(result_name)?;
     Some((result_id, cook_time))
+}
+
+/// Food properties for edible items.
+pub struct FoodProperties {
+    pub nutrition: i32,
+    pub saturation_modifier: f32,
+    pub eat_ticks: i32,
+    pub can_always_eat: bool,
+}
+
+/// Returns food properties for the given item, or None if it is not edible.
+pub fn food_properties(item_id: i32) -> Option<FoodProperties> {
+    let name = item_id_to_name(item_id)?;
+    let (nutrition, sat_mod, eat_ticks, always_eat) = match name {
+        "apple" => (4, 0.3, 32, false),
+        "baked_potato" => (5, 0.6, 32, false),
+        "beef" => (3, 0.3, 32, false),
+        "bread" => (5, 0.6, 32, false),
+        "carrot" => (3, 0.6, 32, false),
+        "chicken" => (2, 0.3, 32, false),
+        "cooked_beef" => (8, 0.8, 32, false),
+        "cooked_chicken" => (6, 0.6, 32, false),
+        "cooked_mutton" => (6, 0.8, 32, false),
+        "cooked_porkchop" => (8, 0.8, 32, false),
+        "cooked_rabbit" => (5, 0.6, 32, false),
+        "cooked_salmon" => (6, 0.8, 32, false),
+        "cooked_cod" => (5, 0.6, 32, false),
+        "cookie" => (2, 0.1, 32, false),
+        "dried_kelp" => (1, 0.3, 16, false),
+        "enchanted_golden_apple" => (4, 1.2, 32, true),
+        "golden_apple" => (4, 1.2, 32, true),
+        "golden_carrot" => (6, 1.2, 32, false),
+        "melon_slice" => (2, 0.3, 32, false),
+        "mutton" => (2, 0.3, 32, false),
+        "porkchop" => (3, 0.3, 32, false),
+        "potato" => (1, 0.3, 32, false),
+        "pumpkin_pie" => (8, 0.3, 32, false),
+        "rabbit" => (3, 0.3, 32, false),
+        "cod" => (2, 0.1, 32, false),
+        "salmon" => (2, 0.1, 32, false),
+        "sweet_berries" => (2, 0.1, 32, false),
+        "glow_berries" => (2, 0.1, 32, false),
+        _ => return None,
+    };
+    Some(FoodProperties {
+        nutrition,
+        saturation_modifier: sat_mod,
+        eat_ticks,
+        can_always_eat: always_eat,
+    })
 }
 
 /// A shaped crafting recipe. Pattern is stored in a 3x3 grid (row-major), 0 means empty.
@@ -237,5 +295,28 @@ mod tests {
         let cobble_id = item_name_to_id("cobblestone").unwrap();
         let stone_id = item_name_to_id("stone").unwrap();
         assert_eq!(smelting_result(cobble_id), Some((stone_id, 200)));
+    }
+
+    #[test]
+    fn test_food_properties() {
+        let bread_id = item_name_to_id("bread").unwrap();
+        let props = food_properties(bread_id).unwrap();
+        assert_eq!(props.nutrition, 5);
+        assert!((props.saturation_modifier - 0.6).abs() < 0.01);
+        assert_eq!(props.eat_ticks, 32);
+        assert!(!props.can_always_eat);
+
+        let golden_apple_id = item_name_to_id("golden_apple").unwrap();
+        let props = food_properties(golden_apple_id).unwrap();
+        assert!(props.can_always_eat);
+
+        // Non-food item
+        let stone_id = item_name_to_id("stone").unwrap();
+        assert!(food_properties(stone_id).is_none());
+
+        // Meat smelting
+        let beef_id = item_name_to_id("beef").unwrap();
+        let cooked_beef_id = item_name_to_id("cooked_beef").unwrap();
+        assert_eq!(smelting_result(beef_id), Some((cooked_beef_id, 200)));
     }
 }

@@ -344,6 +344,13 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             let sequence = read_varint(data)?;
             Ok(InternalPacket::BlockPlace { hand, position, face, cursor_x, cursor_y, cursor_z, inside_block, sequence })
         }
+        0x39 => {
+            // Use Item (right-click in air: eat, drink, shoot)
+            let hand = read_varint(data)?;
+            let sequence = read_varint(data)?;
+            // yRot and xRot follow but we don't need them
+            Ok(InternalPacket::UseItem { hand, sequence })
+        }
         0x0E => {
             // Container Click
             let window_id = read_u8(data)?;

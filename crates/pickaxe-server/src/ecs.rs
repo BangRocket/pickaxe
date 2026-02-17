@@ -212,6 +212,15 @@ pub struct OpenContainer {
     pub state_id: i32,
 }
 
+/// Tracks a player actively eating food.
+pub struct EatingState {
+    pub remaining_ticks: i32,
+    pub hand: i32, // 0=main, 1=off
+    pub item_id: i32,
+    pub nutrition: i32,
+    pub saturation_modifier: f32,
+}
+
 /// Tracks a block a player is currently breaking in survival mode.
 pub struct BreakingBlock {
     pub position: BlockPos,
