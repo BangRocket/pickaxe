@@ -642,8 +642,8 @@ fn handle_new_player(
         time_of_day: world_state.time_of_day,
     });
 
-    let center_cx = (spawn_pos.x as i32) >> 4;
-    let center_cz = (spawn_pos.z as i32) >> 4;
+    let center_cx = (spawn_pos.x.floor() as i32) >> 4;
+    let center_cz = (spawn_pos.z.floor() as i32) >> 4;
 
     // Set center chunk
     let _ = sender.send(InternalPacket::SetCenterChunk {
@@ -1582,8 +1582,8 @@ fn respawn_player(
         pos.0 = spawn;
     }
 
-    let spawn_cx = (spawn.x as i32) >> 4;
-    let spawn_cz = (spawn.z as i32) >> 4;
+    let spawn_cx = (spawn.x.floor() as i32) >> 4;
+    let spawn_cz = (spawn.z.floor() as i32) >> 4;
 
     // Update chunk position
     if let Ok(mut cp) = world.get::<&mut ChunkPosition>(entity) {
@@ -1884,8 +1884,8 @@ fn tick_entity_tracking(world: &mut World) {
 
         // Item entities in view distance
         for item in &item_data {
-            let item_cx = (item.pos.x as i32) >> 4;
-            let item_cz = (item.pos.z as i32) >> 4;
+            let item_cx = (item.pos.x.floor() as i32) >> 4;
+            let item_cz = (item.pos.z.floor() as i32) >> 4;
             if (item_cx - obs_cx).abs() <= obs_vd && (item_cz - obs_cz).abs() <= obs_vd {
                 should_see.insert(item.eid);
             }
@@ -2767,8 +2767,12 @@ fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, co
             Err(_) => return false,
         };
         let new_item = match &inv.slots[slot_index] {
-            Some(existing) => ItemStack::new(item_id, existing.count.saturating_add(count)),
-            None => ItemStack::new(item_id, count),
+            Some(existing) => {
+                let space = (max_stack as i8).saturating_sub(existing.count);
+                let to_add = count.min(space);
+                ItemStack::new(item_id, existing.count.saturating_add(to_add))
+            }
+            None => ItemStack::new(item_id, count.min(max_stack as i8)),
         };
         inv.set_slot(slot_index, Some(new_item.clone()));
         (new_item, inv.state_id)
@@ -3002,11 +3006,12 @@ fn cmd_give(world: &mut World, entity: hecs::Entity, args: &str) {
             Err(_) => return,
         };
         let new_item = match &inv.slots[slot_index] {
-            Some(existing) => pickaxe_types::ItemStack::new(
-                item_id,
-                existing.count.saturating_add(count),
-            ),
-            None => pickaxe_types::ItemStack::new(item_id, count),
+            Some(existing) => {
+                let space = (max_stack as i8).saturating_sub(existing.count);
+                let to_add = count.min(space);
+                pickaxe_types::ItemStack::new(item_id, existing.count.saturating_add(to_add))
+            }
+            None => pickaxe_types::ItemStack::new(item_id, count.min(max_stack as i8)),
         };
         inv.set_slot(slot_index, Some(new_item.clone()));
         (new_item, inv.state_id)
@@ -3183,8 +3188,8 @@ fn handle_chunk_updates(
         (pos.0, cp.chunk_x, cp.chunk_z, vd.0)
     };
 
-    let new_cx = (pos.x as i32) >> 4;
-    let new_cz = (pos.z as i32) >> 4;
+    let new_cx = (pos.x.floor() as i32) >> 4;
+    let new_cz = (pos.z.floor() as i32) >> 4;
 
     if new_cx == old_cx && new_cz == old_cz {
         return;

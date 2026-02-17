@@ -74,8 +74,8 @@ impl Vec3d {
 
     pub fn chunk_pos(&self) -> ChunkPos {
         ChunkPos {
-            x: (self.x as i32) >> 4,
-            z: (self.z as i32) >> 4,
+            x: (self.x.floor() as i32) >> 4,
+            z: (self.z.floor() as i32) >> 4,
         }
     }
 }

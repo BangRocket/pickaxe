@@ -229,9 +229,15 @@ fn try_parse_packet(
 
     let mut peek = read_buf.clone();
     let length = match read_varint(&mut peek) {
-        Ok(len) => len as usize,
+        Ok(len) if len >= 0 => len as usize,
+        Ok(len) => anyhow::bail!("Negative packet length: {}", len),
         Err(_) => return Ok(None),
     };
+
+    // Cap raw packet size at 8 MB
+    if length > 8 * 1024 * 1024 {
+        anyhow::bail!("Packet length {} exceeds 8 MB limit", length);
+    }
 
     let varint_bytes = read_buf.len() - peek.len();
 
@@ -245,6 +251,10 @@ fn try_parse_packet(
     if let Some(_threshold) = compression_threshold {
         let data_length = read_varint(&mut packet_data)? as usize;
         if data_length > 0 {
+            // Cap at 8 MB to prevent malicious clients from causing OOM
+            if data_length > 8 * 1024 * 1024 {
+                anyhow::bail!("Decompressed packet size {} exceeds 8 MB limit", data_length);
+            }
             let mut decompressed = vec![0u8; data_length];
             let mut decoder = ZlibDecoder::new(&packet_data[..]);
             decoder.read_exact(&mut decompressed)?;

@@ -114,7 +114,7 @@ fn decode_handshaking(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         0x00 => {
             let protocol_version = read_varint(data)?;
             let server_address = read_string(data, 255)?;
-            let server_port = data.get_u16();
+            let server_port = read_u16(data)?;
             let next_state = read_varint(data)?;
             Ok(InternalPacket::Handshake {
                 protocol_version,
@@ -134,7 +134,7 @@ fn decode_status(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
     match id {
         0x00 => Ok(InternalPacket::StatusRequest),
         0x01 => {
-            let payload = data.get_i64();
+            let payload = read_i64(data)?;
             Ok(InternalPacket::PingRequest { payload })
         }
         _ => Ok(InternalPacket::Unknown {
@@ -171,13 +171,13 @@ fn decode_configuration(id: i32, data: &mut BytesMut) -> Result<InternalPacket> 
     match id {
         0x00 => {
             let locale = read_string(data, 16)?;
-            let view_distance = data.get_i8();
+            let view_distance = read_i8(data)?;
             let chat_mode = read_varint(data)?;
-            let chat_colors = data.get_u8() != 0;
-            let skin_parts = data.get_u8();
+            let chat_colors = read_u8(data)? != 0;
+            let skin_parts = read_u8(data)?;
             let main_hand = read_varint(data)?;
-            let text_filtering = data.get_u8() != 0;
-            let allow_listing = data.get_u8() != 0;
+            let text_filtering = read_u8(data)? != 0;
+            let allow_listing = read_u8(data)? != 0;
             Ok(InternalPacket::ClientInformation {
                 locale,
                 view_distance,
@@ -238,19 +238,18 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         0x06 => {
             // Chat Message (serverbound)
             let message = read_string(data, 256)?;
-            let timestamp = data.get_i64();
-            let salt = data.get_i64();
-            let has_signature = data.get_u8() != 0;
+            let timestamp = read_i64(data)?;
+            let salt = read_i64(data)?;
+            let has_signature = read_u8(data)? != 0;
             let signature = if has_signature {
-                let mut sig = vec![0u8; 256];
-                data.copy_to_slice(&mut sig);
-                Some(sig)
+                Some(read_bytes(data, 256)?)
             } else {
                 None
             };
             let offset = read_varint(data)?;
+            let acknowledged_vec = read_bytes(data, 3)?;
             let mut acknowledged = [0u8; 3];
-            data.copy_to_slice(&mut acknowledged);
+            acknowledged.copy_from_slice(&acknowledged_vec);
             Ok(InternalPacket::ChatMessage {
                 message,
                 timestamp,
@@ -263,7 +262,7 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         }
         0x08 => {
             // Chunk Batch Received — just acknowledge, read the chunks_per_tick float
-            let _chunks_per_tick = data.get_f32();
+            let _chunks_per_tick = read_f32(data)?;
             Ok(InternalPacket::Unknown {
                 packet_id: id,
                 data: vec![],
@@ -275,23 +274,23 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             Ok(InternalPacket::ClientCommand { action })
         }
         0x18 => {
-            let id = data.get_i64();
+            let id = read_i64(data)?;
             Ok(InternalPacket::KeepAliveServerbound { id })
         }
         0x1A => {
-            let x = data.get_f64();
-            let y = data.get_f64();
-            let z = data.get_f64();
-            let on_ground = data.get_u8() != 0;
+            let x = read_f64(data)?;
+            let y = read_f64(data)?;
+            let z = read_f64(data)?;
+            let on_ground = read_u8(data)? != 0;
             Ok(InternalPacket::PlayerPosition { x, y, z, on_ground })
         }
         0x1B => {
-            let x = data.get_f64();
-            let y = data.get_f64();
-            let z = data.get_f64();
-            let yaw = data.get_f32();
-            let pitch = data.get_f32();
-            let on_ground = data.get_u8() != 0;
+            let x = read_f64(data)?;
+            let y = read_f64(data)?;
+            let z = read_f64(data)?;
+            let yaw = read_f32(data)?;
+            let pitch = read_f32(data)?;
+            let on_ground = read_u8(data)? != 0;
             Ok(InternalPacket::PlayerPositionAndRotation {
                 x,
                 y,
@@ -302,9 +301,9 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             })
         }
         0x1C => {
-            let yaw = data.get_f32();
-            let pitch = data.get_f32();
-            let on_ground = data.get_u8() != 0;
+            let yaw = read_f32(data)?;
+            let pitch = read_f32(data)?;
+            let on_ground = read_u8(data)? != 0;
             Ok(InternalPacket::PlayerRotation {
                 yaw,
                 pitch,
@@ -312,14 +311,14 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             })
         }
         0x1D => {
-            let on_ground = data.get_u8() != 0;
+            let on_ground = read_u8(data)? != 0;
             Ok(InternalPacket::PlayerOnGround { on_ground })
         }
         0x24 => {
             // block_dig (Player Action)
             let status = read_varint(data)?;
-            let position = BlockPos::decode(data.get_u64());
-            let face = data.get_u8();
+            let position = BlockPos::decode(read_u64(data)?);
+            let face = read_u8(data)?;
             let sequence = read_varint(data)?;
             Ok(InternalPacket::BlockDig { status, position, face, sequence })
         }
@@ -333,12 +332,12 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         0x38 => {
             // block_place (Use Item On)
             let hand = read_varint(data)?;
-            let position = BlockPos::decode(data.get_u64());
-            let face = data.get_u8();
-            let cursor_x = data.get_f32();
-            let cursor_y = data.get_f32();
-            let cursor_z = data.get_f32();
-            let inside_block = data.get_u8() != 0;
+            let position = BlockPos::decode(read_u64(data)?);
+            let face = read_u8(data)?;
+            let cursor_x = read_f32(data)?;
+            let cursor_y = read_f32(data)?;
+            let cursor_z = read_f32(data)?;
+            let inside_block = read_u8(data)? != 0;
             let sequence = read_varint(data)?;
             Ok(InternalPacket::BlockPlace { hand, position, face, cursor_x, cursor_y, cursor_z, inside_block, sequence })
         }
@@ -349,12 +348,12 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
         }
         0x2F => {
             // SetHeldItem (serverbound)
-            let slot_id = data.get_i16();
+            let slot_id = read_i16(data)?;
             Ok(InternalPacket::HeldItemChange { slot: slot_id })
         }
         0x32 => {
             // CreativeInventoryAction
-            let slot = data.get_i16();
+            let slot = read_i16(data)?;
             let item = read_slot(data).map_err(|e| anyhow::anyhow!("{}", e))?;
             Ok(InternalPacket::CreativeInventoryAction { slot, item })
         }

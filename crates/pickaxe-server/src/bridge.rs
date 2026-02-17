@@ -99,11 +99,12 @@ fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, co
             Err(_) => return false,
         };
         let new_item = match &inv.slots[slot_index] {
-            Some(existing) => pickaxe_types::ItemStack::new(
-                item_id,
-                existing.count.saturating_add(count),
-            ),
-            None => pickaxe_types::ItemStack::new(item_id, count),
+            Some(existing) => {
+                let space = (max_stack as i8).saturating_sub(existing.count);
+                let to_add = count.min(space);
+                pickaxe_types::ItemStack::new(item_id, existing.count.saturating_add(to_add))
+            }
+            None => pickaxe_types::ItemStack::new(item_id, count.min(max_stack as i8)),
         };
         inv.set_slot(slot_index, Some(new_item.clone()));
         (new_item, inv.state_id)

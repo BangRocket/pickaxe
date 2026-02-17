@@ -120,6 +120,60 @@ pub fn write_string(buf: &mut BytesMut, s: &str) {
     buf.put_slice(s.as_bytes());
 }
 
+/// Safe fixed-size reads that return CodecError::NotEnoughData instead of panicking.
+
+pub fn read_u8(buf: &mut BytesMut) -> CodecResult<u8> {
+    if buf.remaining() < 1 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_u8())
+}
+
+pub fn read_i8(buf: &mut BytesMut) -> CodecResult<i8> {
+    if buf.remaining() < 1 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_i8())
+}
+
+pub fn read_u16(buf: &mut BytesMut) -> CodecResult<u16> {
+    if buf.remaining() < 2 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_u16())
+}
+
+pub fn read_i16(buf: &mut BytesMut) -> CodecResult<i16> {
+    if buf.remaining() < 2 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_i16())
+}
+
+pub fn read_i32_raw(buf: &mut BytesMut) -> CodecResult<i32> {
+    if buf.remaining() < 4 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_i32())
+}
+
+pub fn read_f32(buf: &mut BytesMut) -> CodecResult<f32> {
+    if buf.remaining() < 4 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_f32())
+}
+
+pub fn read_i64(buf: &mut BytesMut) -> CodecResult<i64> {
+    if buf.remaining() < 8 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_i64())
+}
+
+pub fn read_u64(buf: &mut BytesMut) -> CodecResult<u64> {
+    if buf.remaining() < 8 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_u64())
+}
+
+pub fn read_f64(buf: &mut BytesMut) -> CodecResult<f64> {
+    if buf.remaining() < 8 { return Err(CodecError::NotEnoughData); }
+    Ok(buf.get_f64())
+}
+
+pub fn read_bytes(buf: &mut BytesMut, count: usize) -> CodecResult<Vec<u8>> {
+    if buf.remaining() < count { return Err(CodecError::NotEnoughData); }
+    let mut out = vec![0u8; count];
+    buf.copy_to_slice(&mut out);
+    Ok(out)
+}
+
 /// Read a UUID (128 bits, big endian).
 pub fn read_uuid(buf: &mut BytesMut) -> CodecResult<Uuid> {
     if buf.remaining() < 16 {
@@ -163,8 +217,12 @@ pub fn read_slot(buf: &mut BytesMut) -> CodecResult<Option<ItemStack>> {
     let remove_count = read_varint(buf)?;
     // Skip component data — we don't handle components yet.
     // For basic items (no enchantments/custom data), counts are 0.
+    // When components are present, we must consume all remaining data for this slot
+    // to avoid corrupting subsequent reads. Since component data has variable-length
+    // encoding and we can't parse it, we consume all remaining bytes in the packet.
     if add_count > 0 || remove_count > 0 {
-        tracing::debug!("Slot has {} added, {} removed components — not parsed", add_count, remove_count);
+        tracing::debug!("Slot has {} added, {} removed components — skipping {} remaining bytes", add_count, remove_count, buf.remaining());
+        buf.advance(buf.remaining());
     }
     Ok(Some(ItemStack::new(item_id, item_count as i8)))
 }
