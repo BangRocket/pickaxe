@@ -27,3 +27,18 @@ end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
 pickaxe.events.on("player_command", function(event)
     pickaxe.log(event.name .. " issued command: /" .. event.command)
 end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+-- Player death: log death source
+pickaxe.events.on("player_death", function(event)
+    pickaxe.log(event.name .. " died (" .. (event.source or "unknown") .. ")")
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+-- Player respawn: log
+pickaxe.events.on("player_respawn", function(event)
+    pickaxe.log(event.name .. " respawned")
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
+
+-- Player damage: log (can return "cancel" to prevent damage)
+pickaxe.events.on("player_damage", function(event)
+    pickaxe.log(event.name .. " took " .. event.amount .. " damage (" .. (event.source or "unknown") .. ")")
+end, { priority = "NORMAL", mod_id = "pickaxe-vanilla" })
