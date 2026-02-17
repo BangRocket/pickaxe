@@ -1,0 +1,10 @@
+[package]
+name = "pickaxe-region"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+flate2 = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
