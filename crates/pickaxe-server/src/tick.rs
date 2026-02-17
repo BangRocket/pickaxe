@@ -212,6 +212,50 @@ fn save_all_players(world: &World, save_tx: &mpsc::UnboundedSender<SaveOp>) {
     }
 }
 
+/// Serialize level.dat to gzip-compressed NBT (vanilla-compatible format).
+fn serialize_level_dat(world_state: &WorldState, _config: &ServerConfig) -> Vec<u8> {
+    let nbt = nbt_compound! {
+        "DataVersion" => NbtValue::Int(3955),
+        "Data" => nbt_compound! {
+            "LevelName" => NbtValue::String("Pickaxe World".into()),
+            "SpawnX" => NbtValue::Int(0),
+            "SpawnY" => NbtValue::Int(-59),
+            "SpawnZ" => NbtValue::Int(0),
+            "Time" => NbtValue::Long(world_state.world_age),
+            "DayTime" => NbtValue::Long(world_state.time_of_day),
+            "GameType" => NbtValue::Int(0),
+            "Difficulty" => NbtValue::Byte(2),
+            "hardcore" => NbtValue::Byte(0),
+            "allowCommands" => NbtValue::Byte(1),
+            "Version" => nbt_compound! {
+                "Name" => NbtValue::String("1.21.1".into()),
+                "Id" => NbtValue::Int(767)
+            }
+        }
+    };
+
+    let mut buf = BytesMut::new();
+    nbt.write_root_named("", &mut buf);
+
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    let _ = encoder.write_all(&buf);
+    encoder.finish().unwrap_or_default()
+}
+
+/// Load world_age and time_of_day from a gzip-compressed level.dat file.
+fn load_level_dat(path: &std::path::Path) -> Option<(i64, i64)> {
+    let data = std::fs::read(path).ok()?;
+    let mut decoder = GzDecoder::new(&data[..]);
+    let mut decompressed = Vec::new();
+    decoder.read_to_end(&mut decompressed).ok()?;
+
+    let (_, nbt) = NbtValue::read_root_named(&decompressed).ok()?;
+    let data_nbt = nbt.get("Data")?;
+    let world_age = data_nbt.get("Time")?.as_long()?;
+    let time_of_day = data_nbt.get("DayTime")?.as_long()?;
+    Some((world_age, time_of_day))
+}
+
 /// Operations queued for the background saver task.
 pub enum SaveOp {
     Chunk(i32, i32, Vec<u8>),
@@ -367,6 +411,14 @@ pub async fn run_tick_loop(
     let mut world = World::new();
     let mut world_state = WorldState::new(region_storage, save_tx);
 
+    // Load level.dat if it exists (restores world_age and time_of_day)
+    let level_dat_path = PathBuf::from(&config.world_dir).join("level.dat");
+    if let Some((world_age, time_of_day)) = load_level_dat(&level_dat_path) {
+        world_state.world_age = world_age;
+        world_state.time_of_day = time_of_day;
+        info!("Loaded level.dat: world_age={}, time_of_day={}", world_age, time_of_day);
+    }
+
     // Collect inbound packet receivers from all active players
     // We store them separately since hecs components must be Send
     let mut inbound_receivers: HashMap<i32, mpsc::UnboundedReceiver<InboundPacket>> =
@@ -451,9 +503,11 @@ pub async fn run_tick_loop(
         tick_world_time(&world, &mut world_state, tick_count);
         tick_block_breaking(&mut world, tick_count);
 
-        // Periodic player data save (every 60 seconds = 1200 ticks)
+        // Periodic player/world data save (every 60 seconds = 1200 ticks)
         if tick_count % 1200 == 0 && tick_count > 0 {
             save_all_players(&world, &world_state.save_tx);
+            let level_data = serialize_level_dat(&world_state, &config);
+            let _ = world_state.save_tx.send(SaveOp::LevelDat(level_data));
         }
 
         tick_count += 1;
