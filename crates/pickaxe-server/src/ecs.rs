@@ -194,6 +194,24 @@ pub struct MovementState {
     pub sneaking: bool,
 }
 
+/// What type of container menu a player has open.
+#[derive(Debug, Clone)]
+pub enum Menu {
+    Chest { pos: BlockPos },
+    Furnace { pos: BlockPos },
+    CraftingTable {
+        grid: [Option<ItemStack>; 9],
+        result: Option<ItemStack>,
+    },
+}
+
+/// Tracks the container a player currently has open.
+pub struct OpenContainer {
+    pub container_id: u8,
+    pub menu: Menu,
+    pub state_id: i32,
+}
+
 /// Tracks a block a player is currently breaking in survival mode.
 pub struct BreakingBlock {
     pub position: BlockPos,

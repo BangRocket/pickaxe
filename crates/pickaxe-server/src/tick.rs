@@ -854,6 +854,9 @@ fn handle_disconnect(
     }
 
     if let Some(entity) = to_despawn {
+        // Clean up open container (crafting grid items are lost on disconnect)
+        let _ = world.remove_one::<OpenContainer>(entity);
+
         // Save player data BEFORE despawn (ECS components are needed)
         if let Some(uuid) = player_uuid {
             if let Some(data) = serialize_player_data(world, entity) {
@@ -1115,6 +1118,37 @@ fn process_packet(
             sequence,
             ..
         } => {
+            // Check if the target block is a container — open it instead of placing
+            let target_block = world_state.get_block(&position);
+            let target_name = pickaxe_data::block_state_to_name(target_block).unwrap_or("");
+            let is_container = matches!(target_name, "chest" | "furnace" | "lit_furnace" | "crafting_table");
+            let sneaking = world.get::<&MovementState>(entity).map(|m| m.sneaking).unwrap_or(false);
+
+            if is_container && !sneaking {
+                let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+                let cancelled = scripting.fire_event_in_context(
+                    "container_open",
+                    &[
+                        ("name", &name),
+                        ("block_type", target_name),
+                        ("x", &position.x.to_string()),
+                        ("y", &position.y.to_string()),
+                        ("z", &position.z.to_string()),
+                    ],
+                    world as *mut _ as *mut (),
+                    world_state as *mut _ as *mut (),
+                );
+
+                if !cancelled {
+                    open_container(world, world_state, entity, &position, target_name);
+                }
+
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                }
+                return;
+            }
+
             // Look up the held item to determine what block to place
             let block_id = {
                 let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
@@ -1378,9 +1412,390 @@ fn process_packet(
             }
         }
 
+        InternalPacket::ClientCloseContainer { container_id } => {
+            close_container(world, world_state, entity, container_id, next_eid, scripting);
+        }
+
+        InternalPacket::ContainerClick { window_id, state_id, slot, button, mode, ref changed_slots, ref carried_item } => {
+            handle_container_click(world, world_state, entity, window_id, state_id, slot, button, mode, changed_slots, carried_item);
+        }
+
         InternalPacket::Unknown { .. } => {}
         _ => {}
     }
+}
+
+// === Container system ===
+
+fn open_container(
+    world: &mut World,
+    world_state: &WorldState,
+    entity: hecs::Entity,
+    pos: &BlockPos,
+    block_name: &str,
+) {
+    let (menu_type, title, menu) = match block_name {
+        "chest" => (2, "Chest", Menu::Chest { pos: *pos }),
+        "furnace" | "lit_furnace" => (14, "Furnace", Menu::Furnace { pos: *pos }),
+        "crafting_table" => (12, "Crafting", Menu::CraftingTable {
+            grid: std::array::from_fn(|_| None),
+            result: None,
+        }),
+        _ => return,
+    };
+
+    // Assign container ID (1-255, never 0)
+    let container_id = {
+        let old = world.get::<&OpenContainer>(entity).map(|c| c.container_id).unwrap_or(0);
+        old.wrapping_add(1).max(1)
+    };
+
+    let slots = build_container_slots(world_state, world, entity, &menu);
+
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::OpenScreen {
+            container_id: container_id as i32,
+            menu_type,
+            title: TextComponent::plain(title),
+        });
+        let _ = sender.0.send(InternalPacket::SetContainerContent {
+            window_id: container_id,
+            state_id: 1,
+            slots,
+            carried_item: None,
+        });
+
+        // For furnaces, send current progress
+        if block_name == "furnace" || block_name == "lit_furnace" {
+            if let Some(BlockEntity::Furnace { burn_time, burn_duration, cook_progress, cook_total, .. }) = world_state.get_block_entity(pos) {
+                let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 0, value: *burn_time });
+                let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 1, value: *burn_duration });
+                let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 2, value: *cook_progress });
+                let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 3, value: *cook_total });
+            }
+        }
+    }
+
+    let _ = world.insert_one(entity, OpenContainer {
+        container_id,
+        menu,
+        state_id: 1,
+    });
+}
+
+fn build_container_slots(
+    world_state: &WorldState,
+    world: &World,
+    entity: hecs::Entity,
+    menu: &Menu,
+) -> Vec<Option<ItemStack>> {
+    let player_inv = world.get::<&Inventory>(entity).ok();
+
+    match menu {
+        Menu::Chest { pos } => {
+            let mut slots = Vec::with_capacity(63);
+            if let Some(BlockEntity::Chest { inventory }) = world_state.get_block_entity(pos) {
+                slots.extend_from_slice(inventory);
+            } else {
+                slots.resize(27, None);
+            }
+            if let Some(inv) = &player_inv {
+                for i in 9..36 { slots.push(inv.slots[i].clone()); }
+                for i in 36..45 { slots.push(inv.slots[i].clone()); }
+            } else {
+                slots.resize(63, None);
+            }
+            slots
+        }
+        Menu::Furnace { pos } => {
+            let mut slots = Vec::with_capacity(39);
+            if let Some(BlockEntity::Furnace { input, fuel, output, .. }) = world_state.get_block_entity(pos) {
+                slots.push(input.clone());
+                slots.push(fuel.clone());
+                slots.push(output.clone());
+            } else {
+                slots.resize(3, None);
+            }
+            if let Some(inv) = &player_inv {
+                for i in 9..36 { slots.push(inv.slots[i].clone()); }
+                for i in 36..45 { slots.push(inv.slots[i].clone()); }
+            } else {
+                slots.resize(39, None);
+            }
+            slots
+        }
+        Menu::CraftingTable { grid, result } => {
+            let mut slots = Vec::with_capacity(46);
+            slots.push(result.clone());
+            for item in grid { slots.push(item.clone()); }
+            if let Some(inv) = &player_inv {
+                for i in 9..36 { slots.push(inv.slots[i].clone()); }
+                for i in 36..45 { slots.push(inv.slots[i].clone()); }
+            } else {
+                slots.resize(46, None);
+            }
+            slots
+        }
+    }
+}
+
+fn close_container(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    container_id: u8,
+    next_eid: &Arc<AtomicI32>,
+    scripting: &ScriptRuntime,
+) {
+    let open = match world.remove_one::<OpenContainer>(entity) {
+        Ok(oc) => oc,
+        Err(_) => return,
+    };
+
+    if open.container_id != container_id {
+        // Wrong container, put it back
+        let _ = world.insert_one(entity, open);
+        return;
+    }
+
+    let block_type = match &open.menu {
+        Menu::Chest { .. } => "chest",
+        Menu::Furnace { .. } => "furnace",
+        Menu::CraftingTable { .. } => "crafting_table",
+    };
+
+    // Drop crafting grid items back to the player
+    if let Menu::CraftingTable { grid, .. } = &open.menu {
+        let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 64.0, 0.0));
+        for item in grid.iter().flatten() {
+            spawn_item_entity(world, world_state, next_eid,
+                pos.x, pos.y + 1.0, pos.z,
+                item.clone(), 0, scripting);
+        }
+    }
+
+    let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+    scripting.fire_event_in_context(
+        "container_close",
+        &[("name", &name), ("block_type", block_type)],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+}
+
+/// Slot target for container click mapping.
+enum SlotTarget {
+    Container(usize),
+    PlayerInventory(usize),
+    CraftResult,
+    CraftGrid(usize),
+}
+
+fn map_slot(menu: &Menu, window_slot: i16) -> Option<SlotTarget> {
+    let s = window_slot as usize;
+    match menu {
+        Menu::Chest { .. } => {
+            if s < 27 { Some(SlotTarget::Container(s)) }
+            else if s < 54 { Some(SlotTarget::PlayerInventory(s - 27 + 9)) }
+            else if s < 63 { Some(SlotTarget::PlayerInventory(s - 54 + 36)) }
+            else { None }
+        }
+        Menu::Furnace { .. } => {
+            if s < 3 { Some(SlotTarget::Container(s)) }
+            else if s < 30 { Some(SlotTarget::PlayerInventory(s - 3 + 9)) }
+            else if s < 39 { Some(SlotTarget::PlayerInventory(s - 30 + 36)) }
+            else { None }
+        }
+        Menu::CraftingTable { .. } => {
+            if s == 0 { Some(SlotTarget::CraftResult) }
+            else if s <= 9 { Some(SlotTarget::CraftGrid(s - 1)) }
+            else if s < 37 { Some(SlotTarget::PlayerInventory(s - 10 + 9)) }
+            else if s < 46 { Some(SlotTarget::PlayerInventory(s - 37 + 36)) }
+            else { None }
+        }
+    }
+}
+
+fn set_container_slot(
+    world_state: &mut WorldState,
+    world: &mut World,
+    entity: hecs::Entity,
+    menu: &mut Menu,
+    target: &SlotTarget,
+    item: Option<ItemStack>,
+) {
+    match target {
+        SlotTarget::Container(idx) => {
+            match menu {
+                Menu::Chest { pos } => {
+                    if let Some(BlockEntity::Chest { ref mut inventory }) = world_state.get_block_entity_mut(pos) {
+                        inventory[*idx] = item;
+                    }
+                }
+                Menu::Furnace { pos } => {
+                    if let Some(BlockEntity::Furnace { ref mut input, ref mut fuel, ref mut output, .. }) = world_state.get_block_entity_mut(pos) {
+                        match idx { 0 => *input = item, 1 => *fuel = item, 2 => *output = item, _ => {} }
+                    }
+                }
+                _ => {}
+            }
+        }
+        SlotTarget::PlayerInventory(idx) => {
+            if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                inv.set_slot(*idx, item);
+            }
+        }
+        SlotTarget::CraftGrid(idx) => {
+            if let Menu::CraftingTable { ref mut grid, .. } = menu {
+                grid[*idx] = item;
+            }
+        }
+        SlotTarget::CraftResult => {} // Read-only
+    }
+}
+
+fn handle_container_click(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    window_id: u8,
+    client_state_id: i32,
+    slot: i16,
+    _button: i8,
+    mode: i32,
+    changed_slots: &[(i16, Option<ItemStack>)],
+    carried_item: &Option<ItemStack>,
+) {
+    let mut open = match world.remove_one::<OpenContainer>(entity) {
+        Ok(oc) => oc,
+        Err(_) => return,
+    };
+
+    if window_id != open.container_id {
+        let _ = world.insert_one(entity, open);
+        return;
+    }
+
+    // Apply the client's proposed slot changes (trust-based for now)
+    match mode {
+        0 | 1 | 2 | 4 => {
+            for (changed_slot, changed_item) in changed_slots {
+                if let Some(t) = map_slot(&open.menu, *changed_slot) {
+                    set_container_slot(world_state, world, entity, &mut open.menu, &t, changed_item.clone());
+                }
+            }
+            // Handle crafting result take
+            if slot >= 0 {
+                if let Some(SlotTarget::CraftResult) = map_slot(&open.menu, slot) {
+                    if let Menu::CraftingTable { ref mut grid, ref mut result } = open.menu {
+                        for grid_slot in grid.iter_mut() {
+                            if let Some(ref mut item) = grid_slot {
+                                item.count -= 1;
+                                if item.count <= 0 { *grid_slot = None; }
+                            }
+                        }
+                        *result = lookup_crafting_recipe(grid);
+                    }
+                }
+            }
+            // Recalculate crafting result if grid changed
+            if slot >= 0 {
+                if let Some(SlotTarget::CraftGrid(_)) = map_slot(&open.menu, slot) {
+                    if let Menu::CraftingTable { ref grid, ref mut result } = open.menu {
+                        *result = lookup_crafting_recipe(grid);
+                    }
+                }
+            }
+        }
+        _ => {} // Modes 3, 5, 6 — resync below
+    }
+
+    let new_state_id = client_state_id.wrapping_add(1);
+    open.state_id = new_state_id;
+
+    // Resync full container content
+    let slots = build_container_slots(world_state, world, entity, &open.menu);
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetContainerContent {
+            window_id: open.container_id,
+            state_id: new_state_id,
+            slots,
+            carried_item: carried_item.clone(),
+        });
+    }
+
+    let _ = world.insert_one(entity, open);
+}
+
+/// Look up a crafting recipe from a 3x3 grid. Returns the result item if a recipe matches.
+fn lookup_crafting_recipe(grid: &[Option<ItemStack>; 9]) -> Option<ItemStack> {
+    let grid_ids: [i32; 9] = std::array::from_fn(|i| {
+        grid[i].as_ref().map(|item| item.item_id).unwrap_or(0)
+    });
+
+    // Find the bounding box of non-empty slots
+    let mut min_x = 3usize;
+    let mut max_x = 0usize;
+    let mut min_y = 3usize;
+    let mut max_y = 0usize;
+    for y in 0..3 {
+        for x in 0..3 {
+            if grid_ids[y * 3 + x] != 0 {
+                min_x = min_x.min(x);
+                max_x = max_x.max(x);
+                min_y = min_y.min(y);
+                max_y = max_y.max(y);
+            }
+        }
+    }
+    if min_x > max_x { return None; }
+
+    let w = max_x - min_x + 1;
+    let h = max_y - min_y + 1;
+
+    // Extract the compact pattern
+    let mut compact = [0i32; 9];
+    for y in 0..h {
+        for x in 0..w {
+            compact[y * 3 + x] = grid_ids[(min_y + y) * 3 + (min_x + x)];
+        }
+    }
+
+    for recipe in pickaxe_data::crafting_recipes() {
+        if recipe.width as usize != w || recipe.height as usize != h { continue; }
+
+        // Normal match
+        let mut matches = true;
+        for y in 0..h {
+            for x in 0..w {
+                if compact[y * 3 + x] != recipe.pattern[y * 3 + x] {
+                    matches = false;
+                    break;
+                }
+            }
+            if !matches { break; }
+        }
+        if matches {
+            return Some(ItemStack::new(recipe.result_id, recipe.result_count));
+        }
+
+        // Mirrored match (flip X)
+        let mut matches = true;
+        for y in 0..h {
+            for x in 0..w {
+                if compact[y * 3 + (w - 1 - x)] != recipe.pattern[y * 3 + x] {
+                    matches = false;
+                    break;
+                }
+            }
+            if !matches { break; }
+        }
+        if matches {
+            return Some(ItemStack::new(recipe.result_id, recipe.result_count));
+        }
+    }
+
+    None
 }
 
 /// Handle player position update: fall distance, sprint exhaustion, jump exhaustion.
