@@ -354,6 +354,20 @@ pub enum InternalPacket {
         value: i16,
     },
 
+    /// Entity Animation (0x03 CB) — arm swing, critical hit, etc.
+    EntityAnimation {
+        entity_id: i32,
+        /// 0=swing_main, 3=swing_off, 4=critical_hit, 5=magic_critical_hit
+        animation: u8,
+    },
+
+    /// Take Item Entity (0x6E CB) — shows pickup animation.
+    TakeItemEntity {
+        collected_entity_id: i32,
+        collector_entity_id: i32,
+        item_count: i32,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {
@@ -461,6 +475,25 @@ pub enum InternalPacket {
     UseItem {
         hand: i32,
         sequence: i32,
+    },
+
+    /// Interact Entity (0x16 SB) — left-click/right-click an entity.
+    InteractEntity {
+        entity_id: i32,
+        /// 0=interact, 1=attack, 2=interact_at
+        action_type: i32,
+        /// For action 2: target position
+        target_x: f32,
+        target_y: f32,
+        target_z: f32,
+        /// For actions 0 and 2: hand (0=main, 1=off)
+        hand: i32,
+        sneaking: bool,
+    },
+
+    /// Swing (0x36 SB) — player arm swing animation.
+    Swing {
+        hand: i32,
     },
 
     // === Shared ===

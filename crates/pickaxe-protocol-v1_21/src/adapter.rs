@@ -109,6 +109,8 @@ const PLAY_CONTAINER_CLOSE: i32 = 0x12;
 const PLAY_SET_CONTAINER_DATA: i32 = 0x14;
 const PLAY_OPEN_SCREEN: i32 = 0x33;
 const PLAY_UPDATE_TIME: i32 = 0x64;
+const PLAY_ENTITY_ANIMATION: i32 = 0x03;
+const PLAY_TAKE_ITEM_ENTITY: i32 = 0x6F;
 
 // === Decode functions ===
 
@@ -385,6 +387,40 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             let slot = read_i16(data)?;
             let item = read_slot(data).map_err(|e| anyhow::anyhow!("{}", e))?;
             Ok(InternalPacket::CreativeInventoryAction { slot, item })
+        }
+        0x16 => {
+            // Interact Entity
+            let entity_id = read_varint(data)?;
+            let action_type = read_varint(data)?;
+            let (target_x, target_y, target_z, hand) = match action_type {
+                0 => {
+                    // INTERACT: hand follows
+                    let hand = read_varint(data)?;
+                    (0.0, 0.0, 0.0, hand)
+                }
+                1 => {
+                    // ATTACK: no extra data
+                    (0.0, 0.0, 0.0, 0)
+                }
+                2 => {
+                    // INTERACT_AT: x, y, z, hand
+                    let tx = read_f32(data)?;
+                    let ty = read_f32(data)?;
+                    let tz = read_f32(data)?;
+                    let hand = read_varint(data)?;
+                    (tx, ty, tz, hand)
+                }
+                _ => (0.0, 0.0, 0.0, 0),
+            };
+            let sneaking = if data.len() >= 1 { read_u8(data)? != 0 } else { false };
+            Ok(InternalPacket::InteractEntity {
+                entity_id, action_type, target_x, target_y, target_z, hand, sneaking,
+            })
+        }
+        0x36 => {
+            // Swing (arm animation)
+            let hand = read_varint(data)?;
+            Ok(InternalPacket::Swing { hand })
         }
         _ => Ok(InternalPacket::Unknown {
             packet_id: id,
@@ -924,6 +960,17 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_u8(*container_id);
             buf.put_i16(*property);
             buf.put_i16(*value);
+        }
+        InternalPacket::EntityAnimation { entity_id, animation } => {
+            write_varint(&mut buf, PLAY_ENTITY_ANIMATION);
+            write_varint(&mut buf, *entity_id);
+            buf.put_u8(*animation);
+        }
+        InternalPacket::TakeItemEntity { collected_entity_id, collector_entity_id, item_count } => {
+            write_varint(&mut buf, PLAY_TAKE_ITEM_ENTITY);
+            write_varint(&mut buf, *collected_entity_id);
+            write_varint(&mut buf, *collector_entity_id);
+            write_varint(&mut buf, *item_count);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

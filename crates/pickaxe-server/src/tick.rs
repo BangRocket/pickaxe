@@ -704,6 +704,7 @@ pub async fn run_tick_loop(
 
         // 5. Tick systems
         tick_keep_alive(&adapter, &mut world, tick_count);
+        tick_attack_cooldown(&mut world);
         tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
         tick_eating(&mut world);
@@ -969,6 +970,7 @@ fn handle_new_player(
         player_food,
         FallDistance(player_fall_distance),
         MovementState { sprinting: false, sneaking: false },
+        AttackCooldown::default(),
     ));
 
     inbound_receivers.insert(entity_id, new_player.packet_rx);
@@ -1612,6 +1614,23 @@ fn process_packet(
             }
         }
 
+        InternalPacket::InteractEntity { entity_id: target_eid, action_type, sneaking, .. } => {
+            if action_type == 1 {
+                // ATTACK action
+                handle_attack(world, world_state, entity, entity_id, target_eid, scripting);
+            }
+            let _ = sneaking; // used for future interact mechanics
+        }
+
+        InternalPacket::Swing { hand } => {
+            // Broadcast arm swing animation to other players
+            let animation = if hand == 1 { 3 } else { 0 }; // 0=main, 3=off
+            broadcast_except(world, entity_id, &InternalPacket::EntityAnimation {
+                entity_id,
+                animation,
+            });
+        }
+
         InternalPacket::Unknown { .. } => {}
         _ => {}
     }
@@ -2081,6 +2100,137 @@ fn handle_player_movement(
     fire_move_event(world, world_state, entity, x, y, z, scripting);
 }
 
+/// Handle an attack on a target entity (PvP or item entity destruction).
+fn handle_attack(
+    world: &mut World,
+    world_state: &mut WorldState,
+    attacker: hecs::Entity,
+    _attacker_eid: i32,
+    target_eid: i32,
+    scripting: &ScriptRuntime,
+) {
+    // Check game mode — creative can attack freely, spectators can't attack
+    let game_mode = world
+        .get::<&PlayerGameMode>(attacker)
+        .map(|gm| gm.0)
+        .unwrap_or(GameMode::Survival);
+    if game_mode == GameMode::Spectator {
+        return;
+    }
+
+    // Find target entity by entity ID
+    let target = {
+        let mut found = None;
+        for (e, eid) in world.query::<&EntityId>().iter() {
+            if eid.0 == target_eid {
+                found = Some(e);
+                break;
+            }
+        }
+        match found {
+            Some(t) => t,
+            None => return,
+        }
+    };
+
+    // Compute attack strength (cooldown). MC: 0.2 + strength^2 * 0.8
+    // Full strength at 10 ticks (vanilla uses getAttackStrengthScale(0.5f))
+    let strength = {
+        let cooldown = world
+            .get::<&AttackCooldown>(attacker)
+            .map(|c| c.ticks_since_last_attack)
+            .unwrap_or(100);
+        let f = (cooldown as f32 / 10.0).min(1.0);
+        f
+    };
+
+    // Reset attack cooldown
+    if let Ok(mut cd) = world.get::<&mut AttackCooldown>(attacker) {
+        cd.ticks_since_last_attack = 0;
+    }
+
+    // Check if target is an item entity — destroy it
+    if world.get::<&ItemEntity>(target).is_ok() {
+        // Remove item entity
+        let item_eid = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(target_eid);
+        let _ = world.despawn(target);
+
+        // Broadcast removal
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![item_eid],
+        });
+
+        // Remove from tracked entities
+        for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
+            tracked.visible.remove(&item_eid);
+        }
+        return;
+    }
+
+    // PvP: target must be a player
+    if world.get::<&Profile>(target).is_err() {
+        return; // Not a player, skip for now (no mobs yet)
+    }
+
+    // Calculate damage: base 1.0 (fist), scaled by strength
+    let base_damage = 1.0_f32;
+    let damage_scale = 0.2 + strength * strength * 0.8;
+    let mut damage = base_damage * damage_scale;
+
+    // Critical hit: falling, not on ground, strength > 0.9
+    let on_ground = world.get::<&OnGround>(attacker).map(|og| og.0).unwrap_or(true);
+    let fall_distance = world.get::<&FallDistance>(attacker).map(|fd| fd.0).unwrap_or(0.0);
+    let is_sprinting = world.get::<&MovementState>(attacker).map(|ms| ms.sprinting).unwrap_or(false);
+    let is_critical = strength > 0.9 && fall_distance > 0.0 && !on_ground && !is_sprinting;
+
+    if is_critical {
+        damage *= 1.5;
+    }
+
+    // Apply damage to target player
+    let target_eid_val = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(target_eid);
+    apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
+
+    // Broadcast critical hit particle if applicable
+    if is_critical {
+        broadcast_to_all(world, &InternalPacket::EntityAnimation {
+            entity_id: target_eid_val,
+            animation: 4, // CRITICAL_HIT
+        });
+    }
+
+    // Knockback
+    let attacker_yaw = world.get::<&Rotation>(attacker).map(|r| r.yaw).unwrap_or(0.0);
+    let kb_strength = if is_sprinting { 1.4_f32 } else { 0.4 };
+    let sin_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).sin();
+    let cos_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).cos();
+    let kb_x = (-sin_yaw * kb_strength * 0.5) as f64;
+    let kb_z = (cos_yaw * kb_strength * 0.5) as f64;
+    let kb_y = 0.4_f64;
+
+    // Send velocity to target
+    if let Ok(sender) = world.get::<&ConnectionSender>(target) {
+        let _ = sender.0.send(InternalPacket::SetEntityVelocity {
+            entity_id: target_eid_val,
+            velocity_x: (kb_x * 8000.0) as i16,
+            velocity_y: (kb_y * 8000.0) as i16,
+            velocity_z: (kb_z * 8000.0) as i16,
+        });
+    }
+
+    // Attack exhaustion: MC adds 0.1 per attack
+    if let Ok(mut food) = world.get::<&mut FoodData>(attacker) {
+        food.exhaustion = (food.exhaustion + 0.1).min(40.0);
+    }
+
+    // If sprinting, stop sprint after knockback attack
+    if is_sprinting {
+        if let Ok(mut ms) = world.get::<&mut MovementState>(attacker) {
+            ms.sprinting = false;
+        }
+    }
+}
+
 /// Apply damage to a player entity with invulnerability check and Lua event.
 fn apply_damage(
     world: &mut World,
@@ -2302,6 +2452,15 @@ fn respawn_player(
 }
 
 /// Tick void damage for players below Y=-128.
+/// Increment attack cooldown ticks for all players.
+fn tick_attack_cooldown(world: &mut World) {
+    for (_, cd) in world.query_mut::<&mut AttackCooldown>() {
+        if cd.ticks_since_last_attack < 100 {
+            cd.ticks_since_last_attack += 1;
+        }
+    }
+}
+
 fn tick_void_damage(world: &mut World, world_state: &mut WorldState, scripting: &ScriptRuntime) {
     let mut to_damage: Vec<(hecs::Entity, i32)> = Vec::new();
     for (entity, (eid, pos)) in world.query::<(&EntityId, &Position)>().iter() {
@@ -3461,10 +3620,10 @@ fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: 
         players.push((e, eid.0, pos.0, profile.0.name.clone()));
     }
 
-    let mut picked_up: Vec<(hecs::Entity, i32)> = Vec::new();
+    let mut picked_up: Vec<(hecs::Entity, i32, i32, i8)> = Vec::new(); // (entity, item_eid, collector_eid, count)
 
     for &(item_entity, item_eid, item_pos, item_id, item_count) in &items {
-        for &(player_entity, _player_eid, player_pos, ref name) in &players {
+        for &(player_entity, player_eid, player_pos, ref name) in &players {
             let dx = item_pos.x - player_pos.x;
             let dy = item_pos.y - player_pos.y;
             let dz = item_pos.z - player_pos.z;
@@ -3495,7 +3654,7 @@ fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: 
 
                 // Try to give item to player
                 if give_item_to_player(world, player_entity, item_id, item_count) {
-                    picked_up.push((item_entity, item_eid));
+                    picked_up.push((item_entity, item_eid, player_eid, item_count));
                     break; // Item is picked up, move to next item
                 }
             }
@@ -3503,13 +3662,20 @@ fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: 
     }
 
     // Despawn picked up items
-    for (entity, eid) in &picked_up {
+    for &(entity, eid, collector_eid, count) in &picked_up {
+        // Send pickup animation
+        broadcast_to_all(world, &InternalPacket::TakeItemEntity {
+            collected_entity_id: eid,
+            collector_entity_id: collector_eid,
+            item_count: count as i32,
+        });
+
         broadcast_to_all(world, &InternalPacket::RemoveEntities {
-            entity_ids: vec![*eid],
+            entity_ids: vec![eid],
         });
 
         for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
-            tracked.visible.remove(eid);
+            tracked.visible.remove(&eid);
         }
 
         scripting.fire_event_in_context(
@@ -3522,7 +3688,7 @@ fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: 
             world_state as *mut _ as *mut (),
         );
 
-        let _ = world.despawn(*entity);
+        let _ = world.despawn(entity);
     }
 }
 

@@ -221,6 +221,20 @@ pub struct EatingState {
     pub saturation_modifier: f32,
 }
 
+/// Tracks attack cooldown for combat (MC: attackStrengthTicker).
+/// Counts up from 0 each tick; full strength at >= 10 ticks (0.5s).
+pub struct AttackCooldown {
+    pub ticks_since_last_attack: u32,
+}
+
+impl Default for AttackCooldown {
+    fn default() -> Self {
+        Self {
+            ticks_since_last_attack: 100,
+        }
+    }
+}
+
 /// Tracks a block a player is currently breaking in survival mode.
 pub struct BreakingBlock {
     pub position: BlockPos,
