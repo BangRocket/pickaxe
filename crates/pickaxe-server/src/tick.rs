@@ -1,8 +1,11 @@
 use crate::config::ServerConfig;
 use crate::ecs::*;
 use bytes::BytesMut;
+use flate2::read::GzDecoder;
+use flate2::write::GzEncoder;
+use flate2::Compression;
 use hecs::World;
-use pickaxe_nbt::NbtValue;
+use pickaxe_nbt::{nbt_compound, nbt_list, NbtValue};
 use pickaxe_protocol_core::{player_info_actions, CommandNode, InternalPacket, PlayerInfoEntry};
 use pickaxe_protocol_v1_21::{build_item_metadata, V1_21Adapter};
 use pickaxe_region::RegionStorage;
@@ -11,6 +14,7 @@ use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, V
 use pickaxe_world::{generate_flat_chunk, Chunk};
 use rand::Rng;
 use std::collections::HashMap;
+use std::io::{Read as _, Write as _};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::Arc;
@@ -34,6 +38,178 @@ pub struct NewPlayer {
     pub profile: GameProfile,
     pub packet_tx: mpsc::UnboundedSender<InternalPacket>,
     pub packet_rx: mpsc::UnboundedReceiver<InboundPacket>,
+}
+
+/// Deserialized player save data loaded from disk.
+struct PlayerSaveData {
+    position: Vec3d,
+    yaw: f32,
+    pitch: f32,
+    health: f32,
+    food_level: i32,
+    saturation: f32,
+    exhaustion: f32,
+    fall_distance: f32,
+    held_slot: u8,
+    game_mode: GameMode,
+    slots: [Option<ItemStack>; 46],
+}
+
+/// Serialize a player entity's ECS components to gzip-compressed vanilla-compatible NBT.
+fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>> {
+    let pos = world.get::<&Position>(entity).ok()?;
+    let rot = world.get::<&Rotation>(entity).ok()?;
+    let on_ground = world.get::<&OnGround>(entity).ok()?;
+    let health = world.get::<&Health>(entity).ok()?;
+    let food = world.get::<&FoodData>(entity).ok()?;
+    let fall_dist = world.get::<&FallDistance>(entity).ok()?;
+    let inv = world.get::<&Inventory>(entity).ok()?;
+    let held = world.get::<&HeldSlot>(entity).ok()?;
+    let gm = world.get::<&PlayerGameMode>(entity).ok()?;
+
+    // Build inventory NBT list with vanilla slot mapping
+    let mut inv_items = Vec::new();
+    for (ecs_slot, item) in inv.slots.iter().enumerate() {
+        if let Some(stack) = item {
+            let nbt_slot: i8 = match ecs_slot {
+                36..=44 => (ecs_slot - 36) as i8,    // hotbar: ECS 36-44 → NBT 0-8
+                9..=35 => ecs_slot as i8,              // main: ECS 9-35 → NBT 9-35
+                5..=8 => (100 + (ecs_slot - 5)) as i8, // armor: ECS 5-8 → NBT 100-103
+                45 => -106,                             // offhand: ECS 45 → NBT -106
+                _ => continue,
+            };
+            let item_name = format!(
+                "minecraft:{}",
+                pickaxe_data::item_id_to_name(stack.item_id).unwrap_or("air")
+            );
+            inv_items.push(nbt_compound! {
+                "Slot" => NbtValue::Byte(nbt_slot),
+                "id" => NbtValue::String(item_name),
+                "count" => NbtValue::Byte(stack.count)
+            });
+        }
+    }
+
+    let nbt = nbt_compound! {
+        "DataVersion" => NbtValue::Int(3955),
+        "Pos" => nbt_list![
+            NbtValue::Double(pos.0.x),
+            NbtValue::Double(pos.0.y),
+            NbtValue::Double(pos.0.z)
+        ],
+        "Rotation" => nbt_list![
+            NbtValue::Float(rot.yaw),
+            NbtValue::Float(rot.pitch)
+        ],
+        "OnGround" => NbtValue::Byte(if on_ground.0 { 1 } else { 0 }),
+        "Health" => NbtValue::Float(health.current),
+        "FallDistance" => NbtValue::Float(fall_dist.0),
+        "foodLevel" => NbtValue::Int(food.food_level),
+        "foodSaturationLevel" => NbtValue::Float(food.saturation),
+        "foodExhaustionLevel" => NbtValue::Float(food.exhaustion),
+        "Inventory" => NbtValue::List(inv_items),
+        "SelectedItemSlot" => NbtValue::Int(held.0 as i32),
+        "playerGameType" => NbtValue::Int(gm.0.id() as i32),
+        "Dimension" => NbtValue::String("minecraft:overworld".into())
+    };
+
+    let mut buf = BytesMut::new();
+    nbt.write_root_named("", &mut buf);
+
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    encoder.write_all(&buf).ok()?;
+    Some(encoder.finish().ok()?)
+}
+
+/// Deserialize gzip-compressed vanilla NBT into a PlayerSaveData struct.
+fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
+    // Gzip decompress
+    let mut decoder = GzDecoder::new(data);
+    let mut decompressed = Vec::new();
+    decoder.read_to_end(&mut decompressed).ok()?;
+
+    // Parse NBT
+    let (_, nbt) = NbtValue::read_root_named(&decompressed).ok()?;
+
+    // Extract position
+    let pos_list = nbt.get("Pos")?.as_list()?;
+    let x = pos_list.get(0)?.as_double()?;
+    let y = pos_list.get(1)?.as_double()?;
+    let z = pos_list.get(2)?.as_double()?;
+
+    // Extract rotation
+    let rot_list = nbt.get("Rotation")?.as_list()?;
+    let yaw = rot_list.get(0)?.as_float()?;
+    let pitch = rot_list.get(1)?.as_float()?;
+
+    let health = nbt.get("Health")?.as_float()?;
+    let fall_distance = nbt.get("FallDistance").and_then(|v| v.as_float()).unwrap_or(0.0);
+    let food_level = nbt.get("foodLevel")?.as_int()?;
+    let saturation = nbt.get("foodSaturationLevel")?.as_float()?;
+    let exhaustion = nbt.get("foodExhaustionLevel").and_then(|v| v.as_float()).unwrap_or(0.0);
+    let held_slot = nbt.get("SelectedItemSlot").and_then(|v| v.as_int()).unwrap_or(0) as u8;
+    let game_type = nbt.get("playerGameType").and_then(|v| v.as_int()).unwrap_or(0);
+    let game_mode = match game_type {
+        1 => GameMode::Creative,
+        2 => GameMode::Adventure,
+        3 => GameMode::Spectator,
+        _ => GameMode::Survival,
+    };
+
+    // Parse inventory
+    let mut slots: [Option<ItemStack>; 46] = std::array::from_fn(|_| None);
+    if let Some(inv_list) = nbt.get("Inventory").and_then(|v| v.as_list()) {
+        for entry in inv_list {
+            let nbt_slot = entry.get("Slot").and_then(|v| v.as_byte());
+            let id_str = entry.get("id").and_then(|v| v.as_str());
+            let count = entry.get("count").and_then(|v| v.as_byte()).unwrap_or(1);
+
+            if let (Some(nbt_slot), Some(id_str)) = (nbt_slot, id_str) {
+                // Strip "minecraft:" prefix
+                let name = id_str.strip_prefix("minecraft:").unwrap_or(id_str);
+                let item_id = match pickaxe_data::item_name_to_id(name) {
+                    Some(id) => id,
+                    None => continue,
+                };
+
+                // Map NBT slot → ECS slot
+                let ecs_slot: usize = match nbt_slot {
+                    0..=8 => (nbt_slot as usize) + 36,    // hotbar: NBT 0-8 → ECS 36-44
+                    9..=35 => nbt_slot as usize,            // main: NBT 9-35 → ECS 9-35
+                    100..=103 => (nbt_slot - 100) as usize + 5, // armor: NBT 100-103 → ECS 5-8
+                    -106 => 45,                              // offhand: NBT -106 → ECS 45
+                    _ => continue,
+                };
+
+                if ecs_slot < 46 {
+                    slots[ecs_slot] = Some(ItemStack { item_id, count });
+                }
+            }
+        }
+    }
+
+    Some(PlayerSaveData {
+        position: Vec3d::new(x, y, z),
+        yaw,
+        pitch,
+        health,
+        food_level,
+        saturation,
+        exhaustion,
+        fall_distance,
+        held_slot,
+        game_mode,
+        slots,
+    })
+}
+
+/// Save all currently-connected players' data.
+fn save_all_players(world: &World, save_tx: &mpsc::UnboundedSender<SaveOp>) {
+    for (entity, profile) in world.query::<&Profile>().iter() {
+        if let Some(data) = serialize_player_data(world, entity) {
+            let _ = save_tx.send(SaveOp::Player(profile.0.uuid, data));
+        }
+    }
 }
 
 /// Operations queued for the background saver task.
@@ -275,6 +451,11 @@ pub async fn run_tick_loop(
         tick_world_time(&world, &mut world_state, tick_count);
         tick_block_breaking(&mut world, tick_count);
 
+        // Periodic player data save (every 60 seconds = 1200 ticks)
+        if tick_count % 1200 == 0 && tick_count > 0 {
+            save_all_players(&world, &world_state.save_tx);
+        }
+
         tick_count += 1;
 
         // Sleep for remainder of tick
@@ -309,6 +490,42 @@ fn handle_new_player(
 
     let view_distance = config.view_distance as i32;
 
+    // Try loading saved player data from disk
+    let player_data_path = PathBuf::from(&config.world_dir)
+        .join("playerdata")
+        .join(format!("{}.dat", profile.uuid));
+    let saved = if player_data_path.exists() {
+        std::fs::read(&player_data_path)
+            .ok()
+            .and_then(|data| deserialize_player_data(&data))
+    } else {
+        None
+    };
+
+    // Determine values from saved data or defaults
+    let spawn_pos = saved.as_ref().map(|s| s.position).unwrap_or(Vec3d::new(0.5, -59.0, 0.5));
+    let player_yaw = saved.as_ref().map(|s| s.yaw).unwrap_or(0.0);
+    let player_pitch = saved.as_ref().map(|s| s.pitch).unwrap_or(0.0);
+    let player_game_mode = saved.as_ref().map(|s| s.game_mode).unwrap_or(GameMode::Survival);
+    let player_health = saved.as_ref().map(|s| Health {
+        current: s.health,
+        max: 20.0,
+        invulnerable_ticks: 0,
+    }).unwrap_or_default();
+    let player_food = saved.as_ref().map(|s| FoodData {
+        food_level: s.food_level,
+        saturation: s.saturation,
+        exhaustion: s.exhaustion,
+        tick_timer: 0,
+    }).unwrap_or_default();
+    let player_fall_distance = saved.as_ref().map(|s| s.fall_distance).unwrap_or(0.0);
+    let player_held_slot = saved.as_ref().map(|s| s.held_slot).unwrap_or(0);
+    let player_inventory = saved.as_ref().map(|s| {
+        let mut inv = Inventory::new();
+        inv.slots = s.slots.clone();
+        inv
+    }).unwrap_or_else(Inventory::new);
+
     // Send Join Game
     let _ = sender.send(InternalPacket::JoinGame {
         entity_id,
@@ -323,7 +540,7 @@ fn handle_new_player(
         dimension_type: 0,
         dimension_name: "minecraft:overworld".into(),
         hashed_seed: 0,
-        game_mode: GameMode::Survival,
+        game_mode: player_game_mode,
         previous_game_mode: -1,
         is_debug: false,
         is_flat: true,
@@ -340,8 +557,6 @@ fn handle_new_player(
         time_of_day: world_state.time_of_day,
     });
 
-    // Spawn position
-    let spawn_pos = Vec3d::new(0.5, -59.0, 0.5);
     let center_cx = (spawn_pos.x as i32) >> 4;
     let center_cz = (spawn_pos.z as i32) >> 4;
 
@@ -357,8 +572,8 @@ fn handle_new_player(
     // Teleport player to spawn
     let _ = sender.send(InternalPacket::SynchronizePlayerPosition {
         position: spawn_pos,
-        yaw: 0.0,
-        pitch: 0.0,
+        yaw: player_yaw,
+        pitch: player_pitch,
         flags: 0,
         teleport_id: 1,
     });
@@ -404,7 +619,7 @@ fn handle_new_player(
             .iter()
             .map(|pr| (pr.name.clone(), pr.value.clone(), pr.signature.clone()))
             .collect(),
-        game_mode: Some(GameMode::Survival.id() as i32),
+        game_mode: Some(player_game_mode.id() as i32),
         listed: Some(true),
         ping: Some(0),
         display_name: None,
@@ -433,19 +648,19 @@ fn handle_new_player(
         },
     );
 
-    // Send initial inventory (empty)
+    // Send inventory (loaded or empty)
     let _ = sender.send(InternalPacket::SetContainerContent {
         window_id: 0,
-        state_id: 1,
-        slots: vec![None; 46],
+        state_id: player_inventory.state_id,
+        slots: player_inventory.to_slot_vec(),
         carried_item: None,
     });
 
-    // Send initial health/food bar
+    // Send health/food bar
     let _ = sender.send(InternalPacket::SetHealth {
-        health: 20.0,
-        food: 20,
-        saturation: 5.0,
+        health: player_health.current,
+        food: player_food.food_level,
+        saturation: player_food.saturation,
     });
 
     // Spawn ECS entity (hecs supports up to 16-tuple, so we split)
@@ -454,11 +669,11 @@ fn handle_new_player(
         Profile(profile.clone()),
         Position(spawn_pos),
         Rotation {
-            yaw: 0.0,
-            pitch: 0.0,
+            yaw: player_yaw,
+            pitch: player_pitch,
         },
         OnGround(true),
-        PlayerGameMode(GameMode::Survival),
+        PlayerGameMode(player_game_mode),
         ConnectionSender(sender),
         ChunkPosition {
             chunk_x: center_cx,
@@ -469,17 +684,17 @@ fn handle_new_player(
         TrackedEntities::new(),
         PreviousPosition(spawn_pos),
         PreviousRotation {
-            yaw: 0.0,
-            pitch: 0.0,
+            yaw: player_yaw,
+            pitch: player_pitch,
         },
-        Inventory::new(),
-        HeldSlot(0),
+        player_inventory,
+        HeldSlot(player_held_slot),
     ));
     // Additional components (exceeds 16-tuple limit)
     let _ = world.insert(player_entity, (
-        Health::default(),
-        FoodData::default(),
-        FallDistance(0.0),
+        player_health,
+        player_food,
+        FallDistance(player_fall_distance),
         MovementState { sprinting: false, sneaking: false },
     ));
 
@@ -519,6 +734,12 @@ fn handle_disconnect(
     }
 
     if let Some(entity) = to_despawn {
+        // Save player data BEFORE despawn (ECS components are needed)
+        if let Some(uuid) = player_uuid {
+            if let Some(data) = serialize_player_data(world, entity) {
+                let _ = world_state.save_tx.send(SaveOp::Player(uuid, data));
+            }
+        }
         let _ = world.despawn(entity);
     }
 
