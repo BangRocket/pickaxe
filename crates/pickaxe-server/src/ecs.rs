@@ -285,6 +285,8 @@ pub struct MobEntity {
     pub ai_timer: u32,          // ticks until next AI decision
     pub ambient_sound_timer: u32, // ticks until next ambient sound
     pub no_damage_ticks: i32,   // invulnerability after hit
+    pub fuse_timer: i32,        // creeper fuse countdown (-1 = not fusing, 0 = explode)
+    pub attack_cooldown: u32,   // skeleton arrow / generic attack cooldown
 }
 
 /// Player air supply for drowning mechanics.
@@ -307,4 +309,5 @@ pub enum MobAiState {
     Idle,
     Wandering,
     Chasing,
+    Fleeing,    // bat: fly away; creeper: retreat after failed fuse
 }

@@ -3171,6 +3171,8 @@ fn spawn_mob(
             ai_timer: rand::random::<u32>() % 80 + 20,
             ambient_sound_timer: rand::random::<u32>() % 200 + 100,
             no_damage_ticks: 0,
+            fuse_timer: -1,
+            attack_cooldown: 0,
         },
     ))
 }
@@ -3357,11 +3359,49 @@ fn tick_mob_ai(
                             let dx = tp.0.x - pos.0.x;
                             let dz = tp.0.z - pos.0.z;
                             let dist = (dx * dx + dz * dz).sqrt();
-                            if dist > 1.5 {
-                                let chase_speed = speed * 1.3; // zombies are slightly faster when chasing
+
+                            // Skeleton: keep distance (8-12 blocks) for ranged attacks
+                            if mob.mob_type == pickaxe_data::MOB_SKELETON {
+                                if dist < 6.0 {
+                                    // Too close — retreat
+                                    let chase_speed = speed * 1.2;
+                                    (-dx / dist * chase_speed, -dz / dist * chase_speed)
+                                } else if dist > 14.0 {
+                                    // Too far — close in
+                                    let chase_speed = speed * 1.3;
+                                    (dx / dist * chase_speed, dz / dist * chase_speed)
+                                } else {
+                                    // In sweet spot — strafe slightly
+                                    let strafe_speed = speed * 0.5;
+                                    (-dz / dist * strafe_speed, dx / dist * strafe_speed)
+                                }
+                            } else if dist > 1.5 {
+                                let chase_speed = speed * 1.3;
                                 (dx / dist * chase_speed, dz / dist * chase_speed)
                             } else {
                                 (0.0, 0.0) // close enough, stop moving
+                            }
+                        } else {
+                            mob.target = None;
+                            mob.ai_state = MobAiState::Idle;
+                            (0.0, 0.0)
+                        }
+                    } else {
+                        mob.ai_state = MobAiState::Idle;
+                        (0.0, 0.0)
+                    }
+                }
+                MobAiState::Fleeing => {
+                    // Move away from target (bat retreat, creeper post-fuse cancel)
+                    if let Some(target) = mob.target {
+                        if let Ok(tp) = world.get::<&Position>(target) {
+                            let dx = pos.0.x - tp.0.x; // reversed: away from target
+                            let dz = pos.0.z - tp.0.z;
+                            let dist = (dx * dx + dz * dz).sqrt();
+                            if dist > 0.1 {
+                                (dx / dist * speed, dz / dist * speed)
+                            } else {
+                                (0.0, 0.0)
                             }
                         } else {
                             mob.target = None;
@@ -3377,7 +3417,7 @@ fn tick_mob_ai(
             };
 
             // Calculate new yaw for chasing
-            let new_yaw = if mob.ai_state == MobAiState::Chasing && (mx != 0.0 || mz != 0.0) {
+            let new_yaw = if (mob.ai_state == MobAiState::Chasing || mob.ai_state == MobAiState::Fleeing) && (mx != 0.0 || mz != 0.0) {
                 (-mx.atan2(mz) * 180.0 / std::f64::consts::PI) as f32
             } else {
                 rot.yaw
@@ -3393,9 +3433,18 @@ fn tick_mob_ai(
         }
 
         // AI decision time
-        let is_hostile = pickaxe_data::mob_is_hostile(mob.mob_type);
+        // Spiders are only hostile at night
+        let is_hostile = if mob.mob_type == pickaxe_data::MOB_SPIDER {
+            let time = world_state.time_of_day % 24000;
+            time >= 13000 && time < 23000 // hostile only at night
+        } else {
+            pickaxe_data::mob_is_hostile(mob.mob_type)
+        };
 
-        if is_hostile {
+        // Bats just flutter around, never chase
+        let is_bat = mob.mob_type == pickaxe_data::MOB_BAT;
+
+        if is_hostile && !is_bat {
             // Find nearest player within 16 blocks
             let mut nearest: Option<(hecs::Entity, f64)> = None;
             for &(pe, _peid, ppos) in &player_positions {
@@ -3425,7 +3474,7 @@ fn tick_mob_ai(
                 }
             }
         } else {
-            // Passive mob: wander or idle
+            // Passive mob or bat: wander or idle
             let r: f32 = rand::random();
             if r < 0.3 {
                 mob.ai_state = MobAiState::Wandering;
@@ -3535,28 +3584,187 @@ fn tick_mob_ai(
         }
     }
 
-    // Zombie contact damage (attack nearest player within 1.5 blocks)
-    let mut zombie_attacks: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
-    for (_entity, (eid, pos, mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
-        if mob.mob_type == pickaxe_data::MOB_ZOMBIE && mob.no_damage_ticks <= 0 {
-            if let Some(target) = mob.target {
-                if let Ok(tp) = world.get::<&Position>(target) {
-                    let dx = tp.0.x - pos.0.x;
-                    let dy = tp.0.y - pos.0.y;
-                    let dz = tp.0.z - pos.0.z;
-                    let dist = (dx * dx + dy * dy + dz * dz).sqrt();
-                    if dist < 1.8 {
-                        zombie_attacks.push((target, eid.0, pos.0));
-                    }
+    // --- Mob combat: melee attacks, skeleton arrows, creeper fuse ---
+
+    // Collect melee attacks from all melee hostiles (zombie, spider, enderman, slime)
+    struct MeleeAttack {
+        target: hecs::Entity,
+        mob_type: i32,
+        mob_pos: Vec3d,
+    }
+    let mut melee_attacks: Vec<MeleeAttack> = Vec::new();
+
+    // Collect skeleton ranged attacks
+    struct RangedAttack {
+        target: hecs::Entity,
+        mob_entity: hecs::Entity,
+        mob_pos: Vec3d,
+    }
+    let mut ranged_attacks: Vec<RangedAttack> = Vec::new();
+
+    // Collect creeper fuse updates
+    struct CreeperFuse {
+        mob_entity: hecs::Entity,
+        mob_eid: i32,
+        mob_pos: Vec3d,
+        fuse_timer: i32,
+    }
+    let mut creeper_fuses: Vec<CreeperFuse> = Vec::new();
+
+    for (entity, (eid, pos, mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+        let Some(target) = mob.target else { continue };
+        let Ok(tp) = world.get::<&Position>(target) else { continue };
+
+        let dx = tp.0.x - pos.0.x;
+        let dy = tp.0.y - pos.0.y;
+        let dz = tp.0.z - pos.0.z;
+        let dist = (dx * dx + dy * dy + dz * dz).sqrt();
+
+        match mob.mob_type {
+            // Creeper: start fuse when close, explode at 0
+            t if t == pickaxe_data::MOB_CREEPER => {
+                if dist < 3.0 {
+                    // Start or continue fuse
+                    let new_fuse = if mob.fuse_timer < 0 { 30 } else { mob.fuse_timer - 1 };
+                    creeper_fuses.push(CreeperFuse {
+                        mob_entity: entity,
+                        mob_eid: eid.0,
+                        mob_pos: pos.0,
+                        fuse_timer: new_fuse,
+                    });
+                } else if mob.fuse_timer >= 0 {
+                    // Player moved away — cancel fuse
+                    creeper_fuses.push(CreeperFuse {
+                        mob_entity: entity,
+                        mob_eid: eid.0,
+                        mob_pos: pos.0,
+                        fuse_timer: -1, // reset
+                    });
+                }
+            }
+            // Skeleton: ranged attack every 40 ticks when in range
+            t if t == pickaxe_data::MOB_SKELETON => {
+                if dist < 16.0 && mob.attack_cooldown == 0 {
+                    ranged_attacks.push(RangedAttack {
+                        target,
+                        mob_entity: entity,
+                        mob_pos: pos.0,
+                    });
+                }
+            }
+            // All other melee hostiles: zombie, spider, enderman, slime
+            _ => {
+                if !pickaxe_data::mob_is_hostile(mob.mob_type) { continue; }
+                if mob.no_damage_ticks > 0 { continue; }
+                if mob.attack_cooldown > 0 { continue; }
+                if dist < 1.8 {
+                    melee_attacks.push(MeleeAttack {
+                        target,
+                        mob_type: mob.mob_type,
+                        mob_pos: pos.0,
+                    });
                 }
             }
         }
     }
-    for (target, _zombie_eid, zombie_pos) in zombie_attacks {
-        let damage = pickaxe_data::mob_attack_damage(pickaxe_data::MOB_ZOMBIE);
-        let target_eid = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(0);
-        apply_damage(world, world_state, target, target_eid, damage, "zombie", _scripting);
-        play_sound_at_entity(world, zombie_pos.x, zombie_pos.y, zombie_pos.z, "entity.zombie.attack", SOUND_HOSTILE, 1.0, 1.0);
+
+    // Decrement attack cooldowns
+    for (_e, mob) in world.query::<&mut MobEntity>().iter() {
+        if mob.attack_cooldown > 0 {
+            mob.attack_cooldown -= 1;
+        }
+    }
+
+    // Process melee attacks
+    for attack in melee_attacks {
+        let damage = pickaxe_data::mob_attack_damage(attack.mob_type);
+        let mob_name = pickaxe_data::mob_type_name(attack.mob_type).unwrap_or("mob");
+        let target_eid = world.get::<&EntityId>(attack.target).map(|e| e.0).unwrap_or(0);
+        apply_damage(world, world_state, attack.target, target_eid, damage, mob_name, _scripting);
+
+        // Play attack sound
+        let (_, hurt_sound, _) = pickaxe_data::mob_sounds(attack.mob_type);
+        let attack_sound = match attack.mob_type {
+            t if t == pickaxe_data::MOB_ZOMBIE => "entity.zombie.attack",
+            t if t == pickaxe_data::MOB_SPIDER => "entity.spider.hurt",
+            t if t == pickaxe_data::MOB_ENDERMAN => "entity.enderman.hurt",
+            _ => hurt_sound,
+        };
+        play_sound_at_entity(world, attack.mob_pos.x, attack.mob_pos.y, attack.mob_pos.z, attack_sound, SOUND_HOSTILE, 1.0, 1.0);
+
+        // Set attack cooldown (20 ticks = 1 second between attacks)
+        // Find the mob entity to set cooldown (search by position match)
+        for (_e, (pos, mob)) in world.query::<(&Position, &mut MobEntity)>().iter() {
+            if (pos.0.x - attack.mob_pos.x).abs() < 0.01 && (pos.0.z - attack.mob_pos.z).abs() < 0.01 {
+                mob.attack_cooldown = 20;
+                break;
+            }
+        }
+    }
+
+    // Process skeleton ranged attacks (direct damage, no arrow entity)
+    for attack in ranged_attacks {
+        let damage = pickaxe_data::mob_attack_damage(pickaxe_data::MOB_SKELETON);
+        let target_eid = world.get::<&EntityId>(attack.target).map(|e| e.0).unwrap_or(0);
+        apply_damage(world, world_state, attack.target, target_eid, damage, "skeleton", _scripting);
+        play_sound_at_entity(world, attack.mob_pos.x, attack.mob_pos.y, attack.mob_pos.z, "entity.skeleton.shoot", SOUND_HOSTILE, 1.0, 1.0);
+        // Set cooldown
+        if let Ok(mut mob) = world.get::<&mut MobEntity>(attack.mob_entity) {
+            mob.attack_cooldown = 40; // 2 seconds between arrows
+        }
+    }
+
+    // Process creeper fuses
+    let mut creeper_explosions: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
+    for fuse in &creeper_fuses {
+        if let Ok(mut mob) = world.get::<&mut MobEntity>(fuse.mob_entity) {
+            mob.fuse_timer = fuse.fuse_timer;
+        }
+        if fuse.fuse_timer == 30 {
+            // Fuse just started — play fuse sound
+            play_sound_at_entity(world, fuse.mob_pos.x, fuse.mob_pos.y, fuse.mob_pos.z, "entity.creeper.primed", SOUND_HOSTILE, 1.0, 1.0);
+        }
+        if fuse.fuse_timer == 0 {
+            creeper_explosions.push((fuse.mob_entity, fuse.mob_eid, fuse.mob_pos));
+        }
+    }
+
+    // Process creeper explosions
+    for (creeper_entity, creeper_eid, creeper_pos) in creeper_explosions {
+        // Play explosion sound + particle
+        play_sound_at_entity(world, creeper_pos.x, creeper_pos.y, creeper_pos.z, "entity.generic.explode", SOUND_HOSTILE, 1.0, 1.0);
+
+        // Broadcast entity death animation (visual feedback for explosion)
+        broadcast_to_all(world, &InternalPacket::EntityEvent {
+            entity_id: creeper_eid,
+            event_id: 3, // death
+        });
+
+        // Damage all players within 6 blocks (damage falls off with distance)
+        let mut damaged_players: Vec<(hecs::Entity, i32, f64)> = Vec::new();
+        for (pe, (peid, ppos, _profile)) in world.query::<(&EntityId, &Position, &Profile)>().iter() {
+            let dx = ppos.0.x - creeper_pos.x;
+            let dy = ppos.0.y - creeper_pos.y;
+            let dz = ppos.0.z - creeper_pos.z;
+            let dist = (dx * dx + dy * dy + dz * dz).sqrt();
+            if dist < 6.0 {
+                damaged_players.push((pe, peid.0, dist));
+            }
+        }
+        for (pe, peid, dist) in damaged_players {
+            // Damage falls off: max 24 at center, 0 at 6 blocks
+            let damage = ((6.0 - dist) / 6.0 * 24.0).max(1.0) as f32;
+            apply_damage(world, world_state, pe, peid, damage, "explosion", _scripting);
+        }
+
+        // Despawn the creeper
+        let _ = world.despawn(creeper_entity);
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![creeper_eid],
+        });
+        for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
+            tracked.visible.remove(&creeper_eid);
+        }
     }
 }
 
@@ -3627,14 +3835,23 @@ fn tick_mob_spawning(
         time >= 13000 && time < 23000
     };
 
-    let mob_type = if is_night && rand::random::<f32>() < 0.4 {
-        pickaxe_data::MOB_ZOMBIE
+    let mob_type = if is_night && rand::random::<f32>() < 0.5 {
+        // 50% chance of hostile mob at night
+        let hostile_types = [
+            pickaxe_data::MOB_ZOMBIE,
+            pickaxe_data::MOB_SKELETON,
+            pickaxe_data::MOB_SPIDER,
+            pickaxe_data::MOB_CREEPER,
+            pickaxe_data::MOB_ENDERMAN,
+        ];
+        hostile_types[rand::random::<usize>() % hostile_types.len()]
     } else {
         let passive_types = [
             pickaxe_data::MOB_PIG,
             pickaxe_data::MOB_COW,
             pickaxe_data::MOB_SHEEP,
             pickaxe_data::MOB_CHICKEN,
+            pickaxe_data::MOB_BAT,
         ];
         passive_types[rand::random::<usize>() % passive_types.len()]
     };

@@ -34,3 +34,26 @@ pickaxe.commands.register("weather", function(player_name, args)
     pickaxe.world.set_weather(weather_type, duration)
     pickaxe.players.send_message(player_name, "Weather set to " .. weather_type .. " for " .. duration .. " ticks")
 end)
+
+-- /spawnmob <type> — spawn a mob at the player's position
+pickaxe.commands.register("spawnmob", function(player_name, args)
+    local mob_type = args:match("^%s*(%S+)")
+    if not mob_type then
+        local types = "bat, chicken, cow, creeper, enderman, pig, sheep, skeleton, slime, spider, zombie"
+        pickaxe.players.send_message(player_name, "Usage: /spawnmob <type>. Types: " .. types)
+        return
+    end
+
+    local pos = pickaxe.players.get_position(player_name)
+    if not pos then
+        pickaxe.players.send_message(player_name, "Could not get your position")
+        return
+    end
+
+    local eid = pickaxe.entities.spawn_mob(pos.x + 2.0, pos.y, pos.z, mob_type)
+    if eid then
+        pickaxe.players.send_message(player_name, "Spawned " .. mob_type .. " (entity #" .. eid .. ")")
+    else
+        pickaxe.players.send_message(player_name, "Unknown mob type: " .. mob_type)
+    end
+end)

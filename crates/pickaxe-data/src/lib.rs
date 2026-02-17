@@ -719,20 +719,50 @@ pub fn fluid_height(state_id: i32) -> f64 {
 // === Mob Data ===
 
 /// Mob type constants (protocol entity type IDs for MC 1.21.1).
+pub const MOB_BAT: i32 = 6;
 pub const MOB_CHICKEN: i32 = 19;
 pub const MOB_COW: i32 = 22;
+pub const MOB_CREEPER: i32 = 23;
+pub const MOB_ENDERMAN: i32 = 33;
 pub const MOB_PIG: i32 = 77;
 pub const MOB_SHEEP: i32 = 87;
+pub const MOB_SKELETON: i32 = 91;
+pub const MOB_SLIME: i32 = 93;
+pub const MOB_SPIDER: i32 = 100;
 pub const MOB_ZOMBIE: i32 = 124;
 
 /// Returns mob type name from entity type ID.
 pub fn mob_type_name(type_id: i32) -> Option<&'static str> {
     match type_id {
+        MOB_BAT => Some("bat"),
         MOB_CHICKEN => Some("chicken"),
         MOB_COW => Some("cow"),
+        MOB_CREEPER => Some("creeper"),
+        MOB_ENDERMAN => Some("enderman"),
         MOB_PIG => Some("pig"),
         MOB_SHEEP => Some("sheep"),
+        MOB_SKELETON => Some("skeleton"),
+        MOB_SLIME => Some("slime"),
+        MOB_SPIDER => Some("spider"),
         MOB_ZOMBIE => Some("zombie"),
+        _ => None,
+    }
+}
+
+/// Reverse lookup: name → mob type ID.
+pub fn mob_name_to_type(name: &str) -> Option<i32> {
+    match name {
+        "bat" => Some(MOB_BAT),
+        "chicken" => Some(MOB_CHICKEN),
+        "cow" => Some(MOB_COW),
+        "creeper" => Some(MOB_CREEPER),
+        "enderman" => Some(MOB_ENDERMAN),
+        "pig" => Some(MOB_PIG),
+        "sheep" => Some(MOB_SHEEP),
+        "skeleton" => Some(MOB_SKELETON),
+        "slime" => Some(MOB_SLIME),
+        "spider" => Some(MOB_SPIDER),
+        "zombie" => Some(MOB_ZOMBIE),
         _ => None,
     }
 }
@@ -740,10 +770,16 @@ pub fn mob_type_name(type_id: i32) -> Option<&'static str> {
 /// Returns the max health for a mob type.
 pub fn mob_max_health(type_id: i32) -> f32 {
     match type_id {
+        MOB_BAT => 6.0,
         MOB_CHICKEN => 4.0,
         MOB_COW => 10.0,
+        MOB_CREEPER => 20.0,
+        MOB_ENDERMAN => 40.0,
         MOB_PIG => 10.0,
         MOB_SHEEP => 8.0,
+        MOB_SKELETON => 20.0,
+        MOB_SLIME => 4.0,  // size 2 (default spawn)
+        MOB_SPIDER => 16.0,
         MOB_ZOMBIE => 20.0,
         _ => 10.0,
     }
@@ -752,23 +788,34 @@ pub fn mob_max_health(type_id: i32) -> f32 {
 /// Returns the attack damage for a hostile mob type (0 for passive).
 pub fn mob_attack_damage(type_id: i32) -> f32 {
     match type_id {
-        MOB_ZOMBIE => 3.0, // Easy difficulty; Normal=3, Hard=4.5
+        MOB_CREEPER => 0.0,  // explosion damage, not melee
+        MOB_ENDERMAN => 7.0,
+        MOB_SKELETON => 2.0,  // bow damage, varies with difficulty
+        MOB_SLIME => 2.0,     // size 2 damage
+        MOB_SPIDER => 2.0,
+        MOB_ZOMBIE => 3.0,
         _ => 0.0,
     }
 }
 
 /// Returns whether a mob type is hostile.
 pub fn mob_is_hostile(type_id: i32) -> bool {
-    matches!(type_id, MOB_ZOMBIE)
+    matches!(type_id, MOB_CREEPER | MOB_ENDERMAN | MOB_SKELETON | MOB_SLIME | MOB_SPIDER | MOB_ZOMBIE)
 }
 
 /// Returns mob movement speed in blocks/tick.
 pub fn mob_speed(type_id: i32) -> f64 {
     match type_id {
+        MOB_BAT => 0.04,
         MOB_CHICKEN => 0.05,
         MOB_COW => 0.04,
+        MOB_CREEPER => 0.05,
+        MOB_ENDERMAN => 0.06,
         MOB_PIG => 0.05,
         MOB_SHEEP => 0.046,
+        MOB_SKELETON => 0.05,
+        MOB_SLIME => 0.04,
+        MOB_SPIDER => 0.06,
         MOB_ZOMBIE => 0.046,
         _ => 0.04,
     }
@@ -777,10 +824,16 @@ pub fn mob_speed(type_id: i32) -> f64 {
 /// Returns mob drops as a list of (item_name, min_count, max_count).
 pub fn mob_drops(type_id: i32) -> &'static [(&'static str, i32, i32)] {
     match type_id {
+        MOB_BAT => &[],
         MOB_CHICKEN => &[("chicken", 1, 1), ("feather", 0, 2)],
         MOB_COW => &[("beef", 1, 3), ("leather", 0, 2)],
+        MOB_CREEPER => &[("gunpowder", 0, 2)],
+        MOB_ENDERMAN => &[("ender_pearl", 0, 1)],
         MOB_PIG => &[("porkchop", 1, 3)],
         MOB_SHEEP => &[("mutton", 1, 2)],
+        MOB_SKELETON => &[("arrow", 0, 2), ("bone", 0, 2)],
+        MOB_SLIME => &[("slime_ball", 0, 2)],
+        MOB_SPIDER => &[("string", 0, 2), ("spider_eye", 0, 1)],
         MOB_ZOMBIE => &[("rotten_flesh", 0, 2)],
         _ => &[],
     }
@@ -789,8 +842,10 @@ pub fn mob_drops(type_id: i32) -> &'static [(&'static str, i32, i32)] {
 /// Returns XP dropped when this mob dies.
 pub fn mob_xp_drop(type_id: i32) -> i32 {
     match type_id {
+        MOB_BAT => 0,
         MOB_CHICKEN | MOB_COW | MOB_PIG | MOB_SHEEP => 3,
-        MOB_ZOMBIE => 5,
+        MOB_CREEPER | MOB_ENDERMAN | MOB_SKELETON | MOB_SPIDER | MOB_ZOMBIE => 5,
+        MOB_SLIME => 2,
         _ => 0,
     }
 }
@@ -798,10 +853,16 @@ pub fn mob_xp_drop(type_id: i32) -> i32 {
 /// Returns the hitbox (width, height) for a mob type.
 pub fn mob_hitbox(type_id: i32) -> (f64, f64) {
     match type_id {
+        MOB_BAT => (0.5, 0.9),
         MOB_CHICKEN => (0.4, 0.7),
         MOB_COW => (0.9, 1.4),
+        MOB_CREEPER => (0.6, 1.7),
+        MOB_ENDERMAN => (0.6, 2.9),
         MOB_PIG => (0.9, 0.9),
         MOB_SHEEP => (0.9, 1.3),
+        MOB_SKELETON => (0.6, 1.99),
+        MOB_SLIME => (1.04, 1.04),  // size 2
+        MOB_SPIDER => (1.4, 0.9),
         MOB_ZOMBIE => (0.6, 1.95),
         _ => (0.6, 1.8),
     }
@@ -810,13 +871,29 @@ pub fn mob_hitbox(type_id: i32) -> (f64, f64) {
 /// Returns sound event names (ambient, hurt, death) for a mob type.
 pub fn mob_sounds(type_id: i32) -> (&'static str, &'static str, &'static str) {
     match type_id {
+        MOB_BAT => ("entity.bat.ambient", "entity.bat.hurt", "entity.bat.death"),
         MOB_CHICKEN => ("entity.chicken.ambient", "entity.chicken.hurt", "entity.chicken.death"),
         MOB_COW => ("entity.cow.ambient", "entity.cow.hurt", "entity.cow.death"),
+        MOB_CREEPER => ("", "entity.creeper.hurt", "entity.creeper.death"),
+        MOB_ENDERMAN => ("entity.enderman.ambient", "entity.enderman.hurt", "entity.enderman.death"),
         MOB_PIG => ("entity.pig.ambient", "entity.pig.hurt", "entity.pig.death"),
         MOB_SHEEP => ("entity.sheep.ambient", "entity.sheep.hurt", "entity.sheep.death"),
+        MOB_SKELETON => ("entity.skeleton.ambient", "entity.skeleton.hurt", "entity.skeleton.death"),
+        MOB_SLIME => ("", "entity.slime.hurt", "entity.slime.death"),
+        MOB_SPIDER => ("entity.spider.ambient", "entity.spider.hurt", "entity.spider.death"),
         MOB_ZOMBIE => ("entity.zombie.ambient", "entity.zombie.hurt", "entity.zombie.death"),
         _ => ("", "", ""),
     }
+}
+
+/// Returns whether this mob type uses ranged attacks (skeletons).
+pub fn mob_is_ranged(type_id: i32) -> bool {
+    type_id == MOB_SKELETON
+}
+
+/// Returns whether this mob type explodes (creepers).
+pub fn mob_is_explosive(type_id: i32) -> bool {
+    type_id == MOB_CREEPER
 }
 
 #[cfg(test)]
@@ -1078,5 +1155,25 @@ mod tests {
         assert_eq!(ambient, "entity.cow.ambient");
         assert_eq!(hurt, "entity.cow.hurt");
         assert_eq!(death, "entity.cow.death");
+
+        // New mob types
+        assert_eq!(mob_type_name(MOB_SKELETON), Some("skeleton"));
+        assert_eq!(mob_type_name(MOB_SPIDER), Some("spider"));
+        assert_eq!(mob_type_name(MOB_CREEPER), Some("creeper"));
+        assert_eq!(mob_type_name(MOB_ENDERMAN), Some("enderman"));
+        assert_eq!(mob_type_name(MOB_SLIME), Some("slime"));
+        assert_eq!(mob_type_name(MOB_BAT), Some("bat"));
+
+        assert!(mob_is_hostile(MOB_SKELETON));
+        assert!(mob_is_hostile(MOB_SPIDER));
+        assert!(mob_is_hostile(MOB_CREEPER));
+        assert!(!mob_is_hostile(MOB_BAT));
+
+        assert_eq!(mob_max_health(MOB_ENDERMAN), 40.0);
+        assert_eq!(mob_attack_damage(MOB_ENDERMAN), 7.0);
+
+        assert!(mob_is_ranged(MOB_SKELETON));
+        assert!(!mob_is_ranged(MOB_ZOMBIE));
+        assert!(mob_is_explosive(MOB_CREEPER));
     }
 }

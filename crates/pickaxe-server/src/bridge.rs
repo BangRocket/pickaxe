@@ -1046,6 +1046,64 @@ pub fn register_entities_api(lua: &Lua, next_eid: Arc<AtomicI32>) -> anyhow::Res
         )
         .map_err(lua_err)?;
 
+    // pickaxe.entities.spawn_mob(x, y, z, mob_type_name) -> entity_id or nil
+    entities_table
+        .set(
+            "spawn_mob",
+            lua.create_function(
+                |lua, (x, y, z, mob_name): (f64, f64, f64, String)| {
+                    let mob_name = mob_name
+                        .strip_prefix("minecraft:")
+                        .unwrap_or(&mob_name)
+                        .to_string();
+                    let mob_type = match pickaxe_data::mob_name_to_type(&mob_name) {
+                        Some(id) => id,
+                        None => return Ok(mlua::Value::Nil),
+                    };
+
+                    let next_eid = lua
+                        .app_data_ref::<LuaEntitiesContext>()
+                        .ok_or_else(|| mlua::Error::runtime("Entities context not available"))?
+                        .next_eid
+                        .clone();
+
+                    let ctx = get_context(lua)?;
+                    let world = unsafe { &mut *(ctx.world_ptr as *mut World) };
+
+                    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+                    let max_hp = pickaxe_data::mob_max_health(mob_type);
+                    let yaw: f32 = rand::thread_rng().gen_range(0.0..360.0);
+
+                    world.spawn((
+                        EntityId(eid),
+                        EntityUuid(uuid::Uuid::new_v4()),
+                        Position(Vec3d::new(x, y, z)),
+                        PreviousPosition(Vec3d::new(x, y, z)),
+                        Rotation { yaw, pitch: 0.0 },
+                        PreviousRotation { yaw, pitch: 0.0 },
+                        OnGround(true),
+                        Velocity(Vec3d::new(0.0, 0.0, 0.0)),
+                        MobEntity {
+                            mob_type,
+                            health: max_hp,
+                            max_health: max_hp,
+                            target: None,
+                            ai_state: MobAiState::Idle,
+                            ai_timer: rand::thread_rng().gen_range(20..100),
+                            ambient_sound_timer: rand::thread_rng().gen_range(100..300),
+                            no_damage_ticks: 0,
+                            fuse_timer: -1,
+                            attack_cooldown: 0,
+                        },
+                    ));
+
+                    Ok(mlua::Value::Integer(eid as i64))
+                },
+            )
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
     // pickaxe.entities.remove(entity_id) -> bool
     entities_table
         .set(
@@ -1112,6 +1170,13 @@ pub fn register_entities_api(lua: &Lua, next_eid: Arc<AtomicI32>) -> anyhow::Res
                                         .unwrap_or("unknown");
                                 let _ = table.set("item_name", item_name);
                                 let _ = table.set("age", item_ent.age);
+                            } else if let Ok(mob) = world.get::<&MobEntity>(e) {
+                                let _ = table.set("type", "mob");
+                                let mob_name = pickaxe_data::mob_type_name(mob.mob_type)
+                                    .unwrap_or("unknown");
+                                let _ = table.set("mob_type", mob_name);
+                                let _ = table.set("health", mob.health);
+                                let _ = table.set("max_health", mob.max_health);
                             }
 
                             return Some(mlua::Value::Table(table));
@@ -1146,7 +1211,7 @@ pub fn register_entities_api(lua: &Lua, next_eid: Arc<AtomicI32>) -> anyhow::Res
         )
         .map_err(lua_err)?;
 
-    // pickaxe.entities.list() -> table of entity tables
+    // pickaxe.entities.list() -> table of entity tables (items + mobs)
     entities_table
         .set(
             "list",
@@ -1169,6 +1234,23 @@ pub fn register_entities_api(lua: &Lua, next_eid: Arc<AtomicI32>) -> anyhow::Res
                                 pickaxe_data::item_id_to_name(item_ent.item.item_id)
                                     .unwrap_or("unknown");
                             let _ = table.set("item_name", item_name);
+                            result.push(mlua::Value::Table(table));
+                        }
+                    }
+                    for (_e, (eid, pos, mob)) in world
+                        .query::<(&EntityId, &Position, &MobEntity)>()
+                        .iter()
+                    {
+                        if let Ok(table) = lua.create_table() {
+                            let _ = table.set("id", eid.0);
+                            let _ = table.set("type", "mob");
+                            let _ = table.set("x", pos.0.x);
+                            let _ = table.set("y", pos.0.y);
+                            let _ = table.set("z", pos.0.z);
+                            let mob_name = pickaxe_data::mob_type_name(mob.mob_type)
+                                .unwrap_or("unknown");
+                            let _ = table.set("mob_type", mob_name);
+                            let _ = table.set("health", mob.health);
                             result.push(mlua::Value::Table(table));
                         }
                     }
