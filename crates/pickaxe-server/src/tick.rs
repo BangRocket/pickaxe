@@ -560,6 +560,7 @@ pub async fn run_tick_loop(
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
         }
+        tick_furnaces(&world, &mut world_state);
         tick_entity_tracking(&mut world);
         tick_entity_movement_broadcast(&mut world);
         tick_world_time(&world, &mut world_state, tick_count);
@@ -3274,6 +3275,91 @@ fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, co
     }
 
     true
+}
+
+/// Tick all furnace block entities: consume fuel, smelt items, send progress to viewers.
+fn tick_furnaces(world: &World, world_state: &mut WorldState) {
+    let mut updates: Vec<(BlockPos, i16, i16, i16, i16)> = Vec::new();
+
+    for (pos, block_entity) in world_state.block_entities.iter_mut() {
+        let BlockEntity::Furnace {
+            ref mut input, ref mut fuel, ref mut output,
+            ref mut burn_time, ref mut burn_duration,
+            ref mut cook_progress, ref mut cook_total,
+        } = block_entity else { continue };
+
+        let was_lit = *burn_time > 0;
+
+        let smelt_result = input.as_ref().and_then(|i| pickaxe_data::smelting_result(i.item_id));
+        let can_smelt = smelt_result.is_some();
+
+        let output_accepts = if let Some((result_id, _)) = smelt_result {
+            match output {
+                None => true,
+                Some(ref o) => o.item_id == result_id && (o.count as i32) < pickaxe_data::item_id_to_stack_size(result_id).unwrap_or(64),
+            }
+        } else { false };
+
+        // Consume fuel if needed
+        if *burn_time <= 0 && can_smelt && output_accepts {
+            if let Some(ref mut f) = fuel {
+                if let Some(ticks) = pickaxe_data::fuel_burn_time(f.item_id) {
+                    *burn_time = ticks;
+                    *burn_duration = ticks;
+                    f.count -= 1;
+                    if f.count <= 0 { *fuel = None; }
+                }
+            }
+        }
+
+        // Burn
+        if *burn_time > 0 {
+            *burn_time -= 1;
+
+            if can_smelt && output_accepts {
+                if let Some((_, ct)) = smelt_result {
+                    *cook_total = ct;
+                }
+                *cook_progress += 1;
+                if *cook_progress >= *cook_total {
+                    *cook_progress = 0;
+                    if let Some((result_id, _)) = smelt_result {
+                        match output {
+                            None => *output = Some(ItemStack::new(result_id, 1)),
+                            Some(ref mut o) => o.count += 1,
+                        }
+                        if let Some(ref mut i) = input {
+                            i.count -= 1;
+                            if i.count <= 0 { *input = None; }
+                        }
+                    }
+                }
+            } else {
+                *cook_progress = 0;
+            }
+        } else {
+            *cook_progress = 0;
+        }
+
+        let is_lit = *burn_time > 0;
+        if was_lit != is_lit || *cook_progress > 0 || was_lit {
+            updates.push((*pos, *burn_time, *burn_duration, *cook_progress, *cook_total));
+        }
+    }
+
+    // Send progress updates to players who have this furnace open
+    for (pos, bt, bd, cp, ct) in &updates {
+        for (_e, (sender, open)) in world.query::<(&ConnectionSender, &OpenContainer)>().iter() {
+            if let Menu::Furnace { pos: fpos } = &open.menu {
+                if fpos == pos {
+                    let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 0, value: *bt });
+                    let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 1, value: *bd });
+                    let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 2, value: *cp });
+                    let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 3, value: *ct });
+                }
+            }
+        }
+    }
 }
 
 /// Update destroy stage animation for all players currently breaking blocks.

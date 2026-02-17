@@ -214,4 +214,28 @@ mod tests {
         assert!(tools.contains(&845)); // netherite_pickaxe
         assert_eq!(block_state_to_harvest_tools(10), None); // dirt needs no tool
     }
+
+    #[test]
+    fn test_crafting_recipes() {
+        let recipes = crafting_recipes();
+        assert!(!recipes.is_empty());
+        // Verify sticks recipe exists
+        let plank_id = item_name_to_id("oak_planks").unwrap();
+        let stick_id = item_name_to_id("stick").unwrap();
+        let stick_recipe = recipes.iter().find(|r| r.result_id == stick_id);
+        assert!(stick_recipe.is_some());
+        let r = stick_recipe.unwrap();
+        assert_eq!(r.result_count, 4);
+        assert_eq!(r.pattern[0], plank_id);
+        assert_eq!(r.pattern[3], plank_id);
+    }
+
+    #[test]
+    fn test_fuel_and_smelting() {
+        let coal_id = item_name_to_id("coal").unwrap();
+        assert_eq!(fuel_burn_time(coal_id), Some(1600));
+        let cobble_id = item_name_to_id("cobblestone").unwrap();
+        let stone_id = item_name_to_id("stone").unwrap();
+        assert_eq!(smelting_result(cobble_id), Some((stone_id, 200)));
+    }
 }
