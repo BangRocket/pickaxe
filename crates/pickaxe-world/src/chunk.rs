@@ -1,6 +1,7 @@
 use bytes::{BufMut, BytesMut};
 use pickaxe_nbt::{nbt_compound, NbtValue};
 use pickaxe_protocol_core::{write_varint, ChunkLightData, InternalPacket};
+use std::collections::HashMap;
 
 /// Total number of sections in a chunk (from y=-64 to y=320, 384 blocks / 16 = 24 sections).
 pub const SECTION_COUNT: usize = 24;
@@ -310,6 +311,156 @@ impl Chunk {
         packed
     }
 
+    /// Serialize this chunk to Anvil NBT format.
+    pub fn to_nbt(&self, chunk_x: i32, chunk_z: i32, last_update: i64) -> NbtValue {
+        const DATA_VERSION: i32 = 3955; // MC 1.21.1
+
+        let mut sections_list = Vec::new();
+
+        for (i, _section) in self.sections.iter().enumerate() {
+            let section_y = (i as i32) + (MIN_Y / 16); // -4 to 19
+
+            // Build palette NBT from actual block data
+            let blocks = self.get_section_blocks(i);
+            let mut palette_map: Vec<i32> = Vec::new();
+            let mut idx_map = HashMap::new();
+            let mut indices = [0u16; 4096];
+            for (bi, &state_id) in blocks.iter().enumerate() {
+                let idx = *idx_map.entry(state_id).or_insert_with(|| {
+                    let idx = palette_map.len();
+                    palette_map.push(state_id);
+                    idx
+                });
+                indices[bi] = idx as u16;
+            }
+
+            let mut palette_nbt = Vec::new();
+            for &state_id in &palette_map {
+                let name = pickaxe_data::block_state_to_name(state_id)
+                    .unwrap_or("air");
+                let full_name = if name.contains(':') {
+                    name.to_string()
+                } else {
+                    format!("minecraft:{}", name)
+                };
+                palette_nbt.push(nbt_compound! {
+                    "Name" => NbtValue::String(full_name)
+                });
+            }
+
+            let mut block_states_entries = vec![
+                ("palette".into(), NbtValue::List(palette_nbt)),
+            ];
+
+            // Only write data array if palette has >1 entry
+            if palette_map.len() > 1 {
+                let bits = std::cmp::max(4, (palette_map.len() as f64).log2().ceil() as u32);
+                let entries_per_long = 64 / bits as usize;
+                let longs_needed = (4096 + entries_per_long - 1) / entries_per_long;
+                let mask = (1u64 << bits) - 1;
+                let mut data = vec![0i64; longs_needed];
+                for (bi, &idx) in indices.iter().enumerate() {
+                    let long_index = bi / entries_per_long;
+                    let bit_index = (bi % entries_per_long) * bits as usize;
+                    data[long_index] |= ((idx as u64 & mask) << bit_index) as i64;
+                }
+                block_states_entries.push(("data".into(), NbtValue::LongArray(data)));
+            }
+
+            sections_list.push(NbtValue::Compound(vec![
+                ("Y".into(), NbtValue::Byte(section_y as i8)),
+                ("block_states".into(), NbtValue::Compound(block_states_entries)),
+            ]));
+        }
+
+        let heightmap = self.compute_heightmap();
+
+        nbt_compound! {
+            "DataVersion" => NbtValue::Int(DATA_VERSION),
+            "xPos" => NbtValue::Int(chunk_x),
+            "zPos" => NbtValue::Int(chunk_z),
+            "yPos" => NbtValue::Int(MIN_Y / 16),
+            "Status" => NbtValue::String("full".into()),
+            "LastUpdate" => NbtValue::Long(last_update),
+            "sections" => NbtValue::List(sections_list),
+            "Heightmaps" => nbt_compound! {
+                "MOTION_BLOCKING" => NbtValue::LongArray(heightmap)
+            }
+        }
+    }
+
+    /// Deserialize a chunk from Anvil NBT.
+    pub fn from_nbt(nbt: &NbtValue) -> Option<Self> {
+        let sections_nbt = nbt.get("sections")?.as_list()?;
+        let mut chunk = Chunk::new();
+
+        for section_nbt in sections_nbt {
+            let y = section_nbt.get("Y")?.as_byte()?;
+            let section_idx = (y as i32 - (MIN_Y / 16)) as usize;
+            if section_idx >= SECTION_COUNT {
+                continue;
+            }
+
+            let block_states = match section_nbt.get("block_states") {
+                Some(bs) => bs,
+                None => continue,
+            };
+
+            let palette_nbt = block_states.get("palette")?.as_list()?;
+            if palette_nbt.is_empty() {
+                continue;
+            }
+
+            // Build palette: map NBT names to state IDs
+            let mut palette_ids: Vec<i32> = Vec::new();
+            for entry in palette_nbt {
+                let name = entry.get("Name")?.as_str()?;
+                let short_name = name.strip_prefix("minecraft:").unwrap_or(name);
+                let state_id = pickaxe_data::block_name_to_default_state(short_name)
+                    .unwrap_or(0);
+                palette_ids.push(state_id);
+            }
+
+            if palette_ids.len() == 1 {
+                // Single-valued section
+                chunk.sections[section_idx] = ChunkSection::single_value(palette_ids[0]);
+            } else {
+                // Multi-valued: read packed data
+                let data = block_states.get("data")?.as_long_array()?;
+                let bits = std::cmp::max(4, (palette_ids.len() as f64).log2().ceil() as u32);
+                let entries_per_long = 64 / bits as usize;
+                let mask = (1u64 << bits) - 1;
+
+                let mut blocks = [0i32; 4096];
+                for i in 0..4096 {
+                    let long_index = i / entries_per_long;
+                    let bit_index = (i % entries_per_long) * bits as usize;
+                    if long_index < data.len() {
+                        let palette_idx = ((data[long_index] as u64 >> bit_index) & mask) as usize;
+                        blocks[i] = palette_ids.get(palette_idx).copied().unwrap_or(0);
+                    }
+                }
+                chunk.sections[section_idx] = ChunkSection::from_blocks(&blocks);
+            }
+        }
+
+        Some(chunk)
+    }
+
+    /// Helper: get a section's blocks as a flat array (Y * 256 + Z * 16 + X ordering).
+    fn get_section_blocks(&self, section_idx: usize) -> [i32; 4096] {
+        let section = &self.sections[section_idx];
+        let mut blocks = [0i32; 4096];
+        for y in 0..16 {
+            for z in 0..16 {
+                for x in 0..16 {
+                    blocks[y * 256 + z * 16 + x] = section.get_block(x, y, z);
+                }
+            }
+        }
+        blocks
+    }
+
     /// Build the full chunk data + light packet.
     pub fn to_packet(&self, chunk_x: i32, chunk_z: i32) -> InternalPacket {
         let data = self.serialize_sections();
@@ -437,5 +588,41 @@ mod tests {
         chunk.set_block(8, -61, 8, AIR);
         let data = chunk.serialize_sections();
         assert!(!data.is_empty());
+    }
+
+    #[test]
+    fn test_chunk_nbt_roundtrip() {
+        use crate::generator::*;
+        let chunk = generate_flat_chunk();
+        let nbt = chunk.to_nbt(0, 0, 1000);
+        let restored = Chunk::from_nbt(&nbt).unwrap();
+        assert_eq!(restored.get_block(0, -64, 0), BEDROCK);
+        assert_eq!(restored.get_block(0, -63, 0), DIRT);
+        assert_eq!(restored.get_block(0, -62, 0), DIRT);
+        assert_eq!(restored.get_block(0, -61, 0), GRASS_BLOCK);
+        assert_eq!(restored.get_block(0, -60, 0), AIR);
+        assert_eq!(restored.get_block(8, -64, 8), BEDROCK);
+    }
+
+    #[test]
+    fn test_chunk_nbt_roundtrip_after_mutation() {
+        use crate::generator::*;
+        let mut chunk = generate_flat_chunk();
+        chunk.set_block(5, -61, 5, STONE);
+        chunk.set_block(10, -60, 10, DIRT);
+        let nbt = chunk.to_nbt(3, -2, 500);
+        let restored = Chunk::from_nbt(&nbt).unwrap();
+        assert_eq!(restored.get_block(5, -61, 5), STONE);
+        assert_eq!(restored.get_block(10, -60, 10), DIRT);
+        assert_eq!(restored.get_block(0, -61, 0), GRASS_BLOCK);
+    }
+
+    #[test]
+    fn test_chunk_nbt_empty_sections() {
+        use crate::generator::AIR;
+        let chunk = Chunk::new();
+        let nbt = chunk.to_nbt(0, 0, 0);
+        let restored = Chunk::from_nbt(&nbt).unwrap();
+        assert_eq!(restored.get_block(0, 0, 0), AIR);
     }
 }
