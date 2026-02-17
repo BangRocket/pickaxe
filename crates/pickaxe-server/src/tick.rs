@@ -350,10 +350,9 @@ impl WorldState {
                     }
                 }
             }
-            // Generate and save
+            // Generate (save deferred until modification via set_block)
             let chunk = generate_flat_chunk();
             self.chunks.insert(pos, chunk);
-            self.queue_chunk_save(pos);
         }
         self.chunks.get_mut(&pos).unwrap()
     }
@@ -419,6 +418,17 @@ pub async fn run_tick_loop(
         world_state.time_of_day = time_of_day;
         info!("Loaded level.dat: world_age={}, time_of_day={}", world_age, time_of_day);
     }
+
+    // Pre-generate spawn chunks so the first player join is instant
+    let vd = config.view_distance as i32;
+    let total = (2 * vd + 1) * (2 * vd + 1);
+    info!("Preparing spawn area ({} chunks)...", total);
+    for cx in -vd..=vd {
+        for cz in -vd..=vd {
+            world_state.ensure_chunk(ChunkPos::new(cx, cz));
+        }
+    }
+    info!("Spawn area ready");
 
     // Collect inbound packet receivers from all active players
     // We store them separately since hecs components must be Send
@@ -581,8 +591,12 @@ fn handle_new_player(
     let player_health = saved.as_ref().map(|s| Health {
         current: s.health,
         max: 20.0,
-        invulnerable_ticks: 0,
-    }).unwrap_or_default();
+        invulnerable_ticks: 60, // 3 seconds spawn invulnerability
+    }).unwrap_or(Health {
+        current: 20.0,
+        max: 20.0,
+        invulnerable_ticks: 60,
+    });
     let player_food = saved.as_ref().map(|s| FoodData {
         food_level: s.food_level,
         saturation: s.saturation,
@@ -1123,6 +1137,23 @@ fn process_packet(
             }
 
             world_state.set_block(&target, block_id);
+
+            // Consume item from inventory (survival mode only)
+            let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+            if game_mode != GameMode::Creative {
+                let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let slot_index = 36 + held_slot as usize;
+                let mut inv = world.get::<&mut Inventory>(entity).unwrap();
+                let slot_data = inv.slots[slot_index].clone();
+                if let Some(item) = slot_data {
+                    if item.count > 1 {
+                        inv.set_slot(slot_index, Some(ItemStack::new(item.item_id, item.count - 1)));
+                    } else {
+                        inv.set_slot(slot_index, None);
+                    }
+                }
+            }
+
             // Send to placing player
             if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
                 let _ = sender.0.send(InternalPacket::BlockUpdate {
@@ -1536,7 +1567,7 @@ fn respawn_player(
     // Reset health and food
     if let Ok(mut h) = world.get::<&mut Health>(entity) {
         h.current = 20.0;
-        h.invulnerable_ticks = 0;
+        h.invulnerable_ticks = 60; // 3 seconds spawn invulnerability
     }
     if let Ok(mut f) = world.get::<&mut FoodData>(entity) {
         *f = FoodData::default();

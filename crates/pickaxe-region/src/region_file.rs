@@ -248,6 +248,13 @@ impl RegionStorage {
 
     pub fn read_chunk(&mut self, chunk_x: i32, chunk_z: i32) -> io::Result<Option<Vec<u8>>> {
         let (region_x, region_z, local_x, local_z) = Self::chunk_to_region(chunk_x, chunk_z);
+        // Don't create the region file just to read from it
+        if !self.cache.contains_key(&(region_x, region_z)) {
+            let path = self.dir.join(format!("r.{}.{}.mca", region_x, region_z));
+            if !path.exists() {
+                return Ok(None);
+            }
+        }
         let region = self.get_or_open(region_x, region_z)?;
         region.read_chunk(local_x, local_z)
     }
