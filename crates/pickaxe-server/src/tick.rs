@@ -708,6 +708,7 @@ pub async fn run_tick_loop(
         tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
         tick_eating(&mut world);
+        tick_buttons(&mut world, &mut world_state);
         tick_item_physics(&mut world, &mut world_state, &scripting);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
@@ -1302,6 +1303,69 @@ fn process_packet(
                     let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
                 }
                 return;
+            }
+
+            // Check if the target block is interactive (doors, trapdoors, fence gates, levers, buttons)
+            if let Some(new_state) = pickaxe_data::toggle_interactive_block(target_block) {
+                if !sneaking {
+                    let name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+                    let cancelled = scripting.fire_event_in_context(
+                        "block_interact",
+                        &[
+                            ("name", &name),
+                            ("block_type", target_name),
+                            ("x", &position.x.to_string()),
+                            ("y", &position.y.to_string()),
+                            ("z", &position.z.to_string()),
+                        ],
+                        world as *mut _ as *mut (),
+                        world_state as *mut _ as *mut (),
+                    );
+
+                    if !cancelled {
+                        // Toggle the block state
+                        world_state.set_block(&position, new_state);
+                        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                            position,
+                            block_id: new_state,
+                        });
+
+                        // For doors, also toggle the other half
+                        if let Some(half_offset) = pickaxe_data::door_other_half_offset(target_block) {
+                            let other_pos = BlockPos::new(
+                                position.x,
+                                position.y + half_offset,
+                                position.z,
+                            );
+                            let other_state = world_state.get_block(&other_pos);
+                            if let Some(other_new) = pickaxe_data::toggle_interactive_block(other_state) {
+                                world_state.set_block(&other_pos, other_new);
+                                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                    position: other_pos,
+                                    block_id: other_new,
+                                });
+                            }
+                        }
+
+                        // For buttons, schedule auto-reset
+                        if let Some(ticks) = pickaxe_data::button_reset_ticks(target_block) {
+                            // Only schedule reset when activating (toggling to powered=true)
+                            // Check if new state is powered by toggling again — if it gives original, new_state is powered
+                            if pickaxe_data::toggle_interactive_block(new_state) == Some(target_block) {
+                                let _ = world.spawn((
+                                    ButtonTimer { position, remaining_ticks: ticks },
+                                ));
+                            }
+                        }
+
+                        debug!("{} interacted with {} at {:?}", name, target_name, position);
+                    }
+
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                    }
+                    return;
+                }
             }
 
             // Look up the held item to determine what block to place
@@ -2664,6 +2728,30 @@ fn tick_eating(world: &mut World) {
                 health,
                 food: food_level,
                 saturation,
+            });
+        }
+    }
+}
+
+/// Tick button auto-reset timers: decrement, and when expired, toggle the button back to unpowered.
+fn tick_buttons(world: &mut World, world_state: &mut WorldState) {
+    let mut expired: Vec<(hecs::Entity, BlockPos)> = Vec::new();
+
+    for (entity, timer) in world.query::<&mut ButtonTimer>().iter() {
+        timer.remaining_ticks = timer.remaining_ticks.saturating_sub(1);
+        if timer.remaining_ticks == 0 {
+            expired.push((entity, timer.position));
+        }
+    }
+
+    for (entity, position) in expired {
+        let _ = world.despawn(entity);
+        let current_state = world_state.get_block(&position);
+        if let Some(new_state) = pickaxe_data::toggle_interactive_block(current_state) {
+            world_state.set_block(&position, new_state);
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position,
+                block_id: new_state,
             });
         }
     }

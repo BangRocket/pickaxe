@@ -235,6 +235,12 @@ impl Default for AttackCooldown {
     }
 }
 
+/// Tracks a button that needs to auto-reset after a delay.
+pub struct ButtonTimer {
+    pub position: BlockPos,
+    pub remaining_ticks: u32,
+}
+
 /// Tracks a block a player is currently breaking in survival mode.
 pub struct BreakingBlock {
     pub position: BlockPos,

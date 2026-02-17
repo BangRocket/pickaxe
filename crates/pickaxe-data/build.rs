@@ -6,6 +6,17 @@ use std::path::Path;
 
 #[derive(Deserialize)]
 #[allow(dead_code)]
+struct BlockState {
+    name: String,
+    #[serde(rename = "type")]
+    state_type: String,
+    num_values: i32,
+    #[serde(default)]
+    values: Vec<String>,
+}
+
+#[derive(Deserialize)]
+#[allow(dead_code)]
 struct Block {
     id: i32,
     name: String,
@@ -23,6 +34,8 @@ struct Block {
     diggable: bool,
     #[serde(rename = "harvestTools")]
     harvest_tools: Option<HashMap<String, bool>>,
+    #[serde(default)]
+    states: Vec<BlockState>,
 }
 
 #[derive(Deserialize)]
@@ -369,6 +382,87 @@ fn main() {
             )
             .unwrap();
         }
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+
+    // toggle_interactive_block: toggles "open" or "powered" for interactive blocks
+    writeln!(out, "\n/// Toggle the interactive state (open/powered) of a block. Returns the new state ID.").unwrap();
+    writeln!(out, "pub fn toggle_interactive_block(state_id: i32) -> Option<i32> {{").unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        let state_names: Vec<&str> = b.states.iter().map(|s| s.name.as_str()).collect();
+        let num_vals: Vec<i32> = b.states.iter().map(|s| s.num_values).collect();
+
+        // Find toggleable property: "open" for doors/trapdoors/fence_gates, "powered" for levers/buttons
+        let toggle_prop = if state_names.contains(&"open") && (b.name.contains("door") || b.name.contains("trapdoor") || b.name.contains("fence_gate")) {
+            Some("open")
+        } else if state_names.contains(&"powered") && (b.name.contains("button") || b.name == "lever") {
+            Some("powered")
+        } else {
+            None
+        };
+
+        if let Some(prop) = toggle_prop {
+            let toggle_idx = state_names.iter().position(|&s| s == prop).unwrap();
+            // Stride = product of num_values for all properties AFTER toggle_idx
+            let stride: i32 = num_vals[toggle_idx + 1..].iter().product();
+
+            if b.min_state_id == b.max_state_id {
+                // Single state, shouldn't happen for interactive blocks
+                continue;
+            }
+            writeln!(out, "        {}..={} => {{ // {}", b.min_state_id, b.max_state_id, b.name).unwrap();
+            writeln!(out, "            let rel = state_id - {};", b.min_state_id).unwrap();
+            writeln!(out, "            let bit = (rel / {}) % 2;", stride).unwrap();
+            writeln!(out, "            if bit == 0 {{ Some(state_id + {}) }} else {{ Some(state_id - {}) }}", stride, stride).unwrap();
+            writeln!(out, "        }}").unwrap();
+        }
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // door_other_half_state: for door blocks, compute the state ID of the other half
+    writeln!(out, "/// For door blocks, compute the offset to the other half (upper<->lower).").unwrap();
+    writeln!(out, "/// Returns the state ID of the other half, or None if not a door.").unwrap();
+    writeln!(out, "pub fn door_other_half_offset(state_id: i32) -> Option<i32> {{").unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        let state_names: Vec<&str> = b.states.iter().map(|s| s.name.as_str()).collect();
+        let num_vals: Vec<i32> = b.states.iter().map(|s| s.num_values).collect();
+
+        // Only for doors (have "half" property with "upper"/"lower")
+        if !b.name.contains("door") || b.name.contains("trapdoor") || !state_names.contains(&"half") {
+            continue;
+        }
+
+        let half_idx = state_names.iter().position(|&s| s == "half").unwrap();
+        let stride: i32 = num_vals[half_idx + 1..].iter().product();
+
+        writeln!(out, "        {}..={} => {{ // {}", b.min_state_id, b.max_state_id, b.name).unwrap();
+        writeln!(out, "            let rel = state_id - {};", b.min_state_id).unwrap();
+        writeln!(out, "            let bit = (rel / {}) % 2;", stride).unwrap();
+        writeln!(out, "            if bit == 0 {{ Some({}) }} else {{ Some(-{}) }}", stride, stride).unwrap();
+        writeln!(out, "        }}").unwrap();
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // button_reset_ticks: returns how many ticks until a button should auto-reset
+    writeln!(out, "/// Returns the auto-reset delay in ticks for a button block, or None if not a button.").unwrap();
+    writeln!(out, "pub fn button_reset_ticks(state_id: i32) -> Option<u32> {{").unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        if !b.name.contains("button") {
+            continue;
+        }
+        let ticks = if b.name == "stone_button" || b.name == "polished_blackstone_button" { 20 } else { 30 };
+        writeln!(out, "        {}..={} => Some({}), // {}", b.min_state_id, b.max_state_id, ticks, b.name).unwrap();
     }
     writeln!(out, "        _ => None,").unwrap();
     writeln!(out, "    }}").unwrap();

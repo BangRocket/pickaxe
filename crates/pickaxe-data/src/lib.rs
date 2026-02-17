@@ -298,6 +298,37 @@ mod tests {
     }
 
     #[test]
+    fn test_interactive_blocks() {
+        // Lever: 5626 is floor/north/powered=false
+        // Toggle should give 5627 (powered=true), toggle back gives 5626
+        let toggled = toggle_interactive_block(5626).unwrap();
+        assert_eq!(toggled, 5627);
+        assert_eq!(toggle_interactive_block(5627).unwrap(), 5626);
+
+        // Lever default 5635: wall/north/powered=true, toggle gives 5634 (powered=false)
+        assert_eq!(toggle_interactive_block(5635).unwrap(), 5634);
+
+        // Oak door: 4590 (north, upper, left, open=false, powered=false)
+        // open has stride 2, so toggle open: 4590 + 2 = 4592
+        let toggled = toggle_interactive_block(4590).unwrap();
+        assert_eq!(toggled, 4592);
+        assert_eq!(toggle_interactive_block(4592).unwrap(), 4590);
+
+        // Door other half offset
+        let offset = door_other_half_offset(4601).unwrap();
+        // 4601: rel=11, bit=(11/8)%2=1 (lower), so offset=-8
+        assert_eq!(offset, -8);
+
+        // Stone is not interactive
+        assert!(toggle_interactive_block(1).is_none());
+
+        // Button reset ticks
+        assert_eq!(button_reset_ticks(5748), Some(20)); // stone_button
+        assert_eq!(button_reset_ticks(8611), Some(30)); // oak_button
+        assert!(button_reset_ticks(1).is_none()); // stone
+    }
+
+    #[test]
     fn test_food_properties() {
         let bread_id = item_name_to_id("bread").unwrap();
         let props = food_properties(bread_id).unwrap();
