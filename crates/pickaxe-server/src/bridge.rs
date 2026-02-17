@@ -102,9 +102,20 @@ fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, co
             Some(existing) => {
                 let space = (max_stack as i8).saturating_sub(existing.count);
                 let to_add = count.min(space);
-                pickaxe_types::ItemStack::new(item_id, existing.count.saturating_add(to_add))
+                let mut stack = pickaxe_types::ItemStack::new(item_id, existing.count.saturating_add(to_add));
+                stack.damage = existing.damage;
+                stack.max_damage = existing.max_damage;
+                stack
             }
-            None => pickaxe_types::ItemStack::new(item_id, count.min(max_stack as i8)),
+            None => {
+                let item_name = pickaxe_data::item_id_to_name(item_id).unwrap_or("");
+                let max_durability = pickaxe_data::item_max_durability(item_name);
+                if max_durability > 0 {
+                    pickaxe_types::ItemStack::with_durability(item_id, count.min(max_stack as i8), max_durability)
+                } else {
+                    pickaxe_types::ItemStack::new(item_id, count.min(max_stack as i8))
+                }
+            }
         };
         inv.set_slot(slot_index, Some(new_item.clone()));
         (new_item, inv.state_id)

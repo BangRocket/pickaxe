@@ -294,7 +294,250 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         result_id: id("torch"), result_count: 4, width: 1, height: 2,
     });
 
+    // Iron tools
+    let iron = id("iron_ingot");
+    recipes.push(CraftingRecipe {
+        pattern: [iron, iron, iron, 0, s, 0, 0, s, 0],
+        result_id: id("iron_pickaxe"), result_count: 1, width: 3, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [iron, iron, 0, iron, s, 0, 0, s, 0],
+        result_id: id("iron_axe"), result_count: 1, width: 2, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [iron, 0, 0, s, 0, 0, s, 0, 0],
+        result_id: id("iron_shovel"), result_count: 1, width: 1, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [iron, 0, 0, iron, 0, 0, s, 0, 0],
+        result_id: id("iron_sword"), result_count: 1, width: 1, height: 3,
+    });
+
+    // Diamond tools
+    let dia = id("diamond");
+    recipes.push(CraftingRecipe {
+        pattern: [dia, dia, dia, 0, s, 0, 0, s, 0],
+        result_id: id("diamond_pickaxe"), result_count: 1, width: 3, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [dia, dia, 0, dia, s, 0, 0, s, 0],
+        result_id: id("diamond_axe"), result_count: 1, width: 2, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [dia, 0, 0, s, 0, 0, s, 0, 0],
+        result_id: id("diamond_shovel"), result_count: 1, width: 1, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [dia, 0, 0, dia, 0, 0, s, 0, 0],
+        result_id: id("diamond_sword"), result_count: 1, width: 1, height: 3,
+    });
+
+    // Armor recipes: helmet (XXX, X.X), chestplate (X.X, XXX, XXX), leggings (XXX, X.X, X.X), boots (X.X, X.X)
+    for (material, prefix) in [
+        (id("leather"), "leather"),
+        (id("iron_ingot"), "iron"),
+        (id("gold_ingot"), "golden"),
+        (id("diamond"), "diamond"),
+    ] {
+        let m = material;
+        // Helmet
+        recipes.push(CraftingRecipe {
+            pattern: [m, m, m, m, 0, m, 0, 0, 0],
+            result_id: id(&format!("{}_helmet", prefix)), result_count: 1, width: 3, height: 2,
+        });
+        // Chestplate
+        recipes.push(CraftingRecipe {
+            pattern: [m, 0, m, m, m, m, m, m, m],
+            result_id: id(&format!("{}_chestplate", prefix)), result_count: 1, width: 3, height: 3,
+        });
+        // Leggings
+        recipes.push(CraftingRecipe {
+            pattern: [m, m, m, m, 0, m, m, 0, m],
+            result_id: id(&format!("{}_leggings", prefix)), result_count: 1, width: 3, height: 3,
+        });
+        // Boots
+        recipes.push(CraftingRecipe {
+            pattern: [m, 0, m, m, 0, m, 0, 0, 0],
+            result_id: id(&format!("{}_boots", prefix)), result_count: 1, width: 3, height: 2,
+        });
+    }
+
     recipes
+}
+
+/// Returns (defense_points, armor_toughness) for armor items.
+/// Defense points are the armor icons shown on the HUD.
+pub fn armor_defense(item_name: &str) -> Option<(i32, f32)> {
+    match item_name {
+        // Leather: helmet=1, chest=3, legs=2, boots=1, toughness=0
+        "leather_helmet" => Some((1, 0.0)),
+        "leather_chestplate" => Some((3, 0.0)),
+        "leather_leggings" => Some((2, 0.0)),
+        "leather_boots" => Some((1, 0.0)),
+        // Chainmail
+        "chainmail_helmet" => Some((2, 0.0)),
+        "chainmail_chestplate" => Some((5, 0.0)),
+        "chainmail_leggings" => Some((4, 0.0)),
+        "chainmail_boots" => Some((1, 0.0)),
+        // Iron
+        "iron_helmet" => Some((2, 0.0)),
+        "iron_chestplate" => Some((6, 0.0)),
+        "iron_leggings" => Some((5, 0.0)),
+        "iron_boots" => Some((2, 0.0)),
+        // Gold
+        "golden_helmet" => Some((2, 0.0)),
+        "golden_chestplate" => Some((5, 0.0)),
+        "golden_leggings" => Some((3, 0.0)),
+        "golden_boots" => Some((1, 0.0)),
+        // Diamond
+        "diamond_helmet" => Some((3, 2.0)),
+        "diamond_chestplate" => Some((8, 2.0)),
+        "diamond_leggings" => Some((6, 2.0)),
+        "diamond_boots" => Some((3, 2.0)),
+        // Netherite
+        "netherite_helmet" => Some((3, 3.0)),
+        "netherite_chestplate" => Some((8, 3.0)),
+        "netherite_leggings" => Some((6, 3.0)),
+        "netherite_boots" => Some((3, 3.0)),
+        _ => None,
+    }
+}
+
+/// Returns the equipment slot index for armor items.
+/// Slot IDs: 2=boots(FEET), 3=leggings(LEGS), 4=chest(CHEST), 5=head(HELMET)
+/// Returns None if not an armor item.
+pub fn armor_equipment_slot(item_name: &str) -> Option<u8> {
+    if item_name.contains("helmet") { Some(5) }
+    else if item_name.contains("chestplate") { Some(4) }
+    else if item_name.contains("leggings") { Some(3) }
+    else if item_name.contains("boots") { Some(2) }
+    else { None }
+}
+
+/// Returns the inventory slot index for armor items (5=helmet, 6=chest, 7=legs, 8=boots).
+pub fn armor_inventory_slot(item_name: &str) -> Option<usize> {
+    if item_name.contains("helmet") { Some(5) }
+    else if item_name.contains("chestplate") { Some(6) }
+    else if item_name.contains("leggings") { Some(7) }
+    else if item_name.contains("boots") { Some(8) }
+    else { None }
+}
+
+/// Returns max durability for tools and armor, or 0 if not damageable.
+pub fn item_max_durability(item_name: &str) -> i32 {
+    match item_name {
+        // Swords
+        "wooden_sword" => 59,
+        "stone_sword" => 131,
+        "iron_sword" => 250,
+        "golden_sword" => 32,
+        "diamond_sword" => 1561,
+        "netherite_sword" => 2031,
+        // Pickaxes
+        "wooden_pickaxe" => 59,
+        "stone_pickaxe" => 131,
+        "iron_pickaxe" => 250,
+        "golden_pickaxe" => 32,
+        "diamond_pickaxe" => 1561,
+        "netherite_pickaxe" => 2031,
+        // Axes
+        "wooden_axe" => 59,
+        "stone_axe" => 131,
+        "iron_axe" => 250,
+        "golden_axe" => 32,
+        "diamond_axe" => 1561,
+        "netherite_axe" => 2031,
+        // Shovels
+        "wooden_shovel" => 59,
+        "stone_shovel" => 131,
+        "iron_shovel" => 250,
+        "golden_shovel" => 32,
+        "diamond_shovel" => 1561,
+        "netherite_shovel" => 2031,
+        // Hoes
+        "wooden_hoe" => 59,
+        "stone_hoe" => 131,
+        "iron_hoe" => 250,
+        "golden_hoe" => 32,
+        "diamond_hoe" => 1561,
+        "netherite_hoe" => 2031,
+        // Armor: durability = multiplier * base
+        // Leather (base 5): helmet=11*5=55, chest=16*5=80, legs=15*5=75, boots=13*5=65
+        "leather_helmet" => 55,
+        "leather_chestplate" => 80,
+        "leather_leggings" => 75,
+        "leather_boots" => 65,
+        // Chainmail (base 15): 165, 240, 225, 195
+        "chainmail_helmet" => 165,
+        "chainmail_chestplate" => 240,
+        "chainmail_leggings" => 225,
+        "chainmail_boots" => 195,
+        // Iron (base 15): 165, 240, 225, 195
+        "iron_helmet" => 165,
+        "iron_chestplate" => 240,
+        "iron_leggings" => 225,
+        "iron_boots" => 195,
+        // Gold (base 7): 77, 112, 105, 91
+        "golden_helmet" => 77,
+        "golden_chestplate" => 112,
+        "golden_leggings" => 105,
+        "golden_boots" => 91,
+        // Diamond (base 33): 363, 528, 495, 429
+        "diamond_helmet" => 363,
+        "diamond_chestplate" => 528,
+        "diamond_leggings" => 495,
+        "diamond_boots" => 429,
+        // Netherite (base 37): 407, 592, 555, 481
+        "netherite_helmet" => 407,
+        "netherite_chestplate" => 592,
+        "netherite_leggings" => 555,
+        "netherite_boots" => 481,
+        // Other damageable items
+        "bow" => 384,
+        "crossbow" => 465,
+        "trident" => 250,
+        "shield" => 336,
+        "flint_and_steel" => 64,
+        "shears" => 238,
+        "fishing_rod" => 64,
+        _ => 0,
+    }
+}
+
+/// Returns the attack damage bonus for weapons/tools.
+/// This is the bonus damage added on top of the base 1.0 damage.
+pub fn item_attack_damage(item_name: &str) -> f32 {
+    match item_name {
+        // Swords: base damage = 4/5/6/7/4
+        "wooden_sword" => 4.0,
+        "stone_sword" => 5.0,
+        "iron_sword" => 6.0,
+        "diamond_sword" => 7.0,
+        "netherite_sword" => 8.0,
+        "golden_sword" => 4.0,
+        // Axes: 7/9/9/9/5
+        "wooden_axe" => 7.0,
+        "stone_axe" => 9.0,
+        "iron_axe" => 9.0,
+        "diamond_axe" => 9.0,
+        "netherite_axe" => 10.0,
+        "golden_axe" => 7.0,
+        // Pickaxes
+        "wooden_pickaxe" => 2.0,
+        "stone_pickaxe" => 3.0,
+        "iron_pickaxe" => 4.0,
+        "diamond_pickaxe" => 5.0,
+        "netherite_pickaxe" => 6.0,
+        "golden_pickaxe" => 2.0,
+        // Shovels
+        "wooden_shovel" => 2.5,
+        "stone_shovel" => 3.5,
+        "iron_shovel" => 4.5,
+        "diamond_shovel" => 5.5,
+        "netherite_shovel" => 6.5,
+        "golden_shovel" => 2.5,
+        _ => 1.0,
+    }
 }
 
 #[cfg(test)]
@@ -441,5 +684,40 @@ mod tests {
         let beef_id = item_name_to_id("beef").unwrap();
         let cooked_beef_id = item_name_to_id("cooked_beef").unwrap();
         assert_eq!(smelting_result(beef_id), Some((cooked_beef_id, 200)));
+    }
+
+    #[test]
+    fn test_armor_and_durability() {
+        // Armor defense values
+        assert_eq!(armor_defense("diamond_chestplate"), Some((8, 2.0)));
+        assert_eq!(armor_defense("iron_helmet"), Some((2, 0.0)));
+        assert_eq!(armor_defense("netherite_boots"), Some((3, 3.0)));
+        assert_eq!(armor_defense("stone"), None);
+
+        // Armor slots
+        assert_eq!(armor_equipment_slot("diamond_helmet"), Some(5));
+        assert_eq!(armor_equipment_slot("iron_chestplate"), Some(4));
+        assert_eq!(armor_equipment_slot("golden_leggings"), Some(3));
+        assert_eq!(armor_equipment_slot("leather_boots"), Some(2));
+        assert_eq!(armor_equipment_slot("stone"), None);
+
+        // Inventory slots
+        assert_eq!(armor_inventory_slot("diamond_helmet"), Some(5));
+        assert_eq!(armor_inventory_slot("iron_boots"), Some(8));
+
+        // Tool durability
+        assert_eq!(item_max_durability("diamond_pickaxe"), 1561);
+        assert_eq!(item_max_durability("wooden_sword"), 59);
+        assert_eq!(item_max_durability("netherite_axe"), 2031);
+        assert_eq!(item_max_durability("stone"), 0);
+
+        // Armor durability
+        assert_eq!(item_max_durability("diamond_helmet"), 363);
+        assert_eq!(item_max_durability("iron_chestplate"), 240);
+
+        // Attack damage
+        assert_eq!(item_attack_damage("diamond_sword"), 7.0);
+        assert_eq!(item_attack_damage("netherite_axe"), 10.0);
+        assert_eq!(item_attack_damage("stone"), 1.0);
     }
 }

@@ -205,6 +205,10 @@ pub fn write_byte_array(buf: &mut BytesMut, data: &[u8]) {
     buf.put_slice(data);
 }
 
+// Data component type IDs (MC 1.21.1 registry order from DataComponents.java)
+const COMPONENT_MAX_DAMAGE: i32 = 2;
+const COMPONENT_DAMAGE: i32 = 3;
+
 /// Read a Slot from the wire (1.21.1 component-based format).
 /// Returns None for empty slots (item_count == 0).
 pub fn read_slot(buf: &mut BytesMut) -> CodecResult<Option<ItemStack>> {
@@ -215,16 +219,34 @@ pub fn read_slot(buf: &mut BytesMut) -> CodecResult<Option<ItemStack>> {
     let item_id = read_varint(buf)?;
     let add_count = read_varint(buf)?;
     let remove_count = read_varint(buf)?;
-    // Skip component data — we don't handle components yet.
-    // For basic items (no enchantments/custom data), counts are 0.
-    // When components are present, we must consume all remaining data for this slot
-    // to avoid corrupting subsequent reads. Since component data has variable-length
-    // encoding and we can't parse it, we consume all remaining bytes in the packet.
-    if add_count > 0 || remove_count > 0 {
-        tracing::debug!("Slot has {} added, {} removed components — skipping {} remaining bytes", add_count, remove_count, buf.remaining());
-        buf.advance(buf.remaining());
+    let mut max_damage = 0i32;
+    let mut damage = 0i32;
+    // Parse added components — we handle MAX_DAMAGE and DAMAGE, skip others
+    for _ in 0..add_count {
+        let comp_type = read_varint(buf)?;
+        match comp_type {
+            COMPONENT_MAX_DAMAGE => { max_damage = read_varint(buf)?; }
+            COMPONENT_DAMAGE => { damage = read_varint(buf)?; }
+            _ => {
+                // Unknown component — consume remaining bytes (can't skip individual components
+                // without knowing their size, so we must consume all remaining data)
+                tracing::debug!("Unknown component type {} — consuming remaining bytes", comp_type);
+                buf.advance(buf.remaining());
+                let mut item = ItemStack::new(item_id, item_count as i8);
+                item.damage = damage;
+                item.max_damage = max_damage;
+                return Ok(Some(item));
+            }
+        }
     }
-    Ok(Some(ItemStack::new(item_id, item_count as i8)))
+    // Skip removed component type IDs
+    for _ in 0..remove_count {
+        let _comp_type = read_varint(buf)?;
+    }
+    let mut item = ItemStack::new(item_id, item_count as i8);
+    item.damage = damage;
+    item.max_damage = max_damage;
+    Ok(Some(item))
 }
 
 /// Write a Slot to the wire (1.21.1 component-based format).
@@ -236,8 +258,23 @@ pub fn write_slot(buf: &mut BytesMut, slot: &Option<ItemStack>) {
         Some(item) => {
             write_varint(buf, item.count as i32);
             write_varint(buf, item.item_id);
-            write_varint(buf, 0); // no added components
-            write_varint(buf, 0); // no removed components
+            if item.max_damage > 0 {
+                // Write MAX_DAMAGE and DAMAGE components
+                let add_count = if item.damage > 0 { 2 } else { 1 };
+                write_varint(buf, add_count); // added components
+                write_varint(buf, 0); // no removed components
+                // MAX_DAMAGE component (type 2, VarInt value)
+                write_varint(buf, COMPONENT_MAX_DAMAGE);
+                write_varint(buf, item.max_damage);
+                // DAMAGE component (type 3, VarInt value) — only if damaged
+                if item.damage > 0 {
+                    write_varint(buf, COMPONENT_DAMAGE);
+                    write_varint(buf, item.damage);
+                }
+            } else {
+                write_varint(buf, 0); // no added components
+                write_varint(buf, 0); // no removed components
+            }
         }
     }
 }

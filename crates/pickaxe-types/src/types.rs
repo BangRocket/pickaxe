@@ -194,10 +194,28 @@ pub struct ItemStack {
     pub item_id: i32,
     /// Number of items in this stack (1-127).
     pub count: i8,
+    /// Current damage (0 = undamaged). Only meaningful when max_damage > 0.
+    pub damage: i32,
+    /// Maximum durability. 0 means not damageable.
+    pub max_damage: i32,
 }
 
 impl ItemStack {
     pub fn new(item_id: i32, count: i8) -> Self {
-        Self { item_id, count }
+        Self { item_id, count, damage: 0, max_damage: 0 }
+    }
+
+    pub fn with_durability(item_id: i32, count: i8, max_damage: i32) -> Self {
+        Self { item_id, count, damage: 0, max_damage }
+    }
+
+    /// Returns true if this item is damageable and has taken some damage.
+    pub fn is_damaged(&self) -> bool {
+        self.max_damage > 0 && self.damage > 0
+    }
+
+    /// Returns remaining durability (max_damage - damage).
+    pub fn durability_remaining(&self) -> i32 {
+        self.max_damage - self.damage
     }
 }

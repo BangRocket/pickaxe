@@ -284,6 +284,13 @@ pub enum InternalPacket {
         metadata: Vec<EntityMetadataEntry>,
     },
 
+    /// Set Equipment (0x5B CB) — equipment slots for an entity.
+    SetEquipment {
+        entity_id: i32,
+        /// Vec of (slot_id, item). Slot IDs: 0=mainhand, 1=offhand, 2=boots, 3=leggings, 4=chest, 5=helmet
+        equipment: Vec<(u8, Option<ItemStack>)>,
+    },
+
     /// Set Entity Velocity (0x5A CB) — entity velocity in 1/8000 blocks/tick.
     SetEntityVelocity {
         entity_id: i32,

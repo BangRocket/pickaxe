@@ -128,7 +128,7 @@ fn deserialize_block_entity(nbt: &NbtValue) -> Option<(BlockPos, BlockEntity)> {
                     let item_id = pickaxe_data::item_name_to_id(name)?;
                     let count = item_nbt.get("Count").and_then(|v| v.as_byte()).unwrap_or(1);
                     if slot < 27 {
-                        inventory[slot] = Some(ItemStack { item_id, count });
+                        inventory[slot] = Some(ItemStack::new(item_id, count));
                     }
                 }
             }
@@ -151,7 +151,7 @@ fn deserialize_block_entity(nbt: &NbtValue) -> Option<(BlockPos, BlockEntity)> {
                         None => continue,
                     };
                     let count = item_nbt.get("Count").and_then(|v| v.as_byte()).unwrap_or(1);
-                    let stack = ItemStack { item_id, count };
+                    let stack = ItemStack::new(item_id, count);
                     match slot {
                         0 => input = Some(stack),
                         1 => fuel = Some(stack),
@@ -200,11 +200,18 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
                 "minecraft:{}",
                 pickaxe_data::item_id_to_name(stack.item_id).unwrap_or("air")
             );
-            inv_items.push(nbt_compound! {
-                "Slot" => NbtValue::Byte(nbt_slot),
-                "id" => NbtValue::String(item_name),
-                "count" => NbtValue::Byte(stack.count)
-            });
+            let mut entries: Vec<(String, NbtValue)> = vec![
+                ("Slot".into(), NbtValue::Byte(nbt_slot)),
+                ("id".into(), NbtValue::String(item_name)),
+                ("count".into(), NbtValue::Byte(stack.count)),
+            ];
+            if stack.max_damage > 0 {
+                entries.push(("MaxDamage".into(), NbtValue::Int(stack.max_damage)));
+                if stack.damage > 0 {
+                    entries.push(("Damage".into(), NbtValue::Int(stack.damage)));
+                }
+            }
+            inv_items.push(NbtValue::Compound(entries));
         }
     }
 
@@ -303,7 +310,12 @@ fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
                 };
 
                 if ecs_slot < 46 {
-                    slots[ecs_slot] = Some(ItemStack { item_id, count });
+                    let max_damage = entry.get("MaxDamage").and_then(|v| v.as_int()).unwrap_or(0);
+                    let damage = entry.get("Damage").and_then(|v| v.as_int()).unwrap_or(0);
+                    let mut stack = ItemStack::new(item_id, count);
+                    stack.max_damage = max_damage;
+                    stack.damage = damage;
+                    slots[ecs_slot] = Some(stack);
                 }
             }
         }
@@ -1634,6 +1646,8 @@ fn process_packet(
                 if let Ok(mut held) = world.get::<&mut HeldSlot>(entity) {
                     held.0 = slot as u8;
                 }
+                // Broadcast mainhand equipment change
+                send_equipment_update(world, entity, entity_id);
             }
         }
 
@@ -1641,6 +1655,12 @@ fn process_packet(
             if slot >= 0 {
                 if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
                     inv.set_slot(slot as usize, item);
+                }
+                // Broadcast equipment if armor or held item changed
+                let held = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let affected_slot = slot as usize;
+                if (5..=8).contains(&affected_slot) || affected_slot == 45 || affected_slot == 36 + held as usize {
+                    send_equipment_update(world, entity, entity_id);
                 }
             }
         }
@@ -1687,6 +1707,8 @@ fn process_packet(
 
         InternalPacket::ContainerClick { window_id, state_id, slot, button, mode, ref changed_slots, ref carried_item } => {
             handle_container_click(world, world_state, entity, window_id, state_id, slot, button, mode, changed_slots, carried_item);
+            // Broadcast equipment if armor/held slots may have changed
+            send_equipment_update(world, entity, entity_id);
         }
 
         InternalPacket::UseItem { hand, sequence } => {
@@ -2109,7 +2131,7 @@ fn lookup_crafting_recipe(grid: &[Option<ItemStack>; 9]) -> Option<ItemStack> {
             if !matches { break; }
         }
         if matches {
-            return Some(ItemStack::new(recipe.result_id, recipe.result_count));
+            return Some(make_crafted_item(recipe.result_id, recipe.result_count));
         }
 
         // Mirrored match (flip X)
@@ -2124,11 +2146,22 @@ fn lookup_crafting_recipe(grid: &[Option<ItemStack>; 9]) -> Option<ItemStack> {
             if !matches { break; }
         }
         if matches {
-            return Some(ItemStack::new(recipe.result_id, recipe.result_count));
+            return Some(make_crafted_item(recipe.result_id, recipe.result_count));
         }
     }
 
     None
+}
+
+/// Create an item with proper durability set for tools/armor.
+fn make_crafted_item(item_id: i32, count: i8) -> ItemStack {
+    let name = pickaxe_data::item_id_to_name(item_id).unwrap_or("");
+    let max_durability = pickaxe_data::item_max_durability(name);
+    if max_durability > 0 {
+        ItemStack::with_durability(item_id, count, max_durability)
+    } else {
+        ItemStack::new(item_id, count)
+    }
 }
 
 /// Handle player position update: fall distance, sprint exhaustion, jump exhaustion.
@@ -2286,8 +2319,21 @@ fn handle_attack(
         return; // Not a player, skip for now (no mobs yet)
     }
 
-    // Calculate damage: base 1.0 (fist), scaled by strength
-    let base_damage = 1.0_f32;
+    // Calculate damage based on held weapon
+    let held_slot = world.get::<&HeldSlot>(attacker).map(|h| h.0).unwrap_or(0);
+    let base_damage = {
+        let inv = world.get::<&Inventory>(attacker);
+        if let Ok(inv) = inv {
+            if let Some(ref item) = inv.slots[36 + held_slot as usize] {
+                let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("");
+                pickaxe_data::item_attack_damage(name)
+            } else {
+                1.0
+            }
+        } else {
+            1.0
+        }
+    };
     let damage_scale = 0.2 + strength * strength * 0.8;
     let mut damage = base_damage * damage_scale;
 
@@ -2304,6 +2350,11 @@ fn handle_attack(
     // Apply damage to target player
     let target_eid_val = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(target_eid);
     apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
+
+    // Tool durability loss on attack (2 per hit, survival only)
+    if game_mode == GameMode::Survival {
+        damage_held_item(world, attacker, _attacker_eid, 2);
+    }
 
     // Play attack sound at attacker position
     let attacker_pos = world.get::<&Position>(attacker).map(|p| p.0).unwrap_or(Vec3d { x: 0.0, y: 0.0, z: 0.0 });
@@ -2397,13 +2448,72 @@ fn apply_damage(
     // Cancel eating on damage
     let _ = world.remove_one::<EatingState>(entity);
 
+    // Apply armor damage reduction (not for void/starvation)
+    let final_damage = if source != "void" && source != "starvation" {
+        // Sum armor defense and toughness from equipped armor pieces
+        let (total_armor, total_toughness) = if let Ok(inv) = world.get::<&Inventory>(entity) {
+            let mut armor = 0i32;
+            let mut toughness = 0.0f32;
+            for slot_idx in 5..=8 {
+                if let Some(ref item) = inv.slots[slot_idx] {
+                    if let Some(name) = pickaxe_data::item_id_to_name(item.item_id) {
+                        if let Some((def, tough)) = pickaxe_data::armor_defense(name) {
+                            armor += def;
+                            toughness += tough;
+                        }
+                    }
+                }
+            }
+            (armor, toughness)
+        } else {
+            (0, 0.0)
+        };
+
+        if total_armor > 0 {
+            // Vanilla damage reduction formula (CombatRules.java)
+            let toughness_factor = 2.0 + total_toughness / 4.0;
+            let effective_armor = (total_armor as f32 - damage / toughness_factor)
+                .clamp(total_armor as f32 * 0.2, 20.0);
+            let reduction = effective_armor / 25.0;
+            let reduced = damage * (1.0 - reduction);
+
+            // Damage armor pieces: durabilityLoss = max(1, floor(damage / 4))
+            let armor_damage = (damage / 4.0).floor().max(1.0) as i32;
+            if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                let mut broken_slots = Vec::new();
+                for slot_idx in 5..=8 {
+                    if let Some(ref mut item) = inv.slots[slot_idx] {
+                        if item.max_damage > 0 {
+                            item.damage += armor_damage;
+                            if item.damage >= item.max_damage {
+                                broken_slots.push(slot_idx);
+                            }
+                        }
+                    }
+                }
+                for slot_idx in broken_slots {
+                    inv.set_slot(slot_idx, None);
+                }
+            }
+
+            // Send updated equipment to all observers
+            send_equipment_update(world, entity, entity_id);
+
+            reduced
+        } else {
+            damage
+        }
+    } else {
+        damage
+    };
+
     // Apply damage
     let (new_health, is_dead) = {
         let mut health = match world.get::<&mut Health>(entity) {
             Ok(h) => h,
             Err(_) => return,
         };
-        health.current = (health.current - damage).max(0.0);
+        health.current = (health.current - final_damage).max(0.0);
         health.invulnerable_ticks = 20;
         (health.current, health.current <= 0.0)
     };
@@ -3020,6 +3130,18 @@ fn tick_entity_tracking(world: &mut World) {
                     entity_id: eid,
                     head_yaw: degrees_to_angle(yaw),
                 });
+                // Send equipment (armor + held items)
+                if let Some(&(target_entity, _, _, _, _, _, _, _, _)) =
+                    player_data.iter().find(|d| d.1 == eid)
+                {
+                    let equipment = build_equipment(world, target_entity);
+                    if !equipment.is_empty() {
+                        let _ = observer_sender.send(InternalPacket::SetEquipment {
+                            entity_id: eid,
+                            equipment,
+                        });
+                    }
+                }
             } else if let Some(item) = item_data.iter().find(|d| d.eid == eid) {
                 // Item entity
                 let vx = (item.vel.x * 8000.0) as i16;
@@ -3370,6 +3492,12 @@ fn complete_block_break(
     // Mining exhaustion (MC: 0.005 per block broken)
     if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
         food.exhaustion = (food.exhaustion + 0.005).min(40.0);
+    }
+
+    // Tool durability loss on block break (1 per block, survival only)
+    let game_mode_for_durability = world.get::<&PlayerGameMode>(entity).map(|gm| gm.0).unwrap_or(GameMode::Survival);
+    if game_mode_for_durability == GameMode::Survival {
+        damage_held_item(world, entity, entity_id, 1);
     }
 
     // Send block update + ack to the breaking player
@@ -4516,6 +4644,87 @@ fn broadcast_except(world: &World, except_eid: i32, packet: &InternalPacket) {
             let _ = sender.0.send(packet.clone());
         }
     }
+}
+
+/// Build the full equipment list for a player entity.
+/// Returns Vec of (equipment_slot, item) pairs for mainhand, offhand, and armor.
+fn build_equipment(world: &World, entity: hecs::Entity) -> Vec<(u8, Option<ItemStack>)> {
+    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+    let inv = match world.get::<&Inventory>(entity) {
+        Ok(inv) => inv,
+        Err(_) => return Vec::new(),
+    };
+    vec![
+        (0, inv.slots[36 + held_slot as usize].clone()), // mainhand
+        (1, inv.slots[45].clone()),                       // offhand
+        (2, inv.slots[8].clone()),                        // boots (inv slot 8)
+        (3, inv.slots[7].clone()),                        // leggings (inv slot 7)
+        (4, inv.slots[6].clone()),                        // chestplate (inv slot 6)
+        (5, inv.slots[5].clone()),                        // helmet (inv slot 5)
+    ]
+}
+
+/// Send a SetEquipment packet for a player to all other players who track them.
+fn send_equipment_update(world: &World, entity: hecs::Entity, entity_id: i32) {
+    let equipment = build_equipment(world, entity);
+    if equipment.is_empty() {
+        return;
+    }
+    let packet = InternalPacket::SetEquipment {
+        entity_id,
+        equipment,
+    };
+    broadcast_except(world, entity_id, &packet);
+}
+
+/// Damage the held item by `amount`. Breaks it if durability reaches 0.
+/// Sends slot update and equipment update to other players.
+fn damage_held_item(world: &mut World, entity: hecs::Entity, entity_id: i32, amount: i32) {
+    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+    let inv_slot = 36 + held_slot as usize;
+    let (broken, state_id) = {
+        let mut inv = match world.get::<&mut Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => return,
+        };
+        if let Some(ref mut item) = inv.slots[inv_slot] {
+            if item.max_damage > 0 {
+                item.damage += amount;
+                if item.damage >= item.max_damage {
+                    inv.set_slot(inv_slot, None);
+                    (true, inv.state_id)
+                } else {
+                    (false, inv.state_id)
+                }
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    };
+
+    // Send slot update to the player
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let item = world.get::<&Inventory>(entity)
+            .map(|inv| inv.slots[inv_slot].clone())
+            .unwrap_or(None);
+        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+            window_id: 0,
+            state_id,
+            slot: inv_slot as i16,
+            item,
+        });
+    }
+
+    // If item broke, play break sound
+    if broken {
+        let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d { x: 0.0, y: 0.0, z: 0.0 });
+        play_sound_at_entity(world, pos.x, pos.y, pos.z, "entity.item.break", SOUND_PLAYERS, 1.0, 1.0);
+    }
+
+    // Broadcast equipment change
+    send_equipment_update(world, entity, entity_id);
 }
 
 /// SoundSource enum ordinal values matching MC SoundSource.

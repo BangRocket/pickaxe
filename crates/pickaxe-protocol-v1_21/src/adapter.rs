@@ -103,6 +103,7 @@ const PLAY_HURT_ANIMATION: i32 = 0x24;
 const PLAY_PLAYER_COMBAT_KILL: i32 = 0x3C;
 const PLAY_RESPAWN: i32 = 0x47;
 const PLAY_SET_ENTITY_METADATA: i32 = 0x58;
+const PLAY_SET_EQUIPMENT: i32 = 0x5B;
 const PLAY_SET_ENTITY_VELOCITY: i32 = 0x5A;
 const PLAY_SET_HEALTH: i32 = 0x5D;
 const PLAY_CONTAINER_CLOSE: i32 = 0x12;
@@ -879,6 +880,16 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
                 buf.extend_from_slice(&entry.data);
             }
             buf.put_u8(0xFF); // terminator
+        }
+        InternalPacket::SetEquipment { entity_id, equipment } => {
+            write_varint(&mut buf, PLAY_SET_EQUIPMENT);
+            write_varint(&mut buf, *entity_id);
+            for (i, (slot, item)) in equipment.iter().enumerate() {
+                let is_last = i == equipment.len() - 1;
+                let slot_byte = if is_last { *slot } else { *slot | 0x80 };
+                buf.put_u8(slot_byte);
+                write_slot(&mut buf, item);
+            }
         }
         InternalPacket::SetEntityVelocity { entity_id, velocity_x, velocity_y, velocity_z } => {
             write_varint(&mut buf, PLAY_SET_ENTITY_VELOCITY);
