@@ -112,6 +112,8 @@ const PLAY_UPDATE_TIME: i32 = 0x64;
 const PLAY_ENTITY_ANIMATION: i32 = 0x03;
 const PLAY_TAKE_ITEM_ENTITY: i32 = 0x6F;
 const PLAY_SOUND_EFFECT: i32 = 0x68;
+const PLAY_SET_EXPERIENCE: i32 = 0x5C;
+const PLAY_ADD_EXPERIENCE_ORB: i32 = 0x02;
 
 // === Decode functions ===
 
@@ -988,6 +990,20 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_f32(*volume);
             buf.put_f32(*pitch);
             buf.put_i64(*seed);
+        }
+        InternalPacket::SetExperience { progress, level, total_xp } => {
+            write_varint(&mut buf, PLAY_SET_EXPERIENCE);
+            buf.put_f32(*progress);
+            write_varint(&mut buf, *level);
+            write_varint(&mut buf, *total_xp);
+        }
+        InternalPacket::AddExperienceOrb { entity_id, x, y, z, value } => {
+            write_varint(&mut buf, PLAY_ADD_EXPERIENCE_ORB);
+            write_varint(&mut buf, *entity_id);
+            buf.put_f64(*x);
+            buf.put_f64(*y);
+            buf.put_f64(*z);
+            buf.put_i16(*value);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

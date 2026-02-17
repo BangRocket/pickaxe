@@ -53,6 +53,9 @@ struct PlayerSaveData {
     held_slot: u8,
     game_mode: GameMode,
     slots: [Option<ItemStack>; 46],
+    xp_level: i32,
+    xp_progress: f32,
+    xp_total: i32,
 }
 
 /// Serialize a block entity to vanilla-compatible NBT for chunk storage.
@@ -180,6 +183,7 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
     let inv = world.get::<&Inventory>(entity).ok()?;
     let held = world.get::<&HeldSlot>(entity).ok()?;
     let gm = world.get::<&PlayerGameMode>(entity).ok()?;
+    let xp = world.get::<&ExperienceData>(entity).ok();
 
     // Build inventory NBT list with vanilla slot mapping
     let mut inv_items = Vec::new();
@@ -224,7 +228,10 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
         "Inventory" => NbtValue::List(inv_items),
         "SelectedItemSlot" => NbtValue::Int(held.0 as i32),
         "playerGameType" => NbtValue::Int(gm.0.id() as i32),
-        "Dimension" => NbtValue::String("minecraft:overworld".into())
+        "Dimension" => NbtValue::String("minecraft:overworld".into()),
+        "XpLevel" => NbtValue::Int(xp.as_ref().map(|x| x.level).unwrap_or(0)),
+        "XpP" => NbtValue::Float(xp.as_ref().map(|x| x.progress).unwrap_or(0.0)),
+        "XpTotal" => NbtValue::Int(xp.as_ref().map(|x| x.total_xp).unwrap_or(0))
     };
 
     let mut buf = BytesMut::new();
@@ -302,6 +309,10 @@ fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
         }
     }
 
+    let xp_level = nbt.get("XpLevel").and_then(|v| v.as_int()).unwrap_or(0);
+    let xp_progress = nbt.get("XpP").and_then(|v| v.as_float()).unwrap_or(0.0);
+    let xp_total = nbt.get("XpTotal").and_then(|v| v.as_int()).unwrap_or(0);
+
     Some(PlayerSaveData {
         position: Vec3d::new(x, y, z),
         yaw,
@@ -314,6 +325,9 @@ fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
         held_slot,
         game_mode,
         slots,
+        xp_level,
+        xp_progress,
+        xp_total,
     })
 }
 
@@ -795,6 +809,11 @@ fn handle_new_player(
     }).unwrap_or_default();
     let player_fall_distance = saved.as_ref().map(|s| s.fall_distance).unwrap_or(0.0);
     let player_held_slot = saved.as_ref().map(|s| s.held_slot).unwrap_or(0);
+    let player_xp = saved.as_ref().map(|s| ExperienceData {
+        level: s.xp_level,
+        progress: s.xp_progress,
+        total_xp: s.xp_total,
+    }).unwrap_or_default();
     let player_inventory = saved.as_ref().map(|s| {
         let mut inv = Inventory::new();
         inv.slots = s.slots.clone();
@@ -938,6 +957,13 @@ fn handle_new_player(
         saturation: player_food.saturation,
     });
 
+    // Send XP bar
+    let _ = sender.send(InternalPacket::SetExperience {
+        progress: player_xp.progress,
+        level: player_xp.level,
+        total_xp: player_xp.total_xp,
+    });
+
     // Spawn ECS entity (hecs supports up to 16-tuple, so we split)
     let player_entity = world.spawn((
         EntityId(entity_id),
@@ -972,6 +998,7 @@ fn handle_new_player(
         FallDistance(player_fall_distance),
         MovementState { sprinting: false, sneaking: false },
         AttackCooldown::default(),
+        player_xp,
     ));
 
     inbound_receivers.insert(entity_id, new_player.packet_rx);
@@ -2461,6 +2488,20 @@ fn handle_player_death(
         content: TextComponent::plain(&death_msg),
         overlay: false,
     });
+
+    // Reset XP on death (vanilla drops level * 7 XP orbs, we just reset for now)
+    if let Ok(mut xp) = world.get::<&mut ExperienceData>(entity) {
+        xp.level = 0;
+        xp.progress = 0.0;
+        xp.total_xp = 0;
+    }
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetExperience {
+            progress: 0.0,
+            level: 0,
+            total_xp: 0,
+        });
+    }
 }
 
 /// Respawn a player after death: reset health/food, teleport to spawn, resend chunks.
@@ -3367,6 +3408,15 @@ fn complete_block_break(
         .map(|n| pickaxe_data::block_sound_group(n))
         .unwrap_or("stone");
     play_sound_at_block(world, position, &format!("block.{}.break", sound_group), SOUND_BLOCKS, 1.0, 0.8);
+
+    // Award XP for ore mining (survival only)
+    let xp_amount = block_xp_drop(old_block);
+    if xp_amount > 0 {
+        let gm = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+        if gm == GameMode::Survival {
+            award_xp(world, entity, xp_amount);
+        }
+    }
 
     // Handle drops in survival mode
     let game_mode = world
@@ -4501,6 +4551,77 @@ fn play_sound_at_entity(world: &World, x: f64, y: f64, z: f64, sound: &str, sour
         seed: rand::random(),
     };
     broadcast_to_all(world, &packet);
+}
+
+/// XP needed to advance from the given level (MC formula).
+fn xp_needed_for_level(level: i32) -> i32 {
+    if level < 15 {
+        7 + level * 2
+    } else if level < 30 {
+        37 + (level - 15) * 5
+    } else {
+        112 + (level - 30) * 9
+    }
+}
+
+/// Award XP to a player entity and send the updated XP bar.
+fn award_xp(world: &mut World, entity: hecs::Entity, amount: i32) {
+    let (level, progress, total_xp) = {
+        let mut xp = match world.get::<&mut ExperienceData>(entity) {
+            Ok(xp) => xp,
+            Err(_) => return,
+        };
+        xp.total_xp += amount;
+        let mut remaining = amount;
+        while remaining > 0 {
+            let needed = xp_needed_for_level(xp.level);
+            let current_xp = (xp.progress * needed as f32) as i32;
+            let new_xp = current_xp + remaining;
+            if new_xp >= needed {
+                remaining = new_xp - needed;
+                xp.level += 1;
+                xp.progress = 0.0;
+            } else {
+                xp.progress = new_xp as f32 / needed as f32;
+                remaining = 0;
+            }
+        }
+        (xp.level, xp.progress, xp.total_xp)
+    };
+
+    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+        let _ = sender.0.send(InternalPacket::SetExperience {
+            progress,
+            level,
+            total_xp,
+        });
+    }
+}
+
+/// Returns XP dropped when mining a block (by state ID). Random range for ores.
+fn block_xp_drop(state_id: i32) -> i32 {
+    let name = match pickaxe_data::block_state_to_name(state_id) {
+        Some(n) => n,
+        None => return 0,
+    };
+    match name {
+        "diamond_ore" | "deepslate_diamond_ore" | "emerald_ore" | "deepslate_emerald_ore" => {
+            rand::random::<i32>().abs() % 5 + 3 // 3-7
+        }
+        "lapis_ore" | "deepslate_lapis_ore" => {
+            rand::random::<i32>().abs() % 4 + 2 // 2-5
+        }
+        "redstone_ore" | "deepslate_redstone_ore" => {
+            rand::random::<i32>().abs() % 5 + 1 // 1-5
+        }
+        "coal_ore" | "deepslate_coal_ore" => {
+            rand::random::<i32>().abs() % 3 // 0-2
+        }
+        "nether_gold_ore" => {
+            rand::random::<i32>().abs() % 2 // 0-1
+        }
+        _ => 0,
+    }
 }
 
 /// Offset a block position by the given face direction.

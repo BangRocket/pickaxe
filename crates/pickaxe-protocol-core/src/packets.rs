@@ -509,6 +509,22 @@ pub enum InternalPacket {
         seed: i64,
     },
 
+    /// Set Experience (0x5C CB) — update player's XP bar.
+    SetExperience {
+        progress: f32,   // 0.0 to 1.0
+        level: i32,
+        total_xp: i32,
+    },
+
+    /// Add Experience Orb (0x02 CB) — spawn XP orb entity.
+    AddExperienceOrb {
+        entity_id: i32,
+        x: f64,
+        y: f64,
+        z: f64,
+        value: i16,
+    },
+
     // === Shared ===
     Disconnect {
         reason: TextComponent,

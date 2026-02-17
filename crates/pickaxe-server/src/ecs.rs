@@ -241,6 +241,19 @@ pub struct ButtonTimer {
     pub remaining_ticks: u32,
 }
 
+/// Player experience data.
+pub struct ExperienceData {
+    pub level: i32,
+    pub progress: f32,    // 0.0 to 1.0
+    pub total_xp: i32,
+}
+
+impl Default for ExperienceData {
+    fn default() -> Self {
+        Self { level: 0, progress: 0.0, total_xp: 0 }
+    }
+}
+
 /// Tracks a block a player is currently breaking in survival mode.
 pub struct BreakingBlock {
     pub position: BlockPos,
