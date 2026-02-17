@@ -90,6 +90,98 @@ pub fn food_properties(item_id: i32) -> Option<FoodProperties> {
     })
 }
 
+/// Returns the sound group name for a block (e.g., "stone", "grass", "wood").
+/// Used to construct sound resource locations like "minecraft:block.stone.break".
+pub fn block_sound_group(block_name: &str) -> &'static str {
+    match block_name {
+        // Stone-like blocks
+        "stone" | "cobblestone" | "mossy_cobblestone" | "smooth_stone"
+        | "stone_bricks" | "mossy_stone_bricks" | "cracked_stone_bricks"
+        | "chiseled_stone_bricks" | "bricks" | "andesite" | "diorite" | "granite"
+        | "polished_andesite" | "polished_diorite" | "polished_granite"
+        | "deepslate" | "cobbled_deepslate" | "polished_deepslate" | "obsidian"
+        | "furnace" | "lit_furnace" | "coal_ore" | "iron_ore" | "gold_ore"
+        | "diamond_ore" | "emerald_ore" | "lapis_ore" | "redstone_ore"
+        | "copper_ore" | "coal_block" | "iron_block" | "gold_block"
+        | "diamond_block" | "emerald_block" | "lapis_block" | "redstone_block"
+        | "copper_block" | "netherrack" | "end_stone" | "bedrock"
+        | "stone_pressure_plate" | "stone_button" | "polished_blackstone_button"
+        | "dispenser" | "dropper" | "observer" | "piston" | "sticky_piston"
+        | "terracotta" | "prismarine" | "purpur_block" | "quartz_block"
+        => "stone",
+
+        // Dirt/gravel
+        "dirt" | "coarse_dirt" | "rooted_dirt" | "farmland" | "dirt_path"
+        | "clay" | "soul_sand" | "soul_soil" | "mycelium" | "podzol"
+        => "gravel",
+
+        // Grass
+        "grass_block" | "moss_block" => "grass",
+
+        // Sand
+        "sand" | "red_sand" | "concrete_powder" => "sand",
+
+        // Wood
+        n if n.contains("planks") || n.contains("_log") || n.contains("_wood")
+            || n.contains("_stem") || n.contains("_hyphae")
+            || n == "crafting_table" || n == "chest" || n == "barrel"
+            || n == "note_block" || n == "jukebox" || n == "bookshelf"
+            || n.contains("_fence") && !n.contains("fence_gate")
+            || n.contains("_slab") && (n.contains("oak") || n.contains("spruce")
+                || n.contains("birch") || n.contains("jungle")
+                || n.contains("acacia") || n.contains("dark_oak")
+                || n.contains("mangrove") || n.contains("cherry")
+                || n.contains("bamboo") || n.contains("crimson") || n.contains("warped"))
+            || n.contains("_stairs") && (n.contains("oak") || n.contains("spruce")
+                || n.contains("birch") || n.contains("jungle")
+                || n.contains("acacia") || n.contains("dark_oak")
+                || n.contains("mangrove") || n.contains("cherry")
+                || n.contains("bamboo") || n.contains("crimson") || n.contains("warped"))
+        => "wood",
+
+        // Glass
+        n if n.contains("glass") => "glass",
+
+        // Wool/carpet
+        n if n.contains("wool") || n.contains("carpet") => "wool",
+
+        // Metal
+        n if n.contains("iron_door") || n.contains("iron_trapdoor")
+            || n.contains("iron_bars") || n.contains("chain")
+            || n.contains("anvil") || n.contains("cauldron")
+            || n.contains("hopper") || n.contains("lantern")
+        => "metal",
+
+        // Doors (wooden)
+        n if n.contains("_door") && !n.contains("iron") => "wood",
+
+        // Trapdoors (wooden)
+        n if n.contains("_trapdoor") && !n.contains("iron") => "wood",
+
+        // Fence gates
+        n if n.contains("fence_gate") => "wood",
+
+        // Levers
+        "lever" => "stone",
+
+        // Buttons (wooden)
+        n if n.contains("_button") && !n.contains("stone") && !n.contains("polished") => "wood",
+
+        // Torch
+        n if n.contains("torch") => "wood",
+
+        // Crop-like
+        n if n.contains("crop") || n == "wheat" || n == "carrots"
+            || n == "potatoes" || n == "beetroots" || n == "melon"
+            || n == "pumpkin" || n == "sugar_cane" || n == "bamboo"
+            || n.contains("leaves")
+        => "grass",
+
+        // Default to stone for anything unmatched
+        _ => "stone",
+    }
+}
+
 /// A shaped crafting recipe. Pattern is stored in a 3x3 grid (row-major), 0 means empty.
 pub struct CraftingRecipe {
     pub pattern: [i32; 9],

@@ -111,6 +111,7 @@ const PLAY_OPEN_SCREEN: i32 = 0x33;
 const PLAY_UPDATE_TIME: i32 = 0x64;
 const PLAY_ENTITY_ANIMATION: i32 = 0x03;
 const PLAY_TAKE_ITEM_ENTITY: i32 = 0x6F;
+const PLAY_SOUND_EFFECT: i32 = 0x68;
 
 // === Decode functions ===
 
@@ -971,6 +972,22 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             write_varint(&mut buf, *collected_entity_id);
             write_varint(&mut buf, *collector_entity_id);
             write_varint(&mut buf, *item_count);
+        }
+        InternalPacket::SoundEffect { sound_name, source, x, y, z, volume, pitch, seed } => {
+            write_varint(&mut buf, PLAY_SOUND_EFFECT);
+            // Inline SoundEvent (Holder type = DIRECT)
+            write_varint(&mut buf, 0); // 0 = inline/direct, not a registry reference
+            write_string(&mut buf, sound_name); // resource location
+            buf.put_u8(0); // Optional<Float> = empty (no fixed range)
+            // SoundSource enum ordinal
+            write_varint(&mut buf, *source as i32);
+            // Fixed-point coordinates (x * 8)
+            buf.put_i32((*x * 8.0) as i32);
+            buf.put_i32((*y * 8.0) as i32);
+            buf.put_i32((*z * 8.0) as i32);
+            buf.put_f32(*volume);
+            buf.put_f32(*pitch);
+            buf.put_i64(*seed);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

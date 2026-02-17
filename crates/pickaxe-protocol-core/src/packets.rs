@@ -496,6 +496,19 @@ pub enum InternalPacket {
         hand: i32,
     },
 
+    /// Sound Effect (0x68 CB) — play a named sound at a position.
+    SoundEffect {
+        sound_name: String,
+        /// SoundSource enum ordinal: 0=master,4=blocks,7=players,6=neutral
+        source: u8,
+        x: f64,
+        y: f64,
+        z: f64,
+        volume: f32,
+        pitch: f32,
+        seed: i64,
+    },
+
     // === Shared ===
     Disconnect {
         reason: TextComponent,

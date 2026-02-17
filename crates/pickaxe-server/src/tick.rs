@@ -1358,6 +1358,23 @@ fn process_packet(
                             }
                         }
 
+                        // Play interaction sound
+                        let is_opening = pickaxe_data::toggle_interactive_block(new_state) == Some(target_block);
+                        let sound = if target_name.contains("iron_door") || target_name.contains("iron_trapdoor") {
+                            if is_opening { "block.iron_door.open" } else { "block.iron_door.close" }
+                        } else if target_name.contains("door") || target_name.contains("trapdoor") || target_name.contains("fence_gate") {
+                            if is_opening { "block.wooden_door.open" } else { "block.wooden_door.close" }
+                        } else if target_name == "lever" {
+                            "block.lever.click"
+                        } else if target_name.contains("stone_button") || target_name.contains("polished_blackstone_button") {
+                            if is_opening { "block.stone_button.click_on" } else { "block.stone_button.click_off" }
+                        } else if target_name.contains("button") {
+                            if is_opening { "block.wooden_button.click_on" } else { "block.wooden_button.click_off" }
+                        } else {
+                            "block.wooden_door.open"
+                        };
+                        play_sound_at_block(world, &position, sound, SOUND_BLOCKS, 1.0, 1.0);
+
                         debug!("{} interacted with {} at {:?}", name, target_name, position);
                     }
 
@@ -1478,6 +1495,12 @@ fn process_packet(
                     block_id,
                 },
             );
+
+            // Play block place sound
+            let sound_group = pickaxe_data::block_state_to_name(block_id)
+                .map(|n| pickaxe_data::block_sound_group(n))
+                .unwrap_or("stone");
+            play_sound_at_block(world, &target, &format!("block.{}.place", sound_group), SOUND_BLOCKS, 1.0, 0.8);
 
             debug!("{} placed block at {:?}", name, target);
         }
@@ -2255,6 +2278,17 @@ fn handle_attack(
     let target_eid_val = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(target_eid);
     apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
 
+    // Play attack sound at attacker position
+    let attacker_pos = world.get::<&Position>(attacker).map(|p| p.0).unwrap_or(Vec3d { x: 0.0, y: 0.0, z: 0.0 });
+    let attack_sound = if is_critical {
+        "entity.player.attack.crit"
+    } else if strength > 0.9 {
+        "entity.player.attack.strong"
+    } else {
+        "entity.player.attack.weak"
+    };
+    play_sound_at_entity(world, attacker_pos.x, attacker_pos.y, attacker_pos.z, attack_sound, SOUND_PLAYERS, 1.0, 1.0);
+
     // Broadcast critical hit particle if applicable
     if is_critical {
         broadcast_to_all(world, &InternalPacket::EntityAnimation {
@@ -2370,6 +2404,10 @@ fn apply_damage(
         entity_id,
         yaw: 0.0,
     });
+
+    // Play hurt sound at player position
+    let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d { x: 0.0, y: 0.0, z: 0.0 });
+    play_sound_at_entity(world, pos.x, pos.y, pos.z, "entity.player.hurt", SOUND_PLAYERS, 1.0, 1.0);
 
     if is_dead {
         handle_player_death(world, world_state, entity, entity_id, source, scripting);
@@ -2753,6 +2791,14 @@ fn tick_buttons(world: &mut World, world_state: &mut WorldState) {
                 position,
                 block_id: new_state,
             });
+            // Play button click-off sound
+            let block_name = pickaxe_data::block_state_to_name(current_state).unwrap_or("");
+            let sound = if block_name.contains("stone") || block_name.contains("polished_blackstone") {
+                "block.stone_button.click_off"
+            } else {
+                "block.wooden_button.click_off"
+            };
+            play_sound_at_block(world, &position, sound, SOUND_BLOCKS, 1.0, 1.0);
         }
     }
 }
@@ -3316,6 +3362,12 @@ fn complete_block_break(
         },
     );
 
+    // Play block break sound
+    let sound_group = pickaxe_data::block_state_to_name(old_block)
+        .map(|n| pickaxe_data::block_sound_group(n))
+        .unwrap_or("stone");
+    play_sound_at_block(world, position, &format!("block.{}.break", sound_group), SOUND_BLOCKS, 1.0, 0.8);
+
     // Handle drops in survival mode
     let game_mode = world
         .get::<&PlayerGameMode>(entity)
@@ -3757,6 +3809,11 @@ fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: 
             collector_entity_id: collector_eid,
             item_count: count as i32,
         });
+
+        // Play item pickup sound at collector position
+        if let Ok(pos) = world.get::<&Position>(entity) {
+            play_sound_at_entity(world, pos.0.x, pos.0.y, pos.0.z, "entity.item.pickup", SOUND_PLAYERS, 0.2, ((rand::random::<f32>() - 0.5) * 1.4 + 1.0));
+        }
 
         broadcast_to_all(world, &InternalPacket::RemoveEntities {
             entity_ids: vec![eid],
@@ -4409,6 +4466,41 @@ fn broadcast_except(world: &World, except_eid: i32, packet: &InternalPacket) {
             let _ = sender.0.send(packet.clone());
         }
     }
+}
+
+/// SoundSource enum ordinal values matching MC SoundSource.
+const SOUND_BLOCKS: u8 = 4;
+const SOUND_PLAYERS: u8 = 7;
+const SOUND_NEUTRAL: u8 = 6;
+
+/// Play a sound at a block position, broadcast to all players.
+fn play_sound_at_block(world: &World, pos: &BlockPos, sound: &str, source: u8, volume: f32, pitch: f32) {
+    let packet = InternalPacket::SoundEffect {
+        sound_name: format!("minecraft:{}", sound),
+        source,
+        x: pos.x as f64 + 0.5,
+        y: pos.y as f64 + 0.5,
+        z: pos.z as f64 + 0.5,
+        volume,
+        pitch,
+        seed: rand::random(),
+    };
+    broadcast_to_all(world, &packet);
+}
+
+/// Play a sound at an entity's position, broadcast to all players.
+fn play_sound_at_entity(world: &World, x: f64, y: f64, z: f64, sound: &str, source: u8, volume: f32, pitch: f32) {
+    let packet = InternalPacket::SoundEffect {
+        sound_name: format!("minecraft:{}", sound),
+        source,
+        x,
+        y,
+        z,
+        volume,
+        pitch,
+        seed: rand::random(),
+    };
+    broadcast_to_all(world, &packet);
 }
 
 /// Offset a block position by the given face direction.
