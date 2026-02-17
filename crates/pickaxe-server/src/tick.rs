@@ -826,6 +826,7 @@ pub async fn run_tick_loop(
         tick_buttons(&mut world, &mut world_state);
         tick_item_physics(&mut world, &mut world_state, &scripting);
         tick_arrow_physics(&mut world, &mut world_state, &next_eid, &scripting);
+        tick_fishing_bobbers(&mut world, &mut world_state);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
         }
@@ -1192,6 +1193,27 @@ fn handle_disconnect(
 
         // Clean up open container (crafting grid items are lost on disconnect)
         let _ = world.remove_one::<OpenContainer>(entity);
+
+        // Despawn any active fishing bobber
+        let bobber_to_remove: Option<(hecs::Entity, i32)> = {
+            let mut found = None;
+            for (e, (eid, bobber)) in world.query::<(&EntityId, &FishingBobber)>().iter() {
+                if bobber.owner == entity {
+                    found = Some((e, eid.0));
+                    break;
+                }
+            }
+            found
+        };
+        if let Some((bobber_entity, bobber_eid)) = bobber_to_remove {
+            let _ = world.despawn(bobber_entity);
+            broadcast_to_all(world, &InternalPacket::RemoveEntities {
+                entity_ids: vec![bobber_eid],
+            });
+            for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+                tracked.visible.remove(&bobber_eid);
+            }
+        }
 
         // Save player data BEFORE despawn (ECS components are needed)
         if let Some(uuid) = player_uuid {
@@ -2109,6 +2131,146 @@ fn process_packet(
                             data: vec![flags],
                         }],
                     });
+                }
+                return;
+            }
+
+            // Check if item is a fishing rod
+            let fishing_rod_id = pickaxe_data::item_name_to_id("fishing_rod").unwrap_or(931);
+            if item_id == fishing_rod_id {
+                // Check if player already has a bobber out — if so, retract it
+                let existing_bobber = {
+                    let mut found = None;
+                    for (e, (eid, bobber)) in world.query::<(&EntityId, &FishingBobber)>().iter() {
+                        if bobber.owner == entity {
+                            found = Some((e, eid.0, bobber.state, bobber.nibble));
+                            break;
+                        }
+                    }
+                    found
+                };
+
+                if let Some((bobber_entity, bobber_eid, bobber_state, nibble)) = existing_bobber {
+                    // Retract bobber — check if fish is biting
+                    let mut rod_damage = 0i32;
+                    if nibble > 0 && bobber_state == FishingBobberState::Bobbing {
+                        // Fish caught! Spawn loot item
+                        let bobber_pos = world.get::<&Position>(bobber_entity).ok().map(|p| p.0);
+                        if let Some(bpos) = bobber_pos {
+                            let player_pos = world.get::<&Position>(entity).ok().map(|p| p.0);
+                            if let Some(_ppos) = player_pos {
+                                let roll: f64 = rand::random();
+                                let (loot_name, loot_count) = pickaxe_data::fishing_loot(roll);
+                                if let Some(loot_id) = pickaxe_data::item_name_to_id(loot_name) {
+                                    // Spawn item entity at bobber position
+                                    let item = ItemStack::new(loot_id, loot_count as i8);
+                                    spawn_item_entity(
+                                        world, world_state, next_eid,
+                                        bpos.x, bpos.y + 0.5, bpos.z,
+                                        item, 10, scripting,
+                                    );
+
+                                    // Award XP (1-6) directly to fishing player
+                                    let xp_amount = {
+                                        let mut rng = rand::thread_rng();
+                                        rng.gen_range(1..=6)
+                                    };
+                                    award_xp(world, entity, xp_amount);
+
+                                    // Play splash sound
+                                    play_sound_at_entity(world, bpos.x, bpos.y, bpos.z, "entity.fishing_bobber.splash", SOUND_PLAYERS, 1.0, 1.0);
+
+                                    rod_damage = 1; // fish catch = 1 durability
+
+                                    // Fire fishing_catch event
+                                    let player_name = world.get::<&Profile>(entity).ok().map(|p| p.0.name.clone()).unwrap_or_default();
+                                    let count_str = loot_count.to_string();
+                                    let _ = scripting.fire_event_in_context(
+                                        "fishing_catch",
+                                        &[("name", &player_name), ("item_name", loot_name), ("item_count", &count_str)],
+                                        world as *mut _ as *mut (),
+                                        world_state as *mut _ as *mut (),
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    // Despawn bobber
+                    let _ = world.despawn(bobber_entity);
+                    broadcast_to_all(world, &InternalPacket::RemoveEntities {
+                        entity_ids: vec![bobber_eid],
+                    });
+                    // Remove from tracked entities
+                    for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+                        tracked.visible.remove(&bobber_eid);
+                    }
+
+                    // Play retrieve sound
+                    if let Ok(pos) = world.get::<&Position>(entity) {
+                        play_sound_at_entity(world, pos.0.x, pos.0.y, pos.0.z, "entity.fishing_bobber.retrieve", SOUND_PLAYERS, 1.0, 1.0);
+                    }
+
+                    // Apply rod durability damage
+                    if rod_damage > 0 {
+                        let held_slot_idx = {
+                            let hs = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                            if hand == 1 { 45 } else { 36 + hs as usize }
+                        };
+                        if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                            if let Some(ref mut rod_item) = inv.slots[held_slot_idx] {
+                                rod_item.damage += rod_damage;
+                                if rod_item.max_damage > 0 && rod_item.damage >= rod_item.max_damage {
+                                    inv.slots[held_slot_idx] = None;
+                                    // Play break sound
+                                    if let Ok(pos) = world.get::<&Position>(entity) {
+                                        play_sound_at_entity(world, pos.0.x, pos.0.y, pos.0.z, "entity.item.break", SOUND_PLAYERS, 1.0, 1.0);
+                                    }
+                                }
+                            }
+                            let state_id = inv.state_id;
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                    window_id: 0,
+                                    state_id,
+                                    slot: held_slot_idx as i16,
+                                    item: inv.slots[held_slot_idx].clone(),
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    // Cast bobber — spawn fishing hook entity
+                    let (px, py, pz, yaw, pitch) = {
+                        let pos = match world.get::<&Position>(entity) {
+                            Ok(p) => p.0,
+                            Err(_) => return,
+                        };
+                        let rot = match world.get::<&Rotation>(entity) {
+                            Ok(r) => (r.yaw, r.pitch),
+                            Err(_) => (0.0, 0.0),
+                        };
+                        (pos.x, pos.y, pos.z, rot.0, rot.1)
+                    };
+
+                    // Calculate velocity from look direction (MC: speed ~0.6 at 1 block distance)
+                    let yaw_rad = (yaw as f64).to_radians();
+                    let pitch_rad = (pitch as f64).to_radians();
+                    let speed = 1.5;
+                    let vx = -yaw_rad.sin() * pitch_rad.cos() * speed;
+                    let vy = -pitch_rad.sin() * speed;
+                    let vz = yaw_rad.cos() * pitch_rad.cos() * speed;
+
+                    // Spawn at eye height with slight offset toward look direction
+                    let eye_y = py + 1.62;
+                    let offset = 0.3;
+                    let sx = px - yaw_rad.sin() * offset;
+                    let sz = pz + yaw_rad.cos() * offset;
+
+                    spawn_fishing_bobber(world, next_eid, entity, entity_id, sx, eye_y, sz, vx, vy, vz);
+
+                    // Play throw sound
+                    play_sound_at_entity(world, px, py, pz, "entity.fishing_bobber.throw", SOUND_PLAYERS, 0.5, 1.0);
                 }
                 return;
             }
@@ -4881,6 +5043,30 @@ fn tick_entity_tracking(world: &mut World) {
         });
     }
 
+    // Collect all fishing bobber entities
+    struct BobberData {
+        eid: i32,
+        uuid: Uuid,
+        pos: Vec3d,
+        vel: Vec3d,
+        owner_eid: i32,
+    }
+    let mut bobber_data: Vec<BobberData> = Vec::new();
+    for (_e, (eid, euuid, pos, vel, bobber)) in world
+        .query::<(&EntityId, &EntityUuid, &Position, &Velocity, &FishingBobber)>()
+        .iter()
+    {
+        let owner_eid = world.get::<&EntityId>(bobber.owner)
+            .ok().map(|e| e.0).unwrap_or(0);
+        bobber_data.push(BobberData {
+            eid: eid.0,
+            uuid: euuid.0,
+            pos: pos.0,
+            vel: vel.0,
+            owner_eid,
+        });
+    }
+
     for i in 0..player_data.len() {
         let (observer_entity, _observer_eid, _, _, _, _, _, obs_cx, obs_cz) = player_data[i];
 
@@ -4926,6 +5112,15 @@ fn tick_entity_tracking(world: &mut World) {
             let arrow_cz = (arrow.pos.z.floor() as i32) >> 4;
             if (arrow_cx - obs_cx).abs() <= obs_vd && (arrow_cz - obs_cz).abs() <= obs_vd {
                 should_see.insert(arrow.eid);
+            }
+        }
+
+        // Fishing bobber entities in view distance
+        for bobber in &bobber_data {
+            let bobber_cx = (bobber.pos.x.floor() as i32) >> 4;
+            let bobber_cz = (bobber.pos.z.floor() as i32) >> 4;
+            if (bobber_cx - obs_cx).abs() <= obs_vd && (bobber_cz - obs_cz).abs() <= obs_vd {
+                should_see.insert(bobber.eid);
             }
         }
 
@@ -5045,6 +5240,27 @@ fn tick_entity_tracking(world: &mut World) {
                     velocity_y: vy,
                     velocity_z: vz,
                 });
+            } else if let Some(bobber) = bobber_data.iter().find(|d| d.eid == eid) {
+                // Fishing bobber entity (type 129)
+                let vx = (bobber.vel.x * 8000.0) as i16;
+                let vy = (bobber.vel.y * 8000.0) as i16;
+                let vz = (bobber.vel.z * 8000.0) as i16;
+                // data field = owner entity ID
+                let _ = observer_sender.send(InternalPacket::SpawnEntity {
+                    entity_id: eid,
+                    entity_uuid: bobber.uuid,
+                    entity_type: 129, // fishing_bobber
+                    x: bobber.pos.x,
+                    y: bobber.pos.y,
+                    z: bobber.pos.z,
+                    pitch: 0,
+                    yaw: 0,
+                    head_yaw: 0,
+                    data: bobber.owner_eid,
+                    velocity_x: vx,
+                    velocity_y: vy,
+                    velocity_z: vz,
+                });
             }
         }
 
@@ -5150,6 +5366,19 @@ fn tick_entity_movement_broadcast(world: &mut World) {
             pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
         if pos_changed {
             arrow_movers.push((eid.0, pos.0, prev_pos.0, rot.yaw, rot.pitch, og.0));
+        }
+    }
+
+    // Collect fishing bobber entities that moved
+    let mut bobber_movers: Vec<(i32, Vec3d, Vec3d, bool)> = Vec::new();
+    for (_e, (eid, pos, prev_pos, og, _bobber)) in world
+        .query::<(&EntityId, &Position, &PreviousPosition, &OnGround, &FishingBobber)>()
+        .iter()
+    {
+        let pos_changed =
+            pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
+        if pos_changed {
+            bobber_movers.push((eid.0, pos.0, prev_pos.0, og.0));
         }
     }
 
@@ -5354,6 +5583,49 @@ fn tick_entity_movement_broadcast(world: &mut World) {
                     delta_z: dz,
                     yaw: degrees_to_angle(yaw),
                     pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            }
+        }
+    }
+
+    // For each bobber mover, send position-only updates (like items)
+    for &(mover_eid, new_pos, old_pos, on_ground) in &bobber_movers {
+        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
+        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
+        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
+
+        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
+            || (new_pos.y - old_pos.y).abs() > 8.0
+            || (new_pos.z - old_pos.z).abs() > 8.0;
+
+        for (_e, (eid, tracked, sender)) in world
+            .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if eid.0 == mover_eid {
+                continue;
+            }
+            if !tracked.visible.contains(&mover_eid) {
+                continue;
+            }
+
+            if needs_teleport {
+                let _ = sender.0.send(InternalPacket::TeleportEntity {
+                    entity_id: mover_eid,
+                    x: new_pos.x,
+                    y: new_pos.y,
+                    z: new_pos.z,
+                    yaw: 0,
+                    pitch: 0,
+                    on_ground,
+                });
+            } else {
+                let _ = sender.0.send(InternalPacket::UpdateEntityPosition {
+                    entity_id: mover_eid,
+                    delta_x: dx,
+                    delta_y: dy,
+                    delta_z: dz,
                     on_ground,
                 });
             }
@@ -6296,6 +6568,272 @@ fn spawn_arrow(
     ));
 
     (entity, eid)
+}
+
+/// Spawn a fishing bobber entity.
+fn spawn_fishing_bobber(
+    world: &mut World,
+    next_eid: &Arc<AtomicI32>,
+    owner: hecs::Entity,
+    owner_eid: i32,
+    x: f64, y: f64, z: f64,
+    vx: f64, vy: f64, vz: f64,
+) -> (hecs::Entity, i32) {
+    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+    let uuid = Uuid::new_v4();
+
+    let mut rng = rand::thread_rng();
+    let time_until_lured = rng.gen_range(100..=600);
+
+    let entity = world.spawn((
+        EntityId(eid),
+        EntityUuid(uuid),
+        Position(Vec3d::new(x, y, z)),
+        PreviousPosition(Vec3d::new(x, y, z)),
+        Velocity(Vec3d::new(vx, vy, vz)),
+        OnGround(false),
+        Rotation { yaw: 0.0, pitch: 0.0 },
+        PreviousRotation { yaw: 0.0, pitch: 0.0 },
+        FishingBobber {
+            owner,
+            state: FishingBobberState::Flying,
+            time_until_lured,
+            time_until_hooked: 0,
+            nibble: 0,
+            age: 0,
+            hooked_entity: None,
+        },
+    ));
+
+    let _ = owner_eid; // used by entity tracking for spawn data
+
+    (entity, eid)
+}
+
+/// Tick fishing bobber physics and state machine.
+fn tick_fishing_bobbers(world: &mut World, world_state: &mut WorldState) {
+    // Collect bobber updates
+    struct BobberUpdate {
+        entity: hecs::Entity,
+        eid: i32,
+    }
+    let mut to_despawn: Vec<BobberUpdate> = Vec::new();
+
+    // Phase 1: Update physics and state machine
+    let mut bobber_updates: Vec<(hecs::Entity, i32)> = Vec::new();
+    for (e, (eid, _bobber)) in world.query::<(&EntityId, &FishingBobber)>().iter() {
+        bobber_updates.push((e, eid.0));
+    }
+
+    for (entity, eid) in &bobber_updates {
+        let entity = *entity;
+        let eid = *eid;
+
+        // Check if owner still exists
+        let owner_alive = {
+            let owner = match world.get::<&FishingBobber>(entity) {
+                Ok(b) => b.owner,
+                Err(_) => continue,
+            };
+            world.get::<&Position>(owner).is_ok()
+        };
+        if !owner_alive {
+            to_despawn.push(BobberUpdate { entity, eid });
+            continue;
+        }
+
+        // Check distance to owner (max 1024 block squared = 32 blocks)
+        let too_far = {
+            let owner = world.get::<&FishingBobber>(entity).unwrap().owner;
+            let bobber_pos = world.get::<&Position>(entity).ok().map(|p| p.0);
+            let owner_pos = world.get::<&Position>(owner).ok().map(|p| p.0);
+            if let (Some(bp), Some(op)) = (bobber_pos, owner_pos) {
+                let dx = bp.x - op.x;
+                let dy = bp.y - op.y;
+                let dz = bp.z - op.z;
+                (dx * dx + dy * dy + dz * dz) > 1024.0
+            } else {
+                true
+            }
+        };
+        if too_far {
+            to_despawn.push(BobberUpdate { entity, eid });
+            continue;
+        }
+
+        // Increment age, despawn after 1200 ticks if on ground
+        let should_despawn_age = {
+            let mut bobber = match world.get::<&mut FishingBobber>(entity) {
+                Ok(b) => b,
+                Err(_) => continue,
+            };
+            bobber.age += 1;
+            bobber.age > 1200 && world.get::<&OnGround>(entity).ok().map_or(false, |og| og.0)
+        };
+        if should_despawn_age {
+            to_despawn.push(BobberUpdate { entity, eid });
+            continue;
+        }
+
+        // Get current state
+        let state = match world.get::<&FishingBobber>(entity) {
+            Ok(b) => b.state,
+            Err(_) => continue,
+        };
+
+        match state {
+            FishingBobberState::Flying => {
+                // Apply gravity and drag
+                if let (Ok(mut pos), Ok(mut vel)) = (
+                    world.get::<&mut Position>(entity),
+                    world.get::<&mut Velocity>(entity),
+                ) {
+                    // Gravity
+                    vel.0.y -= 0.03;
+                    // Apply velocity
+                    pos.0.x += vel.0.x;
+                    pos.0.y += vel.0.y;
+                    pos.0.z += vel.0.z;
+                    // Drag
+                    vel.0.x *= 0.92;
+                    vel.0.y *= 0.92;
+                    vel.0.z *= 0.92;
+                }
+
+                // Check if entered water
+                let bobber_pos = world.get::<&Position>(entity).ok().map(|p| p.0);
+                if let Some(bp) = bobber_pos {
+                    let block_y = (bp.y - 0.1).floor() as i32;
+                    let bx = bp.x.floor() as i32;
+                    let bz = bp.z.floor() as i32;
+                    let block = world_state.get_block(&BlockPos::new(bx, block_y, bz));
+                    if pickaxe_data::is_water(block) {
+                        // Transition to bobbing
+                        if let Ok(mut bobber) = world.get::<&mut FishingBobber>(entity) {
+                            bobber.state = FishingBobberState::Bobbing;
+                        }
+                        // Dampen velocity on water entry
+                        if let Ok(mut vel) = world.get::<&mut Velocity>(entity) {
+                            vel.0.x *= 0.3;
+                            vel.0.y *= 0.2;
+                            vel.0.z *= 0.3;
+                        }
+                    } else if block != 0 && bp.y <= (block_y + 1) as f64 {
+                        // Hit solid ground
+                        if let Ok(mut vel) = world.get::<&mut Velocity>(entity) {
+                            vel.0.x = 0.0;
+                            vel.0.y = 0.0;
+                            vel.0.z = 0.0;
+                        }
+                        if let Ok(mut og) = world.get::<&mut OnGround>(entity) {
+                            og.0 = true;
+                        }
+                    }
+                }
+            }
+            FishingBobberState::Bobbing => {
+                // Float on water surface
+                let bobber_pos = world.get::<&Position>(entity).ok().map(|p| p.0);
+                if let Some(bp) = bobber_pos {
+                    let bx = bp.x.floor() as i32;
+                    let bz = bp.z.floor() as i32;
+                    // Find water surface
+                    let water_y_check = bp.y.floor() as i32;
+                    let block_at = world_state.get_block(&BlockPos::new(bx, water_y_check, bz));
+                    let block_above = world_state.get_block(&BlockPos::new(bx, water_y_check + 1, bz));
+
+                    if !pickaxe_data::is_water(block_at) && !pickaxe_data::is_water(world_state.get_block(&BlockPos::new(bx, water_y_check - 1, bz))) {
+                        // Bobber left water — go back to flying
+                        if let Ok(mut bobber) = world.get::<&mut FishingBobber>(entity) {
+                            bobber.state = FishingBobberState::Flying;
+                        }
+                    } else {
+                        // Float at water surface
+                        let surface_y = if pickaxe_data::is_water(block_above) {
+                            (water_y_check + 2) as f64 - 0.12
+                        } else {
+                            (water_y_check + 1) as f64 - 0.12
+                        };
+
+                        if let Ok(mut pos) = world.get::<&mut Position>(entity) {
+                            // Gently move toward surface
+                            let dy = surface_y - pos.0.y;
+                            pos.0.y += dy * 0.2;
+                        }
+
+                        // Bobbing motion
+                        if let Ok(mut vel) = world.get::<&mut Velocity>(entity) {
+                            vel.0.y *= 0.9;
+                            vel.0.x *= 0.9;
+                            vel.0.z *= 0.9;
+                        }
+
+                        // Fish state machine
+                        let mut rng = rand::thread_rng();
+                        let bobber_data = {
+                            let b = world.get::<&FishingBobber>(entity).unwrap();
+                            (b.nibble, b.time_until_hooked, b.time_until_lured)
+                        };
+
+                        if bobber_data.0 > 0 {
+                            // Nibbling phase — decrement
+                            if let Ok(mut bobber) = world.get::<&mut FishingBobber>(entity) {
+                                bobber.nibble -= 1;
+                            }
+                        } else if bobber_data.1 > 0 {
+                            // Waiting for bite — decrement
+                            if let Ok(mut bobber) = world.get::<&mut FishingBobber>(entity) {
+                                bobber.time_until_hooked -= 1;
+                                if bobber.time_until_hooked <= 0 {
+                                    // Fish bites!
+                                    bobber.nibble = rng.gen_range(20..=40);
+                                    // Bobber dips down
+                                    if let Ok(mut vel) = world.get::<&mut Velocity>(entity) {
+                                        vel.0.y -= 0.2;
+                                    }
+                                    // Splash sound
+                                    if let Some(bpos) = world.get::<&Position>(entity).ok().map(|p| p.0) {
+                                        play_sound_at_entity(world, bpos.x, bpos.y, bpos.z,
+                                            "entity.fishing_bobber.splash", SOUND_NEUTRAL, 0.25, 1.0);
+                                    }
+                                }
+                            }
+                        } else if bobber_data.2 > 0 {
+                            // Luring phase — decrement
+                            if let Ok(mut bobber) = world.get::<&mut FishingBobber>(entity) {
+                                bobber.time_until_lured -= 1;
+                                if bobber.time_until_lured <= 0 {
+                                    // Luring done, start hooked timer
+                                    bobber.time_until_hooked = rng.gen_range(20..=80);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            FishingBobberState::HookedInEntity => {
+                // Follow hooked entity (not implemented for simplicity)
+                // Despawn if hooked entity gone
+                let hooked = world.get::<&FishingBobber>(entity).ok().and_then(|b| b.hooked_entity);
+                if let Some(hooked_e) = hooked {
+                    if world.get::<&Position>(hooked_e).is_err() {
+                        to_despawn.push(BobberUpdate { entity, eid });
+                    }
+                }
+            }
+        }
+    }
+
+    // Despawn collected bobbers
+    for bu in &to_despawn {
+        let _ = world.despawn(bu.entity);
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![bu.eid],
+        });
+        for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+            tracked.visible.remove(&bu.eid);
+        }
+    }
 }
 
 /// Apply physics to arrow entities: gravity, drag, collision, despawn.

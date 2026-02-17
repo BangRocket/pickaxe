@@ -317,6 +317,25 @@ pub struct ShieldCooldown {
     pub remaining_ticks: u32,
 }
 
+/// Fishing bobber entity component.
+pub struct FishingBobber {
+    pub owner: hecs::Entity,          // player who cast the rod
+    pub state: FishingBobberState,
+    pub time_until_lured: i32,        // ticks until fish appears (100-600)
+    pub time_until_hooked: i32,       // ticks until fish bites (20-80)
+    pub nibble: i32,                  // ticks remaining for bite window (20-40)
+    pub age: u32,                     // ticks since spawn
+    pub hooked_entity: Option<hecs::Entity>,
+}
+
+/// Fishing bobber state machine.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum FishingBobberState {
+    Flying,
+    Bobbing,
+    HookedInEntity,
+}
+
 /// Player air supply for drowning mechanics.
 /// Max is 300 (15 seconds), decreases by 1/tick when submerged,
 /// increases by 4/tick when out of water.

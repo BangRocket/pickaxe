@@ -410,6 +410,13 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         result_id: id("shield"), result_count: 1, width: 3, height: 3,
     });
 
+    // Fishing rod: sticks + string
+    let string_id2 = id("string");
+    recipes.push(CraftingRecipe {
+        pattern: [0, 0, s, 0, s, string_id2, s, 0, string_id2],
+        result_id: id("fishing_rod"), result_count: 1, width: 3, height: 3,
+    });
+
     recipes
 }
 
@@ -921,6 +928,36 @@ pub fn mob_is_ranged(type_id: i32) -> bool {
 /// Returns whether this mob type explodes (creepers).
 pub fn mob_is_explosive(type_id: i32) -> bool {
     type_id == MOB_CREEPER
+}
+
+/// Fishing loot: returns (item_name, count) based on a random value 0.0-1.0.
+/// Loot distribution: 85% fish, 10% junk, 5% treasure.
+/// Fish: cod 60%, salmon 25%, tropical_fish 2%, pufferfish 13%.
+pub fn fishing_loot(roll: f64) -> (&'static str, i32) {
+    if roll < 0.85 {
+        // Fish category (remap roll to 0-1 within fish range)
+        let fish_roll = roll / 0.85;
+        if fish_roll < 0.60 { ("cod", 1) }
+        else if fish_roll < 0.85 { ("salmon", 1) }
+        else if fish_roll < 0.87 { ("tropical_fish", 1) }
+        else { ("pufferfish", 1) }
+    } else if roll < 0.95 {
+        // Junk category (simplified)
+        let junk_roll = (roll - 0.85) / 0.10;
+        if junk_roll < 0.15 { ("leather", 1) }
+        else if junk_roll < 0.30 { ("bone", 1) }
+        else if junk_roll < 0.45 { ("string", 1) }
+        else if junk_roll < 0.60 { ("rotten_flesh", 1) }
+        else if junk_roll < 0.75 { ("bowl", 1) }
+        else if junk_roll < 0.90 { ("stick", 1) }
+        else { ("ink_sac", 1) }
+    } else {
+        // Treasure category (simplified)
+        let treasure_roll = (roll - 0.95) / 0.05;
+        if treasure_roll < 0.33 { ("name_tag", 1) }
+        else if treasure_roll < 0.66 { ("saddle", 1) }
+        else { ("nautilus_shell", 1) }
+    }
 }
 
 #[cfg(test)]
