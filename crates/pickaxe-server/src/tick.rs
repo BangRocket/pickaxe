@@ -406,6 +406,7 @@ pub async fn run_tick_loop(
     next_eid: Arc<AtomicI32>,
     save_tx: mpsc::UnboundedSender<SaveOp>,
     region_storage: RegionStorage,
+    shutdown_rx: tokio::sync::watch::Receiver<bool>,
 ) {
     let adapter = V1_21Adapter::new();
     let mut world = World::new();
@@ -430,6 +431,22 @@ pub async fn run_tick_loop(
     info!("Tick loop started (20 TPS)");
 
     loop {
+        // Check for shutdown signal
+        if *shutdown_rx.borrow() {
+            info!("Shutting down...");
+            // Save all players
+            save_all_players(&world, &world_state.save_tx);
+            // Save level.dat
+            let level_data = serialize_level_dat(&world_state, &config);
+            let _ = world_state.save_tx.send(SaveOp::LevelDat(level_data));
+            // Signal saver to flush and stop
+            let (done_tx, done_rx) = tokio::sync::oneshot::channel();
+            let _ = world_state.save_tx.send(SaveOp::Shutdown(done_tx));
+            let _ = done_rx.await;
+            info!("World saved. Goodbye!");
+            return;
+        }
+
         let tick_start = Instant::now();
 
         // 1. Accept new players

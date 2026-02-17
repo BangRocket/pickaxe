@@ -395,7 +395,11 @@ impl Chunk {
         let mut chunk = Chunk::new();
 
         for section_nbt in sections_nbt {
-            let y = section_nbt.get("Y")?.as_byte()?;
+            // Use continue on parse failures so one bad section doesn't discard the whole chunk
+            let y = match section_nbt.get("Y").and_then(|v| v.as_byte()) {
+                Some(y) => y,
+                None => continue,
+            };
             let section_idx = (y as i32 - (MIN_Y / 16)) as usize;
             if section_idx >= SECTION_COUNT {
                 continue;
@@ -406,15 +410,18 @@ impl Chunk {
                 None => continue,
             };
 
-            let palette_nbt = block_states.get("palette")?.as_list()?;
-            if palette_nbt.is_empty() {
-                continue;
-            }
+            let palette_nbt = match block_states.get("palette").and_then(|v| v.as_list()) {
+                Some(p) if !p.is_empty() => p,
+                _ => continue,
+            };
 
             // Build palette: map NBT names to state IDs
             let mut palette_ids: Vec<i32> = Vec::new();
             for entry in palette_nbt {
-                let name = entry.get("Name")?.as_str()?;
+                let name = match entry.get("Name").and_then(|v| v.as_str()) {
+                    Some(n) => n,
+                    None => continue,
+                };
                 let short_name = name.strip_prefix("minecraft:").unwrap_or(name);
                 let state_id = pickaxe_data::block_name_to_default_state(short_name)
                     .unwrap_or(0);
@@ -424,9 +431,8 @@ impl Chunk {
             if palette_ids.len() == 1 {
                 // Single-valued section
                 chunk.sections[section_idx] = ChunkSection::single_value(palette_ids[0]);
-            } else {
+            } else if let Some(data) = block_states.get("data").and_then(|v| v.as_long_array()) {
                 // Multi-valued: read packed data
-                let data = block_states.get("data")?.as_long_array()?;
                 let bits = std::cmp::max(4, (palette_ids.len() as f64).log2().ceil() as u32);
                 let entries_per_long = 64 / bits as usize;
                 let mask = (1u64 << bits) - 1;
