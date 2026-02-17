@@ -557,8 +557,6 @@ version = "0.1.0"
 dependencies = [
  "flate2",
  "tempfile",
- "thiserror",
- "tracing",
 ]
 
 [[package]]
@@ -580,6 +578,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "flate2",
  "hecs",
  "mlua",
  "pickaxe-data",
@@ -587,6 +586,7 @@ dependencies = [
  "pickaxe-nbt",
  "pickaxe-protocol-core",
  "pickaxe-protocol-v1_21",
+ "pickaxe-region",
  "pickaxe-scripting",
  "pickaxe-types",
  "pickaxe-world",

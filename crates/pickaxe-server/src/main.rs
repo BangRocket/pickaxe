@@ -62,6 +62,17 @@ async fn main() -> anyhow::Result<()> {
     let listener = TcpListener::bind(&addr).await?;
     info!("Listening on {}", addr);
 
+    // Create save channel and spawn saver task
+    let world_dir = std::path::PathBuf::from(&config.world_dir);
+    let (save_tx, save_rx) = mpsc::unbounded_channel::<tick::SaveOp>();
+    let saver_world_dir = world_dir.clone();
+    tokio::task::spawn_blocking(move || tick::run_saver_task(save_rx, saver_world_dir));
+
+    // Create region storage for WorldState (reading path)
+    let region_dir = world_dir.join("region");
+    std::fs::create_dir_all(&region_dir)?;
+    let region_storage = pickaxe_region::RegionStorage::new(region_dir)?;
+
     // Run tick loop and TCP accept loop concurrently on the main task.
     // The tick loop owns the Lua VM (which is !Send), so it must stay on this task.
     // Connection handling is spawned onto the Tokio runtime (those tasks are Send).
@@ -70,7 +81,7 @@ async fn main() -> anyhow::Result<()> {
     let tick_next_eid = next_eid.clone();
 
     tokio::select! {
-        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands, block_overrides, tick_next_eid) => {
+        _ = tick::run_tick_loop(tick_config, scripting, new_player_rx, tick_player_count, lua_commands, block_overrides, tick_next_eid, save_tx, region_storage) => {
             error!("Tick loop exited unexpectedly");
         }
         _ = accept_loop(listener, config, new_player_tx, next_eid, player_count) => {

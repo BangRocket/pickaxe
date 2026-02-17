@@ -16,7 +16,9 @@ pickaxe-protocol-v1_21 = { workspace = true }
 pickaxe-world = { workspace = true }
 pickaxe-events = { workspace = true }
 pickaxe-scripting = { workspace = true }
+pickaxe-region = { workspace = true }
 mlua = { workspace = true }
+flate2 = { workspace = true }
 bytes = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

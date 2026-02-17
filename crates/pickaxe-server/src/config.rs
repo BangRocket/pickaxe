@@ -15,6 +15,8 @@ pub struct ServerConfig {
     pub online_mode: bool,
     #[serde(default = "default_view_distance")]
     pub view_distance: u32,
+    #[serde(default = "default_world_dir")]
+    pub world_dir: String,
 }
 
 fn default_bind() -> String {
@@ -37,6 +39,10 @@ fn default_view_distance() -> u32 {
     8
 }
 
+fn default_world_dir() -> String {
+    "world".to_string()
+}
+
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {
@@ -46,6 +52,7 @@ impl Default for ServerConfig {
             motd: default_motd(),
             online_mode: false,
             view_distance: default_view_distance(),
+            world_dir: default_world_dir(),
         }
     }
 }

@@ -1,13 +1,17 @@
 use crate::config::ServerConfig;
 use crate::ecs::*;
+use bytes::BytesMut;
 use hecs::World;
+use pickaxe_nbt::NbtValue;
 use pickaxe_protocol_core::{player_info_actions, CommandNode, InternalPacket, PlayerInfoEntry};
 use pickaxe_protocol_v1_21::{build_item_metadata, V1_21Adapter};
+use pickaxe_region::RegionStorage;
 use pickaxe_scripting::ScriptRuntime;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, Vec3d};
 use pickaxe_world::{generate_flat_chunk, Chunk};
 use rand::Rng;
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -32,50 +36,141 @@ pub struct NewPlayer {
     pub packet_rx: mpsc::UnboundedReceiver<InboundPacket>,
 }
 
+/// Operations queued for the background saver task.
+pub enum SaveOp {
+    Chunk(i32, i32, Vec<u8>),
+    Player(uuid::Uuid, Vec<u8>),
+    LevelDat(Vec<u8>),
+    Shutdown(tokio::sync::oneshot::Sender<()>),
+}
+
+/// Runs on a background Tokio blocking task. Processes SaveOps sequentially.
+pub fn run_saver_task(
+    mut rx: mpsc::UnboundedReceiver<SaveOp>,
+    world_dir: PathBuf,
+) {
+    let region_dir = world_dir.join("region");
+    let playerdata_dir = world_dir.join("playerdata");
+    let _ = std::fs::create_dir_all(&region_dir);
+    let _ = std::fs::create_dir_all(&playerdata_dir);
+
+    let mut region_storage = match RegionStorage::new(region_dir) {
+        Ok(s) => s,
+        Err(e) => {
+            tracing::error!("Failed to init region storage: {}", e);
+            return;
+        }
+    };
+
+    while let Some(op) = rx.blocking_recv() {
+        match op {
+            SaveOp::Chunk(cx, cz, data) => {
+                if let Err(e) = region_storage.write_chunk(cx, cz, &data) {
+                    tracing::error!("Failed to save chunk ({}, {}): {}", cx, cz, e);
+                }
+            }
+            SaveOp::Player(uuid, data) => {
+                let path = playerdata_dir.join(format!("{}.dat", uuid));
+                let tmp_path = playerdata_dir.join(format!("{}.dat.tmp", uuid));
+                if let Err(e) = std::fs::write(&tmp_path, &data) {
+                    tracing::error!("Failed to write player data {}: {}", uuid, e);
+                } else if let Err(e) = std::fs::rename(&tmp_path, &path) {
+                    tracing::error!("Failed to rename player data {}: {}", uuid, e);
+                }
+            }
+            SaveOp::LevelDat(data) => {
+                let path = world_dir.join("level.dat");
+                let tmp_path = world_dir.join("level.dat.tmp");
+                if let Err(e) = std::fs::write(&tmp_path, &data) {
+                    tracing::error!("Failed to write level.dat: {}", e);
+                } else if let Err(e) = std::fs::rename(&tmp_path, &path) {
+                    tracing::error!("Failed to rename level.dat: {}", e);
+                }
+            }
+            SaveOp::Shutdown(done) => {
+                tracing::info!("Saver task shutting down");
+                let _ = done.send(());
+                return;
+            }
+        }
+    }
+}
+
 /// World state: chunk storage.
 pub struct WorldState {
     chunks: HashMap<ChunkPos, Chunk>,
     pub world_age: i64,
     pub time_of_day: i64,
     pub tick_count: u64,
+    region_storage: RegionStorage,
+    pub save_tx: mpsc::UnboundedSender<SaveOp>,
 }
 
 impl WorldState {
-    pub fn new() -> Self {
+    pub fn new(region_storage: RegionStorage, save_tx: mpsc::UnboundedSender<SaveOp>) -> Self {
         Self {
             chunks: HashMap::new(),
             world_age: 0,
             time_of_day: 0,
             tick_count: 0,
+            region_storage,
+            save_tx,
+        }
+    }
+
+    /// Ensures a chunk is loaded (from disk or generated) and returns a mutable reference.
+    fn ensure_chunk(&mut self, pos: ChunkPos) -> &mut Chunk {
+        if !self.chunks.contains_key(&pos) {
+            // Try loading from disk
+            if let Ok(Some(nbt_bytes)) = self.region_storage.read_chunk(pos.x, pos.z) {
+                if let Ok((_, nbt)) = NbtValue::read_root_named(&nbt_bytes) {
+                    if let Some(chunk) = Chunk::from_nbt(&nbt) {
+                        self.chunks.insert(pos, chunk);
+                        return self.chunks.get_mut(&pos).unwrap();
+                    }
+                }
+            }
+            // Generate and save
+            let chunk = generate_flat_chunk();
+            self.chunks.insert(pos, chunk);
+            self.queue_chunk_save(pos);
+        }
+        self.chunks.get_mut(&pos).unwrap()
+    }
+
+    /// Queue a chunk for background saving.
+    fn queue_chunk_save(&self, pos: ChunkPos) {
+        if let Some(chunk) = self.chunks.get(&pos) {
+            let nbt = chunk.to_nbt(pos.x, pos.z, self.world_age);
+            let mut buf = BytesMut::new();
+            nbt.write_root_named("", &mut buf);
+            let _ = self.save_tx.send(SaveOp::Chunk(pos.x, pos.z, buf.to_vec()));
         }
     }
 
     pub fn get_chunk_packet(&mut self, chunk_x: i32, chunk_z: i32) -> InternalPacket {
         let pos = ChunkPos::new(chunk_x, chunk_z);
-        let chunk = self.chunks.entry(pos).or_insert_with(generate_flat_chunk);
-        chunk.to_packet(chunk_x, chunk_z)
+        self.ensure_chunk(pos);
+        self.chunks.get(&pos).unwrap().to_packet(chunk_x, chunk_z)
     }
 
     pub fn set_block(&mut self, pos: &BlockPos, state_id: i32) -> i32 {
         let chunk_pos = pos.chunk_pos();
         let local_x = (pos.x.rem_euclid(16)) as usize;
         let local_z = (pos.z.rem_euclid(16)) as usize;
-        let chunk = self
-            .chunks
-            .entry(chunk_pos)
-            .or_insert_with(generate_flat_chunk);
-        chunk.set_block(local_x, pos.y, local_z, state_id)
+        self.ensure_chunk(chunk_pos);
+        let chunk = self.chunks.get_mut(&chunk_pos).unwrap();
+        let old = chunk.set_block(local_x, pos.y, local_z, state_id);
+        self.queue_chunk_save(chunk_pos);
+        old
     }
 
     pub fn get_block(&mut self, pos: &BlockPos) -> i32 {
         let chunk_pos = pos.chunk_pos();
         let local_x = (pos.x.rem_euclid(16)) as usize;
         let local_z = (pos.z.rem_euclid(16)) as usize;
-        let chunk = self
-            .chunks
-            .entry(chunk_pos)
-            .or_insert_with(generate_flat_chunk);
-        chunk.get_block(local_x, pos.y, local_z)
+        self.ensure_chunk(chunk_pos);
+        self.chunks.get(&chunk_pos).unwrap().get_block(local_x, pos.y, local_z)
     }
 }
 
@@ -89,10 +184,12 @@ pub async fn run_tick_loop(
     lua_commands: crate::bridge::LuaCommands,
     block_overrides: crate::bridge::BlockOverrides,
     next_eid: Arc<AtomicI32>,
+    save_tx: mpsc::UnboundedSender<SaveOp>,
+    region_storage: RegionStorage,
 ) {
     let adapter = V1_21Adapter::new();
     let mut world = World::new();
-    let mut world_state = WorldState::new();
+    let mut world_state = WorldState::new(region_storage, save_tx);
 
     // Collect inbound packet receivers from all active players
     // We store them separately since hecs components must be Send
