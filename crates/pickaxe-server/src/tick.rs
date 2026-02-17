@@ -824,11 +824,12 @@ pub async fn run_tick_loop(
         tick_sleeping(&mut world, &mut world_state, &scripting);
         tick_buttons(&mut world, &mut world_state);
         tick_item_physics(&mut world, &mut world_state, &scripting);
+        tick_arrow_physics(&mut world, &mut world_state, &next_eid, &scripting);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
         }
         tick_furnaces(&world, &mut world_state);
-        tick_mob_ai(&mut world, &mut world_state, &scripting);
+        tick_mob_ai(&mut world, &mut world_state, &scripting, &next_eid);
         tick_mob_spawning(&mut world, &world_state, &next_eid, tick_count);
         if tick_count % 100 == 0 {
             tick_mob_despawn(&mut world);
@@ -1442,6 +1443,120 @@ fn process_packet(
                 4 => {
                     drop_held_item(world, world_state, entity, entity_id, true, next_eid, scripting);
                 }
+                // Release Use Item (status 5) — fires bow arrow
+                5 => {
+                    // Check if player is drawing a bow
+                    let bow_draw = match world.get::<&BowDrawState>(entity) {
+                        Ok(draw) => (draw.start_tick, draw.hand),
+                        Err(_) => return,
+                    };
+                    let (start_tick, _hand) = bow_draw;
+                    let _ = world.remove_one::<BowDrawState>(entity);
+
+                    // Calculate draw power (MC formula)
+                    let draw_ticks = world_state.tick_count.saturating_sub(start_tick) as f32;
+                    let mut power = draw_ticks / 20.0;
+                    power = (power * power + power * 2.0) / 3.0;
+                    if power < 0.1 {
+                        return; // too short a draw, don't fire
+                    }
+                    if power > 1.0 {
+                        power = 1.0;
+                    }
+                    let is_critical = power >= 1.0;
+
+                    // Get player position and look direction
+                    let (px, py, pz, yaw, pitch) = {
+                        let pos = match world.get::<&Position>(entity) {
+                            Ok(p) => p.0,
+                            Err(_) => return,
+                        };
+                        let rot = match world.get::<&Rotation>(entity) {
+                            Ok(r) => (r.yaw, r.pitch),
+                            Err(_) => (0.0, 0.0),
+                        };
+                        (pos.x, pos.y, pos.z, rot.0, rot.1)
+                    };
+
+                    // Calculate velocity from look direction (MC: power * 3.0)
+                    let speed = power as f64 * 3.0;
+                    let yaw_rad = (yaw as f64).to_radians();
+                    let pitch_rad = (pitch as f64).to_radians();
+                    let vx = -yaw_rad.sin() * pitch_rad.cos() * speed;
+                    let vy = -pitch_rad.sin() * speed;
+                    let vz = yaw_rad.cos() * pitch_rad.cos() * speed;
+
+                    // Spawn arrow entity at eye height
+                    let eye_y = py + 1.62;
+                    spawn_arrow(
+                        world, next_eid,
+                        px, eye_y, pz,
+                        vx, vy, vz,
+                        2.0, // base arrow damage
+                        Some(entity),
+                        is_critical,
+                        true, // from_player
+                    );
+
+                    // Consume one arrow from inventory
+                    let arrow_id = pickaxe_data::item_name_to_id("arrow").unwrap_or(802);
+                    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                        for i in 0..46 {
+                            if let Some(ref slot) = inv.slots[i] {
+                                if slot.item_id == arrow_id {
+                                    if slot.count <= 1 {
+                                        inv.slots[i] = None;
+                                    } else {
+                                        inv.slots[i].as_mut().unwrap().count -= 1;
+                                    }
+                                    // Send slot update
+                                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                            window_id: 0,
+                                            state_id: inv.state_id,
+                                            slot: i as i16,
+                                            item: inv.slots[i].clone(),
+                                        });
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Apply bow durability damage
+                    let bow_id = pickaxe_data::item_name_to_id("bow").unwrap_or(801);
+                    let held_slot_idx = {
+                        let hs = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                        36 + hs as usize
+                    };
+                    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                        if let Some(ref mut bow_item) = inv.slots[held_slot_idx] {
+                            if bow_item.item_id == bow_id {
+                                let max_dur = bow_item.max_damage;
+                                let new_dur = bow_item.damage + 1;
+                                if max_dur > 0 && new_dur >= max_dur {
+                                    // Bow breaks
+                                    inv.slots[held_slot_idx] = None;
+                                    play_sound_at_entity(world, px, py, pz, "entity.item.break", SOUND_PLAYERS, 1.0, 1.0);
+                                } else {
+                                    bow_item.damage = new_dur;
+                                }
+                                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                    let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                        window_id: 0,
+                                        state_id: inv.state_id,
+                                        slot: held_slot_idx as i16,
+                                        item: inv.slots[held_slot_idx].clone(),
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // Play bow shoot sound
+                    play_sound_at_entity(world, px, py, pz, "entity.arrow.shoot", SOUND_PLAYERS, 1.0, 1.0);
+                }
                 _ => {}
             }
         }
@@ -1857,6 +1972,8 @@ fn process_packet(
                 if let Ok(mut held) = world.get::<&mut HeldSlot>(entity) {
                     held.0 = slot as u8;
                 }
+                // Cancel bow draw if switching slots
+                let _ = world.remove_one::<BowDrawState>(entity);
                 // Broadcast mainhand equipment change
                 send_equipment_update(world, entity, entity_id);
             }
@@ -1945,6 +2062,27 @@ fn process_packet(
                     None => return,
                 }
             };
+
+            // Check if item is a bow
+            let bow_id = pickaxe_data::item_name_to_id("bow").unwrap_or(801);
+            if item_id == bow_id {
+                // Check player has arrows in inventory
+                let arrow_id = pickaxe_data::item_name_to_id("arrow").unwrap_or(802);
+                let has_arrows = {
+                    let inv = match world.get::<&Inventory>(entity) {
+                        Ok(inv) => inv,
+                        Err(_) => return,
+                    };
+                    inv.slots.iter().any(|s| s.as_ref().is_some_and(|i| i.item_id == arrow_id))
+                };
+                if has_arrows {
+                    let _ = world.insert_one(entity, BowDrawState {
+                        start_tick: world_state.tick_count,
+                        hand,
+                    });
+                }
+                return;
+            }
 
             // Check if the item is food
             if let Some(props) = pickaxe_data::food_properties(item_id) {
@@ -3304,6 +3442,7 @@ fn tick_mob_ai(
     world: &mut World,
     world_state: &mut WorldState,
     _scripting: &ScriptRuntime,
+    next_eid: &Arc<AtomicI32>,
 ) {
     // Collect player positions for targeting
     let mut player_positions: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
@@ -3702,11 +3841,42 @@ fn tick_mob_ai(
         }
     }
 
-    // Process skeleton ranged attacks (direct damage, no arrow entity)
+    // Process skeleton ranged attacks — spawn arrow entities
     for attack in ranged_attacks {
+        let target_pos = match world.get::<&Position>(attack.target) {
+            Ok(p) => p.0,
+            Err(_) => continue,
+        };
+
+        // Calculate velocity toward target with some randomness
+        let dx = target_pos.x - attack.mob_pos.x;
+        let dy = (target_pos.y + 1.0) - (attack.mob_pos.y + 1.5); // aim at body, fire from eye
+        let dz = target_pos.z - attack.mob_pos.z;
+        let dist = (dx * dx + dz * dz).sqrt();
+        let speed = 1.6; // skeleton arrow speed
+        let norm = (dx * dx + dy * dy + dz * dz).sqrt().max(0.1);
+        // Add arc: extra Y velocity for distance
+        let arc_y = dist * 0.2 * 0.05;
+        let vx = (dx / norm) * speed;
+        let vy = (dy / norm) * speed + arc_y;
+        let vz = (dz / norm) * speed;
+
+        let mut rng = rand::thread_rng();
+        let spread = 0.05;
+        let vx = vx + rng.gen_range(-spread..spread);
+        let vy = vy + rng.gen_range(-spread..spread);
+        let vz = vz + rng.gen_range(-spread..spread);
+
         let damage = pickaxe_data::mob_attack_damage(pickaxe_data::MOB_SKELETON);
-        let target_eid = world.get::<&EntityId>(attack.target).map(|e| e.0).unwrap_or(0);
-        apply_damage(world, world_state, attack.target, target_eid, damage, "skeleton", _scripting);
+        spawn_arrow(
+            world, next_eid,
+            attack.mob_pos.x, attack.mob_pos.y + 1.5, attack.mob_pos.z,
+            vx, vy, vz,
+            damage,
+            Some(attack.mob_entity),
+            false, // not critical
+            false, // not from player
+        );
         play_sound_at_entity(world, attack.mob_pos.x, attack.mob_pos.y, attack.mob_pos.z, "entity.skeleton.shoot", SOUND_HOSTILE, 1.0, 1.0);
         // Set cooldown
         if let Ok(mut mob) = world.get::<&mut MobEntity>(attack.mob_entity) {
@@ -4505,6 +4675,37 @@ fn tick_entity_tracking(world: &mut World) {
         });
     }
 
+    // Collect all arrow entities
+    struct ArrowData {
+        eid: i32,
+        uuid: Uuid,
+        pos: Vec3d,
+        vel: Vec3d,
+        yaw: f32,
+        pitch: f32,
+        owner_eid: i32, // 0 if no owner
+        is_critical: bool,
+    }
+    let mut arrow_data: Vec<ArrowData> = Vec::new();
+    for (_e, (eid, euuid, pos, vel, rot, arrow)) in world
+        .query::<(&EntityId, &EntityUuid, &Position, &Velocity, &Rotation, &ArrowEntity)>()
+        .iter()
+    {
+        let owner_eid = arrow.owner
+            .and_then(|o| world.get::<&EntityId>(o).ok().map(|e| e.0))
+            .unwrap_or(0);
+        arrow_data.push(ArrowData {
+            eid: eid.0,
+            uuid: euuid.0,
+            pos: pos.0,
+            vel: vel.0,
+            yaw: rot.yaw,
+            pitch: rot.pitch,
+            owner_eid,
+            is_critical: arrow.is_critical,
+        });
+    }
+
     for i in 0..player_data.len() {
         let (observer_entity, _observer_eid, _, _, _, _, _, obs_cx, obs_cz) = player_data[i];
 
@@ -4541,6 +4742,15 @@ fn tick_entity_tracking(world: &mut World) {
             let mob_cz = (mob.pos.z.floor() as i32) >> 4;
             if (mob_cx - obs_cx).abs() <= obs_vd && (mob_cz - obs_cz).abs() <= obs_vd {
                 should_see.insert(mob.eid);
+            }
+        }
+
+        // Arrow entities in view distance
+        for arrow in &arrow_data {
+            let arrow_cx = (arrow.pos.x.floor() as i32) >> 4;
+            let arrow_cz = (arrow.pos.z.floor() as i32) >> 4;
+            if (arrow_cx - obs_cx).abs() <= obs_vd && (arrow_cz - obs_cz).abs() <= obs_vd {
+                should_see.insert(arrow.eid);
             }
         }
 
@@ -4638,6 +4848,28 @@ fn tick_entity_tracking(world: &mut World) {
                     entity_id: eid,
                     head_yaw: degrees_to_angle(mob.yaw),
                 });
+            } else if let Some(arrow) = arrow_data.iter().find(|d| d.eid == eid) {
+                // Arrow entity (type 4)
+                let vx = (arrow.vel.x * 8000.0) as i16;
+                let vy = (arrow.vel.y * 8000.0) as i16;
+                let vz = (arrow.vel.z * 8000.0) as i16;
+                // data field = shooter entity ID + 1 (0 means no owner)
+                let data = if arrow.owner_eid > 0 { arrow.owner_eid + 1 } else { 0 };
+                let _ = observer_sender.send(InternalPacket::SpawnEntity {
+                    entity_id: eid,
+                    entity_uuid: arrow.uuid,
+                    entity_type: 4, // arrow
+                    x: arrow.pos.x,
+                    y: arrow.pos.y,
+                    z: arrow.pos.z,
+                    pitch: degrees_to_angle(arrow.pitch),
+                    yaw: degrees_to_angle(arrow.yaw),
+                    head_yaw: 0,
+                    data,
+                    velocity_x: vx,
+                    velocity_y: vy,
+                    velocity_z: vz,
+                });
             }
         }
 
@@ -4730,6 +4962,19 @@ fn tick_entity_movement_broadcast(world: &mut World) {
                 prev_rot.pitch,
                 og.0,
             ));
+        }
+    }
+
+    // Collect arrow entities that moved or rotated
+    let mut arrow_movers: Vec<(i32, Vec3d, Vec3d, f32, f32, bool)> = Vec::new();
+    for (_e, (eid, pos, prev_pos, rot, og, _arrow)) in world
+        .query::<(&EntityId, &Position, &PreviousPosition, &Rotation, &OnGround, &ArrowEntity)>()
+        .iter()
+    {
+        let pos_changed =
+            pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
+        if pos_changed {
+            arrow_movers.push((eid.0, pos.0, prev_pos.0, rot.yaw, rot.pitch, og.0));
         }
     }
 
@@ -4892,6 +5137,51 @@ fn tick_entity_movement_broadcast(world: &mut World) {
                 entity_id: mover_eid,
                 head_yaw: degrees_to_angle(yaw),
             });
+        }
+    }
+
+    // For each arrow mover, send position+rotation updates
+    for &(mover_eid, new_pos, old_pos, yaw, pitch, on_ground) in &arrow_movers {
+        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
+        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
+        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
+
+        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
+            || (new_pos.y - old_pos.y).abs() > 8.0
+            || (new_pos.z - old_pos.z).abs() > 8.0;
+
+        for (_e, (eid, tracked, sender)) in world
+            .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if eid.0 == mover_eid {
+                continue;
+            }
+            if !tracked.visible.contains(&mover_eid) {
+                continue;
+            }
+
+            if needs_teleport {
+                let _ = sender.0.send(InternalPacket::TeleportEntity {
+                    entity_id: mover_eid,
+                    x: new_pos.x,
+                    y: new_pos.y,
+                    z: new_pos.z,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            } else {
+                let _ = sender.0.send(InternalPacket::UpdateEntityPositionAndRotation {
+                    entity_id: mover_eid,
+                    delta_x: dx,
+                    delta_y: dy,
+                    delta_z: dz,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            }
         }
     }
 
@@ -5784,6 +6074,272 @@ fn tick_item_physics(world: &mut World, world_state: &mut WorldState, scripting:
             world_state as *mut _ as *mut (),
         );
 
+        let _ = world.despawn(*entity);
+    }
+}
+
+/// Spawn an arrow entity in the world with given position and velocity.
+fn spawn_arrow(
+    world: &mut World,
+    next_eid: &Arc<AtomicI32>,
+    x: f64,
+    y: f64,
+    z: f64,
+    vx: f64,
+    vy: f64,
+    vz: f64,
+    damage: f32,
+    owner: Option<hecs::Entity>,
+    is_critical: bool,
+    from_player: bool,
+) -> (hecs::Entity, i32) {
+    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+    let uuid = Uuid::new_v4();
+
+    // Calculate rotation from velocity
+    let horiz = (vx * vx + vz * vz).sqrt();
+    let yaw = (vz.atan2(vx).to_degrees() as f32) - 90.0;
+    let pitch = -(vy.atan2(horiz).to_degrees() as f32);
+
+    let entity = world.spawn((
+        EntityId(eid),
+        EntityUuid(uuid),
+        Position(Vec3d::new(x, y, z)),
+        PreviousPosition(Vec3d::new(x, y, z)),
+        Velocity(Vec3d::new(vx, vy, vz)),
+        OnGround(false),
+        Rotation { yaw, pitch },
+        PreviousRotation { yaw, pitch },
+        ArrowEntity {
+            damage,
+            owner,
+            in_ground: false,
+            age: 0,
+            is_critical,
+            from_player,
+        },
+    ));
+
+    (entity, eid)
+}
+
+/// Apply physics to arrow entities: gravity, drag, collision, despawn.
+fn tick_arrow_physics(world: &mut World, world_state: &mut WorldState, next_eid: &Arc<AtomicI32>, scripting: &ScriptRuntime) {
+    // Collect arrows to despawn
+    let mut to_despawn: Vec<(hecs::Entity, i32)> = Vec::new();
+    // Collect arrow-entity hits
+    struct ArrowHit {
+        arrow_entity: hecs::Entity,
+        arrow_eid: i32,
+        target_entity: hecs::Entity,
+        target_eid: i32,
+        damage: f32,
+        hit_pos: Vec3d,
+        from_player: bool,
+        is_mob_target: bool,
+        owner: Option<hecs::Entity>,
+        is_critical: bool,
+    }
+    let mut entity_hits: Vec<ArrowHit> = Vec::new();
+
+    // Collect all player positions for hit detection
+    let mut player_positions: Vec<(hecs::Entity, i32, Vec3d, Option<hecs::Entity>)> = Vec::new();
+    for (e, (eid, pos, _profile)) in world
+        .query::<(&EntityId, &Position, &Profile)>()
+        .iter()
+    {
+        player_positions.push((e, eid.0, pos.0, None));
+    }
+
+    // Collect all mob positions for hit detection
+    let mut mob_positions: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
+    for (e, (eid, pos, _mob)) in world
+        .query::<(&EntityId, &Position, &MobEntity)>()
+        .iter()
+    {
+        mob_positions.push((e, eid.0, pos.0));
+    }
+
+    // Apply physics to arrows
+    for (e, (eid, pos, vel, og, rot, arrow)) in world
+        .query::<(&EntityId, &mut Position, &mut Velocity, &mut OnGround, &mut Rotation, &mut ArrowEntity)>()
+        .iter()
+    {
+        arrow.age += 1;
+
+        // Despawn after 1200 ticks (60 seconds)
+        if arrow.age >= 1200 {
+            to_despawn.push((e, eid.0));
+            continue;
+        }
+
+        // If arrow is stuck in ground, just age it
+        if arrow.in_ground {
+            continue;
+        }
+
+        // Apply gravity (MC uses 0.05 for arrows)
+        vel.0.y -= 0.05;
+
+        // Move arrow
+        let old_pos = pos.0;
+        pos.0.x += vel.0.x;
+        pos.0.y += vel.0.y;
+        pos.0.z += vel.0.z;
+
+        // Check entity collision (before block collision) — simple distance check
+        // Check against players
+        for &(target_e, target_eid, target_pos, _) in &player_positions {
+            // Don't hit the shooter
+            if arrow.owner == Some(target_e) {
+                continue;
+            }
+            let dx = pos.0.x - target_pos.x;
+            let dy = (pos.0.y - target_pos.y) - 0.9; // aim at center of body
+            let dz = pos.0.z - target_pos.z;
+            let dist_sq = dx * dx + dy * dy + dz * dz;
+            if dist_sq < 0.6 * 0.6 {
+                // Hit!
+                let damage = if arrow.is_critical {
+                    arrow.damage * 1.5 + 0.5
+                } else {
+                    arrow.damage
+                };
+                entity_hits.push(ArrowHit {
+                    arrow_entity: e, arrow_eid: eid.0,
+                    target_entity: target_e, target_eid,
+                    damage, hit_pos: pos.0, from_player: arrow.from_player,
+                    is_mob_target: false, owner: arrow.owner, is_critical: arrow.is_critical,
+                });
+                break;
+            }
+        }
+
+        // Check against mobs
+        if !entity_hits.iter().any(|h| h.arrow_entity == e) {
+            for &(target_e, target_eid, target_pos) in &mob_positions {
+                // Don't hit the shooter mob
+                if arrow.owner == Some(target_e) {
+                    continue;
+                }
+                let dx = pos.0.x - target_pos.x;
+                let dy = (pos.0.y - target_pos.y) - 0.5;
+                let dz = pos.0.z - target_pos.z;
+                let dist_sq = dx * dx + dy * dy + dz * dz;
+                if dist_sq < 0.8 * 0.8 {
+                    let damage = if arrow.is_critical {
+                        arrow.damage * 1.5 + 0.5
+                    } else {
+                        arrow.damage
+                    };
+                    entity_hits.push(ArrowHit {
+                        arrow_entity: e, arrow_eid: eid.0,
+                        target_entity: target_e, target_eid,
+                        damage, hit_pos: pos.0, from_player: arrow.from_player,
+                        is_mob_target: true, owner: arrow.owner, is_critical: arrow.is_critical,
+                    });
+                    break;
+                }
+            }
+        }
+
+        // Block collision check — check if the new position is inside a solid block
+        let block_pos = BlockPos::new(
+            pos.0.x.floor() as i32,
+            pos.0.y.floor() as i32,
+            pos.0.z.floor() as i32,
+        );
+        let block_at = world_state.get_block(&block_pos);
+        if block_at != 0 {
+            // Arrow hit a block — stop it
+            // Snap to the block face (approximately)
+            arrow.in_ground = true;
+            vel.0 = Vec3d::new(0.0, 0.0, 0.0);
+            og.0 = true;
+
+            // Play arrow hit sound
+            play_sound_at_entity(world, pos.0.x, pos.0.y, pos.0.z, "entity.arrow.hit_block", SOUND_NEUTRAL, 1.0, 1.0);
+            // Broadcast velocity zero
+            broadcast_to_all(world, &InternalPacket::SetEntityVelocity {
+                entity_id: eid.0,
+                velocity_x: 0,
+                velocity_y: 0,
+                velocity_z: 0,
+            });
+            continue;
+        }
+
+        // Air drag
+        vel.0.x *= 0.99;
+        vel.0.y *= 0.99;
+        vel.0.z *= 0.99;
+
+        // Update rotation based on velocity
+        let horiz = (vel.0.x * vel.0.x + vel.0.z * vel.0.z).sqrt();
+        rot.yaw = (vel.0.z.atan2(vel.0.x).to_degrees() as f32) - 90.0;
+        rot.pitch = -(vel.0.y.atan2(horiz).to_degrees() as f32);
+
+        let _ = old_pos; // suppress unused warning
+    }
+
+    // Process entity hits
+    for hit in &entity_hits {
+        if hit.is_mob_target {
+            // Arrow hit a mob — use attack_mob
+            if let Some(owner) = hit.owner {
+                let owner_eid = world.get::<&EntityId>(owner).map(|e| e.0).unwrap_or(0);
+                attack_mob(world, world_state, owner, owner_eid, hit.target_entity, hit.target_eid,
+                    hit.damage, hit.is_critical, scripting, next_eid);
+            } else {
+                // No owner (shouldn't happen but handle gracefully) — direct mob damage
+                if let Ok(mut mob) = world.get::<&mut MobEntity>(hit.target_entity) {
+                    mob.health -= hit.damage;
+                    mob.no_damage_ticks = 10;
+                }
+            }
+        } else {
+            // Arrow hit a player — use apply_damage
+            apply_damage(world, world_state, hit.target_entity, hit.target_eid, hit.damage, "arrow", scripting);
+        }
+
+        // Play hit sound
+        let sound = if hit.is_mob_target { "entity.arrow.hit_player" } else { "entity.arrow.hit_player" };
+        play_sound_at_entity(world, hit.hit_pos.x, hit.hit_pos.y, hit.hit_pos.z, sound, SOUND_NEUTRAL, 1.0, 1.0);
+
+        // Broadcast hurt animation
+        broadcast_to_all(world, &InternalPacket::HurtAnimation {
+            entity_id: hit.target_eid,
+            yaw: 0.0,
+        });
+
+        // If arrow is from a player, drop it as pickup
+        if hit.from_player {
+            let arrow_item_id = pickaxe_data::item_name_to_id("arrow").unwrap_or(802);
+            spawn_item_entity(
+                world,
+                world_state,
+                next_eid,
+                hit.hit_pos.x,
+                hit.hit_pos.y,
+                hit.hit_pos.z,
+                ItemStack::new(arrow_item_id, 1),
+                10, // pickup delay
+                scripting,
+            );
+        }
+
+        // Remove the arrow
+        to_despawn.push((hit.arrow_entity, hit.arrow_eid));
+    }
+
+    // Despawn arrows
+    for (entity, eid) in &to_despawn {
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![*eid],
+        });
+        for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+            tracked.visible.remove(eid);
+        }
         let _ = world.despawn(*entity);
     }
 }

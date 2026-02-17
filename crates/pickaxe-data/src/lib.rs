@@ -388,6 +388,21 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         });
     }
 
+    // Bow: string + sticks
+    let string_id = id("string");
+    recipes.push(CraftingRecipe {
+        pattern: [0, s, string_id, s, 0, string_id, 0, s, string_id],
+        result_id: id("bow"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Arrow: flint + stick + feather
+    let flint = id("flint");
+    let feather = id("feather");
+    recipes.push(CraftingRecipe {
+        pattern: [flint, 0, 0, s, 0, 0, feather, 0, 0],
+        result_id: id("arrow"), result_count: 4, width: 1, height: 3,
+    });
+
     recipes
 }
 

@@ -289,6 +289,22 @@ pub struct MobEntity {
     pub attack_cooldown: u32,   // skeleton arrow / generic attack cooldown
 }
 
+/// Arrow projectile component.
+pub struct ArrowEntity {
+    pub damage: f32,         // base damage (2.0 for normal arrows)
+    pub owner: Option<hecs::Entity>, // who shot the arrow
+    pub in_ground: bool,     // arrow is embedded in a block
+    pub age: u32,            // ticks since spawn, despawn at 1200 (60 seconds)
+    pub is_critical: bool,   // crit arrow (full bow draw)
+    pub from_player: bool,   // can be picked up if from player
+}
+
+/// Tracks when a player is drawing a bow.
+pub struct BowDrawState {
+    pub start_tick: u64,     // when the draw started
+    pub hand: i32,           // which hand holds the bow
+}
+
 /// Player air supply for drowning mechanics.
 /// Max is 300 (15 seconds), decreases by 1/tick when submerged,
 /// increases by 4/tick when out of water.
