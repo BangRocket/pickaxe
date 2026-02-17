@@ -1,4 +1,5 @@
 use bytes::{BufMut, BytesMut};
+use std::io::{self, Cursor, Read};
 
 /// NBT tag type IDs.
 pub const TAG_END: u8 = 0;
@@ -116,12 +117,261 @@ impl NbtValue {
             }
         }
     }
+
+    /// Read a named root tag from bytes. Returns (name, value).
+    pub fn read_root_named(data: &[u8]) -> io::Result<(String, NbtValue)> {
+        let mut cursor = Cursor::new(data);
+        let tag_type = read_u8(&mut cursor)?;
+        if tag_type != TAG_COMPOUND {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "Root must be compound",
+            ));
+        }
+        let name = read_nbt_string_r(&mut cursor)?;
+        let value = read_payload(&mut cursor, TAG_COMPOUND)?;
+        Ok((name, value))
+    }
+
+    /// Read an unnamed root tag (network format).
+    pub fn read_root_network(data: &[u8]) -> io::Result<NbtValue> {
+        let mut cursor = Cursor::new(data);
+        let tag_type = read_u8(&mut cursor)?;
+        if tag_type != TAG_COMPOUND {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "Root must be compound",
+            ));
+        }
+        read_payload(&mut cursor, TAG_COMPOUND)
+    }
+
+    /// Get a named field from a compound tag.
+    pub fn get(&self, key: &str) -> Option<&NbtValue> {
+        match self {
+            NbtValue::Compound(entries) => entries.iter().find(|(k, _)| k == key).map(|(_, v)| v),
+            _ => None,
+        }
+    }
+
+    /// Get as i8.
+    pub fn as_byte(&self) -> Option<i8> {
+        match self {
+            NbtValue::Byte(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as i16.
+    pub fn as_short(&self) -> Option<i16> {
+        match self {
+            NbtValue::Short(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as i32.
+    pub fn as_int(&self) -> Option<i32> {
+        match self {
+            NbtValue::Int(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as i64.
+    pub fn as_long(&self) -> Option<i64> {
+        match self {
+            NbtValue::Long(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as f32.
+    pub fn as_float(&self) -> Option<f32> {
+        match self {
+            NbtValue::Float(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as f64.
+    pub fn as_double(&self) -> Option<f64> {
+        match self {
+            NbtValue::Double(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as string slice.
+    pub fn as_str(&self) -> Option<&str> {
+        match self {
+            NbtValue::String(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    /// Get as list slice.
+    pub fn as_list(&self) -> Option<&[NbtValue]> {
+        match self {
+            NbtValue::List(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    /// Get as byte array slice.
+    pub fn as_byte_array(&self) -> Option<&[i8]> {
+        match self {
+            NbtValue::ByteArray(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    /// Get as int array slice.
+    pub fn as_int_array(&self) -> Option<&[i32]> {
+        match self {
+            NbtValue::IntArray(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    /// Get as long array slice.
+    pub fn as_long_array(&self) -> Option<&[i64]> {
+        match self {
+            NbtValue::LongArray(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 fn write_nbt_string(s: &str, buf: &mut BytesMut) {
     let bytes = s.as_bytes();
     buf.put_u16(bytes.len() as u16);
     buf.put_slice(bytes);
+}
+
+// --- NBT Reader helpers ---
+
+fn read_u8(r: &mut impl Read) -> io::Result<u8> {
+    let mut buf = [0u8; 1];
+    r.read_exact(&mut buf)?;
+    Ok(buf[0])
+}
+
+fn read_i8(r: &mut impl Read) -> io::Result<i8> {
+    Ok(read_u8(r)? as i8)
+}
+
+fn read_i16(r: &mut impl Read) -> io::Result<i16> {
+    let mut buf = [0u8; 2];
+    r.read_exact(&mut buf)?;
+    Ok(i16::from_be_bytes(buf))
+}
+
+fn read_u16(r: &mut impl Read) -> io::Result<u16> {
+    let mut buf = [0u8; 2];
+    r.read_exact(&mut buf)?;
+    Ok(u16::from_be_bytes(buf))
+}
+
+fn read_i32(r: &mut impl Read) -> io::Result<i32> {
+    let mut buf = [0u8; 4];
+    r.read_exact(&mut buf)?;
+    Ok(i32::from_be_bytes(buf))
+}
+
+fn read_i64(r: &mut impl Read) -> io::Result<i64> {
+    let mut buf = [0u8; 8];
+    r.read_exact(&mut buf)?;
+    Ok(i64::from_be_bytes(buf))
+}
+
+fn read_f32(r: &mut impl Read) -> io::Result<f32> {
+    let mut buf = [0u8; 4];
+    r.read_exact(&mut buf)?;
+    Ok(f32::from_be_bytes(buf))
+}
+
+fn read_f64(r: &mut impl Read) -> io::Result<f64> {
+    let mut buf = [0u8; 8];
+    r.read_exact(&mut buf)?;
+    Ok(f64::from_be_bytes(buf))
+}
+
+fn read_nbt_string_r(r: &mut impl Read) -> io::Result<String> {
+    let len = read_u16(r)? as usize;
+    let mut buf = vec![0u8; len];
+    r.read_exact(&mut buf)?;
+    String::from_utf8(buf).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
+}
+
+fn read_length(r: &mut impl Read) -> io::Result<usize> {
+    let raw = read_i32(r)?;
+    if raw < 0 {
+        return Err(io::Error::new(io::ErrorKind::InvalidData, "Negative length"));
+    }
+    Ok(raw as usize)
+}
+
+fn read_payload(r: &mut impl Read, tag_type: u8) -> io::Result<NbtValue> {
+    match tag_type {
+        TAG_BYTE => Ok(NbtValue::Byte(read_i8(r)?)),
+        TAG_SHORT => Ok(NbtValue::Short(read_i16(r)?)),
+        TAG_INT => Ok(NbtValue::Int(read_i32(r)?)),
+        TAG_LONG => Ok(NbtValue::Long(read_i64(r)?)),
+        TAG_FLOAT => Ok(NbtValue::Float(read_f32(r)?)),
+        TAG_DOUBLE => Ok(NbtValue::Double(read_f64(r)?)),
+        TAG_BYTE_ARRAY => {
+            let len = read_length(r)?;
+            let mut data = vec![0i8; len];
+            for v in &mut data {
+                *v = read_i8(r)?;
+            }
+            Ok(NbtValue::ByteArray(data))
+        }
+        TAG_STRING => Ok(NbtValue::String(read_nbt_string_r(r)?)),
+        TAG_LIST => {
+            let elem_type = read_u8(r)?;
+            let len = read_length(r)?;
+            let mut items = Vec::with_capacity(len);
+            for _ in 0..len {
+                items.push(read_payload(r, elem_type)?);
+            }
+            Ok(NbtValue::List(items))
+        }
+        TAG_COMPOUND => {
+            let mut entries = Vec::new();
+            loop {
+                let child_type = read_u8(r)?;
+                if child_type == TAG_END {
+                    break;
+                }
+                let name = read_nbt_string_r(r)?;
+                let value = read_payload(r, child_type)?;
+                entries.push((name, value));
+            }
+            Ok(NbtValue::Compound(entries))
+        }
+        TAG_INT_ARRAY => {
+            let len = read_length(r)?;
+            let mut data = Vec::with_capacity(len);
+            for _ in 0..len {
+                data.push(read_i32(r)?);
+            }
+            Ok(NbtValue::IntArray(data))
+        }
+        TAG_LONG_ARRAY => {
+            let len = read_length(r)?;
+            let mut data = Vec::with_capacity(len);
+            for _ in 0..len {
+                data.push(read_i64(r)?);
+            }
+            Ok(NbtValue::LongArray(data))
+        }
+        _ => Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("Unknown tag type {}", tag_type),
+        )),
+    }
 }
 
 /// Helper macro for building compound tags.
@@ -165,5 +415,50 @@ mod tests {
         nbt.write_payload(&mut buf);
         // 4 bytes length (3) + 3 * 8 bytes = 28 bytes
         assert_eq!(buf.len(), 28);
+    }
+
+    #[test]
+    fn test_roundtrip_simple_compound() {
+        let nbt = NbtValue::Compound(vec![
+            ("name".into(), NbtValue::String("test".into())),
+            ("value".into(), NbtValue::Int(42)),
+            ("flag".into(), NbtValue::Byte(1)),
+        ]);
+        let mut buf = BytesMut::new();
+        nbt.write_root_named("", &mut buf);
+        let (name, parsed) = NbtValue::read_root_named(&buf).unwrap();
+        assert_eq!(name, "");
+        assert_eq!(parsed, nbt);
+    }
+
+    #[test]
+    fn test_roundtrip_nested() {
+        let nbt = NbtValue::Compound(vec![
+            (
+                "pos".into(),
+                NbtValue::List(vec![
+                    NbtValue::Double(1.0),
+                    NbtValue::Double(2.0),
+                    NbtValue::Double(3.0),
+                ]),
+            ),
+            ("data".into(), NbtValue::LongArray(vec![100, 200, 300])),
+            ("bytes".into(), NbtValue::ByteArray(vec![1, 2, 3])),
+            ("ints".into(), NbtValue::IntArray(vec![10, 20])),
+        ]);
+        let mut buf = BytesMut::new();
+        nbt.write_root_named("Level", &mut buf);
+        let (name, parsed) = NbtValue::read_root_named(&buf).unwrap();
+        assert_eq!(name, "Level");
+        assert_eq!(parsed, nbt);
+    }
+
+    #[test]
+    fn test_roundtrip_empty_list() {
+        let nbt = NbtValue::Compound(vec![("empty".into(), NbtValue::List(vec![]))]);
+        let mut buf = BytesMut::new();
+        nbt.write_root_named("", &mut buf);
+        let (_, parsed) = NbtValue::read_root_named(&buf).unwrap();
+        assert_eq!(parsed, nbt);
     }
 }
