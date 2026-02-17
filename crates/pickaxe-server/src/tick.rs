@@ -607,6 +607,14 @@ impl WorldState {
         self.chunks.get(&chunk_pos).unwrap().get_block(local_x, pos.y, local_z)
     }
 
+    /// Returns a block state only if the chunk is already loaded (no disk I/O).
+    pub fn get_block_if_loaded(&self, pos: &BlockPos) -> Option<i32> {
+        let chunk_pos = pos.chunk_pos();
+        let local_x = (pos.x.rem_euclid(16)) as usize;
+        let local_z = (pos.z.rem_euclid(16)) as usize;
+        self.chunks.get(&chunk_pos).map(|c| c.get_block(local_x, pos.y, local_z))
+    }
+
     pub fn get_block_entity(&self, pos: &BlockPos) -> Option<&BlockEntity> {
         self.block_entities.get(pos)
     }
@@ -763,6 +771,11 @@ pub async fn run_tick_loop(
             tick_item_pickup(&mut world, &mut world_state, &scripting);
         }
         tick_furnaces(&world, &mut world_state);
+        tick_mob_ai(&mut world, &mut world_state, &scripting);
+        tick_mob_spawning(&mut world, &world_state, &next_eid, tick_count);
+        if tick_count % 100 == 0 {
+            tick_mob_despawn(&mut world);
+        }
         tick_entity_tracking(&mut world);
         tick_entity_movement_broadcast(&mut world);
         tick_world_time(&world, &mut world_state, tick_count);
@@ -1879,7 +1892,7 @@ fn process_packet(
         InternalPacket::InteractEntity { entity_id: target_eid, action_type, sneaking, .. } => {
             if action_type == 1 {
                 // ATTACK action
-                handle_attack(world, world_state, entity, entity_id, target_eid, scripting);
+                handle_attack(world, world_state, entity, entity_id, target_eid, scripting, next_eid);
             }
             let _ = sneaking; // used for future interact mechanics
         }
@@ -2386,6 +2399,7 @@ fn handle_attack(
     _attacker_eid: i32,
     target_eid: i32,
     scripting: &ScriptRuntime,
+    next_eid: &Arc<AtomicI32>,
 ) {
     // Check game mode — creative can attack freely, spectators can't attack
     let game_mode = world
@@ -2445,11 +2459,6 @@ fn handle_attack(
         return;
     }
 
-    // PvP: target must be a player
-    if world.get::<&Profile>(target).is_err() {
-        return; // Not a player, skip for now (no mobs yet)
-    }
-
     // Calculate damage based on held weapon
     let held_slot = world.get::<&HeldSlot>(attacker).map(|h| h.0).unwrap_or(0);
     let base_damage = {
@@ -2478,9 +2487,22 @@ fn handle_attack(
         damage *= 1.5;
     }
 
-    // Apply damage to target player
     let target_eid_val = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(target_eid);
-    apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
+
+    // Check if target is a mob
+    let is_mob = world.get::<&MobEntity>(target).is_ok();
+    let is_player = world.get::<&Profile>(target).is_ok();
+
+    if !is_mob && !is_player {
+        return;
+    }
+
+    if is_mob {
+        attack_mob(world, world_state, attacker, _attacker_eid, target, target_eid_val, damage, is_critical, scripting, next_eid);
+    } else {
+        // PvP: Apply damage to target player
+        apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
+    }
 
     // Tool durability loss on attack (2 per hit, survival only)
     if game_mode == GameMode::Survival {
@@ -2506,7 +2528,7 @@ fn handle_attack(
         });
     }
 
-    // Knockback
+    // Knockback (for both players and mobs)
     let attacker_yaw = world.get::<&Rotation>(attacker).map(|r| r.yaw).unwrap_or(0.0);
     let kb_strength = if is_sprinting { 1.4_f32 } else { 0.4 };
     let sin_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).sin();
@@ -2515,9 +2537,25 @@ fn handle_attack(
     let kb_z = (cos_yaw * kb_strength * 0.5) as f64;
     let kb_y = 0.4_f64;
 
-    // Send velocity to target
-    if let Ok(sender) = world.get::<&ConnectionSender>(target) {
-        let _ = sender.0.send(InternalPacket::SetEntityVelocity {
+    // Send velocity to target (players get SetEntityVelocity, mobs broadcast)
+    if is_player {
+        if let Ok(sender) = world.get::<&ConnectionSender>(target) {
+            let _ = sender.0.send(InternalPacket::SetEntityVelocity {
+                entity_id: target_eid_val,
+                velocity_x: (kb_x * 8000.0) as i16,
+                velocity_y: (kb_y * 8000.0) as i16,
+                velocity_z: (kb_z * 8000.0) as i16,
+            });
+        }
+    }
+    // Mob knockback via velocity component
+    if is_mob {
+        if let Ok(mut vel) = world.get::<&mut Velocity>(target) {
+            vel.0.x += kb_x;
+            vel.0.y += kb_y;
+            vel.0.z += kb_z;
+        }
+        broadcast_to_all(world, &InternalPacket::SetEntityVelocity {
             entity_id: target_eid_val,
             velocity_x: (kb_x * 8000.0) as i16,
             velocity_y: (kb_y * 8000.0) as i16,
@@ -3026,6 +3064,544 @@ fn tick_sleeping(
     }
 }
 
+/// Spawn a mob entity in the world.
+fn spawn_mob(
+    world: &mut World,
+    next_eid: &Arc<AtomicI32>,
+    mob_type: i32,
+    x: f64,
+    y: f64,
+    z: f64,
+) -> hecs::Entity {
+    let entity_id = next_eid.fetch_add(1, Ordering::Relaxed);
+    let max_hp = pickaxe_data::mob_max_health(mob_type);
+    let yaw: f32 = rand::random::<f32>() * 360.0;
+
+    world.spawn((
+        EntityId(entity_id),
+        EntityUuid(Uuid::new_v4()),
+        Position(Vec3d::new(x, y, z)),
+        PreviousPosition(Vec3d::new(x, y, z)),
+        Rotation { yaw, pitch: 0.0 },
+        PreviousRotation { yaw, pitch: 0.0 },
+        OnGround(true),
+        Velocity(Vec3d::new(0.0, 0.0, 0.0)),
+        MobEntity {
+            mob_type,
+            health: max_hp,
+            max_health: max_hp,
+            target: None,
+            ai_state: MobAiState::Idle,
+            ai_timer: rand::random::<u32>() % 80 + 20,
+            ambient_sound_timer: rand::random::<u32>() % 200 + 100,
+            no_damage_ticks: 0,
+        },
+    ))
+}
+
+/// Handle a player attacking a mob entity.
+fn attack_mob(
+    world: &mut World,
+    world_state: &mut WorldState,
+    attacker: hecs::Entity,
+    _attacker_eid: i32,
+    target: hecs::Entity,
+    target_eid: i32,
+    damage: f32,
+    is_critical: bool,
+    scripting: &ScriptRuntime,
+    next_eid: &Arc<AtomicI32>,
+) {
+    // Check invulnerability
+    let no_dmg = world.get::<&MobEntity>(target).map(|m| m.no_damage_ticks > 0).unwrap_or(false);
+    if no_dmg {
+        return;
+    }
+
+    let mob_type = world.get::<&MobEntity>(target).map(|m| m.mob_type).unwrap_or(0);
+    let mob_name = pickaxe_data::mob_type_name(mob_type).unwrap_or("unknown");
+    let attacker_name = world.get::<&Profile>(attacker).map(|p| p.0.name.clone()).unwrap_or_default();
+
+    // Fire Lua event
+    let cancelled = scripting.fire_event_in_context(
+        "mob_damage",
+        &[
+            ("attacker", &attacker_name),
+            ("mob_type", mob_name),
+            ("amount", &format!("{:.1}", damage)),
+            ("entity_id", &target_eid.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+    if cancelled {
+        return;
+    }
+
+    // Apply damage
+    let died = {
+        let mut mob = world.get::<&mut MobEntity>(target).unwrap();
+        mob.health -= damage;
+        mob.no_damage_ticks = 10; // 0.5s invulnerability
+        // Hostile mobs target the attacker
+        if pickaxe_data::mob_is_hostile(mob.mob_type) {
+            mob.target = Some(attacker);
+            mob.ai_state = MobAiState::Chasing;
+        }
+        mob.health <= 0.0
+    };
+
+    let mob_pos = world.get::<&Position>(target).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+
+    // Play hurt sound
+    let (_, hurt_sound, death_sound) = pickaxe_data::mob_sounds(mob_type);
+
+    if died {
+        // Play death sound
+        play_sound_at_entity(world, mob_pos.x, mob_pos.y, mob_pos.z, death_sound, SOUND_HOSTILE, 1.0, 1.0);
+
+        // Broadcast entity event (death animation = status 3)
+        broadcast_to_all(world, &InternalPacket::EntityEvent {
+            entity_id: target_eid,
+            event_id: 3, // death
+        });
+
+        // Drop items
+        let drops = pickaxe_data::mob_drops(mob_type);
+        for (item_name, min, max) in drops {
+            let count = if min == max {
+                *min
+            } else {
+                let range = (max - min + 1) as u32;
+                *min + (rand::random::<u32>() % range) as i32
+            };
+            if count > 0 {
+                if let Some(item_id) = pickaxe_data::item_name_to_id(item_name) {
+                    let item = ItemStack::new(item_id, count as i8);
+                    spawn_item_entity(world, world_state, next_eid, mob_pos.x, mob_pos.y + 0.5, mob_pos.z, item, 10, scripting);
+                }
+            }
+        }
+
+        // Award XP
+        let xp = pickaxe_data::mob_xp_drop(mob_type);
+        if xp > 0 {
+            award_xp(world, attacker, xp);
+        }
+
+        // Despawn mob
+        let _ = world.despawn(target);
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![target_eid],
+        });
+        for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
+            tracked.visible.remove(&target_eid);
+        }
+
+        // Fire Lua event
+        scripting.fire_event_in_context(
+            "mob_death",
+            &[
+                ("mob_type", mob_name),
+                ("killer", &attacker_name),
+                ("entity_id", &target_eid.to_string()),
+            ],
+            world as *mut _ as *mut (),
+            world_state as *mut _ as *mut (),
+        );
+    } else {
+        // Play hurt sound + hurt animation
+        play_sound_at_entity(world, mob_pos.x, mob_pos.y, mob_pos.z, hurt_sound, SOUND_HOSTILE, 1.0, 1.0);
+        broadcast_to_all(world, &InternalPacket::EntityEvent {
+            entity_id: target_eid,
+            event_id: 2, // hurt
+        });
+    }
+
+    let _ = is_critical; // used by caller for particles
+}
+
+/// Tick mob AI: wandering, chasing, ambient sounds, gravity.
+fn tick_mob_ai(
+    world: &mut World,
+    world_state: &mut WorldState,
+    _scripting: &ScriptRuntime,
+) {
+    // Collect player positions for targeting
+    let mut player_positions: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
+    for (e, (eid, pos, _profile)) in world.query::<(&EntityId, &Position, &Profile)>().iter() {
+        let health = world.get::<&Health>(e).map(|h| h.current).unwrap_or(0.0);
+        if health > 0.0 {
+            player_positions.push((e, eid.0, pos.0));
+        }
+    }
+
+    // Collect mob data for AI updates
+    #[allow(dead_code)]
+    struct MobUpdate {
+        entity: hecs::Entity,
+        eid: i32,
+        mob_type: i32,
+        pos: Vec3d,
+        new_state: MobAiState,
+        move_x: f64,
+        move_z: f64,
+        new_yaw: f32,
+        ambient_sound: bool,
+    }
+
+    let mut updates: Vec<MobUpdate> = Vec::new();
+
+    for (entity, (eid, pos, rot, mob)) in world.query::<(&EntityId, &Position, &Rotation, &mut MobEntity)>().iter() {
+        // Decrement timers
+        if mob.no_damage_ticks > 0 {
+            mob.no_damage_ticks -= 1;
+        }
+
+        let mut ambient_sound = false;
+        if mob.ambient_sound_timer > 0 {
+            mob.ambient_sound_timer -= 1;
+        } else {
+            ambient_sound = true;
+            mob.ambient_sound_timer = rand::random::<u32>() % 300 + 200;
+        }
+
+        if mob.ai_timer > 0 {
+            mob.ai_timer -= 1;
+            // Continue current behavior
+            let speed = pickaxe_data::mob_speed(mob.mob_type);
+            let (mx, mz) = match mob.ai_state {
+                MobAiState::Wandering => {
+                    let yaw_rad = rot.yaw * std::f32::consts::PI / 180.0;
+                    ((-yaw_rad.sin() as f64) * speed, (yaw_rad.cos() as f64) * speed)
+                }
+                MobAiState::Chasing => {
+                    if let Some(target) = mob.target {
+                        if let Ok(tp) = world.get::<&Position>(target) {
+                            let dx = tp.0.x - pos.0.x;
+                            let dz = tp.0.z - pos.0.z;
+                            let dist = (dx * dx + dz * dz).sqrt();
+                            if dist > 1.5 {
+                                let chase_speed = speed * 1.3; // zombies are slightly faster when chasing
+                                (dx / dist * chase_speed, dz / dist * chase_speed)
+                            } else {
+                                (0.0, 0.0) // close enough, stop moving
+                            }
+                        } else {
+                            mob.target = None;
+                            mob.ai_state = MobAiState::Idle;
+                            (0.0, 0.0)
+                        }
+                    } else {
+                        mob.ai_state = MobAiState::Idle;
+                        (0.0, 0.0)
+                    }
+                }
+                MobAiState::Idle => (0.0, 0.0),
+            };
+
+            // Calculate new yaw for chasing
+            let new_yaw = if mob.ai_state == MobAiState::Chasing && (mx != 0.0 || mz != 0.0) {
+                (-mx.atan2(mz) * 180.0 / std::f64::consts::PI) as f32
+            } else {
+                rot.yaw
+            };
+
+            updates.push(MobUpdate {
+                entity, eid: eid.0, mob_type: mob.mob_type,
+                pos: pos.0, new_state: mob.ai_state,
+                move_x: mx, move_z: mz, new_yaw,
+                ambient_sound,
+            });
+            continue;
+        }
+
+        // AI decision time
+        let is_hostile = pickaxe_data::mob_is_hostile(mob.mob_type);
+
+        if is_hostile {
+            // Find nearest player within 16 blocks
+            let mut nearest: Option<(hecs::Entity, f64)> = None;
+            for &(pe, _peid, ppos) in &player_positions {
+                let dx = ppos.x - pos.0.x;
+                let dz = ppos.z - pos.0.z;
+                let dist = (dx * dx + dz * dz).sqrt();
+                if dist < 16.0 {
+                    if nearest.is_none() || dist < nearest.unwrap().1 {
+                        nearest = Some((pe, dist));
+                    }
+                }
+            }
+
+            if let Some((target_entity, _)) = nearest {
+                mob.target = Some(target_entity);
+                mob.ai_state = MobAiState::Chasing;
+                mob.ai_timer = 40 + rand::random::<u32>() % 20;
+            } else {
+                // Wander randomly
+                let r: f32 = rand::random();
+                if r < 0.3 {
+                    mob.ai_state = MobAiState::Wandering;
+                    mob.ai_timer = 40 + rand::random::<u32>() % 60;
+                } else {
+                    mob.ai_state = MobAiState::Idle;
+                    mob.ai_timer = 40 + rand::random::<u32>() % 80;
+                }
+            }
+        } else {
+            // Passive mob: wander or idle
+            let r: f32 = rand::random();
+            if r < 0.3 {
+                mob.ai_state = MobAiState::Wandering;
+                mob.ai_timer = 40 + rand::random::<u32>() % 60;
+            } else {
+                mob.ai_state = MobAiState::Idle;
+                mob.ai_timer = 60 + rand::random::<u32>() % 100;
+            }
+        }
+
+        // New random direction for wandering
+        let new_yaw = if mob.ai_state == MobAiState::Wandering {
+            rand::random::<f32>() * 360.0
+        } else {
+            rot.yaw
+        };
+
+        updates.push(MobUpdate {
+            entity, eid: eid.0, mob_type: mob.mob_type,
+            pos: pos.0, new_state: mob.ai_state,
+            move_x: 0.0, move_z: 0.0, new_yaw,
+            ambient_sound,
+        });
+    }
+
+    // Apply movement + sounds
+    for update in &updates {
+        // Ambient sound
+        if update.ambient_sound {
+            let (ambient, _, _) = pickaxe_data::mob_sounds(update.mob_type);
+            if !ambient.is_empty() {
+                let sound_cat = if pickaxe_data::mob_is_hostile(update.mob_type) { SOUND_HOSTILE } else { SOUND_NEUTRAL };
+                play_sound_at_entity(world, update.pos.x, update.pos.y, update.pos.z, ambient, sound_cat, 1.0, 1.0);
+            }
+        }
+
+        // Apply movement
+        if update.move_x != 0.0 || update.move_z != 0.0 {
+            if let Ok(mut pos) = world.get::<&mut Position>(update.entity) {
+                let new_x = pos.0.x + update.move_x;
+                let new_z = pos.0.z + update.move_z;
+
+                // Simple collision: check if target block is air/passable
+                let target_block = world_state.get_block(&BlockPos::new(
+                    new_x.floor() as i32,
+                    pos.0.y.floor() as i32,
+                    new_z.floor() as i32,
+                ));
+                if target_block == 0 {
+                    pos.0.x = new_x;
+                    pos.0.z = new_z;
+                }
+            }
+        }
+
+        // Update yaw
+        if let Ok(mut rot) = world.get::<&mut Rotation>(update.entity) {
+            rot.yaw = update.new_yaw;
+        }
+
+        // Gravity
+        if let Ok(og) = world.get::<&OnGround>(update.entity) {
+            if !og.0 {
+                if let Ok(mut vel) = world.get::<&mut Velocity>(update.entity) {
+                    vel.0.y -= 0.08; // gravity
+                    vel.0.y *= 0.98; // drag
+                }
+            }
+        }
+
+        // Apply velocity (for knockback / gravity)
+        let vel = world.get::<&Velocity>(update.entity).map(|v| v.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+        if vel.x.abs() > 0.001 || vel.y.abs() > 0.001 || vel.z.abs() > 0.001 {
+            if let Ok(mut pos) = world.get::<&mut Position>(update.entity) {
+                pos.0.x += vel.x;
+                pos.0.y += vel.y;
+                pos.0.z += vel.z;
+
+                // Ground collision
+                let block_below = world_state.get_block(&BlockPos::new(
+                    pos.0.x.floor() as i32,
+                    (pos.0.y - 0.01).floor() as i32,
+                    pos.0.z.floor() as i32,
+                ));
+                if block_below != 0 && vel.y <= 0.0 {
+                    pos.0.y = (pos.0.y - 0.01).floor() + 1.0;
+                    if let Ok(mut og) = world.get::<&mut OnGround>(update.entity) {
+                        og.0 = true;
+                    }
+                    if let Ok(mut v) = world.get::<&mut Velocity>(update.entity) {
+                        v.0.y = 0.0;
+                    }
+                } else if block_below == 0 {
+                    if let Ok(mut og) = world.get::<&mut OnGround>(update.entity) {
+                        og.0 = false;
+                    }
+                }
+            }
+
+            // Dampen horizontal velocity
+            if let Ok(mut v) = world.get::<&mut Velocity>(update.entity) {
+                v.0.x *= 0.6;
+                v.0.z *= 0.6;
+                if v.0.x.abs() < 0.003 { v.0.x = 0.0; }
+                if v.0.z.abs() < 0.003 { v.0.z = 0.0; }
+            }
+        }
+    }
+
+    // Zombie contact damage (attack nearest player within 1.5 blocks)
+    let mut zombie_attacks: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
+    for (_entity, (eid, pos, mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+        if mob.mob_type == pickaxe_data::MOB_ZOMBIE && mob.no_damage_ticks <= 0 {
+            if let Some(target) = mob.target {
+                if let Ok(tp) = world.get::<&Position>(target) {
+                    let dx = tp.0.x - pos.0.x;
+                    let dy = tp.0.y - pos.0.y;
+                    let dz = tp.0.z - pos.0.z;
+                    let dist = (dx * dx + dy * dy + dz * dz).sqrt();
+                    if dist < 1.8 {
+                        zombie_attacks.push((target, eid.0, pos.0));
+                    }
+                }
+            }
+        }
+    }
+    for (target, _zombie_eid, zombie_pos) in zombie_attacks {
+        let damage = pickaxe_data::mob_attack_damage(pickaxe_data::MOB_ZOMBIE);
+        let target_eid = world.get::<&EntityId>(target).map(|e| e.0).unwrap_or(0);
+        apply_damage(world, world_state, target, target_eid, damage, "zombie", _scripting);
+        play_sound_at_entity(world, zombie_pos.x, zombie_pos.y, zombie_pos.z, "entity.zombie.attack", SOUND_HOSTILE, 1.0, 1.0);
+    }
+}
+
+/// Periodically spawn mobs in loaded chunks near players.
+fn tick_mob_spawning(
+    world: &mut World,
+    world_state: &WorldState,
+    next_eid: &Arc<AtomicI32>,
+    tick_count: u64,
+) {
+    // Only attempt spawning every 2 seconds (40 ticks)
+    if tick_count % 40 != 0 {
+        return;
+    }
+
+    // Count existing mobs
+    let mob_count = world.query::<&MobEntity>().iter().count();
+    let player_count = world.query::<&Profile>().iter().count();
+
+    if player_count == 0 {
+        return;
+    }
+
+    // Cap total mobs
+    let max_mobs = player_count * 20;
+    if mob_count >= max_mobs {
+        return;
+    }
+
+    // Collect player positions
+    let player_positions: Vec<Vec3d> = world.query::<(&Position, &Profile)>().iter()
+        .map(|(_, (p, _))| p.0)
+        .collect();
+
+    // Try to spawn near a random player
+    let player_pos = player_positions[rand::random::<usize>() % player_positions.len()];
+
+    // Random offset 8-24 blocks from player
+    let angle = rand::random::<f64>() * 2.0 * std::f64::consts::PI;
+    let dist = 8.0 + rand::random::<f64>() * 16.0;
+    let spawn_x = player_pos.x + angle.cos() * dist;
+    let spawn_z = player_pos.z + angle.sin() * dist;
+
+    // Find ground level (scan down from Y=-55 which is surface in flat world)
+    let bx = spawn_x.floor() as i32;
+    let bz = spawn_z.floor() as i32;
+    let mut spawn_y = None;
+    for y in (-60..=-55).rev() {
+        let block = world_state.get_block_if_loaded(&BlockPos::new(bx, y, bz));
+        let above = world_state.get_block_if_loaded(&BlockPos::new(bx, y + 1, bz));
+        let above2 = world_state.get_block_if_loaded(&BlockPos::new(bx, y + 2, bz));
+        if let (Some(b), Some(a1), Some(a2)) = (block, above, above2) {
+            if b != 0 && a1 == 0 && a2 == 0 {
+                spawn_y = Some(y + 1);
+                break;
+            }
+        }
+    }
+
+    let spawn_y = match spawn_y {
+        Some(y) => y as f64,
+        None => return,
+    };
+
+    // Choose mob type based on time of day
+    let is_night = {
+        let time = world_state.time_of_day % 24000;
+        time >= 13000 && time < 23000
+    };
+
+    let mob_type = if is_night && rand::random::<f32>() < 0.4 {
+        pickaxe_data::MOB_ZOMBIE
+    } else {
+        let passive_types = [
+            pickaxe_data::MOB_PIG,
+            pickaxe_data::MOB_COW,
+            pickaxe_data::MOB_SHEEP,
+            pickaxe_data::MOB_CHICKEN,
+        ];
+        passive_types[rand::random::<usize>() % passive_types.len()]
+    };
+
+    spawn_mob(world, next_eid, mob_type, spawn_x, spawn_y, spawn_z);
+}
+
+/// Despawn mobs that are too far from any player (>128 blocks).
+fn tick_mob_despawn(world: &mut World) {
+    let player_positions: Vec<Vec3d> = world.query::<(&Position, &Profile)>().iter()
+        .map(|(_, (p, _))| p.0)
+        .collect();
+
+    if player_positions.is_empty() {
+        return;
+    }
+
+    let mut to_despawn: Vec<(hecs::Entity, i32)> = Vec::new();
+    for (entity, (eid, pos, _mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+        let min_dist = player_positions.iter()
+            .map(|pp| {
+                let dx = pp.x - pos.0.x;
+                let dz = pp.z - pos.0.z;
+                (dx * dx + dz * dz).sqrt()
+            })
+            .fold(f64::MAX, f64::min);
+
+        if min_dist > 128.0 {
+            to_despawn.push((entity, eid.0));
+        }
+    }
+
+    for (entity, eid) in to_despawn {
+        let _ = world.despawn(entity);
+        broadcast_to_all(world, &InternalPacket::RemoveEntities {
+            entity_ids: vec![eid],
+        });
+        for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
+            tracked.visible.remove(&eid);
+        }
+    }
+}
+
 /// Respawn a player after death: reset health/food, teleport to spawn, resend chunks.
 fn respawn_player(
     world: &mut World,
@@ -3494,6 +4070,30 @@ fn tick_entity_tracking(world: &mut World) {
         });
     }
 
+    // Collect all mob entities
+    struct MobData {
+        eid: i32,
+        uuid: Uuid,
+        pos: Vec3d,
+        yaw: f32,
+        pitch: f32,
+        mob_type: i32,
+    }
+    let mut mob_data: Vec<MobData> = Vec::new();
+    for (_e, (eid, euuid, pos, rot, mob)) in world
+        .query::<(&EntityId, &EntityUuid, &Position, &Rotation, &MobEntity)>()
+        .iter()
+    {
+        mob_data.push(MobData {
+            eid: eid.0,
+            uuid: euuid.0,
+            pos: pos.0,
+            yaw: rot.yaw,
+            pitch: rot.pitch,
+            mob_type: mob.mob_type,
+        });
+    }
+
     for i in 0..player_data.len() {
         let (observer_entity, _observer_eid, _, _, _, _, _, obs_cx, obs_cz) = player_data[i];
 
@@ -3521,6 +4121,15 @@ fn tick_entity_tracking(world: &mut World) {
             let item_cz = (item.pos.z.floor() as i32) >> 4;
             if (item_cx - obs_cx).abs() <= obs_vd && (item_cz - obs_cz).abs() <= obs_vd {
                 should_see.insert(item.eid);
+            }
+        }
+
+        // Mob entities in view distance
+        for mob in &mob_data {
+            let mob_cx = (mob.pos.x.floor() as i32) >> 4;
+            let mob_cz = (mob.pos.z.floor() as i32) >> 4;
+            if (mob_cx - obs_cx).abs() <= obs_vd && (mob_cz - obs_cz).abs() <= obs_vd {
+                should_see.insert(mob.eid);
             }
         }
 
@@ -3597,6 +4206,27 @@ fn tick_entity_tracking(world: &mut World) {
                     entity_id: eid,
                     metadata,
                 });
+            } else if let Some(mob) = mob_data.iter().find(|d| d.eid == eid) {
+                // Mob entity
+                let _ = observer_sender.send(InternalPacket::SpawnEntity {
+                    entity_id: eid,
+                    entity_uuid: mob.uuid,
+                    entity_type: mob.mob_type,
+                    x: mob.pos.x,
+                    y: mob.pos.y,
+                    z: mob.pos.z,
+                    pitch: degrees_to_angle(mob.pitch),
+                    yaw: degrees_to_angle(mob.yaw),
+                    head_yaw: degrees_to_angle(mob.yaw),
+                    data: 0,
+                    velocity_x: 0,
+                    velocity_y: 0,
+                    velocity_z: 0,
+                });
+                let _ = observer_sender.send(InternalPacket::SetHeadRotation {
+                    entity_id: eid,
+                    head_yaw: degrees_to_angle(mob.yaw),
+                });
             }
         }
 
@@ -3658,6 +4288,37 @@ fn tick_entity_movement_broadcast(world: &mut World) {
             pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
         if pos_changed {
             item_movers.push((eid.0, pos.0, prev_pos.0, og.0));
+        }
+    }
+
+    // Collect mob entities that moved or rotated
+    let mut mob_movers: Vec<(i32, Vec3d, Vec3d, f32, f32, f32, f32, bool)> = Vec::new();
+    for (_e, (eid, pos, prev_pos, rot, prev_rot, og, _mob)) in world
+        .query::<(
+            &EntityId,
+            &Position,
+            &PreviousPosition,
+            &Rotation,
+            &PreviousRotation,
+            &OnGround,
+            &MobEntity,
+        )>()
+        .iter()
+    {
+        let pos_changed =
+            pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
+        let rot_changed = rot.yaw != prev_rot.yaw || rot.pitch != prev_rot.pitch;
+        if pos_changed || rot_changed {
+            mob_movers.push((
+                eid.0,
+                pos.0,
+                prev_pos.0,
+                rot.yaw,
+                rot.pitch,
+                prev_rot.yaw,
+                prev_rot.pitch,
+                og.0,
+            ));
         }
     }
 
@@ -3761,6 +4422,65 @@ fn tick_entity_movement_broadcast(world: &mut World) {
                     on_ground,
                 });
             }
+        }
+    }
+
+    // For each mob mover, send position+rotation updates
+    for &(mover_eid, new_pos, old_pos, yaw, pitch, _old_yaw, _old_pitch, on_ground) in &mob_movers {
+        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
+        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
+        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
+
+        let pos_changed = dx != 0 || dy != 0 || dz != 0;
+
+        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
+            || (new_pos.y - old_pos.y).abs() > 8.0
+            || (new_pos.z - old_pos.z).abs() > 8.0;
+
+        for (_e, (eid, tracked, sender)) in world
+            .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if eid.0 == mover_eid {
+                continue;
+            }
+            if !tracked.visible.contains(&mover_eid) {
+                continue;
+            }
+
+            if needs_teleport {
+                let _ = sender.0.send(InternalPacket::TeleportEntity {
+                    entity_id: mover_eid,
+                    x: new_pos.x,
+                    y: new_pos.y,
+                    z: new_pos.z,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            } else if pos_changed {
+                let _ = sender.0.send(InternalPacket::UpdateEntityPositionAndRotation {
+                    entity_id: mover_eid,
+                    delta_x: dx,
+                    delta_y: dy,
+                    delta_z: dz,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            } else {
+                let _ = sender.0.send(InternalPacket::UpdateEntityRotation {
+                    entity_id: mover_eid,
+                    yaw: degrees_to_angle(yaw),
+                    pitch: degrees_to_angle(pitch),
+                    on_ground,
+                });
+            }
+
+            let _ = sender.0.send(InternalPacket::SetHeadRotation {
+                entity_id: mover_eid,
+                head_yaw: degrees_to_angle(yaw),
+            });
         }
     }
 
@@ -4455,7 +5175,7 @@ fn tick_item_pickup(world: &mut World, world_state: &mut WorldState, scripting: 
 
         // Play item pickup sound at collector position
         if let Ok(pos) = world.get::<&Position>(entity) {
-            play_sound_at_entity(world, pos.0.x, pos.0.y, pos.0.z, "entity.item.pickup", SOUND_PLAYERS, 0.2, ((rand::random::<f32>() - 0.5) * 1.4 + 1.0));
+            play_sound_at_entity(world, pos.0.x, pos.0.y, pos.0.z, "entity.item.pickup", SOUND_PLAYERS, 0.2, (rand::random::<f32>() - 0.5) * 1.4 + 1.0);
         }
 
         broadcast_to_all(world, &InternalPacket::RemoveEntities {
@@ -5194,8 +5914,9 @@ fn damage_held_item(world: &mut World, entity: hecs::Entity, entity_id: i32, amo
 
 /// SoundSource enum ordinal values matching MC SoundSource.
 const SOUND_BLOCKS: u8 = 4;
-const SOUND_PLAYERS: u8 = 7;
+const SOUND_HOSTILE: u8 = 5;
 const SOUND_NEUTRAL: u8 = 6;
+const SOUND_PLAYERS: u8 = 7;
 
 /// Play a sound at a block position, broadcast to all players.
 fn play_sound_at_block(world: &World, pos: &BlockPos, sound: &str, source: u8, volume: f32, pitch: f32) {

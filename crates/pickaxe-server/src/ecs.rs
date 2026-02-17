@@ -274,3 +274,23 @@ pub struct SleepingState {
     pub bed_pos: BlockPos,
     pub sleep_timer: u32, // ticks spent sleeping; skip at 100
 }
+
+/// Marks an entity as a mob with AI.
+pub struct MobEntity {
+    pub mob_type: i32,   // entity type ID (from pickaxe_data MOB_* constants)
+    pub health: f32,
+    pub max_health: f32,
+    pub target: Option<hecs::Entity>, // current attack target (for hostile mobs)
+    pub ai_state: MobAiState,
+    pub ai_timer: u32,          // ticks until next AI decision
+    pub ambient_sound_timer: u32, // ticks until next ambient sound
+    pub no_damage_ticks: i32,   // invulnerability after hit
+}
+
+/// Current AI behavior state for a mob.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum MobAiState {
+    Idle,
+    Wandering,
+    Chasing,
+}

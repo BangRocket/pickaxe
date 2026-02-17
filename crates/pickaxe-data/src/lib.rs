@@ -661,6 +661,109 @@ pub fn bed_set_occupied(state_id: i32, occupied: bool) -> i32 {
     base + facing * 4 + (occupied as i32) * 2 + part
 }
 
+// === Mob Data ===
+
+/// Mob type constants (protocol entity type IDs for MC 1.21.1).
+pub const MOB_CHICKEN: i32 = 19;
+pub const MOB_COW: i32 = 22;
+pub const MOB_PIG: i32 = 77;
+pub const MOB_SHEEP: i32 = 87;
+pub const MOB_ZOMBIE: i32 = 124;
+
+/// Returns mob type name from entity type ID.
+pub fn mob_type_name(type_id: i32) -> Option<&'static str> {
+    match type_id {
+        MOB_CHICKEN => Some("chicken"),
+        MOB_COW => Some("cow"),
+        MOB_PIG => Some("pig"),
+        MOB_SHEEP => Some("sheep"),
+        MOB_ZOMBIE => Some("zombie"),
+        _ => None,
+    }
+}
+
+/// Returns the max health for a mob type.
+pub fn mob_max_health(type_id: i32) -> f32 {
+    match type_id {
+        MOB_CHICKEN => 4.0,
+        MOB_COW => 10.0,
+        MOB_PIG => 10.0,
+        MOB_SHEEP => 8.0,
+        MOB_ZOMBIE => 20.0,
+        _ => 10.0,
+    }
+}
+
+/// Returns the attack damage for a hostile mob type (0 for passive).
+pub fn mob_attack_damage(type_id: i32) -> f32 {
+    match type_id {
+        MOB_ZOMBIE => 3.0, // Easy difficulty; Normal=3, Hard=4.5
+        _ => 0.0,
+    }
+}
+
+/// Returns whether a mob type is hostile.
+pub fn mob_is_hostile(type_id: i32) -> bool {
+    matches!(type_id, MOB_ZOMBIE)
+}
+
+/// Returns mob movement speed in blocks/tick.
+pub fn mob_speed(type_id: i32) -> f64 {
+    match type_id {
+        MOB_CHICKEN => 0.05,
+        MOB_COW => 0.04,
+        MOB_PIG => 0.05,
+        MOB_SHEEP => 0.046,
+        MOB_ZOMBIE => 0.046,
+        _ => 0.04,
+    }
+}
+
+/// Returns mob drops as a list of (item_name, min_count, max_count).
+pub fn mob_drops(type_id: i32) -> &'static [(&'static str, i32, i32)] {
+    match type_id {
+        MOB_CHICKEN => &[("chicken", 1, 1), ("feather", 0, 2)],
+        MOB_COW => &[("beef", 1, 3), ("leather", 0, 2)],
+        MOB_PIG => &[("porkchop", 1, 3)],
+        MOB_SHEEP => &[("mutton", 1, 2)],
+        MOB_ZOMBIE => &[("rotten_flesh", 0, 2)],
+        _ => &[],
+    }
+}
+
+/// Returns XP dropped when this mob dies.
+pub fn mob_xp_drop(type_id: i32) -> i32 {
+    match type_id {
+        MOB_CHICKEN | MOB_COW | MOB_PIG | MOB_SHEEP => 3,
+        MOB_ZOMBIE => 5,
+        _ => 0,
+    }
+}
+
+/// Returns the hitbox (width, height) for a mob type.
+pub fn mob_hitbox(type_id: i32) -> (f64, f64) {
+    match type_id {
+        MOB_CHICKEN => (0.4, 0.7),
+        MOB_COW => (0.9, 1.4),
+        MOB_PIG => (0.9, 0.9),
+        MOB_SHEEP => (0.9, 1.3),
+        MOB_ZOMBIE => (0.6, 1.95),
+        _ => (0.6, 1.8),
+    }
+}
+
+/// Returns sound event names (ambient, hurt, death) for a mob type.
+pub fn mob_sounds(type_id: i32) -> (&'static str, &'static str, &'static str) {
+    match type_id {
+        MOB_CHICKEN => ("entity.chicken.ambient", "entity.chicken.hurt", "entity.chicken.death"),
+        MOB_COW => ("entity.cow.ambient", "entity.cow.hurt", "entity.cow.death"),
+        MOB_PIG => ("entity.pig.ambient", "entity.pig.hurt", "entity.pig.death"),
+        MOB_SHEEP => ("entity.sheep.ambient", "entity.sheep.hurt", "entity.sheep.death"),
+        MOB_ZOMBIE => ("entity.zombie.ambient", "entity.zombie.hurt", "entity.zombie.death"),
+        _ => ("", "", ""),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -889,5 +992,36 @@ mod tests {
         let recipe = crafting_recipes().iter().find(|r| r.result_id == white_bed_id);
         assert!(recipe.is_some(), "White bed crafting recipe should exist");
         assert_eq!(recipe.unwrap().result_count, 1);
+    }
+
+    #[test]
+    fn test_mob_data() {
+        assert_eq!(mob_type_name(MOB_PIG), Some("pig"));
+        assert_eq!(mob_type_name(MOB_ZOMBIE), Some("zombie"));
+        assert_eq!(mob_type_name(999), None);
+
+        assert_eq!(mob_max_health(MOB_CHICKEN), 4.0);
+        assert_eq!(mob_max_health(MOB_ZOMBIE), 20.0);
+
+        assert!(mob_is_hostile(MOB_ZOMBIE));
+        assert!(!mob_is_hostile(MOB_PIG));
+
+        assert_eq!(mob_attack_damage(MOB_ZOMBIE), 3.0);
+        assert_eq!(mob_attack_damage(MOB_COW), 0.0);
+
+        assert!(!mob_drops(MOB_PIG).is_empty());
+        assert_eq!(mob_drops(MOB_PIG)[0].0, "porkchop");
+
+        assert_eq!(mob_xp_drop(MOB_ZOMBIE), 5);
+        assert_eq!(mob_xp_drop(MOB_COW), 3);
+
+        let (w, h) = mob_hitbox(MOB_ZOMBIE);
+        assert!((w - 0.6).abs() < 0.01);
+        assert!((h - 1.95).abs() < 0.01);
+
+        let (ambient, hurt, death) = mob_sounds(MOB_COW);
+        assert_eq!(ambient, "entity.cow.ambient");
+        assert_eq!(hurt, "entity.cow.hurt");
+        assert_eq!(death, "entity.cow.death");
     }
 }
