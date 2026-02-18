@@ -1659,15 +1659,8 @@ fn process_packet(
                 }
                 // Finished Digging
                 2 => {
-                    let valid = if let Ok(breaking) = world.get::<&BreakingBlock>(entity) {
-                        let elapsed = world_state
-                            .tick_count
-                            .saturating_sub(breaking.started_tick);
-                        // Allow 2 tick tolerance
-                        elapsed + 2 >= breaking.total_ticks
-                    } else {
-                        false
-                    };
+                    // Accept if player has a BreakingBlock component (they started digging)
+                    let valid = world.get::<&BreakingBlock>(entity).is_ok();
 
                     let _ = world.remove_one::<BreakingBlock>(entity);
 
@@ -1677,7 +1670,7 @@ fn process_packet(
                             scripting, block_overrides, next_eid,
                         );
                     } else {
-                        // Too fast or no breaking component — just ack without breaking
+                        // No breaking component — just ack without breaking
                         if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
                             let _ = sender
                                 .0
@@ -7133,16 +7126,9 @@ fn tick_entity_movement_broadcast(world: &mut World) {
         }
     }
 
-    // For each item mover, send position-only updates
-    for &(mover_eid, new_pos, old_pos, on_ground) in &item_movers {
-        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
-        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
-        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
-
-        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
-            || (new_pos.y - old_pos.y).abs() > 8.0
-            || (new_pos.z - old_pos.z).abs() > 8.0;
-
+    // For each item mover, always use teleport for exact positioning
+    // (delta updates accumulate rounding errors, and client-side prediction diverges)
+    for &(mover_eid, new_pos, _old_pos, on_ground) in &item_movers {
         for (_e, (eid, tracked, sender)) in world
             .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
             .iter()
@@ -7154,25 +7140,15 @@ fn tick_entity_movement_broadcast(world: &mut World) {
                 continue;
             }
 
-            if needs_teleport {
-                let _ = sender.0.send(InternalPacket::TeleportEntity {
-                    entity_id: mover_eid,
-                    x: new_pos.x,
-                    y: new_pos.y,
-                    z: new_pos.z,
-                    yaw: 0,
-                    pitch: 0,
-                    on_ground,
-                });
-            } else {
-                let _ = sender.0.send(InternalPacket::UpdateEntityPosition {
-                    entity_id: mover_eid,
-                    delta_x: dx,
-                    delta_y: dy,
-                    delta_z: dz,
-                    on_ground,
-                });
-            }
+            let _ = sender.0.send(InternalPacket::TeleportEntity {
+                entity_id: mover_eid,
+                x: new_pos.x,
+                y: new_pos.y,
+                z: new_pos.z,
+                yaw: 0,
+                pitch: 0,
+                on_ground,
+            });
         }
     }
 
@@ -8309,49 +8285,70 @@ fn tick_item_physics(world: &mut World, world_state: &mut WorldState, scripting:
             item_ent.pickup_delay -= 1;
         }
 
-        // Skip physics when resting on ground with negligible velocity
-        if og.0
-            && vel.0.y.abs() < 0.001
-            && vel.0.x.abs() < 0.001
-            && vel.0.z.abs() < 0.001
-        {
-            vel.0 = Vec3d::new(0.0, 0.0, 0.0);
-            continue;
+        // Vanilla: skip physics when resting on ground with negligible horizontal velocity
+        // (only processes every 4th tick for stationary items)
+        let horiz_speed_sq = vel.0.x * vel.0.x + vel.0.z * vel.0.z;
+        if og.0 && horiz_speed_sq < 1.0e-5 && vel.0.y.abs() < 0.001 {
+            // Only process every 4th tick when stationary (vanilla: (tickCount + id) % 4 == 0)
+            if (item_ent.age as i32 + eid.0) % 4 != 0 {
+                continue;
+            }
         }
 
-        // Apply gravity
+        // 1. Apply gravity (vanilla: 0.04 per tick, applied before move)
         vel.0.y -= 0.04;
 
-        // Apply velocity
-        pos.0.x += vel.0.x;
-        pos.0.y += vel.0.y;
-        pos.0.z += vel.0.z;
+        // 2. Move with collision (simplified AABB collision)
+        let old_vel = vel.0;
+        let new_x = pos.0.x + vel.0.x;
+        let new_y = pos.0.y + vel.0.y;
+        let new_z = pos.0.z + vel.0.z;
 
-        // Ground collision check
+        // Resolve Y collision (ground check)
+        let mut resolved_y = new_y;
+        let mut vertical_collision_below = false;
         let check_pos = BlockPos::new(
-            pos.0.x.floor() as i32,
-            (pos.0.y - 0.01).floor() as i32,
-            pos.0.z.floor() as i32,
+            new_x.floor() as i32,
+            (new_y - 0.01).floor() as i32,
+            new_z.floor() as i32,
         );
         let block_below = world_state.get_block(&check_pos);
-        if block_below != 0 {
+        if block_below != 0 && vel.0.y < 0.0 {
             let ground_y = check_pos.y as f64 + 1.0;
-            if pos.0.y < ground_y + 0.25 {
-                pos.0.y = ground_y + 0.25;
-                vel.0.y = 0.0;
-                og.0 = true;
+            if new_y < ground_y {
+                resolved_y = ground_y;
+                vertical_collision_below = true;
             }
-        } else {
-            og.0 = false;
         }
 
-        // Friction
-        vel.0.x *= 0.98;
+        pos.0.x = new_x;
+        pos.0.y = resolved_y;
+        pos.0.z = new_z;
+
+        // 3. Vanilla: setOnGroundWithMovement — set on_ground if vertical collision going down
+        og.0 = vertical_collision_below;
+
+        // 4. Vanilla: updateEntityAfterFallOn — zero Y velocity on ground hit
+        if vertical_collision_below {
+            vel.0.y = 0.0;
+        }
+
+        // 5. Vanilla: zero horizontal velocity on horizontal collision
+        // (simplified — skip horizontal collision for items)
+
+        // 6. Friction (vanilla: applied AFTER move)
+        // Ground friction = block_friction * 0.98 (most blocks: 0.6 * 0.98 = 0.588)
+        // Air friction = 0.98 for all axes
+        let xz_friction = if og.0 { 0.6 * 0.98 } else { 0.98 };
+        vel.0.x *= xz_friction;
         vel.0.y *= 0.98;
-        vel.0.z *= 0.98;
-        if og.0 {
-            vel.0.x *= 0.5;
-            vel.0.z *= 0.5;
+        vel.0.z *= xz_friction;
+
+        // 7. Vanilla bounce check: if on ground and Y < 0, reverse and dampen
+        // (After updateEntityAfterFallOn zeroed Y, and friction made it 0.0, this rarely triggers.
+        //  It only triggers if something pushed the item downward while already on ground.)
+        if og.0 && vel.0.y < 0.0 {
+            vel.0.y *= -0.5;
         }
     }
 
@@ -10107,17 +10104,37 @@ fn update_redstone_neighbors(
 ) {
     use std::collections::{HashSet, VecDeque};
 
-    // Collect positions that need checking: the origin + all 6 neighbors
-    let mut to_check: VecDeque<BlockPos> = VecDeque::new();
-    let mut visited: HashSet<(i32, i32, i32)> = HashSet::new();
-
-    // Add origin and direct neighbors
+    // Early exit: quick scan of origin + 6 neighbors for any redstone component.
+    // If nothing redstone-related is nearby, skip the expensive BFS entirely.
     let offsets: [(i32, i32, i32); 7] = [
         (0, 0, 0),
         (1, 0, 0), (-1, 0, 0),
         (0, 1, 0), (0, -1, 0),
         (0, 0, 1), (0, 0, -1),
     ];
+    let mut has_redstone = false;
+    for &(dx, dy, dz) in &offsets {
+        let pos = BlockPos::new(origin.x + dx, origin.y + dy, origin.z + dz);
+        if let Some(s) = world_state.get_block_if_loaded(&pos) {
+            if pickaxe_data::is_redstone_wire(s)
+                || pickaxe_data::is_redstone_torch(s)
+                || pickaxe_data::is_repeater(s)
+                || pickaxe_data::is_redstone_lamp(s)
+                || pickaxe_data::is_any_piston(s)
+                || pickaxe_data::is_lever_powered(s)
+                || pickaxe_data::is_button_powered(s)
+                || pickaxe_data::block_state_to_name(s) == Some("redstone_block")
+            {
+                has_redstone = true;
+                break;
+            }
+        }
+    }
+    if !has_redstone { return; }
+
+    // Collect positions that need checking: the origin + all 6 neighbors
+    let mut to_check: VecDeque<BlockPos> = VecDeque::new();
+    let mut visited: HashSet<(i32, i32, i32)> = HashSet::new();
 
     for &(dx, dy, dz) in &offsets {
         let pos = BlockPos::new(origin.x + dx, origin.y + dy, origin.z + dz);
