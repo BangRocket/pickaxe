@@ -20,12 +20,26 @@ pub fn smelting_result(item_id: i32) -> Option<(i32, i16)> {
     let name = item_id_to_name(item_id)?;
     let (result_name, cook_time) = match name {
         "cobblestone" => ("stone", 200),
-        "sand" => ("glass", 200),
-        "iron_ore" | "raw_iron" => ("iron_ingot", 200),
-        "gold_ore" | "raw_gold" => ("gold_ingot", 200),
+        "sand" | "red_sand" => ("glass", 200),
+        "iron_ore" | "raw_iron" | "deepslate_iron_ore" => ("iron_ingot", 200),
+        "gold_ore" | "raw_gold" | "deepslate_gold_ore" | "nether_gold_ore" => ("gold_ingot", 200),
+        "copper_ore" | "raw_copper" | "deepslate_copper_ore" => ("copper_ingot", 200),
+        "diamond_ore" | "deepslate_diamond_ore" => ("diamond", 200),
+        "emerald_ore" | "deepslate_emerald_ore" => ("emerald", 200),
+        "coal_ore" | "deepslate_coal_ore" => ("coal", 200),
+        "lapis_ore" | "deepslate_lapis_ore" => ("lapis_lazuli", 200),
+        "redstone_ore" | "deepslate_redstone_ore" => ("redstone", 200),
+        "ancient_debris" => ("netherite_scrap", 200),
         "oak_log" | "spruce_log" | "birch_log" | "jungle_log" | "acacia_log"
-        | "dark_oak_log" => ("charcoal", 200),
+        | "dark_oak_log" | "mangrove_log" | "cherry_log" => ("charcoal", 200),
         "clay_ball" => ("brick", 200),
+        "clay" => ("terracotta", 200),
+        "stone_bricks" => ("cracked_stone_bricks", 200),
+        "netherrack" => ("nether_brick", 200),
+        "cactus" => ("green_dye", 200),
+        "sea_pickle" => ("lime_dye", 200),
+        "wet_sponge" => ("sponge", 200),
+        "kelp" => ("dried_kelp", 200),
         "beef" => ("cooked_beef", 200),
         "porkchop" => ("cooked_porkchop", 200),
         "chicken" => ("cooked_chicken", 200),
@@ -34,6 +48,14 @@ pub fn smelting_result(item_id: i32) -> Option<(i32, i16)> {
         "cod" => ("cooked_cod", 200),
         "salmon" => ("cooked_salmon", 200),
         "potato" => ("baked_potato", 200),
+        // Recycling: smelt tools/armor into nuggets
+        "iron_pickaxe" | "iron_axe" | "iron_shovel" | "iron_sword" | "iron_hoe"
+        | "iron_helmet" | "iron_chestplate" | "iron_leggings" | "iron_boots"
+        | "iron_horse_armor" | "chainmail_helmet" | "chainmail_chestplate"
+        | "chainmail_leggings" | "chainmail_boots" => ("iron_nugget", 200),
+        "golden_pickaxe" | "golden_axe" | "golden_shovel" | "golden_sword" | "golden_hoe"
+        | "golden_helmet" | "golden_chestplate" | "golden_leggings" | "golden_boots"
+        | "golden_horse_armor" => ("gold_nugget", 200),
         _ => return None,
     };
     let result_id = item_name_to_id(result_name)?;
