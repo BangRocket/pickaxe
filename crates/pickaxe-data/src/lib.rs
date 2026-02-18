@@ -1484,3 +1484,174 @@ pub fn effect_id_to_name(id: i32) -> Option<&'static str> {
         _ => None,
     }
 }
+
+// ── Potions ──────────────────────────────────────────────────────────
+
+/// A potion effect entry: (effect_id, duration_ticks, amplifier).
+pub struct PotionEffect {
+    pub effect_id: i32,
+    pub duration: i32,
+    pub amplifier: i32,
+}
+
+/// Returns the potion type index for a given potion name, or None.
+/// This index is stored in ItemStack.damage for potion items.
+pub fn potion_name_to_index(name: &str) -> Option<i32> {
+    match name {
+        "water" => Some(0),
+        "mundane" => Some(1),
+        "thick" => Some(2),
+        "awkward" => Some(3),
+        "night_vision" => Some(4),
+        "long_night_vision" => Some(5),
+        "invisibility" => Some(6),
+        "long_invisibility" => Some(7),
+        "leaping" => Some(8),
+        "long_leaping" => Some(9),
+        "strong_leaping" => Some(10),
+        "fire_resistance" => Some(11),
+        "long_fire_resistance" => Some(12),
+        "swiftness" => Some(13),
+        "long_swiftness" => Some(14),
+        "strong_swiftness" => Some(15),
+        "slowness" => Some(16),
+        "long_slowness" => Some(17),
+        "strong_slowness" => Some(18),
+        "water_breathing" => Some(19),
+        "long_water_breathing" => Some(20),
+        "healing" => Some(21),
+        "strong_healing" => Some(22),
+        "harming" => Some(23),
+        "strong_harming" => Some(24),
+        "poison" => Some(25),
+        "long_poison" => Some(26),
+        "strong_poison" => Some(27),
+        "regeneration" => Some(28),
+        "long_regeneration" => Some(29),
+        "strong_regeneration" => Some(30),
+        "strength" => Some(31),
+        "long_strength" => Some(32),
+        "strong_strength" => Some(33),
+        "weakness" => Some(34),
+        "long_weakness" => Some(35),
+        "luck" => Some(36),
+        "slow_falling" => Some(37),
+        "long_slow_falling" => Some(38),
+        _ => None,
+    }
+}
+
+/// Returns the potion name for a given index.
+pub fn potion_index_to_name(index: i32) -> Option<&'static str> {
+    match index {
+        0 => Some("water"),
+        1 => Some("mundane"),
+        2 => Some("thick"),
+        3 => Some("awkward"),
+        4 => Some("night_vision"),
+        5 => Some("long_night_vision"),
+        6 => Some("invisibility"),
+        7 => Some("long_invisibility"),
+        8 => Some("leaping"),
+        9 => Some("long_leaping"),
+        10 => Some("strong_leaping"),
+        11 => Some("fire_resistance"),
+        12 => Some("long_fire_resistance"),
+        13 => Some("swiftness"),
+        14 => Some("long_swiftness"),
+        15 => Some("strong_swiftness"),
+        16 => Some("slowness"),
+        17 => Some("long_slowness"),
+        18 => Some("strong_slowness"),
+        19 => Some("water_breathing"),
+        20 => Some("long_water_breathing"),
+        21 => Some("healing"),
+        22 => Some("strong_healing"),
+        23 => Some("harming"),
+        24 => Some("strong_harming"),
+        25 => Some("poison"),
+        26 => Some("long_poison"),
+        27 => Some("strong_poison"),
+        28 => Some("regeneration"),
+        29 => Some("long_regeneration"),
+        30 => Some("strong_regeneration"),
+        31 => Some("strength"),
+        32 => Some("long_strength"),
+        33 => Some("strong_strength"),
+        34 => Some("weakness"),
+        35 => Some("long_weakness"),
+        36 => Some("luck"),
+        37 => Some("slow_falling"),
+        38 => Some("long_slow_falling"),
+        _ => None,
+    }
+}
+
+/// Returns the effects for a given potion type index.
+/// Returns empty vec for water/mundane/thick/awkward (no effects).
+pub fn potion_effects(index: i32) -> Vec<PotionEffect> {
+    match index {
+        // No-effect potions
+        0..=3 => vec![],
+        // Night vision
+        4 => vec![PotionEffect { effect_id: 15, duration: 3600, amplifier: 0 }],
+        5 => vec![PotionEffect { effect_id: 15, duration: 9600, amplifier: 0 }],
+        // Invisibility
+        6 => vec![PotionEffect { effect_id: 13, duration: 3600, amplifier: 0 }],
+        7 => vec![PotionEffect { effect_id: 13, duration: 9600, amplifier: 0 }],
+        // Leaping (jump_boost=7)
+        8 => vec![PotionEffect { effect_id: 7, duration: 3600, amplifier: 0 }],
+        9 => vec![PotionEffect { effect_id: 7, duration: 9600, amplifier: 0 }],
+        10 => vec![PotionEffect { effect_id: 7, duration: 1800, amplifier: 1 }],
+        // Fire resistance
+        11 => vec![PotionEffect { effect_id: 11, duration: 3600, amplifier: 0 }],
+        12 => vec![PotionEffect { effect_id: 11, duration: 9600, amplifier: 0 }],
+        // Swiftness (speed=0)
+        13 => vec![PotionEffect { effect_id: 0, duration: 3600, amplifier: 0 }],
+        14 => vec![PotionEffect { effect_id: 0, duration: 9600, amplifier: 0 }],
+        15 => vec![PotionEffect { effect_id: 0, duration: 1800, amplifier: 1 }],
+        // Slowness (slowness=1)
+        16 => vec![PotionEffect { effect_id: 1, duration: 1800, amplifier: 0 }],
+        17 => vec![PotionEffect { effect_id: 1, duration: 4800, amplifier: 0 }],
+        18 => vec![PotionEffect { effect_id: 1, duration: 400, amplifier: 3 }],
+        // Water breathing
+        19 => vec![PotionEffect { effect_id: 12, duration: 3600, amplifier: 0 }],
+        20 => vec![PotionEffect { effect_id: 12, duration: 9600, amplifier: 0 }],
+        // Healing (instant_health=5)
+        21 => vec![PotionEffect { effect_id: 5, duration: 1, amplifier: 0 }],
+        22 => vec![PotionEffect { effect_id: 5, duration: 1, amplifier: 1 }],
+        // Harming (instant_damage=6)
+        23 => vec![PotionEffect { effect_id: 6, duration: 1, amplifier: 0 }],
+        24 => vec![PotionEffect { effect_id: 6, duration: 1, amplifier: 1 }],
+        // Poison
+        25 => vec![PotionEffect { effect_id: 18, duration: 900, amplifier: 0 }],
+        26 => vec![PotionEffect { effect_id: 18, duration: 1800, amplifier: 0 }],
+        27 => vec![PotionEffect { effect_id: 18, duration: 432, amplifier: 1 }],
+        // Regeneration
+        28 => vec![PotionEffect { effect_id: 9, duration: 900, amplifier: 0 }],
+        29 => vec![PotionEffect { effect_id: 9, duration: 1800, amplifier: 0 }],
+        30 => vec![PotionEffect { effect_id: 9, duration: 450, amplifier: 1 }],
+        // Strength (strength=4)
+        31 => vec![PotionEffect { effect_id: 4, duration: 3600, amplifier: 0 }],
+        32 => vec![PotionEffect { effect_id: 4, duration: 9600, amplifier: 0 }],
+        33 => vec![PotionEffect { effect_id: 4, duration: 1800, amplifier: 1 }],
+        // Weakness
+        34 => vec![PotionEffect { effect_id: 17, duration: 1800, amplifier: 0 }],
+        35 => vec![PotionEffect { effect_id: 17, duration: 4800, amplifier: 0 }],
+        // Luck
+        36 => vec![PotionEffect { effect_id: 25, duration: 6000, amplifier: 0 }],
+        // Slow falling
+        37 => vec![PotionEffect { effect_id: 27, duration: 1800, amplifier: 0 }],
+        38 => vec![PotionEffect { effect_id: 27, duration: 4800, amplifier: 0 }],
+        _ => vec![],
+    }
+}
+
+/// Returns true if the given item_id is a drinkable potion.
+pub fn is_potion(item_id: i32) -> bool {
+    let name = match item_id_to_name(item_id) {
+        Some(n) => n,
+        None => return false,
+    };
+    matches!(name, "potion" | "splash_potion" | "lingering_potion")
+}

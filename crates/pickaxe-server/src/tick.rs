@@ -2137,6 +2137,7 @@ fn process_packet(
                 "help" => cmd_help(world, entity, lua_commands),
                 "time" => cmd_time(world, entity, args, world_state),
                 "effect" => cmd_effect(world, entity, args),
+                "potion" => cmd_potion(world, entity, args),
                 _ => {
                     // Check Lua-registered commands
                     let handled = if let Ok(cmds) = lua_commands.lock() {
@@ -2469,6 +2470,28 @@ fn process_packet(
                         hand,
                     });
                 }
+                return;
+            }
+
+            // Check if the item is a drinkable potion
+            if pickaxe_data::is_potion(item_id) {
+                // Potions always drinkable, use 32-tick drink time
+                // Store potion type index in nutrition field (repurposed)
+                // and use saturation_modifier = -1.0 as a marker that this is a potion
+                let potion_index = {
+                    let inv = world.get::<&Inventory>(entity).ok();
+                    let held = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                    let slot_idx = if hand == 1 { 45 } else { 36 + held as usize };
+                    inv.and_then(|inv| inv.slots[slot_idx].as_ref().map(|i| i.damage))
+                        .unwrap_or(0)
+                };
+                let _ = world.insert_one(entity, EatingState {
+                    remaining_ticks: 32,
+                    hand,
+                    item_id,
+                    nutrition: potion_index, // repurposed: potion type index
+                    saturation_modifier: -1.0, // marker: this is a potion, not food
+                });
                 return;
             }
 
@@ -5052,11 +5075,69 @@ fn tick_eating(world: &mut World) {
         // Remove the EatingState component
         let _ = world.remove_one::<EatingState>(entity);
 
-        // Apply food restoration
-        if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
-            food.food_level = (food.food_level + nutrition).min(20);
-            let sat_gain = nutrition as f32 * sat_mod * 2.0;
-            food.saturation = (food.saturation + sat_gain).min(food.food_level as f32);
+        let is_potion = sat_mod < 0.0;
+
+        if is_potion {
+            // Potion drinking completion — nutrition stores potion type index
+            let potion_index = nutrition;
+            let effects = pickaxe_data::potion_effects(potion_index);
+            let eid = world.get::<&EntityId>(entity).map(|e| e.0).unwrap_or(0);
+
+            for eff in &effects {
+                // Handle instant effects directly
+                match eff.effect_id {
+                    5 => { // instant_health
+                        let heal = 4.0 * (1 << eff.amplifier.min(30)) as f32;
+                        let max = world.get::<&Health>(entity).map(|h| h.max).unwrap_or(20.0);
+                        if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                            h.current = (h.current + heal).min(max);
+                        }
+                    }
+                    6 => { // instant_damage
+                        let damage = 6.0 * (1 << eff.amplifier.min(30)) as f32;
+                        if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                            h.current = (h.current - damage).max(0.0);
+                        }
+                    }
+                    22 => { // saturation
+                        if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+                            food.food_level = (food.food_level + eff.amplifier + 1).min(20);
+                            food.saturation = (food.saturation + (eff.amplifier + 1) as f32).min(food.food_level as f32);
+                        }
+                    }
+                    _ => {
+                        // Duration-based effect: add to ActiveEffects + send packet
+                        let inst = EffectInstance {
+                            effect_id: eff.effect_id,
+                            amplifier: eff.amplifier,
+                            duration: eff.duration,
+                            ambient: false,
+                            show_particles: true,
+                            show_icon: true,
+                        };
+                        let flags: u8 = 0x02 | 0x04; // visible + show_icon
+                        if let Ok(mut active) = world.get::<&mut ActiveEffects>(entity) {
+                            active.effects.insert(eff.effect_id, inst);
+                        }
+                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                            let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                                entity_id: eid,
+                                effect_id: eff.effect_id,
+                                amplifier: eff.amplifier,
+                                duration: eff.duration,
+                                flags,
+                            });
+                        }
+                    }
+                }
+            }
+        } else {
+            // Normal food — apply food restoration
+            if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+                food.food_level = (food.food_level + nutrition).min(20);
+                let sat_gain = nutrition as f32 * sat_mod * 2.0;
+                food.saturation = (food.saturation + sat_gain).min(food.food_level as f32);
+            }
         }
 
         // Consume the item from the hand slot
@@ -5065,7 +5146,47 @@ fn tick_eating(world: &mut World) {
             .map(|h| h.0)
             .unwrap_or(0);
         let slot_idx = if hand == 1 { 45 } else { 36 + held_slot as usize };
-        let new_slot_item = {
+        let new_slot_item = if is_potion {
+            // Potions: replace with glass_bottle (or remove if stack > 1 and add bottle elsewhere)
+            let glass_bottle_id = pickaxe_data::item_name_to_id("glass_bottle").unwrap_or(0);
+            let mut inv = match world.get::<&mut Inventory>(entity) {
+                Ok(inv) => inv,
+                Err(_) => continue,
+            };
+            if let Some(ref mut item) = inv.slots[slot_idx] {
+                if item.item_id == item_id {
+                    if item.count <= 1 {
+                        // Replace directly with glass bottle
+                        inv.slots[slot_idx] = Some(ItemStack {
+                            item_id: glass_bottle_id,
+                            count: 1,
+                            damage: 0,
+                            max_damage: 0,
+                        });
+                    } else {
+                        // Decrement potion stack, put glass bottle elsewhere
+                        item.count -= 1;
+                        // Try to add glass bottle to inventory
+                        let bottle = ItemStack {
+                            item_id: glass_bottle_id,
+                            count: 1,
+                            damage: 0,
+                            max_damage: 0,
+                        };
+                        if let Some(target) = inv.find_slot_for_item(glass_bottle_id, 64) {
+                            if let Some(ref mut existing) = inv.slots[target] {
+                                existing.count += 1;
+                            } else {
+                                inv.slots[target] = Some(bottle);
+                            }
+                        }
+                    }
+                }
+            }
+            inv.state_id = inv.state_id.wrapping_add(1);
+            (inv.slots[slot_idx].clone(), inv.state_id)
+        } else {
+            // Normal food: just decrement count
             let mut inv = match world.get::<&mut Inventory>(entity) {
                 Ok(inv) => inv,
                 Err(_) => continue,
@@ -8104,6 +8225,7 @@ fn cmd_help(world: &World, entity: hecs::Entity, lua_commands: &crate::bridge::L
         "/time query [daytime|gametime|day] - Query current time",
         "/effect give <effect> [duration] [amplifier] - Apply status effect",
         "/effect clear [effect] - Remove status effects",
+        "/potion <player> <potion_name> - Give a potion to a player",
         "/help - Show this help",
     ];
     for line in &help_text {
@@ -8372,6 +8494,106 @@ fn cmd_effect(world: &mut World, entity: hecs::Entity, args: &str) {
         _ => {
             send_message(world, entity, "Usage: /effect <give|clear> ...");
         }
+    }
+}
+
+/// /potion <player> <potion_name> — give a potion to a player
+fn cmd_potion(world: &mut World, entity: hecs::Entity, args: &str) {
+    if !is_op(world, entity) {
+        send_message(world, entity, "You don't have permission to use this command.");
+        return;
+    }
+    let parts: Vec<&str> = args.split_whitespace().collect();
+    if parts.len() < 2 {
+        send_message(world, entity, "Usage: /potion <player> <potion_name>");
+        return;
+    }
+    let target_name = parts[0];
+    let potion_name = parts[1];
+
+    let potion_index = match pickaxe_data::potion_name_to_index(potion_name) {
+        Some(idx) => idx,
+        None => {
+            send_message(world, entity, &format!("Unknown potion: {}", potion_name));
+            return;
+        }
+    };
+
+    let potion_id = match pickaxe_data::item_name_to_id("potion") {
+        Some(id) => id,
+        None => {
+            send_message(world, entity, "Potion item not found in data.");
+            return;
+        }
+    };
+
+    // Find target player
+    let target = {
+        let mut found = None;
+        for (e, profile) in world.query::<&Profile>().iter() {
+            if profile.0.name.eq_ignore_ascii_case(target_name) {
+                found = Some(e);
+                break;
+            }
+        }
+        found
+    };
+    let target = match target {
+        Some(t) => t,
+        None => {
+            send_message(world, entity, &format!("Player '{}' not found.", target_name));
+            return;
+        }
+    };
+
+    // Give the potion item (using damage field to store potion type index)
+    let item = ItemStack {
+        item_id: potion_id,
+        count: 1,
+        damage: potion_index,
+        max_damage: 0,
+    };
+    let slot_update = {
+        let mut inv = match world.get::<&mut Inventory>(target) {
+            Ok(inv) => inv,
+            Err(_) => {
+                send_message(world, entity, "Could not access player inventory.");
+                return;
+            }
+        };
+        if let Some(slot) = inv.find_slot_for_item(potion_id, 1) {
+            // Potions don't stack (different potion types), always place in empty slot
+            if inv.slots[slot].is_none() {
+                inv.slots[slot] = Some(item);
+            } else {
+                // Find empty slot instead since potions with different damage values shouldn't stack
+                if let Some(empty) = inv.slots[9..45].iter().position(|s| s.is_none()) {
+                    inv.slots[9 + empty] = Some(item);
+                } else {
+                    send_message(world, entity, "Player's inventory is full.");
+                    return;
+                }
+            }
+            inv.state_id = inv.state_id.wrapping_add(1);
+            Some((slot, inv.slots[slot].clone(), inv.state_id))
+        } else {
+            None
+        }
+    };
+
+    if let Some((slot, slot_item, state_id)) = slot_update {
+        if let Ok(sender) = world.get::<&ConnectionSender>(target) {
+            let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                window_id: 0,
+                state_id,
+                slot: slot as i16,
+                item: slot_item,
+            });
+        }
+        let display_name = pickaxe_data::potion_index_to_name(potion_index).unwrap_or(potion_name);
+        send_message(world, entity, &format!("Gave {} a potion of {}", target_name, display_name));
+    } else {
+        send_message(world, entity, "Player's inventory is full.");
     }
 }
 
@@ -8727,7 +8949,7 @@ fn build_command_tree(lua_commands: &crate::bridge::LuaCommands) -> InternalPack
     });
 
     // Simple commands: literal + executable, no subcommands
-    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help", "effect"];
+    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help", "effect", "potion"];
     let mut root_children: Vec<i32> = Vec::new();
     for cmd in &simple_cmds {
         let idx = nodes.len() as i32;
