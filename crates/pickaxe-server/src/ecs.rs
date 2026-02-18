@@ -1,6 +1,6 @@
 use pickaxe_protocol_core::InternalPacket;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, Vec3d};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use tokio::sync::mpsc;
 use uuid::Uuid;
 
@@ -347,6 +347,31 @@ pub struct AirSupply {
 impl Default for AirSupply {
     fn default() -> Self {
         Self { current: 300, max: 300 }
+    }
+}
+
+/// A single active status effect on an entity.
+#[derive(Debug, Clone)]
+pub struct EffectInstance {
+    pub effect_id: i32,      // 0-indexed registry ID
+    pub amplifier: i32,      // 0 = level I, 1 = level II, etc.
+    pub duration: i32,       // ticks remaining, -1 = infinite
+    pub ambient: bool,       // subtle particles (from beacon)
+    pub show_particles: bool,
+    pub show_icon: bool,
+}
+
+/// Collection of active status effects on an entity.
+/// Keyed by effect_id for fast lookup and replacement.
+pub struct ActiveEffects {
+    pub effects: HashMap<i32, EffectInstance>,
+}
+
+impl ActiveEffects {
+    pub fn new() -> Self {
+        Self {
+            effects: HashMap::new(),
+        }
     }
 }
 

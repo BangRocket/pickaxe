@@ -818,6 +818,162 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
         )
         .map_err(lua_err)?;
 
+    // pickaxe.players.add_effect(name, effect_name, duration_ticks, amplifier) -> bool
+    players_table
+        .set(
+            "add_effect",
+            lua.create_function(|lua, (name, effect_name, duration, amplifier): (String, String, i32, i32)| {
+                with_world(lua, |world| {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return false,
+                    };
+                    let effect_id = match pickaxe_data::effect_name_to_id(&effect_name) {
+                        Some(id) => id,
+                        None => return false,
+                    };
+                    let eid = world.get::<&crate::ecs::EntityId>(entity).map(|e| e.0).unwrap_or(0);
+                    let amplifier = amplifier.clamp(0, 255);
+                    let inst = crate::ecs::EffectInstance {
+                        effect_id,
+                        amplifier,
+                        duration,
+                        ambient: false,
+                        show_particles: true,
+                        show_icon: true,
+                    };
+                    let flags = if inst.ambient { 0x01 } else { 0 }
+                        | if inst.show_particles { 0x02 } else { 0 }
+                        | if inst.show_icon { 0x04 } else { 0 };
+                    if let Ok(mut effects) = world.get::<&mut crate::ecs::ActiveEffects>(entity) {
+                        effects.effects.insert(effect_id, inst);
+                    }
+                    if let Ok(sender) = world.get::<&crate::ecs::ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                            entity_id: eid,
+                            effect_id,
+                            amplifier,
+                            duration,
+                            flags,
+                        });
+                    }
+                    true
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.remove_effect(name, effect_name) -> bool
+    players_table
+        .set(
+            "remove_effect",
+            lua.create_function(|lua, (name, effect_name): (String, String)| {
+                with_world(lua, |world| {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return false,
+                    };
+                    let effect_id = match pickaxe_data::effect_name_to_id(&effect_name) {
+                        Some(id) => id,
+                        None => return false,
+                    };
+                    let eid = world.get::<&crate::ecs::EntityId>(entity).map(|e| e.0).unwrap_or(0);
+                    let removed = if let Ok(mut effects) = world.get::<&mut crate::ecs::ActiveEffects>(entity) {
+                        effects.effects.remove(&effect_id).is_some()
+                    } else {
+                        false
+                    };
+                    if removed {
+                        if let Ok(sender) = world.get::<&crate::ecs::ConnectionSender>(entity) {
+                            let _ = sender.0.send(InternalPacket::RemoveMobEffect {
+                                entity_id: eid,
+                                effect_id,
+                            });
+                        }
+                    }
+                    removed
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.get_effects(name) -> table or nil
+    players_table
+        .set(
+            "get_effects",
+            lua.create_function(|lua, name: String| {
+                let result: Vec<(String, i32, i32)> = with_world(lua, |world| -> Vec<(String, i32, i32)> {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return Vec::new(),
+                    };
+                    let effects = match world.get::<&crate::ecs::ActiveEffects>(entity) {
+                        Ok(e) => e,
+                        Err(_) => return Vec::new(),
+                    };
+                    effects.effects.values().map(|inst| {
+                        let eff_name = pickaxe_data::effect_id_to_name(inst.effect_id)
+                            .unwrap_or("unknown")
+                            .to_string();
+                        (eff_name, inst.duration, inst.amplifier)
+                    }).collect()
+                })?;
+                let table = lua.create_table()
+                    .map_err(|e| mlua::Error::runtime(format!("{}", e)))?;
+                for (i, (eff_name, dur, amp)) in result.iter().enumerate() {
+                    let entry = lua.create_table()
+                        .map_err(|e| mlua::Error::runtime(format!("{}", e)))?;
+                    entry.set("name", eff_name.as_str())
+                        .map_err(|e| mlua::Error::runtime(format!("{}", e)))?;
+                    entry.set("duration", *dur)
+                        .map_err(|e| mlua::Error::runtime(format!("{}", e)))?;
+                    entry.set("amplifier", *amp)
+                        .map_err(|e| mlua::Error::runtime(format!("{}", e)))?;
+                    table.set(i + 1, entry)
+                        .map_err(|e| mlua::Error::runtime(format!("{}", e)))?;
+                }
+                Ok(table)
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.clear_effects(name) -> bool
+    players_table
+        .set(
+            "clear_effects",
+            lua.create_function(|lua, name: String| {
+                with_world(lua, |world| {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return false,
+                    };
+                    let eid = world.get::<&crate::ecs::EntityId>(entity).map(|e| e.0).unwrap_or(0);
+                    let effect_ids: Vec<i32> = if let Ok(effects) = world.get::<&crate::ecs::ActiveEffects>(entity) {
+                        effects.effects.keys().copied().collect()
+                    } else {
+                        return false;
+                    };
+                    if let Ok(mut effects) = world.get::<&mut crate::ecs::ActiveEffects>(entity) {
+                        effects.effects.clear();
+                    }
+                    if let Ok(sender) = world.get::<&crate::ecs::ConnectionSender>(entity) {
+                        for eff_id in effect_ids {
+                            let _ = sender.0.send(InternalPacket::RemoveMobEffect {
+                                entity_id: eid,
+                                effect_id: eff_id,
+                            });
+                        }
+                    }
+                    true
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
     pickaxe.set("players", players_table).map_err(lua_err)?;
     Ok(())
 }

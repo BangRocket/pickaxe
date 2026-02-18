@@ -821,6 +821,7 @@ pub async fn run_tick_loop(
         tick_void_damage(&mut world, &mut world_state, &scripting);
         tick_drowning_and_lava(&mut world, &mut world_state, &scripting);
         tick_health_hunger(&mut world, &mut world_state, &scripting, tick_count);
+        tick_effects(&mut world, &mut world_state, &scripting, tick_count);
         tick_eating(&mut world);
         tick_sleeping(&mut world, &mut world_state, &scripting);
         tick_buttons(&mut world, &mut world_state);
@@ -1136,6 +1137,7 @@ fn handle_new_player(
         AttackCooldown::default(),
         player_xp,
         AirSupply::default(),
+        ActiveEffects::new(),
     ));
     if let Some((pos, yaw)) = player_spawn_point {
         let _ = world.insert_one(player_entity, SpawnPoint { position: pos, yaw });
@@ -2134,6 +2136,7 @@ fn process_packet(
                 "say" => cmd_say(world, args, &name),
                 "help" => cmd_help(world, entity, lua_commands),
                 "time" => cmd_time(world, entity, args, world_state),
+                "effect" => cmd_effect(world, entity, args),
                 _ => {
                     // Check Lua-registered commands
                     let handled = if let Ok(cmds) = lua_commands.lock() {
@@ -3076,6 +3079,17 @@ fn handle_attack(
     let damage_scale = 0.2 + strength * strength * 0.8;
     let mut damage = base_damage * damage_scale;
 
+    // Strength effect: +3 per level
+    if let Ok(effects) = world.get::<&ActiveEffects>(attacker) {
+        if let Some(inst) = effects.effects.get(&4) { // strength
+            damage += 3.0 * (inst.amplifier as f32 + 1.0);
+        }
+        // Weakness effect: -4 per level
+        if let Some(inst) = effects.effects.get(&17) { // weakness
+            damage = (damage - 4.0 * (inst.amplifier as f32 + 1.0)).max(0.0);
+        }
+    }
+
     // Critical hit: falling, not on ground, strength > 0.9
     let on_ground = world.get::<&OnGround>(attacker).map(|og| og.0).unwrap_or(true);
     let fall_distance = world.get::<&FallDistance>(attacker).map(|fd| fd.0).unwrap_or(0.0);
@@ -3330,6 +3344,31 @@ fn apply_damage(
     if world.get::<&SleepingState>(entity).is_ok() {
         wake_player(world, world_state, entity, entity_id);
     }
+
+    // Fire resistance: immune to fire/lava damage
+    if source == "lava" || source == "fire" || source == "lightning" {
+        if let Ok(effects) = world.get::<&ActiveEffects>(entity) {
+            if effects.effects.contains_key(&11) { // fire_resistance
+                return;
+            }
+        }
+    }
+
+    // Resistance effect: reduce damage by 20% per level (max 80%)
+    let damage = if source != "void" && source != "starvation" {
+        if let Ok(effects) = world.get::<&ActiveEffects>(entity) {
+            if let Some(inst) = effects.effects.get(&10) { // resistance
+                let reduction = ((inst.amplifier + 1) * 5).min(20) as f32 / 25.0;
+                damage * (1.0 - reduction)
+            } else {
+                damage
+            }
+        } else {
+            damage
+        }
+    } else {
+        damage
+    };
 
     // Apply armor damage reduction (not for void/starvation)
     let final_damage = if source != "void" && source != "starvation" {
@@ -4656,6 +4695,20 @@ fn respawn_player(
             food: 20,
             saturation: 5.0,
         });
+
+        // Clear all active effects on respawn
+        if let Ok(effects) = world.get::<&ActiveEffects>(entity) {
+            let effect_ids: Vec<i32> = effects.effects.keys().copied().collect();
+            for eff_id in effect_ids {
+                let _ = sender.0.send(InternalPacket::RemoveMobEffect {
+                    entity_id: _entity_id,
+                    effect_id: eff_id,
+                });
+            }
+        }
+    }
+    if let Ok(mut effects) = world.get::<&mut ActiveEffects>(entity) {
+        effects.effects.clear();
     }
 
     // Fire Lua event
@@ -4811,6 +4864,167 @@ fn tick_health_hunger(
                     health,
                     food,
                     saturation: sat,
+                });
+            }
+        }
+    }
+}
+
+/// Tick status effects: decrement durations, apply periodic effects, remove expired ones.
+fn tick_effects(
+    world: &mut World,
+    world_state: &mut WorldState,
+    scripting: &ScriptRuntime,
+    tick_count: u64,
+) {
+    // Collect effect actions to apply outside the borrow
+    struct EffectAction {
+        entity: hecs::Entity,
+        entity_id: i32,
+        effect_id: i32,
+        amplifier: i32,
+    }
+    let mut regen_actions: Vec<EffectAction> = Vec::new();
+    let mut poison_actions: Vec<EffectAction> = Vec::new();
+    let mut wither_actions: Vec<EffectAction> = Vec::new();
+    let mut hunger_actions: Vec<(hecs::Entity, i32)> = Vec::new(); // (entity, amplifier)
+    let mut expired: Vec<(hecs::Entity, i32, i32)> = Vec::new(); // (entity, eid, effect_id)
+    let mut health_updates: Vec<(hecs::Entity, f32, i32, f32)> = Vec::new();
+
+    for (entity, (eid, effects, health, food)) in world
+        .query::<(&EntityId, &mut ActiveEffects, &Health, &FoodData)>()
+        .iter()
+    {
+        if health.current <= 0.0 {
+            continue;
+        }
+
+        let mut to_remove = Vec::new();
+        for (effect_id, inst) in effects.effects.iter_mut() {
+            // Decrement duration (skip infinite = -1)
+            if inst.duration > 0 {
+                inst.duration -= 1;
+                if inst.duration == 0 {
+                    to_remove.push(*effect_id);
+                    continue;
+                }
+            }
+
+            // Periodic effects based on tick timing
+            let tick_val = if inst.duration == -1 { tick_count as i32 } else { inst.duration };
+            match *effect_id {
+                // Regeneration: heal every 50 >> amplifier ticks
+                9 => {
+                    let interval = (50 >> inst.amplifier.min(5)).max(1);
+                    if tick_val % interval == 0 {
+                        regen_actions.push(EffectAction {
+                            entity, entity_id: eid.0, effect_id: *effect_id, amplifier: inst.amplifier,
+                        });
+                    }
+                }
+                // Poison: damage every 25 >> amplifier ticks (won't kill)
+                18 => {
+                    let interval = (25 >> inst.amplifier.min(5)).max(1);
+                    if tick_val % interval == 0 {
+                        poison_actions.push(EffectAction {
+                            entity, entity_id: eid.0, effect_id: *effect_id, amplifier: inst.amplifier,
+                        });
+                    }
+                }
+                // Wither: damage every 40 >> amplifier ticks (can kill)
+                19 => {
+                    let interval = (40 >> inst.amplifier.min(5)).max(1);
+                    if tick_val % interval == 0 {
+                        wither_actions.push(EffectAction {
+                            entity, entity_id: eid.0, effect_id: *effect_id, amplifier: inst.amplifier,
+                        });
+                    }
+                }
+                // Hunger: exhaustion every tick
+                16 => {
+                    hunger_actions.push((entity, inst.amplifier));
+                }
+                _ => {}
+            }
+        }
+
+        for eff_id in to_remove {
+            effects.effects.remove(&eff_id);
+            expired.push((entity, eid.0, eff_id));
+        }
+
+        health_updates.push((entity, health.current, food.food_level, food.saturation));
+    }
+
+    // Apply regeneration (heal 1 HP)
+    for action in &regen_actions {
+        let max = world.get::<&Health>(action.entity).map(|h| h.max).unwrap_or(20.0);
+        if let Ok(mut h) = world.get::<&mut Health>(action.entity) {
+            h.current = (h.current + 1.0).min(max);
+        }
+    }
+
+    // Apply poison (1 HP damage, won't go below 1 HP)
+    for action in &poison_actions {
+        if let Ok(mut h) = world.get::<&mut Health>(action.entity) {
+            if h.current > 1.0 {
+                h.current = (h.current - 1.0).max(1.0);
+                h.invulnerable_ticks = 0; // poison bypasses invuln
+            }
+        }
+        // Hurt animation
+        broadcast_to_all(world, &InternalPacket::HurtAnimation {
+            entity_id: action.entity_id,
+            yaw: 0.0,
+        });
+    }
+
+    // Apply wither (1 HP damage, can kill)
+    for action in &wither_actions {
+        apply_damage(world, world_state, action.entity, action.entity_id, 1.0, "wither", scripting);
+    }
+
+    // Apply hunger exhaustion
+    for (entity, amplifier) in &hunger_actions {
+        if let Ok(mut food) = world.get::<&mut FoodData>(*entity) {
+            food.exhaustion = (food.exhaustion + 0.005 * (*amplifier as f32 + 1.0)).min(40.0);
+        }
+    }
+
+    // Broadcast removal of expired effects
+    for (entity, eid, effect_id) in &expired {
+        if let Ok(sender) = world.get::<&ConnectionSender>(*entity) {
+            let _ = sender.0.send(InternalPacket::RemoveMobEffect {
+                entity_id: *eid,
+                effect_id: *effect_id,
+            });
+        }
+        // Fire Lua event
+        let name = world.get::<&Profile>(*entity).map(|p| p.0.name.clone()).unwrap_or_default();
+        let eff_name = pickaxe_data::effect_id_to_name(*effect_id).unwrap_or("unknown");
+        scripting.fire_event_in_context(
+            "effect_expire",
+            &[("name", &name), ("effect", eff_name)],
+            world as *mut _ as *mut (),
+            world_state as *mut _ as *mut (),
+        );
+    }
+
+    // Send health updates if any regen/poison/wither changed health
+    if !regen_actions.is_empty() || !poison_actions.is_empty() || !wither_actions.is_empty() {
+        for (entity, _, _, _) in &health_updates {
+            let (h, f, s) = {
+                let health = world.get::<&Health>(*entity).map(|h| h.current).unwrap_or(20.0);
+                let (food, sat) = world.get::<&FoodData>(*entity)
+                    .map(|f| (f.food_level, f.saturation))
+                    .unwrap_or((20, 5.0));
+                (health, food, sat)
+            };
+            if let Ok(sender) = world.get::<&ConnectionSender>(*entity) {
+                let _ = sender.0.send(InternalPacket::SetHealth {
+                    health: h,
+                    food: f,
+                    saturation: s,
                 });
             }
         }
@@ -4994,11 +5208,19 @@ fn tick_drowning_and_lava(
         let feet_block = world_state.get_block(&feet_block_pos);
         let in_lava = pickaxe_data::is_lava(feet_block);
 
+        // Check for water_breathing and fire_resistance effects
+        let has_water_breathing = world.get::<&ActiveEffects>(check.entity)
+            .map(|e| e.effects.contains_key(&12))
+            .unwrap_or(false);
+        let has_fire_resistance = world.get::<&ActiveEffects>(check.entity)
+            .map(|e| e.effects.contains_key(&11))
+            .unwrap_or(false);
+
         // Handle air supply
         if let Ok(mut air) = world.get::<&mut AirSupply>(check.entity) {
             let old_air = air.current;
 
-            if eye_in_water {
+            if eye_in_water && !has_water_breathing {
                 air.current -= 1;
                 if air.current == -20 {
                     air.current = 0;
@@ -5013,8 +5235,8 @@ fn tick_drowning_and_lava(
             }
         }
 
-        // Lava damage every 10 ticks (0.5s)
-        if in_lava {
+        // Lava damage every 10 ticks (0.5s), unless fire_resistance
+        if in_lava && !has_fire_resistance {
             lava_damage.push((check.entity, check.eid));
         }
     }
@@ -7880,6 +8102,8 @@ fn cmd_help(world: &World, entity: hecs::Entity, lua_commands: &crate::bridge::L
         "/time set <day|night|noon|midnight|value> - Set time of day",
         "/time add <value> - Add to time of day",
         "/time query [daytime|gametime|day] - Query current time",
+        "/effect give <effect> [duration] [amplifier] - Apply status effect",
+        "/effect clear [effect] - Remove status effects",
         "/help - Show this help",
     ];
     for line in &help_text {
@@ -7969,6 +8193,184 @@ fn cmd_time(world: &World, entity: hecs::Entity, args: &str, world_state: &mut W
         }
         _ => {
             send_message(world, entity, "Usage: /time <set|add|query> [value]");
+        }
+    }
+}
+
+/// /effect give <effect> [duration_seconds] [amplifier] — apply a status effect
+/// /effect clear [effect] — remove one or all effects
+fn cmd_effect(world: &mut World, entity: hecs::Entity, args: &str) {
+    if !is_op(world, entity) {
+        send_message(world, entity, "You don't have permission to use this command.");
+        return;
+    }
+    let parts: Vec<&str> = args.split_whitespace().collect();
+    if parts.is_empty() {
+        send_message(world, entity, "Usage: /effect <give|clear> ...");
+        return;
+    }
+
+    let eid = world.get::<&EntityId>(entity).map(|e| e.0).unwrap_or(0);
+
+    match parts[0] {
+        "give" => {
+            if parts.len() < 2 {
+                send_message(world, entity, "Usage: /effect give <effect> [duration_seconds] [amplifier]");
+                return;
+            }
+            let effect_name = parts[1];
+            let effect_id = match pickaxe_data::effect_name_to_id(effect_name) {
+                Some(id) => id,
+                None => {
+                    send_message(world, entity, &format!("Unknown effect: {}", effect_name));
+                    return;
+                }
+            };
+            let duration_secs: i32 = if parts.len() > 2 {
+                parts[2].parse().unwrap_or(30)
+            } else {
+                30
+            };
+            let duration_ticks = if duration_secs < 0 { -1 } else { duration_secs * 20 };
+            let amplifier: i32 = if parts.len() > 3 {
+                parts[3].parse::<i32>().unwrap_or(0).clamp(0, 255)
+            } else {
+                0
+            };
+
+            let inst = EffectInstance {
+                effect_id,
+                amplifier,
+                duration: duration_ticks,
+                ambient: false,
+                show_particles: true,
+                show_icon: true,
+            };
+            let flags: u8 = 0x02 | 0x04; // visible + show_icon
+
+            // Handle instant effects
+            match effect_id {
+                5 => { // instant_health
+                    let heal = 4.0 * (1 << amplifier.min(30)) as f32;
+                    let max = world.get::<&Health>(entity).map(|h| h.max).unwrap_or(20.0);
+                    if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                        h.current = (h.current + heal).min(max);
+                    }
+                    let (health, food, sat) = {
+                        let h = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(20.0);
+                        let (f, s) = world.get::<&FoodData>(entity).map(|f| (f.food_level, f.saturation)).unwrap_or((20, 5.0));
+                        (h, f, s)
+                    };
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetHealth { health, food, saturation: sat });
+                    }
+                    send_message(world, entity, &format!("Applied Instant Health (level {})", amplifier + 1));
+                    return;
+                }
+                6 => { // instant_damage
+                    let damage = 6.0 * (1 << amplifier.min(30)) as f32;
+                    if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                        h.current = (h.current - damage).max(0.0);
+                    }
+                    let (health, food, sat) = {
+                        let h = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(0.0);
+                        let (f, s) = world.get::<&FoodData>(entity).map(|f| (f.food_level, f.saturation)).unwrap_or((20, 5.0));
+                        (h, f, s)
+                    };
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetHealth { health, food, saturation: sat });
+                    }
+                    send_message(world, entity, &format!("Applied Instant Damage (level {})", amplifier + 1));
+                    return;
+                }
+                22 => { // saturation
+                    if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+                        food.food_level = (food.food_level + amplifier + 1).min(20);
+                        food.saturation = (food.saturation + (amplifier + 1) as f32).min(food.food_level as f32);
+                    }
+                    let (health, food, sat) = {
+                        let h = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(20.0);
+                        let (f, s) = world.get::<&FoodData>(entity).map(|f| (f.food_level, f.saturation)).unwrap_or((20, 5.0));
+                        (h, f, s)
+                    };
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetHealth { health, food, saturation: sat });
+                    }
+                    send_message(world, entity, &format!("Applied Saturation (level {})", amplifier + 1));
+                    return;
+                }
+                _ => {}
+            }
+
+            if let Ok(mut effects) = world.get::<&mut ActiveEffects>(entity) {
+                effects.effects.insert(effect_id, inst);
+            }
+            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                    entity_id: eid,
+                    effect_id,
+                    amplifier,
+                    duration: duration_ticks,
+                    flags,
+                });
+            }
+            let dur_str = if duration_ticks < 0 { "infinite".to_string() } else { format!("{}s", duration_secs) };
+            send_message(world, entity, &format!("Applied {} (level {}) for {}", effect_name, amplifier + 1, dur_str));
+        }
+        "clear" => {
+            if parts.len() > 1 {
+                // Clear specific effect
+                let effect_name = parts[1];
+                let effect_id = match pickaxe_data::effect_name_to_id(effect_name) {
+                    Some(id) => id,
+                    None => {
+                        send_message(world, entity, &format!("Unknown effect: {}", effect_name));
+                        return;
+                    }
+                };
+                let removed = if let Ok(mut effects) = world.get::<&mut ActiveEffects>(entity) {
+                    effects.effects.remove(&effect_id).is_some()
+                } else {
+                    false
+                };
+                if removed {
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::RemoveMobEffect {
+                            entity_id: eid,
+                            effect_id,
+                        });
+                    }
+                    send_message(world, entity, &format!("Removed {}", effect_name));
+                } else {
+                    send_message(world, entity, &format!("You don't have {}", effect_name));
+                }
+            } else {
+                // Clear all effects
+                let effect_ids: Vec<i32> = if let Ok(effects) = world.get::<&ActiveEffects>(entity) {
+                    effects.effects.keys().copied().collect()
+                } else {
+                    Vec::new()
+                };
+                if effect_ids.is_empty() {
+                    send_message(world, entity, "No active effects to clear.");
+                    return;
+                }
+                if let Ok(mut effects) = world.get::<&mut ActiveEffects>(entity) {
+                    effects.effects.clear();
+                }
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    for eff_id in &effect_ids {
+                        let _ = sender.0.send(InternalPacket::RemoveMobEffect {
+                            entity_id: eid,
+                            effect_id: *eff_id,
+                        });
+                    }
+                }
+                send_message(world, entity, &format!("Cleared {} effects", effect_ids.len()));
+            }
+        }
+        _ => {
+            send_message(world, entity, "Usage: /effect <give|clear> ...");
         }
     }
 }
@@ -8325,7 +8727,7 @@ fn build_command_tree(lua_commands: &crate::bridge::LuaCommands) -> InternalPack
     });
 
     // Simple commands: literal + executable, no subcommands
-    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help"];
+    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help", "effect"];
     let mut root_children: Vec<i32> = Vec::new();
     for cmd in &simple_cmds {
         let idx = nodes.len() as i32;

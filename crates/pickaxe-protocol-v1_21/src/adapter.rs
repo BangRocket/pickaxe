@@ -116,6 +116,8 @@ const PLAY_SOUND_EFFECT: i32 = 0x68;
 const PLAY_WORLD_EVENT: i32 = 0x28;
 const PLAY_SET_EXPERIENCE: i32 = 0x5C;
 const PLAY_ADD_EXPERIENCE_ORB: i32 = 0x02;
+const PLAY_UPDATE_MOB_EFFECT: i32 = 0x75;
+const PLAY_REMOVE_MOB_EFFECT: i32 = 0x42;
 
 // === Decode functions ===
 
@@ -1027,6 +1029,21 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_f64(*y);
             buf.put_f64(*z);
             buf.put_i16(*value);
+        }
+        InternalPacket::UpdateMobEffect { entity_id, effect_id, amplifier, duration, flags } => {
+            write_varint(&mut buf, PLAY_UPDATE_MOB_EFFECT);
+            write_varint(&mut buf, *entity_id);
+            // Effect ID uses Holder encoding: registry reference = id + 1
+            write_varint(&mut buf, *effect_id + 1);
+            write_varint(&mut buf, *amplifier);
+            write_varint(&mut buf, *duration);
+            buf.put_u8(*flags);
+        }
+        InternalPacket::RemoveMobEffect { entity_id, effect_id } => {
+            write_varint(&mut buf, PLAY_REMOVE_MOB_EFFECT);
+            write_varint(&mut buf, *entity_id);
+            // Effect ID uses Holder encoding: registry reference = id + 1
+            write_varint(&mut buf, *effect_id + 1);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

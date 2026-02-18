@@ -516,6 +516,21 @@ pub enum InternalPacket {
         seed: i64,
     },
 
+    /// Update Mob Effect (0x75 CB) — add/update a status effect on an entity.
+    UpdateMobEffect {
+        entity_id: i32,
+        effect_id: i32,   // 0-indexed registry ID
+        amplifier: i32,   // 0 = level I
+        duration: i32,    // ticks, -1 = infinite
+        flags: u8,        // 0x01=ambient, 0x02=visible, 0x04=show_icon, 0x08=blend
+    },
+
+    /// Remove Mob Effect (0x42 CB) — remove a status effect from an entity.
+    RemoveMobEffect {
+        entity_id: i32,
+        effect_id: i32,   // 0-indexed registry ID
+    },
+
     /// World Event / Level Event (0x28 CB) — block break particles, sounds, etc.
     WorldEvent {
         event: i32,

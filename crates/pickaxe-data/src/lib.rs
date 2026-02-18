@@ -1402,3 +1402,85 @@ mod tests {
         assert!(mob_is_explosive(MOB_CREEPER));
     }
 }
+
+// ── Status Effects ───────────────────────────────────────────────────
+
+/// Returns the registry ID (0-indexed) for a named effect, or None.
+pub fn effect_name_to_id(name: &str) -> Option<i32> {
+    match name {
+        "speed" => Some(0),
+        "slowness" => Some(1),
+        "haste" => Some(2),
+        "mining_fatigue" => Some(3),
+        "strength" => Some(4),
+        "instant_health" => Some(5),
+        "instant_damage" => Some(6),
+        "jump_boost" => Some(7),
+        "nausea" => Some(8),
+        "regeneration" => Some(9),
+        "resistance" => Some(10),
+        "fire_resistance" => Some(11),
+        "water_breathing" => Some(12),
+        "invisibility" => Some(13),
+        "blindness" => Some(14),
+        "night_vision" => Some(15),
+        "hunger" => Some(16),
+        "weakness" => Some(17),
+        "poison" => Some(18),
+        "wither" => Some(19),
+        "health_boost" => Some(20),
+        "absorption" => Some(21),
+        "saturation" => Some(22),
+        "glowing" => Some(23),
+        "levitation" => Some(24),
+        "luck" => Some(25),
+        "unluck" => Some(26),
+        "slow_falling" => Some(27),
+        "conduit_power" => Some(28),
+        "dolphins_grace" => Some(29),
+        "bad_omen" => Some(30),
+        "hero_of_the_village" => Some(31),
+        "darkness" => Some(32),
+        _ => None,
+    }
+}
+
+/// Returns the name for a given effect registry ID.
+pub fn effect_id_to_name(id: i32) -> Option<&'static str> {
+    match id {
+        0 => Some("speed"),
+        1 => Some("slowness"),
+        2 => Some("haste"),
+        3 => Some("mining_fatigue"),
+        4 => Some("strength"),
+        5 => Some("instant_health"),
+        6 => Some("instant_damage"),
+        7 => Some("jump_boost"),
+        8 => Some("nausea"),
+        9 => Some("regeneration"),
+        10 => Some("resistance"),
+        11 => Some("fire_resistance"),
+        12 => Some("water_breathing"),
+        13 => Some("invisibility"),
+        14 => Some("blindness"),
+        15 => Some("night_vision"),
+        16 => Some("hunger"),
+        17 => Some("weakness"),
+        18 => Some("poison"),
+        19 => Some("wither"),
+        20 => Some("health_boost"),
+        21 => Some("absorption"),
+        22 => Some("saturation"),
+        23 => Some("glowing"),
+        24 => Some("levitation"),
+        25 => Some("luck"),
+        26 => Some("unluck"),
+        27 => Some("slow_falling"),
+        28 => Some("conduit_power"),
+        29 => Some("dolphins_grace"),
+        30 => Some("bad_omen"),
+        31 => Some("hero_of_the_village"),
+        32 => Some("darkness"),
+        _ => None,
+    }
+}
