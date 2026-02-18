@@ -777,6 +777,89 @@ pub fn fluid_height(state_id: i32) -> f64 {
     }
 }
 
+// === Fire Block Data ===
+
+/// Fire block state range: 2360-2871 (512 states).
+/// Encoding: state = 2360 + age * 32 + east_bit * 16 + north_bit * 8 + south_bit * 4 + up_bit * 2 + west_bit * 1
+/// where bit = 0 if face is true, 1 if face is false (MC encodes true before false).
+const FIRE_MIN_STATE: i32 = 2360;
+const FIRE_MAX_STATE: i32 = 2871;
+
+/// Soul fire is a single state.
+pub const SOUL_FIRE_STATE: i32 = 2872;
+
+/// Check if a block state is fire or soul_fire.
+pub fn is_fire(state_id: i32) -> bool {
+    (state_id >= FIRE_MIN_STATE && state_id <= FIRE_MAX_STATE) || state_id == SOUL_FIRE_STATE
+}
+
+/// Get fire block state for age 0, no face connections.
+pub fn fire_default_state() -> i32 {
+    FIRE_MIN_STATE + 31 // age=0, all faces false = offset 31
+}
+
+/// Get fire block state for a given age (0-15), no face connections.
+pub fn fire_state_with_age(age: i32) -> i32 {
+    let age = age.clamp(0, 15);
+    FIRE_MIN_STATE + age * 32 + 31 // all faces false
+}
+
+/// Extract age from a fire block state. Returns 0-15, or -1 if not fire.
+pub fn fire_age(state_id: i32) -> i32 {
+    if state_id >= FIRE_MIN_STATE && state_id <= FIRE_MAX_STATE {
+        (state_id - FIRE_MIN_STATE) / 32
+    } else {
+        -1
+    }
+}
+
+/// Get flammability data for a block: (ignite_odds, burn_odds).
+/// ignite_odds = how easily fire can spread TO this block (0-60).
+/// burn_odds = how quickly fire consumes this block (0-100).
+/// Returns (0, 0) for non-flammable blocks.
+pub fn block_flammability(name: &str) -> (i32, i32) {
+    match name {
+        // Wood products
+        n if n.ends_with("_planks") || n.ends_with("_slab") => (5, 20),
+        n if n.ends_with("_stairs") && (n.contains("oak") || n.contains("spruce") || n.contains("birch")
+            || n.contains("jungle") || n.contains("acacia") || n.contains("dark_oak")
+            || n.contains("mangrove") || n.contains("cherry") || n.contains("bamboo")
+            || n.contains("crimson") || n.contains("warped")) => (5, 20),
+        n if n.ends_with("_log") || n.ends_with("_wood") || n.ends_with("_stem") || n.ends_with("_hyphae") => (5, 5),
+        n if n.ends_with("_fence") || n.ends_with("_fence_gate") => (5, 20),
+        "bookshelf" | "chiseled_bookshelf" | "lectern" => (30, 20),
+        // Leaves
+        n if n.ends_with("_leaves") => (30, 60),
+        // Wool and carpet
+        n if n.ends_with("_wool") => (30, 60),
+        n if n.ends_with("_carpet") => (60, 20),
+        // Plants
+        "short_grass" | "tall_grass" | "fern" | "large_fern" | "dead_bush" => (60, 100),
+        n if n.ends_with("_tulip") || n == "dandelion" || n == "poppy" || n == "blue_orchid"
+            || n == "allium" || n == "azure_bluet" || n == "oxeye_daisy" || n == "cornflower"
+            || n == "lily_of_the_valley" || n == "sunflower" || n == "lilac" || n == "rose_bush"
+            || n == "peony" || n == "wither_rose" || n == "torchflower" => (60, 100),
+        "vine" | "glow_lichen" => (15, 100),
+        "sweet_berry_bush" => (60, 100),
+        // Other flammable
+        "tnt" => (15, 100),
+        "dried_kelp_block" => (30, 60),
+        "hay_block" | "target" => (60, 20),
+        "scaffolding" => (60, 60),
+        "coal_block" => (5, 5),
+        "bamboo" | "bamboo_block" | "stripped_bamboo_block" => (60, 60),
+        "bee_nest" => (30, 20),
+        "beehive" => (5, 20),
+        _ => (0, 0),
+    }
+}
+
+/// Check if a block name is flammable (can catch fire from adjacent fire).
+pub fn is_flammable(name: &str) -> bool {
+    let (ignite, _burn) = block_flammability(name);
+    ignite > 0
+}
+
 // === Mob Data ===
 
 /// Mob type constants (protocol entity type IDs for MC 1.21.1).

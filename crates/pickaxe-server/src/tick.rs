@@ -1042,6 +1042,10 @@ pub async fn run_tick_loop(
         if tick_count % 68 == 0 {
             tick_farming(&world, &mut world_state);
         }
+        // Fire tick (every 35 ticks ≈ 1.75s, simulating MC's 30-40 tick random delay)
+        if tick_count % 35 == 0 {
+            tick_fire(&mut world, &mut world_state, &next_eid, &scripting);
+        }
         tick_furnaces(&world, &mut world_state);
         tick_brewing_stands(&world, &mut world_state);
         tick_mob_ai(&mut world, &mut world_state, &scripting, &next_eid);
@@ -2016,6 +2020,96 @@ fn process_packet(
                         let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
                     }
                     return;
+                }
+            }
+
+            // Check for flint_and_steel fire placement (non-TNT blocks)
+            {
+                let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let held_item_id = world.get::<&Inventory>(entity)
+                    .ok()
+                    .and_then(|inv| inv.held_item(held_slot).as_ref().map(|i| i.item_id));
+                let held_name = held_item_id.and_then(pickaxe_data::item_id_to_name).unwrap_or("");
+
+                if held_name == "flint_and_steel" && target_name != "tnt" {
+                    // Place fire on the adjacent face
+                    let fire_pos = offset_by_face(&position, face);
+                    let fire_block = world_state.get_block(&fire_pos);
+                    if fire_block == 0 {
+                        // Check that the block below fire_pos is solid, or adjacent block is flammable
+                        let below = BlockPos::new(fire_pos.x, fire_pos.y - 1, fire_pos.z);
+                        let below_block = world_state.get_block(&below);
+                        let below_name = pickaxe_data::block_state_to_name(below_block).unwrap_or("");
+                        let has_support = below_block != 0 && !pickaxe_data::is_fire(below_block);
+
+                        let has_adjacent_flammable = {
+                            let offsets = [(1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)];
+                            offsets.iter().any(|(dx, dy, dz)| {
+                                let adj = BlockPos::new(fire_pos.x + dx, fire_pos.y + dy, fire_pos.z + dz);
+                                let adj_block = world_state.get_block(&adj);
+                                let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+                                pickaxe_data::is_flammable(adj_name)
+                            })
+                        };
+
+                        if has_support || has_adjacent_flammable {
+                            // Check for soul fire: fire on soul_sand or soul_soil
+                            let fire_state = if below_name == "soul_sand" || below_name == "soul_soil" {
+                                pickaxe_data::SOUL_FIRE_STATE
+                            } else {
+                                pickaxe_data::fire_default_state()
+                            };
+
+                            let player_name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+                            let cancelled = scripting.fire_event_in_context(
+                                "block_place",
+                                &[
+                                    ("name", &player_name),
+                                    ("x", &fire_pos.x.to_string()),
+                                    ("y", &fire_pos.y.to_string()),
+                                    ("z", &fire_pos.z.to_string()),
+                                    ("block_id", &fire_state.to_string()),
+                                ],
+                                world as *mut _ as *mut (),
+                                world_state as *mut _ as *mut (),
+                            );
+                            if !cancelled {
+                                world_state.set_block(&fire_pos, fire_state);
+                                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                    position: fire_pos,
+                                    block_id: fire_state,
+                                });
+                                play_sound_at_block(world, &fire_pos, "item.flintandsteel.use", SOUND_PLAYERS, 1.0, 1.0);
+                            }
+
+                            // Damage flint_and_steel durability in survival
+                            let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                            if game_mode != GameMode::Creative {
+                                let slot_index = 36 + held_slot as usize;
+                                if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                    if let Some(ref mut tool) = inv.slots[slot_index] {
+                                        tool.damage += 1;
+                                        if tool.max_damage > 0 && tool.damage >= tool.max_damage {
+                                            inv.slots[slot_index] = None;
+                                        }
+                                    }
+                                    let state_id = inv.state_id;
+                                    let slot_item = inv.slots[slot_index].clone();
+                                    drop(inv);
+                                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                            window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                        });
+                                    }
+                                }
+                            }
+
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                            }
+                            return;
+                        }
+                    }
                 }
             }
 
@@ -6118,6 +6212,7 @@ fn tick_drowning_and_lava(
 
     let mut drown_damage: Vec<(hecs::Entity, i32)> = Vec::new();
     let mut lava_damage: Vec<(hecs::Entity, i32)> = Vec::new();
+    let mut fire_damage: Vec<(hecs::Entity, i32, bool)> = Vec::new(); // entity, eid, is_soul_fire
     let mut air_updates: Vec<(hecs::Entity, i32, i32)> = Vec::new(); // entity, eid, new_air
 
     for check in &checks {
@@ -6180,6 +6275,15 @@ fn tick_drowning_and_lava(
         if in_lava && !has_fire_resistance {
             lava_damage.push((check.entity, check.eid));
         }
+
+        // Fire damage: check if player is standing in fire
+        if !has_fire_resistance {
+            let feet_block = world_state.get_block(&feet_block_pos);
+            if pickaxe_data::is_fire(feet_block) {
+                let is_soul = feet_block == pickaxe_data::SOUL_FIRE_STATE;
+                fire_damage.push((check.entity, check.eid, is_soul));
+            }
+        }
     }
 
     // Apply drown damage (2 HP)
@@ -6192,6 +6296,15 @@ fn tick_drowning_and_lava(
         let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 0).unwrap_or(false);
         if !invuln {
             apply_damage(world, world_state, entity, eid, 4.0, "lava", scripting);
+        }
+    }
+
+    // Apply fire damage (1 HP for fire, 2 HP for soul fire)
+    for (entity, eid, is_soul) in fire_damage {
+        let invuln = world.get::<&Health>(entity).map(|h| h.invulnerable_ticks > 0).unwrap_or(false);
+        if !invuln {
+            let dmg = if is_soul { 2.0 } else { 1.0 };
+            apply_damage(world, world_state, entity, eid, dmg, "fire", scripting);
         }
     }
 
@@ -8208,6 +8321,186 @@ fn tick_farming(world: &World, world_state: &mut WorldState) {
             position: pos,
             block_id: new_state,
         });
+    }
+}
+
+/// Tick fire blocks: age progression, spread, burnout, block destruction.
+/// Runs every 35 ticks (~1.75 seconds), simulating MC's 30-40 tick random delay.
+fn tick_fire(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    scripting: &ScriptRuntime,
+) {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+
+    // Phase 1: Collect all fire block positions from chunks (immutable borrow)
+    let mut fire_blocks: Vec<(BlockPos, i32)> = Vec::new(); // (pos, state_id)
+    {
+        let chunk_positions: Vec<pickaxe_types::ChunkPos> = world_state.chunks.keys().cloned().collect();
+        for chunk_pos in chunk_positions {
+            let chunk = match world_state.chunks.get(&chunk_pos) {
+                Some(c) => c,
+                None => continue,
+            };
+            for section_y in 0..24 {
+                let world_y = section_y as i32 * 16 - 64;
+                for local_x in 0..16usize {
+                    for local_y in 0..16 {
+                        for local_z in 0..16usize {
+                            let by = world_y + local_y as i32;
+                            let block = chunk.get_block(local_x, by, local_z);
+                            if pickaxe_data::is_fire(block) && block != pickaxe_data::SOUL_FIRE_STATE {
+                                let bx = chunk_pos.x * 16 + local_x as i32;
+                                let bz = chunk_pos.z * 16 + local_z as i32;
+                                fire_blocks.push((BlockPos::new(bx, by, bz), block));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Phase 2: Process each fire block (can use world_state.get_block freely)
+    let mut updates: Vec<(BlockPos, i32)> = Vec::new();
+    let mut tnt_ignitions: Vec<BlockPos> = Vec::new();
+
+    for (fire_pos, block) in &fire_blocks {
+        let age = pickaxe_data::fire_age(*block);
+        let bx = fire_pos.x;
+        let by = fire_pos.y;
+        let bz = fire_pos.z;
+
+        // Check if fire can survive: needs solid block below or adjacent flammable
+        let below = BlockPos::new(bx, by - 1, bz);
+        let below_block = world_state.get_block(&below);
+        let below_solid = below_block != 0 && !pickaxe_data::is_fire(below_block);
+
+        let has_fuel = {
+            let offsets: [(i32,i32,i32); 6] = [(1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)];
+            offsets.iter().any(|(dx, dy, dz)| {
+                let adj = BlockPos::new(bx + dx, by + dy, bz + dz);
+                let adj_block = world_state.get_block(&adj);
+                let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+                pickaxe_data::is_flammable(adj_name)
+            })
+        };
+
+        // Fire dies if no support and no fuel, or age 15 with no fuel
+        if !below_solid && !has_fuel {
+            updates.push((*fire_pos, 0));
+            continue;
+        }
+        if age >= 15 && !has_fuel && rng.gen_range(0..4) == 0 {
+            updates.push((*fire_pos, 0));
+            continue;
+        }
+
+        // Age increment: +0 or +1
+        let new_age = (age + rng.gen_range(0..3) / 2).min(15);
+        if new_age != age {
+            updates.push((*fire_pos, pickaxe_data::fire_state_with_age(new_age)));
+        }
+
+        // Burn adjacent flammable blocks (checkBurnOut equivalent)
+        let direction_odds: [(i32,i32,i32,i32); 6] = [
+            (1, 0, 0, 300),   // east
+            (-1, 0, 0, 300),  // west
+            (0, -1, 0, 250),  // below
+            (0, 1, 0, 250),   // above
+            (0, 0, 1, 300),   // south
+            (0, 0, -1, 300),  // north
+        ];
+
+        for (dx, dy, dz, odds) in &direction_odds {
+            let adj = BlockPos::new(bx + dx, by + dy, bz + dz);
+            let adj_block = world_state.get_block(&adj);
+            let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+            let (_, burn_odds) = pickaxe_data::block_flammability(adj_name);
+            if burn_odds > 0 && rng.gen_range(0..*odds) < burn_odds {
+                if adj_name == "tnt" {
+                    tnt_ignitions.push(adj);
+                    updates.push((adj, 0)); // remove the TNT block
+                } else if rng.gen_range(0..(new_age + 10)) < 5 {
+                    // Replace with fire
+                    let fire_age = (new_age + rng.gen_range(0..5) / 4).min(15);
+                    updates.push((adj, pickaxe_data::fire_state_with_age(fire_age)));
+                } else {
+                    // Destroy block
+                    updates.push((adj, 0));
+                }
+            }
+        }
+
+        // Fire spread to nearby air blocks adjacent to flammable blocks
+        // Search 3x3x5 cube (x: -1 to 1, z: -1 to 1, y: -1 to 4)
+        for sx in -1..=1i32 {
+            for sz in -1..=1i32 {
+                for sy in -1..=4i32 {
+                    if sx == 0 && sy == 0 && sz == 0 {
+                        continue;
+                    }
+                    let spread_pos = BlockPos::new(bx + sx, by + sy, bz + sz);
+                    let spread_block = world_state.get_block(&spread_pos);
+                    if spread_block != 0 {
+                        continue; // must be air
+                    }
+
+                    // Check if any adjacent block to spread_pos is flammable
+                    let mut max_ignite = 0i32;
+                    let adj_offsets: [(i32,i32,i32); 6] = [(1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)];
+                    for (ax, ay, az) in &adj_offsets {
+                        let check_pos = BlockPos::new(spread_pos.x + ax, spread_pos.y + ay, spread_pos.z + az);
+                        let check_block = world_state.get_block(&check_pos);
+                        let check_name = pickaxe_data::block_state_to_name(check_block).unwrap_or("");
+                        let (ignite, _) = pickaxe_data::block_flammability(check_name);
+                        max_ignite = max_ignite.max(ignite);
+                    }
+
+                    if max_ignite > 0 {
+                        // Spread difficulty increases with height above fire
+                        let mut difficulty = 100;
+                        if sy > 1 {
+                            difficulty += (sy - 1) * 100;
+                        }
+
+                        let spread_chance = (max_ignite + 40) / (new_age + 30);
+                        if spread_chance > 0 && rng.gen_range(0..difficulty) <= spread_chance {
+                            let fire_age = (new_age + rng.gen_range(0..5) / 4).min(15);
+                            updates.push((spread_pos, pickaxe_data::fire_state_with_age(fire_age)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Phase 3: Apply all updates and broadcast
+    for (pos, new_state) in updates {
+        world_state.set_block(&pos, new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: pos,
+            block_id: new_state,
+        });
+        if new_state == 0 {
+            play_sound_at_block(world, &pos, "block.fire.extinguish", SOUND_BLOCKS, 0.5, 1.0);
+        }
+    }
+
+    // Phase 4: Chain-ignite TNT blocks that were burned by fire
+    for pos in tnt_ignitions {
+        let fuse = 80 + rng.gen_range(0..40);
+        spawn_tnt_entity(
+            world, world_state, next_eid,
+            pos.x as f64 + 0.5,
+            pos.y as f64,
+            pos.z as f64 + 0.5,
+            fuse,
+            None,
+            scripting,
+        );
     }
 }
 
