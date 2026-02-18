@@ -204,6 +204,14 @@ pub enum Menu {
         result: Option<ItemStack>,
     },
     BrewingStand { pos: BlockPos },
+    Anvil {
+        pos: BlockPos,
+        input: Option<ItemStack>,
+        sacrifice: Option<ItemStack>,
+        result: Option<ItemStack>,
+        rename: Option<String>,
+        repair_cost: i32,
+    },
 }
 
 /// Tracks the container a player currently has open.

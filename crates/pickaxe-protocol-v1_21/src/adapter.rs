@@ -384,6 +384,11 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             let container_id = read_u8(data)?;
             Ok(InternalPacket::ClientCloseContainer { container_id })
         }
+        0x2A => {
+            // Rename Item (serverbound) — anvil rename field
+            let name = read_string(data, 50).map_err(|e| anyhow::anyhow!("{}", e))?;
+            Ok(InternalPacket::RenameItem { name })
+        }
         0x2F => {
             // SetHeldItem (serverbound)
             let slot_id = read_i16(data)?;

@@ -1871,3 +1871,48 @@ pub fn enchantment_max_level(id: i32) -> i32 {
         _ => 0,
     }
 }
+
+/// Returns the anvil XP cost multiplier per level for the given enchantment.
+pub fn enchantment_anvil_cost(id: i32) -> i32 {
+    match id {
+        0..=4 => 1,   // protection types
+        5 => 2,        // respiration
+        6 => 2,        // aqua_affinity
+        7 => 4,        // thorns
+        8 => 2,        // depth_strider
+        9 => 2,        // frost_walker
+        10 => 4,       // binding_curse
+        11 => 4,       // soul_speed
+        12 => 4,       // swift_sneak
+        13 => 1,       // sharpness
+        14 => 1,       // smite
+        15 => 1,       // bane_of_arthropods
+        16 => 1,       // knockback
+        17 => 2,       // fire_aspect
+        18 => 2,       // looting
+        19 => 2,       // sweeping_edge
+        20 => 1,       // efficiency
+        21 => 4,       // silk_touch
+        22 => 1,       // unbreaking
+        23 => 2,       // fortune
+        24 => 1,       // power
+        25 => 2,       // punch
+        26 => 2,       // flame
+        27 => 4,       // infinity
+        28 => 2,       // luck_of_the_sea
+        29 => 2,       // lure
+        30 => 1,       // loyalty
+        31 => 2,       // impaling
+        32 => 2,       // riptide
+        33 => 4,       // channeling
+        34 => 2,       // multishot
+        35 => 1,       // quick_charge
+        36 => 1,       // piercing
+        37 => 2,       // mending
+        38 => 4,       // vanishing_curse
+        39 => 2,       // density
+        40 => 2,       // breach
+        41 => 2,       // wind_burst
+        _ => 1,
+    }
+}

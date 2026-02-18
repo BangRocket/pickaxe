@@ -433,6 +433,11 @@ pub enum InternalPacket {
         container_id: u8,
     },
 
+    /// Rename Item (0x2A SB) — client typed in anvil rename field.
+    RenameItem {
+        name: String,
+    },
+
     ConfirmTeleportation {
         teleport_id: i32,
     },

@@ -1754,7 +1754,7 @@ fn process_packet(
             // Check if the target block is a container — open it instead of placing
             let target_block = world_state.get_block(&position);
             let target_name = pickaxe_data::block_state_to_name(target_block).unwrap_or("");
-            let is_container = matches!(target_name, "chest" | "furnace" | "lit_furnace" | "crafting_table" | "brewing_stand");
+            let is_container = matches!(target_name, "chest" | "furnace" | "lit_furnace" | "crafting_table" | "brewing_stand" | "anvil" | "chipped_anvil" | "damaged_anvil");
             let sneaking = world.get::<&MovementState>(entity).map(|m| m.sneaking).unwrap_or(false);
 
             if is_container && !sneaking {
@@ -2418,6 +2418,10 @@ fn process_packet(
             send_equipment_update(world, entity, entity_id);
         }
 
+        InternalPacket::RenameItem { ref name } => {
+            handle_anvil_rename(world, entity, name);
+        }
+
         InternalPacket::UseItem { hand, sequence } => {
             // Acknowledge the action
             if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -2703,6 +2707,14 @@ fn open_container(
             grid: std::array::from_fn(|_| None),
             result: None,
         }),
+        "anvil" | "chipped_anvil" | "damaged_anvil" => (8, "Repair & Name", Menu::Anvil {
+            pos: *pos,
+            input: None,
+            sacrifice: None,
+            result: None,
+            rename: None,
+            repair_cost: 0,
+        }),
         _ => return,
     };
 
@@ -2823,6 +2835,20 @@ fn build_container_slots(
             }
             slots
         }
+        Menu::Anvil { input, sacrifice, result, .. } => {
+            // Slots: 0=input, 1=sacrifice, 2=result, 3-29=player inv, 30-38=hotbar
+            let mut slots = Vec::with_capacity(39);
+            slots.push(input.clone());
+            slots.push(sacrifice.clone());
+            slots.push(result.clone());
+            if let Some(inv) = &player_inv {
+                for i in 9..36 { slots.push(inv.slots[i].clone()); }
+                for i in 36..45 { slots.push(inv.slots[i].clone()); }
+            } else {
+                slots.resize(39, None);
+            }
+            slots
+        }
     }
 }
 
@@ -2850,12 +2876,28 @@ fn close_container(
         Menu::Furnace { .. } => "furnace",
         Menu::CraftingTable { .. } => "crafting_table",
         Menu::BrewingStand { .. } => "brewing_stand",
+        Menu::Anvil { .. } => "anvil",
     };
 
     // Drop crafting grid items back to the player
     if let Menu::CraftingTable { grid, .. } = &open.menu {
         let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 64.0, 0.0));
         for item in grid.iter().flatten() {
+            spawn_item_entity(world, world_state, next_eid,
+                pos.x, pos.y + 1.0, pos.z,
+                item.clone(), 0, scripting);
+        }
+    }
+
+    // Drop anvil input/sacrifice items back to the player
+    if let Menu::Anvil { input, sacrifice, .. } = &open.menu {
+        let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 64.0, 0.0));
+        if let Some(item) = input {
+            spawn_item_entity(world, world_state, next_eid,
+                pos.x, pos.y + 1.0, pos.z,
+                item.clone(), 0, scripting);
+        }
+        if let Some(item) = sacrifice {
             spawn_item_entity(world, world_state, next_eid,
                 pos.x, pos.y + 1.0, pos.z,
                 item.clone(), 0, scripting);
@@ -2916,6 +2958,14 @@ fn map_slot(menu: &Menu, window_slot: i16) -> Option<SlotTarget> {
             else if s < 41 { Some(SlotTarget::PlayerInventory(s - 32 + 36)) }
             else { None }
         }
+        Menu::Anvil { .. } => {
+            // 0=input, 1=sacrifice, 2=result, 3-29=player inv (9-35), 30-38=hotbar (36-44)
+            if s == 2 { Some(SlotTarget::CraftResult) }
+            else if s < 2 { Some(SlotTarget::Container(s)) }
+            else if s < 30 { Some(SlotTarget::PlayerInventory(s - 3 + 9)) }
+            else if s < 39 { Some(SlotTarget::PlayerInventory(s - 30 + 36)) }
+            else { None }
+        }
     }
 }
 
@@ -2948,6 +2998,13 @@ fn set_container_slot(
                             4 => *fuel = item,
                             _ => {}
                         }
+                    }
+                }
+                Menu::Anvil { ref mut input, ref mut sacrifice, .. } => {
+                    match idx {
+                        0 => *input = item,
+                        1 => *sacrifice = item,
+                        _ => {}
                     }
                 }
                 _ => {}
@@ -2997,7 +3054,7 @@ fn handle_container_click(
                     set_container_slot(world_state, world, entity, &mut open.menu, &t, changed_item.clone());
                 }
             }
-            // Handle crafting result take
+            // Handle crafting/anvil result take
             if slot >= 0 {
                 if let Some(SlotTarget::CraftResult) = map_slot(&open.menu, slot) {
                     if let Menu::CraftingTable { ref mut grid, ref mut result } = open.menu {
@@ -3009,6 +3066,7 @@ fn handle_container_click(
                         }
                         *result = lookup_crafting_recipe(grid);
                     }
+                    handle_anvil_result_take(world, world_state, entity, &mut open.menu);
                 }
             }
             // Recalculate crafting result if grid changed
@@ -3016,6 +3074,19 @@ fn handle_container_click(
                 if let Some(SlotTarget::CraftGrid(_)) = map_slot(&open.menu, slot) {
                     if let Menu::CraftingTable { ref grid, ref mut result } = open.menu {
                         *result = lookup_crafting_recipe(grid);
+                    }
+                }
+            }
+            // Recalculate anvil result when input or sacrifice changes
+            if matches!(&open.menu, Menu::Anvil { .. }) {
+                calculate_anvil_result(&mut open.menu);
+                if let Menu::Anvil { repair_cost, .. } = &open.menu {
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetContainerData {
+                            container_id: open.container_id,
+                            property: 0,
+                            value: *repair_cost as i16,
+                        });
                     }
                 }
             }
@@ -3120,6 +3191,250 @@ fn make_crafted_item(item_id: i32, count: i8) -> ItemStack {
     } else {
         ItemStack::new(item_id, count)
     }
+}
+
+/// Calculate the anvil result and repair cost from current inputs.
+fn calculate_anvil_result(menu: &mut Menu) {
+    let (input, sacrifice, result, repair_cost, rename) = match menu {
+        Menu::Anvil { ref input, ref sacrifice, ref mut result, ref mut repair_cost, ref rename, .. } => {
+            (input.clone(), sacrifice.clone(), result, repair_cost, rename.clone())
+        }
+        _ => return,
+    };
+
+    *result = None;
+    *repair_cost = 0;
+
+    let left = match &input {
+        Some(item) => item.clone(),
+        None => return,
+    };
+
+    let mut cost = 0i32;
+    let mut output = left.clone();
+
+    if let Some(ref right) = sacrifice {
+        // Check if right item is a repair material for left item
+        let left_name = pickaxe_data::item_id_to_name(left.item_id).unwrap_or("");
+        let right_name = pickaxe_data::item_id_to_name(right.item_id).unwrap_or("");
+        let is_same_item = left.item_id == right.item_id;
+
+        if is_same_item && left.max_damage > 0 {
+            // Combining two damaged items: repair = sum of durabilities + 12% bonus
+            let left_durability = left.max_damage - left.damage;
+            let right_durability = right.max_damage - right.damage;
+            let bonus = left.max_damage * 12 / 100;
+            let combined = left_durability + right_durability + bonus;
+            let new_damage = (left.max_damage - combined).max(0);
+            output.damage = new_damage;
+            cost += 2;
+
+            // Merge enchantments from right into left
+            for &(ench_id, sac_level) in &right.enchantments {
+                let target_level = output.enchantment_level(ench_id);
+                let new_level = if target_level == sac_level {
+                    (sac_level + 1).min(pickaxe_data::enchantment_max_level(ench_id))
+                } else {
+                    target_level.max(sac_level)
+                };
+                if let Some(entry) = output.enchantments.iter_mut().find(|(id, _)| *id == ench_id) {
+                    entry.1 = new_level;
+                } else {
+                    output.enchantments.push((ench_id, new_level));
+                }
+                let anvil_cost = pickaxe_data::enchantment_anvil_cost(ench_id);
+                cost += anvil_cost * new_level;
+            }
+        } else if left.max_damage > 0 && is_repair_material(left_name, right_name) {
+            // Material repair: each item repairs 25% of max durability
+            let mut damage = left.damage;
+            let mut materials_used = 0;
+            for _ in 0..right.count {
+                let repair_amount = (left.max_damage / 4).max(1);
+                if damage <= 0 { break; }
+                damage = (damage - repair_amount).max(0);
+                materials_used += 1;
+                cost += 1;
+            }
+            if materials_used == 0 && rename.is_none() { return; }
+            output.damage = damage;
+        } else if right_name == "enchanted_book" && !right.enchantments.is_empty() {
+            // Enchanted book: merge enchantments, half anvil cost
+            for &(ench_id, sac_level) in &right.enchantments {
+                let target_level = output.enchantment_level(ench_id);
+                let new_level = if target_level == sac_level {
+                    (sac_level + 1).min(pickaxe_data::enchantment_max_level(ench_id))
+                } else {
+                    target_level.max(sac_level)
+                };
+                if let Some(entry) = output.enchantments.iter_mut().find(|(id, _)| *id == ench_id) {
+                    entry.1 = new_level;
+                } else {
+                    output.enchantments.push((ench_id, new_level));
+                }
+                let anvil_cost = (pickaxe_data::enchantment_anvil_cost(ench_id) / 2).max(1);
+                cost += anvil_cost * new_level;
+            }
+        } else if !is_same_item && rename.is_none() {
+            // Incompatible items, no rename — no result
+            return;
+        }
+    } else if rename.is_none() {
+        // No sacrifice and no rename — nothing to do
+        return;
+    }
+
+    // Apply rename cost
+    if let Some(ref _new_name) = rename {
+        cost += 1;
+    }
+
+    // Minimum cost of 1
+    if cost < 1 { cost = 1; }
+
+    // Too expensive cap (39 for display, but 40+ blocks in survival)
+    if cost >= 40 {
+        cost = 39;
+    }
+
+    *repair_cost = cost;
+    *result = Some(output);
+}
+
+/// Check if right_name is a valid repair material for left_name.
+fn is_repair_material(tool_name: &str, material_name: &str) -> bool {
+    match material_name {
+        "iron_ingot" => tool_name.starts_with("iron_") || tool_name == "chainmail_helmet" || tool_name == "chainmail_chestplate" || tool_name == "chainmail_leggings" || tool_name == "chainmail_boots",
+        "gold_ingot" => tool_name.starts_with("golden_"),
+        "diamond" => tool_name.starts_with("diamond_"),
+        "netherite_ingot" => tool_name.starts_with("netherite_"),
+        "leather" => tool_name.starts_with("leather_"),
+        "oak_planks" | "spruce_planks" | "birch_planks" | "jungle_planks"
+        | "acacia_planks" | "dark_oak_planks" | "mangrove_planks" | "cherry_planks"
+        | "bamboo_planks" | "crimson_planks" | "warped_planks" => {
+            tool_name.starts_with("wooden_") || tool_name == "shield"
+        }
+        "cobblestone" | "cobbled_deepslate" | "blackstone" => tool_name.starts_with("stone_"),
+        "string" => tool_name == "bow" || tool_name == "crossbow",
+        "phantom_membrane" => tool_name == "elytra",
+        _ => false,
+    }
+}
+
+/// Handle anvil result slot take: deduct XP, consume inputs, chance to damage anvil.
+fn handle_anvil_result_take(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    menu: &mut Menu,
+) {
+    let (input, sacrifice, result, repair_cost, rename, pos) = match menu {
+        Menu::Anvil { ref mut input, ref mut sacrifice, ref mut result, ref mut repair_cost, ref mut rename, pos } => {
+            (input, sacrifice, result, repair_cost, rename, *pos)
+        }
+        _ => return,
+    };
+
+    if result.is_none() || *repair_cost <= 0 { return; }
+
+    // Check XP in survival
+    let gm = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+    if gm != GameMode::Creative {
+        let has_levels = world.get::<&ExperienceData>(entity)
+            .map(|xp| xp.level >= *repair_cost)
+            .unwrap_or(false);
+        if !has_levels {
+            *result = None;
+            return;
+        }
+        // Deduct levels
+        if let Ok(mut xp) = world.get::<&mut ExperienceData>(entity) {
+            xp.level -= *repair_cost;
+            xp.progress = 0.0;
+            // Recalculate total (approximate)
+            let mut total = 0;
+            for l in 0..xp.level {
+                total += xp_needed_for_level(l);
+            }
+            xp.total_xp = total;
+        }
+    }
+
+    // Consume inputs
+    *input = None;
+    *sacrifice = None;
+    *result = None;
+    *repair_cost = 0;
+    *rename = None;
+
+    // Send XP update
+    if let Ok(xp) = world.get::<&ExperienceData>(entity) {
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SetExperience {
+                progress: xp.progress,
+                level: xp.level,
+                total_xp: xp.total_xp,
+            });
+        }
+    }
+
+    // 12% chance to damage the anvil
+    if rand::random::<f32>() < 0.12 {
+        let current = world_state.get_block(&pos);
+        let block_name = pickaxe_data::block_state_to_name(current).unwrap_or("");
+        let new_block = match block_name {
+            "anvil" => pickaxe_data::block_name_to_default_state("chipped_anvil"),
+            "chipped_anvil" => pickaxe_data::block_name_to_default_state("damaged_anvil"),
+            "damaged_anvil" => Some(0), // air — anvil breaks
+            _ => None,
+        };
+        if let Some(new_state) = new_block {
+            world_state.set_block(&pos, new_state);
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position: pos,
+                block_id: new_state,
+            });
+        }
+    }
+}
+
+/// Handle the RenameItem packet for anvil.
+fn handle_anvil_rename(world: &mut World, entity: hecs::Entity, name: &str) {
+    let mut open = match world.remove_one::<OpenContainer>(entity) {
+        Ok(oc) => oc,
+        Err(_) => return,
+    };
+
+    if let Menu::Anvil { ref mut rename, .. } = open.menu {
+        let trimmed = name.trim();
+        if trimmed.is_empty() {
+            *rename = None;
+        } else {
+            *rename = Some(trimmed.chars().take(50).collect());
+        }
+        calculate_anvil_result(&mut open.menu);
+
+        // Send updated result and cost
+        let container_id = open.container_id;
+        if let Menu::Anvil { ref result, repair_cost, .. } = &open.menu {
+            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                let _ = sender.0.send(InternalPacket::SetContainerData {
+                    container_id,
+                    property: 0,
+                    value: *repair_cost as i16,
+                });
+                // Send result slot update
+                let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                    window_id: container_id as i8,
+                    state_id: open.state_id,
+                    slot: 2,
+                    item: result.clone(),
+                });
+            }
+        }
+    }
+
+    let _ = world.insert_one(entity, open);
 }
 
 /// Handle player position update: fall distance, sprint exhaustion, jump exhaustion.
