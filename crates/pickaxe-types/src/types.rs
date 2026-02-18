@@ -198,15 +198,17 @@ pub struct ItemStack {
     pub damage: i32,
     /// Maximum durability. 0 means not damageable.
     pub max_damage: i32,
+    /// Enchantments: Vec of (enchantment_registry_id, level).
+    pub enchantments: Vec<(i32, i32)>,
 }
 
 impl ItemStack {
     pub fn new(item_id: i32, count: i8) -> Self {
-        Self { item_id, count, damage: 0, max_damage: 0 }
+        Self { item_id, count, damage: 0, max_damage: 0, enchantments: Vec::new() }
     }
 
     pub fn with_durability(item_id: i32, count: i8, max_damage: i32) -> Self {
-        Self { item_id, count, damage: 0, max_damage }
+        Self { item_id, count, damage: 0, max_damage, enchantments: Vec::new() }
     }
 
     /// Returns true if this item is damageable and has taken some damage.
@@ -217,5 +219,23 @@ impl ItemStack {
     /// Returns remaining durability (max_damage - damage).
     pub fn durability_remaining(&self) -> i32 {
         self.max_damage - self.damage
+    }
+
+    /// Returns the level of the given enchantment, or 0 if not present.
+    pub fn enchantment_level(&self, enchantment_id: i32) -> i32 {
+        self.enchantments.iter()
+            .find(|(id, _)| *id == enchantment_id)
+            .map(|(_, level)| *level)
+            .unwrap_or(0)
+    }
+
+    /// Adds or updates an enchantment. Returns self for chaining.
+    pub fn with_enchantment(mut self, enchantment_id: i32, level: i32) -> Self {
+        if let Some(entry) = self.enchantments.iter_mut().find(|(id, _)| *id == enchantment_id) {
+            entry.1 = level;
+        } else {
+            self.enchantments.push((enchantment_id, level));
+        }
+        self
     }
 }

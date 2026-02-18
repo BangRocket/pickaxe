@@ -314,6 +314,16 @@ fn serialize_player_data(world: &World, entity: hecs::Entity) -> Option<Vec<u8>>
                     entries.push(("Damage".into(), NbtValue::Int(stack.damage)));
                 }
             }
+            if !stack.enchantments.is_empty() {
+                let ench_list: Vec<NbtValue> = stack.enchantments.iter().map(|(id, lvl)| {
+                    let ench_name = format!("minecraft:{}", pickaxe_data::enchantment_id_to_name(*id).unwrap_or("unknown"));
+                    NbtValue::Compound(vec![
+                        ("id".into(), NbtValue::String(ench_name)),
+                        ("lvl".into(), NbtValue::Short(*lvl as i16)),
+                    ])
+                }).collect();
+                entries.push(("Enchantments".into(), NbtValue::List(ench_list)));
+            }
             inv_items.push(NbtValue::Compound(entries));
         }
     }
@@ -429,6 +439,17 @@ fn deserialize_player_data(data: &[u8]) -> Option<PlayerSaveData> {
                     let mut stack = ItemStack::new(item_id, count);
                     stack.max_damage = max_damage;
                     stack.damage = damage;
+                    // Load enchantments
+                    if let Some(ench_list) = entry.get("Enchantments").and_then(|v| v.as_list()) {
+                        for ench_nbt in ench_list {
+                            let ench_id_str = ench_nbt.get("id").and_then(|v| v.as_str()).unwrap_or("");
+                            let ench_name = ench_id_str.strip_prefix("minecraft:").unwrap_or(ench_id_str);
+                            let lvl = ench_nbt.get("lvl").and_then(|v| v.as_short()).unwrap_or(1) as i32;
+                            if let Some(eid) = pickaxe_data::enchantment_name_to_id(ench_name) {
+                                stack.enchantments.push((eid, lvl));
+                            }
+                        }
+                    }
                     slots[ecs_slot] = Some(stack);
                 }
             }
@@ -1486,15 +1507,20 @@ fn process_packet(
                     } else {
                         // Survival mode: check block hardness
                         let block_state = world_state.get_block(&position);
-                        let held_item_id = {
+                        let (held_item_id, efficiency_level) = {
                             let slot =
                                 world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
-                            world
-                                .get::<&Inventory>(entity)
-                                .ok()
-                                .and_then(|inv| inv.held_item(slot).as_ref().map(|i| i.item_id))
+                            if let Ok(inv) = world.get::<&Inventory>(entity) {
+                                if let Some(ref item) = inv.held_item(slot) {
+                                    (Some(item.item_id), item.enchantment_level(20))
+                                } else {
+                                    (None, 0)
+                                }
+                            } else {
+                                (None, 0)
+                            }
                         };
-                        match calculate_break_ticks(block_state, held_item_id, block_overrides) {
+                        match calculate_break_ticks(block_state, held_item_id, efficiency_level, block_overrides) {
                             None => {
                                 // Unbreakable block, just ack
                                 if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -2261,6 +2287,7 @@ fn process_packet(
                 "time" => cmd_time(world, entity, args, world_state),
                 "effect" => cmd_effect(world, entity, args),
                 "potion" => cmd_potion(world, entity, args),
+                "enchant" => cmd_enchant(world, entity, args),
                 _ => {
                     // Check Lua-registered commands
                     let handled = if let Ok(cmds) = lua_commands.lock() {
@@ -3280,6 +3307,26 @@ fn handle_attack(
         }
     }
 
+    // Sharpness enchantment: 0.5 + 0.5 * level extra damage
+    if let Ok(inv) = world.get::<&Inventory>(attacker) {
+        if let Some(ref item) = inv.slots[36 + held_slot as usize] {
+            let sharpness = item.enchantment_level(13); // sharpness
+            if sharpness > 0 {
+                damage += 0.5 + 0.5 * sharpness as f32;
+            }
+            let knockback_level = item.enchantment_level(16); // knockback
+            let fire_aspect = item.enchantment_level(17); // fire_aspect
+            // Fire aspect: set target on fire (4 seconds per level)
+            if fire_aspect > 0 {
+                if let Ok(sender) = world.get::<&ConnectionSender>(attacker) {
+                    // EntityEvent for fire is handled by metadata; for now just add damage
+                    let _ = sender; // fire aspect visual is TODO
+                }
+            }
+            let _ = knockback_level; // knockback physics is TODO
+        }
+    }
+
     // Critical hit: falling, not on ground, strength > 0.9
     let on_ground = world.get::<&OnGround>(attacker).map(|og| og.0).unwrap_or(true);
     let fall_distance = world.get::<&FallDistance>(attacker).map(|fd| fd.0).unwrap_or(0.0);
@@ -3562,10 +3609,11 @@ fn apply_damage(
 
     // Apply armor damage reduction (not for void/starvation)
     let final_damage = if source != "void" && source != "starvation" {
-        // Sum armor defense and toughness from equipped armor pieces
-        let (total_armor, total_toughness) = if let Ok(inv) = world.get::<&Inventory>(entity) {
+        // Sum armor defense, toughness, and protection enchant levels from equipped armor
+        let (total_armor, total_toughness, total_protection) = if let Ok(inv) = world.get::<&Inventory>(entity) {
             let mut armor = 0i32;
             let mut toughness = 0.0f32;
+            let mut prot = 0i32;
             for slot_idx in 5..=8 {
                 if let Some(ref item) = inv.slots[slot_idx] {
                     if let Some(name) = pickaxe_data::item_id_to_name(item.item_id) {
@@ -3574,28 +3622,52 @@ fn apply_damage(
                             toughness += tough;
                         }
                     }
+                    // Protection enchantment (id 0): each level = 4% reduction
+                    prot += item.enchantment_level(0);
+                    // Fire protection (1), blast protection (3), projectile protection (4)
+                    // count as general protection too for simplicity
+                    prot += item.enchantment_level(1);
+                    prot += item.enchantment_level(3);
+                    prot += item.enchantment_level(4);
                 }
             }
-            (armor, toughness)
+            (armor, toughness, prot)
         } else {
-            (0, 0.0)
+            (0, 0.0, 0)
         };
 
-        if total_armor > 0 {
+        let after_armor = if total_armor > 0 {
             // Vanilla damage reduction formula (CombatRules.java)
             let toughness_factor = 2.0 + total_toughness / 4.0;
             let effective_armor = (total_armor as f32 - damage / toughness_factor)
                 .clamp(total_armor as f32 * 0.2, 20.0);
             let reduction = effective_armor / 25.0;
-            let reduced = damage * (1.0 - reduction);
+            damage * (1.0 - reduction)
+        } else {
+            damage
+        };
 
-            // Damage armor pieces: durabilityLoss = max(1, floor(damage / 4))
+        // Protection enchantment: 4% per level, capped at 80%
+        let prot_reduction = (total_protection as f32 * 4.0).min(80.0) / 100.0;
+        let reduced = after_armor * (1.0 - prot_reduction);
+
+        // Damage armor pieces: durabilityLoss = max(1, floor(damage / 4))
+        if total_armor > 0 {
             let armor_damage = (damage / 4.0).floor().max(1.0) as i32;
             if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
                 let mut broken_slots = Vec::new();
                 for slot_idx in 5..=8 {
                     if let Some(ref mut item) = inv.slots[slot_idx] {
                         if item.max_damage > 0 {
+                            // Unbreaking enchantment: chance to not consume durability
+                            let unbreaking = item.enchantment_level(22);
+                            if unbreaking > 0 {
+                                // Armor: 60% + 40% / (unbreaking + 1) chance to damage
+                                let chance = 0.6 + 0.4 / (unbreaking as f32 + 1.0);
+                                if rand::random::<f32>() > chance {
+                                    continue;
+                                }
+                            }
                             item.damage += armor_damage;
                             if item.damage >= item.max_damage {
                                 broken_slots.push(slot_idx);
@@ -3610,11 +3682,9 @@ fn apply_damage(
 
             // Send updated equipment to all observers
             send_equipment_update(world, entity, entity_id);
-
-            reduced
-        } else {
-            damage
         }
+
+        reduced
     } else {
         damage
     };
@@ -5329,6 +5399,7 @@ fn tick_eating(world: &mut World) {
                             count: 1,
                             damage: 0,
                             max_damage: 0,
+                            enchantments: Vec::new(),
                         });
                     } else {
                         // Decrement potion stack, put glass bottle elsewhere
@@ -5339,6 +5410,7 @@ fn tick_eating(world: &mut World) {
                             count: 1,
                             damage: 0,
                             max_damage: 0,
+                            enchantments: Vec::new(),
                         };
                         if let Some(target) = inv.find_slot_for_item(glass_bottle_id, 64) {
                             if let Some(ref mut existing) = inv.slots[target] {
@@ -6628,6 +6700,7 @@ fn tick_lightning(
 fn calculate_break_ticks(
     block_state: i32,
     held_item_id: Option<i32>,
+    efficiency_level: i32,
     block_overrides: &crate::bridge::BlockOverrides,
 ) -> Option<u64> {
     let block_name = pickaxe_data::block_state_to_name(block_state);
@@ -6677,11 +6750,17 @@ fn calculate_break_ticks(
         }
     };
 
-    let seconds = if has_correct_tool {
+    let mut seconds = if has_correct_tool {
         hardness * 1.5
     } else {
         hardness * 5.0
     };
+    // Efficiency enchantment: reduce break time (level^2 + 1 speed bonus)
+    if efficiency_level > 0 && has_correct_tool {
+        let speed_bonus = (efficiency_level * efficiency_level + 1) as f64;
+        // Base tool speed varies; approximate by reducing time proportionally
+        seconds /= 1.0 + speed_bonus * 0.3;
+    }
     Some((seconds * 20.0).ceil() as u64)
 }
 
@@ -6925,29 +7004,70 @@ fn complete_block_break(
         };
 
         if has_correct_tool {
-            // Get drops: override first, then codegen
-            let override_drops = block_name.and_then(|name| {
-                block_overrides
-                    .lock()
-                    .ok()
-                    .and_then(|map| map.get(name).and_then(|o| o.drops.clone()))
-            });
-            let drop_ids: Vec<i32> = match override_drops {
-                Some(ids) => ids,
-                None => pickaxe_data::block_state_to_drops(old_block).to_vec(),
+            // Get fortune and silk touch levels from held item
+            let (fortune_level, silk_touch) = {
+                let slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                if let Ok(inv) = world.get::<&Inventory>(entity) {
+                    if let Some(ref item) = inv.held_item(slot) {
+                        (item.enchantment_level(23), item.enchantment_level(21) > 0)
+                    } else {
+                        (0, false)
+                    }
+                } else {
+                    (0, false)
+                }
             };
-            for &drop_item_id in &drop_ids {
-                spawn_item_entity(
-                    world,
-                    world_state,
-                    next_eid,
-                    position.x as f64 + 0.5,
-                    position.y as f64 + 0.25,
-                    position.z as f64 + 0.5,
-                    ItemStack::new(drop_item_id, 1),
-                    10, // pickup delay ticks
-                    scripting,
-                );
+
+            // Silk touch: drop the block itself instead of normal drops
+            if silk_touch {
+                if let Some(bn) = block_name {
+                    if let Some(block_item_id) = pickaxe_data::item_name_to_id(bn) {
+                        spawn_item_entity(
+                            world, world_state, next_eid,
+                            position.x as f64 + 0.5, position.y as f64 + 0.25, position.z as f64 + 0.5,
+                            ItemStack::new(block_item_id, 1), 10, scripting,
+                        );
+                    }
+                }
+            } else {
+                // Get drops: override first, then codegen
+                let override_drops = block_name.and_then(|name| {
+                    block_overrides
+                        .lock()
+                        .ok()
+                        .and_then(|map| map.get(name).and_then(|o| o.drops.clone()))
+                });
+                let drop_ids: Vec<i32> = match override_drops {
+                    Some(ids) => ids,
+                    None => pickaxe_data::block_state_to_drops(old_block).to_vec(),
+                };
+
+                // Fortune: multiply ore drops (1 + random 0..=fortune_level)
+                let fortune_multiplier = if fortune_level > 0 {
+                    let mut rng = rand::thread_rng();
+                    1 + rng.gen_range(0..=fortune_level)
+                } else {
+                    1
+                };
+
+                for &drop_item_id in &drop_ids {
+                    let count = if fortune_level > 0 && is_ore_drop(drop_item_id) {
+                        fortune_multiplier as i8
+                    } else {
+                        1
+                    };
+                    spawn_item_entity(
+                        world,
+                        world_state,
+                        next_eid,
+                        position.x as f64 + 0.5,
+                        position.y as f64 + 0.25,
+                        position.z as f64 + 0.5,
+                        ItemStack::new(drop_item_id, count),
+                        10, // pickup delay ticks
+                        scripting,
+                    );
+                }
             }
         }
     }
@@ -8482,6 +8602,7 @@ fn cmd_help(world: &World, entity: hecs::Entity, lua_commands: &crate::bridge::L
         "/effect give <effect> [duration] [amplifier] - Apply status effect",
         "/effect clear [effect] - Remove status effects",
         "/potion <player> <potion_name> - Give a potion to a player",
+        "/enchant <enchantment> [level] - Enchant held item",
         "/help - Show this help",
     ];
     for line in &help_text {
@@ -8808,6 +8929,7 @@ fn cmd_potion(world: &mut World, entity: hecs::Entity, args: &str) {
         count: 1,
         damage: potion_index,
         max_damage: 0,
+        enchantments: Vec::new(),
     };
     let slot_update = {
         let mut inv = match world.get::<&mut Inventory>(target) {
@@ -8850,6 +8972,72 @@ fn cmd_potion(world: &mut World, entity: hecs::Entity, args: &str) {
         send_message(world, entity, &format!("Gave {} a potion of {}", target_name, display_name));
     } else {
         send_message(world, entity, "Player's inventory is full.");
+    }
+}
+
+fn cmd_enchant(world: &mut World, entity: hecs::Entity, args: &str) {
+    if !is_op(world, entity) {
+        send_message(world, entity, "You don't have permission to use this command.");
+        return;
+    }
+
+    let parts: Vec<&str> = args.split_whitespace().collect();
+    if parts.is_empty() {
+        send_message(world, entity, "Usage: /enchant <enchantment> [level]");
+        return;
+    }
+
+    let ench_name = parts[0].strip_prefix("minecraft:").unwrap_or(parts[0]);
+    let level = if parts.len() > 1 {
+        parts[1].parse::<i32>().unwrap_or(1).max(1)
+    } else {
+        1
+    };
+
+    let ench_id = match pickaxe_data::enchantment_name_to_id(ench_name) {
+        Some(id) => id,
+        None => {
+            send_message(world, entity, &format!("Unknown enchantment: {}", ench_name));
+            return;
+        }
+    };
+
+    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+    let slot_idx = 36 + held_slot as usize;
+
+    let slot_update = {
+        let mut inv = match world.get::<&mut Inventory>(entity) {
+            Ok(inv) => inv,
+            Err(_) => {
+                send_message(world, entity, "No inventory found.");
+                return;
+            }
+        };
+        if let Some(ref mut item) = inv.slots[slot_idx] {
+            // Add or update enchantment
+            if let Some(entry) = item.enchantments.iter_mut().find(|(id, _)| *id == ench_id) {
+                entry.1 = level;
+            } else {
+                item.enchantments.push((ench_id, level));
+            }
+            inv.state_id = inv.state_id.wrapping_add(1);
+            Some((slot_idx, inv.slots[slot_idx].clone(), inv.state_id))
+        } else {
+            send_message(world, entity, "You must be holding an item to enchant.");
+            None
+        }
+    };
+
+    if let Some((slot, slot_item, state_id)) = slot_update {
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                window_id: 0,
+                state_id,
+                slot: slot as i16,
+                item: slot_item,
+            });
+        }
+        send_message(world, entity, &format!("Enchanted held item with {} {}", ench_name, level));
     }
 }
 
@@ -9020,6 +9208,11 @@ fn damage_held_item(world: &mut World, entity: hecs::Entity, entity_id: i32, amo
         };
         if let Some(ref mut item) = inv.slots[inv_slot] {
             if item.max_damage > 0 {
+                // Unbreaking enchantment: 1/(level+1) chance to consume durability
+                let unbreaking = item.enchantment_level(22);
+                if unbreaking > 0 && rand::random::<f32>() > 1.0 / (unbreaking as f32 + 1.0) {
+                    return;
+                }
                 item.damage += amount;
                 if item.damage >= item.max_damage {
                     inv.set_slot(inv_slot, None);
@@ -9166,6 +9359,18 @@ fn block_xp_drop(state_id: i32) -> i32 {
     }
 }
 
+/// Returns true if the item is an ore drop that should be affected by Fortune.
+fn is_ore_drop(item_id: i32) -> bool {
+    let name = match pickaxe_data::item_id_to_name(item_id) {
+        Some(n) => n,
+        None => return false,
+    };
+    matches!(name,
+        "diamond" | "emerald" | "coal" | "raw_iron" | "raw_gold" | "raw_copper"
+        | "lapis_lazuli" | "redstone" | "nether_quartz" | "amethyst_shard"
+    )
+}
+
 /// Offset a block position by the given face direction.
 fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
     match face {
@@ -9205,7 +9410,7 @@ fn build_command_tree(lua_commands: &crate::bridge::LuaCommands) -> InternalPack
     });
 
     // Simple commands: literal + executable, no subcommands
-    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help", "effect", "potion"];
+    let simple_cmds = ["gamemode", "gm", "tp", "teleport", "give", "kill", "say", "help", "effect", "potion", "enchant"];
     let mut root_children: Vec<i32> = Vec::new();
     for cmd in &simple_cmds {
         let idx = nodes.len() as i32;

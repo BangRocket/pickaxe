@@ -208,6 +208,7 @@ pub fn write_byte_array(buf: &mut BytesMut, data: &[u8]) {
 // Data component type IDs (MC 1.21.1 registry order from DataComponents.java)
 const COMPONENT_MAX_DAMAGE: i32 = 2;
 const COMPONENT_DAMAGE: i32 = 3;
+const COMPONENT_ENCHANTMENTS: i32 = 9;
 
 /// Read a Slot from the wire (1.21.1 component-based format).
 /// Returns None for empty slots (item_count == 0).
@@ -221,20 +222,35 @@ pub fn read_slot(buf: &mut BytesMut) -> CodecResult<Option<ItemStack>> {
     let remove_count = read_varint(buf)?;
     let mut max_damage = 0i32;
     let mut damage = 0i32;
-    // Parse added components — we handle MAX_DAMAGE and DAMAGE, skip others
+    let mut enchantments = Vec::new();
+    // Parse added components — we handle MAX_DAMAGE, DAMAGE, ENCHANTMENTS, skip others
     for _ in 0..add_count {
         let comp_type = read_varint(buf)?;
         match comp_type {
             COMPONENT_MAX_DAMAGE => { max_damage = read_varint(buf)?; }
             COMPONENT_DAMAGE => { damage = read_varint(buf)?; }
+            COMPONENT_ENCHANTMENTS => {
+                let map_size = read_varint(buf)?;
+                for _ in 0..map_size {
+                    let ench_holder = read_varint(buf)?; // holder id + 1
+                    let level = read_varint(buf)?;
+                    if ench_holder > 0 {
+                        enchantments.push((ench_holder - 1, level));
+                    }
+                }
+                // show_in_tooltip boolean
+                if buf.remaining() > 0 {
+                    buf.advance(1);
+                }
+            }
             _ => {
-                // Unknown component — consume remaining bytes (can't skip individual components
-                // without knowing their size, so we must consume all remaining data)
+                // Unknown component — consume remaining bytes
                 tracing::debug!("Unknown component type {} — consuming remaining bytes", comp_type);
                 buf.advance(buf.remaining());
                 let mut item = ItemStack::new(item_id, item_count as i8);
                 item.damage = damage;
                 item.max_damage = max_damage;
+                item.enchantments = enchantments;
                 return Ok(Some(item));
             }
         }
@@ -246,6 +262,7 @@ pub fn read_slot(buf: &mut BytesMut) -> CodecResult<Option<ItemStack>> {
     let mut item = ItemStack::new(item_id, item_count as i8);
     item.damage = damage;
     item.max_damage = max_damage;
+    item.enchantments = enchantments;
     Ok(Some(item))
 }
 
@@ -258,18 +275,37 @@ pub fn write_slot(buf: &mut BytesMut, slot: &Option<ItemStack>) {
         Some(item) => {
             write_varint(buf, item.count as i32);
             write_varint(buf, item.item_id);
-            if item.max_damage > 0 {
-                // Write MAX_DAMAGE and DAMAGE components
-                let add_count = if item.damage > 0 { 2 } else { 1 };
-                write_varint(buf, add_count); // added components
+
+            let has_durability = item.max_damage > 0;
+            let has_enchantments = !item.enchantments.is_empty();
+
+            if has_durability || has_enchantments {
+                let mut add_count = 0;
+                if has_durability { add_count += 1; } // MAX_DAMAGE
+                if has_durability && item.damage > 0 { add_count += 1; } // DAMAGE
+                if has_enchantments { add_count += 1; } // ENCHANTMENTS
+                write_varint(buf, add_count);
                 write_varint(buf, 0); // no removed components
+
                 // MAX_DAMAGE component (type 2, VarInt value)
-                write_varint(buf, COMPONENT_MAX_DAMAGE);
-                write_varint(buf, item.max_damage);
-                // DAMAGE component (type 3, VarInt value) — only if damaged
-                if item.damage > 0 {
-                    write_varint(buf, COMPONENT_DAMAGE);
-                    write_varint(buf, item.damage);
+                if has_durability {
+                    write_varint(buf, COMPONENT_MAX_DAMAGE);
+                    write_varint(buf, item.max_damage);
+                    // DAMAGE component (type 3, VarInt value) — only if damaged
+                    if item.damage > 0 {
+                        write_varint(buf, COMPONENT_DAMAGE);
+                        write_varint(buf, item.damage);
+                    }
+                }
+                // ENCHANTMENTS component (type 9)
+                if has_enchantments {
+                    write_varint(buf, COMPONENT_ENCHANTMENTS);
+                    write_varint(buf, item.enchantments.len() as i32);
+                    for (ench_id, level) in &item.enchantments {
+                        write_varint(buf, ench_id + 1); // Holder encoding: id + 1
+                        write_varint(buf, *level);
+                    }
+                    buf.put_u8(1); // show_in_tooltip = true
                 }
             } else {
                 write_varint(buf, 0); // no added components

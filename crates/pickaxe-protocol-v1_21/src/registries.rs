@@ -223,10 +223,87 @@ fn build_banner_pattern_registry() -> InternalPacket {
     }
 }
 
+fn enchant_entry(
+    id: &str, description: &str, supported_items: &str,
+    weight: i32, max_level: i32,
+    min_base: i32, min_per_level: i32,
+    max_base: i32, max_per_level: i32,
+    anvil_cost: i32, slots: &[&str],
+) -> RegistryEntry {
+    let slot_list: Vec<NbtValue> = slots.iter().map(|s| NbtValue::String(s.to_string())).collect();
+    RegistryEntry {
+        id: format!("minecraft:{}", id),
+        data: Some(nbt_compound! {
+            "description" => nbt_compound! { "translate" => NbtValue::String(format!("enchantment.minecraft.{}", id)) },
+            "supported_items" => NbtValue::String(supported_items.into()),
+            "weight" => NbtValue::Int(weight),
+            "max_level" => NbtValue::Int(max_level),
+            "min_cost" => nbt_compound! {
+                "base" => NbtValue::Int(min_base),
+                "per_level_above_first" => NbtValue::Int(min_per_level)
+            },
+            "max_cost" => nbt_compound! {
+                "base" => NbtValue::Int(max_base),
+                "per_level_above_first" => NbtValue::Int(max_per_level)
+            },
+            "anvil_cost" => NbtValue::Int(anvil_cost),
+            "slots" => NbtValue::List(slot_list)
+        }),
+    }
+}
+
 fn build_enchantment_registry() -> InternalPacket {
     InternalPacket::RegistryData {
         registry_id: "minecraft:enchantment".into(),
-        entries: vec![],
+        entries: vec![
+            // Armor enchantments
+            enchant_entry("protection", "Protection", "#minecraft:enchantable/armor", 10, 4, 1, 11, 12, 11, 1, &["armor"]),
+            enchant_entry("fire_protection", "Fire Protection", "#minecraft:enchantable/armor", 5, 4, 10, 8, 18, 8, 1, &["armor"]),
+            enchant_entry("feather_falling", "Feather Falling", "#minecraft:enchantable/armor", 5, 4, 5, 6, 11, 6, 1, &["feet"]),
+            enchant_entry("blast_protection", "Blast Protection", "#minecraft:enchantable/armor", 2, 4, 5, 8, 13, 8, 2, &["armor"]),
+            enchant_entry("projectile_protection", "Projectile Protection", "#minecraft:enchantable/armor", 5, 4, 3, 6, 9, 6, 1, &["armor"]),
+            enchant_entry("respiration", "Respiration", "#minecraft:enchantable/armor", 2, 3, 10, 10, 40, 10, 2, &["head"]),
+            enchant_entry("aqua_affinity", "Aqua Affinity", "#minecraft:enchantable/armor", 2, 1, 1, 0, 41, 0, 2, &["head"]),
+            enchant_entry("thorns", "Thorns", "#minecraft:enchantable/armor", 1, 3, 10, 20, 60, 20, 4, &["chest"]),
+            enchant_entry("depth_strider", "Depth Strider", "#minecraft:enchantable/armor", 2, 3, 10, 10, 25, 10, 2, &["feet"]),
+            enchant_entry("frost_walker", "Frost Walker", "#minecraft:enchantable/armor", 2, 2, 10, 10, 25, 10, 2, &["feet"]),
+            enchant_entry("binding_curse", "Curse of Binding", "#minecraft:enchantable/armor", 1, 1, 25, 0, 50, 0, 4, &["armor"]),
+            enchant_entry("soul_speed", "Soul Speed", "#minecraft:enchantable/armor", 1, 3, 10, 10, 25, 10, 4, &["feet"]),
+            enchant_entry("swift_sneak", "Swift Sneak", "#minecraft:enchantable/armor", 1, 3, 25, 25, 75, 25, 4, &["legs"]),
+            // Weapon enchantments
+            enchant_entry("sharpness", "Sharpness", "#minecraft:enchantable/sword", 10, 5, 1, 11, 21, 11, 1, &["mainhand"]),
+            enchant_entry("smite", "Smite", "#minecraft:enchantable/sword", 5, 5, 5, 8, 25, 8, 1, &["mainhand"]),
+            enchant_entry("bane_of_arthropods", "Bane of Arthropods", "#minecraft:enchantable/sword", 5, 5, 5, 8, 25, 8, 1, &["mainhand"]),
+            enchant_entry("knockback", "Knockback", "#minecraft:enchantable/sword", 5, 2, 5, 20, 55, 20, 1, &["mainhand"]),
+            enchant_entry("fire_aspect", "Fire Aspect", "#minecraft:enchantable/sword", 2, 2, 10, 20, 60, 20, 2, &["mainhand"]),
+            enchant_entry("looting", "Looting", "#minecraft:enchantable/sword", 2, 3, 15, 9, 65, 9, 2, &["mainhand"]),
+            enchant_entry("sweeping_edge", "Sweeping Edge", "#minecraft:enchantable/sword", 2, 3, 5, 9, 20, 9, 2, &["mainhand"]),
+            // Tool enchantments
+            enchant_entry("efficiency", "Efficiency", "#minecraft:enchantable/mining", 10, 5, 1, 10, 51, 10, 1, &["mainhand"]),
+            enchant_entry("silk_touch", "Silk Touch", "#minecraft:enchantable/mining", 1, 1, 15, 0, 65, 0, 4, &["mainhand"]),
+            enchant_entry("unbreaking", "Unbreaking", "#minecraft:enchantable/durability", 5, 3, 5, 8, 55, 8, 1, &["any"]),
+            enchant_entry("fortune", "Fortune", "#minecraft:enchantable/mining", 2, 3, 15, 9, 65, 9, 2, &["mainhand"]),
+            enchant_entry("power", "Power", "#minecraft:enchantable/bow", 10, 5, 1, 10, 16, 10, 1, &["mainhand"]),
+            enchant_entry("punch", "Punch", "#minecraft:enchantable/bow", 2, 2, 12, 20, 37, 20, 2, &["mainhand"]),
+            enchant_entry("flame", "Flame", "#minecraft:enchantable/bow", 2, 1, 20, 0, 50, 0, 2, &["mainhand"]),
+            enchant_entry("infinity", "Infinity", "#minecraft:enchantable/bow", 1, 1, 20, 0, 50, 0, 4, &["mainhand"]),
+            enchant_entry("luck_of_the_sea", "Luck of the Sea", "#minecraft:enchantable/fishing", 2, 3, 15, 9, 65, 9, 2, &["mainhand"]),
+            enchant_entry("lure", "Lure", "#minecraft:enchantable/fishing", 2, 3, 15, 9, 65, 9, 2, &["mainhand"]),
+            enchant_entry("loyalty", "Loyalty", "#minecraft:enchantable/trident", 5, 3, 12, 7, 50, 7, 1, &["mainhand"]),
+            enchant_entry("impaling", "Impaling", "#minecraft:enchantable/trident", 2, 5, 1, 8, 21, 8, 2, &["mainhand"]),
+            enchant_entry("riptide", "Riptide", "#minecraft:enchantable/trident", 2, 3, 17, 7, 50, 7, 2, &["mainhand"]),
+            enchant_entry("channeling", "Channeling", "#minecraft:enchantable/trident", 1, 1, 25, 0, 50, 0, 4, &["mainhand"]),
+            enchant_entry("multishot", "Multishot", "#minecraft:enchantable/crossbow", 2, 1, 20, 0, 50, 0, 2, &["mainhand"]),
+            enchant_entry("quick_charge", "Quick Charge", "#minecraft:enchantable/crossbow", 5, 3, 12, 20, 50, 20, 1, &["mainhand"]),
+            enchant_entry("piercing", "Piercing", "#minecraft:enchantable/crossbow", 10, 4, 1, 10, 50, 10, 1, &["mainhand"]),
+            // Special
+            enchant_entry("mending", "Mending", "#minecraft:enchantable/durability", 2, 1, 25, 0, 75, 0, 2, &["any"]),
+            enchant_entry("vanishing_curse", "Curse of Vanishing", "#minecraft:enchantable/vanishing", 1, 1, 25, 0, 50, 0, 4, &["any"]),
+            // 1.21 additions
+            enchant_entry("density", "Density", "#minecraft:enchantable/mace", 5, 5, 1, 11, 21, 11, 1, &["mainhand"]),
+            enchant_entry("breach", "Breach", "#minecraft:enchantable/mace", 2, 4, 15, 9, 65, 9, 2, &["mainhand"]),
+            enchant_entry("wind_burst", "Wind Burst", "#minecraft:enchantable/mace", 2, 3, 15, 9, 65, 9, 4, &["mainhand"]),
+        ],
     }
 }
 

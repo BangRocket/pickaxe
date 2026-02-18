@@ -1729,3 +1729,145 @@ pub fn brewing_recipe(input_potion_index: i32, ingredient_name: &str) -> Option<
         _ => None,
     }
 }
+
+/// Returns the enchantment registry ID for the given name.
+/// IDs match the order in the enchantment registry (0-indexed).
+pub fn enchantment_name_to_id(name: &str) -> Option<i32> {
+    match name {
+        "protection" => Some(0),
+        "fire_protection" => Some(1),
+        "feather_falling" => Some(2),
+        "blast_protection" => Some(3),
+        "projectile_protection" => Some(4),
+        "respiration" => Some(5),
+        "aqua_affinity" => Some(6),
+        "thorns" => Some(7),
+        "depth_strider" => Some(8),
+        "frost_walker" => Some(9),
+        "binding_curse" => Some(10),
+        "soul_speed" => Some(11),
+        "swift_sneak" => Some(12),
+        "sharpness" => Some(13),
+        "smite" => Some(14),
+        "bane_of_arthropods" => Some(15),
+        "knockback" => Some(16),
+        "fire_aspect" => Some(17),
+        "looting" => Some(18),
+        "sweeping_edge" => Some(19),
+        "efficiency" => Some(20),
+        "silk_touch" => Some(21),
+        "unbreaking" => Some(22),
+        "fortune" => Some(23),
+        "power" => Some(24),
+        "punch" => Some(25),
+        "flame" => Some(26),
+        "infinity" => Some(27),
+        "luck_of_the_sea" => Some(28),
+        "lure" => Some(29),
+        "loyalty" => Some(30),
+        "impaling" => Some(31),
+        "riptide" => Some(32),
+        "channeling" => Some(33),
+        "multishot" => Some(34),
+        "quick_charge" => Some(35),
+        "piercing" => Some(36),
+        "mending" => Some(37),
+        "vanishing_curse" => Some(38),
+        "density" => Some(39),
+        "breach" => Some(40),
+        "wind_burst" => Some(41),
+        _ => None,
+    }
+}
+
+/// Returns the enchantment name for the given registry ID.
+pub fn enchantment_id_to_name(id: i32) -> Option<&'static str> {
+    match id {
+        0 => Some("protection"),
+        1 => Some("fire_protection"),
+        2 => Some("feather_falling"),
+        3 => Some("blast_protection"),
+        4 => Some("projectile_protection"),
+        5 => Some("respiration"),
+        6 => Some("aqua_affinity"),
+        7 => Some("thorns"),
+        8 => Some("depth_strider"),
+        9 => Some("frost_walker"),
+        10 => Some("binding_curse"),
+        11 => Some("soul_speed"),
+        12 => Some("swift_sneak"),
+        13 => Some("sharpness"),
+        14 => Some("smite"),
+        15 => Some("bane_of_arthropods"),
+        16 => Some("knockback"),
+        17 => Some("fire_aspect"),
+        18 => Some("looting"),
+        19 => Some("sweeping_edge"),
+        20 => Some("efficiency"),
+        21 => Some("silk_touch"),
+        22 => Some("unbreaking"),
+        23 => Some("fortune"),
+        24 => Some("power"),
+        25 => Some("punch"),
+        26 => Some("flame"),
+        27 => Some("infinity"),
+        28 => Some("luck_of_the_sea"),
+        29 => Some("lure"),
+        30 => Some("loyalty"),
+        31 => Some("impaling"),
+        32 => Some("riptide"),
+        33 => Some("channeling"),
+        34 => Some("multishot"),
+        35 => Some("quick_charge"),
+        36 => Some("piercing"),
+        37 => Some("mending"),
+        38 => Some("vanishing_curse"),
+        39 => Some("density"),
+        40 => Some("breach"),
+        41 => Some("wind_burst"),
+        _ => None,
+    }
+}
+
+/// Returns the maximum level for the given enchantment.
+pub fn enchantment_max_level(id: i32) -> i32 {
+    match id {
+        0..=4 => 4,   // protection types
+        5 => 3,        // respiration
+        6 => 1,        // aqua_affinity
+        7 => 3,        // thorns
+        8 => 3,        // depth_strider
+        9 => 2,        // frost_walker
+        10 => 1,       // binding_curse
+        11 => 3,       // soul_speed
+        12 => 3,       // swift_sneak
+        13..=15 => 5,  // sharpness, smite, bane_of_arthropods
+        16 => 2,       // knockback
+        17 => 2,       // fire_aspect
+        18 => 3,       // looting
+        19 => 3,       // sweeping_edge
+        20 => 5,       // efficiency
+        21 => 1,       // silk_touch
+        22 => 3,       // unbreaking
+        23 => 3,       // fortune
+        24 => 5,       // power
+        25 => 2,       // punch
+        26 => 1,       // flame
+        27 => 1,       // infinity
+        28 => 3,       // luck_of_the_sea
+        29 => 3,       // lure
+        30 => 3,       // loyalty
+        31 => 5,       // impaling
+        32 => 3,       // riptide
+        33 => 1,       // channeling
+        34 => 1,       // multishot
+        35 => 3,       // quick_charge
+        36 => 4,       // piercing
+        37 => 1,       // mending
+        38 => 1,       // vanishing_curse
+        39 => 5,       // density
+        40 => 4,       // breach
+        41 => 3,       // wind_burst
+        _ => 0,
+    }
+}
