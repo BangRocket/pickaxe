@@ -4,13 +4,60 @@ include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 pub fn fuel_burn_time(item_id: i32) -> Option<i16> {
     let name = item_id_to_name(item_id)?;
     match name {
-        "coal" | "charcoal" => Some(1600),
-        "oak_log" | "spruce_log" | "birch_log" | "jungle_log" | "acacia_log"
-        | "dark_oak_log" => Some(300),
-        "oak_planks" | "spruce_planks" | "birch_planks" | "jungle_planks"
-        | "acacia_planks" | "dark_oak_planks" => Some(300),
-        "stick" => Some(100),
+        // 20000 ticks
+        "lava_bucket" => Some(20000),
+        // 16000 ticks
         "coal_block" => Some(16000),
+        // 2400 ticks
+        "dried_kelp_block" => Some(4001), // vanilla: 4001
+        // 1600 ticks (8 items)
+        "coal" | "charcoal" => Some(1600),
+        "blaze_rod" => Some(2400),
+        // 300 ticks (1.5 items)
+        s if s.ends_with("_log") || s.ends_with("_wood") || s.ends_with("_stem") || s.ends_with("_hyphae") => Some(300),
+        s if s.ends_with("_planks") => Some(300),
+        // Wooden tools/items: 200 ticks
+        "wooden_pickaxe" | "wooden_axe" | "wooden_shovel" | "wooden_sword" | "wooden_hoe" => Some(200),
+        "crafting_table" | "bookshelf" | "chest" | "trapped_chest" | "barrel"
+        | "jukebox" | "note_block" | "lectern" | "composter" | "cartography_table"
+        | "fletching_table" | "smithing_table" | "loom" => Some(300),
+        // Slabs: 150 ticks
+        s if s.ends_with("_slab") && (s.starts_with("oak") || s.starts_with("spruce") || s.starts_with("birch")
+            || s.starts_with("jungle") || s.starts_with("acacia") || s.starts_with("dark_oak")
+            || s.starts_with("mangrove") || s.starts_with("cherry") || s.starts_with("bamboo")
+            || s.starts_with("crimson") || s.starts_with("warped")) => Some(150),
+        // Stairs: 300 ticks
+        s if s.ends_with("_stairs") && (s.starts_with("oak") || s.starts_with("spruce") || s.starts_with("birch")
+            || s.starts_with("jungle") || s.starts_with("acacia") || s.starts_with("dark_oak")) => Some(300),
+        // Fences/gates: 300 ticks
+        s if (s.ends_with("_fence") || s.ends_with("_fence_gate")) && !s.starts_with("nether_brick") => Some(300),
+        // Doors/trapdoors: 200 ticks
+        s if s.ends_with("_door") && (s.starts_with("oak") || s.starts_with("spruce") || s.starts_with("birch")
+            || s.starts_with("jungle") || s.starts_with("acacia") || s.starts_with("dark_oak")) => Some(200),
+        s if s.ends_with("_trapdoor") && (s.starts_with("oak") || s.starts_with("spruce") || s.starts_with("birch")
+            || s.starts_with("jungle") || s.starts_with("acacia") || s.starts_with("dark_oak")) => Some(300),
+        // Signs: 200 ticks
+        s if s.ends_with("_sign") => Some(200),
+        // Boats: 1200 ticks
+        s if s.ends_with("_boat") || s.ends_with("_chest_boat") => Some(1200),
+        // Wool: 100 ticks
+        s if s.ends_with("_wool") => Some(100),
+        // Carpet: 67 ticks
+        s if s.ends_with("_carpet") => Some(67),
+        // Banners: 300 ticks
+        s if s.ends_with("_banner") => Some(300),
+        // Small items
+        "stick" => Some(100),
+        "bamboo" => Some(50),
+        "scaffolding" => Some(50), // vanilla: 50 (0.25 items)
+        "bowl" => Some(100),
+        "crossbow" | "bow" | "fishing_rod" => Some(300),
+        "ladder" => Some(300),
+        "wooden_pressure_plate" | "oak_pressure_plate" | "spruce_pressure_plate"
+        | "birch_pressure_plate" | "jungle_pressure_plate" | "acacia_pressure_plate"
+        | "dark_oak_pressure_plate" => Some(300),
+        "oak_button" | "spruce_button" | "birch_button" | "jungle_button"
+        | "acacia_button" | "dark_oak_button" => Some(100),
         _ => None,
     }
 }
@@ -204,13 +251,15 @@ pub fn block_sound_group(block_name: &str) -> &'static str {
     }
 }
 
-/// A shaped crafting recipe. Pattern is stored in a 3x3 grid (row-major), 0 means empty.
+/// A crafting recipe. Pattern is stored in a 3x3 grid (row-major), 0 means empty.
+/// For shapeless recipes, `shapeless` is true and ingredients are the non-zero entries in pattern.
 pub struct CraftingRecipe {
     pub pattern: [i32; 9],
     pub result_id: i32,
     pub result_count: i8,
     pub width: u8,
     pub height: u8,
+    pub shapeless: bool,
 }
 
 /// Returns all crafting recipes.
@@ -234,124 +283,124 @@ fn build_recipes() -> Vec<CraftingRecipe> {
     for log in &["oak_log", "spruce_log", "birch_log", "jungle_log", "acacia_log", "dark_oak_log"] {
         recipes.push(CraftingRecipe {
             pattern: [id(log), 0,0, 0,0,0, 0,0,0],
-            result_id: id("oak_planks"), result_count: 4, width: 1, height: 1,
+            result_id: id("oak_planks"), result_count: 4, width: 1, height: 1, shapeless: false,
         });
     }
 
     // Sticks (4 sticks from 2 planks)
     recipes.push(CraftingRecipe {
         pattern: [p, 0,0, p, 0,0, 0,0,0],
-        result_id: id("stick"), result_count: 4, width: 1, height: 2,
+        result_id: id("stick"), result_count: 4, width: 1, height: 2, shapeless: false,
     });
 
     // Crafting table
     recipes.push(CraftingRecipe {
         pattern: [p, p, 0, p, p, 0, 0, 0, 0],
-        result_id: id("crafting_table"), result_count: 1, width: 2, height: 2,
+        result_id: id("crafting_table"), result_count: 1, width: 2, height: 2, shapeless: false,
     });
 
     // Furnace
     recipes.push(CraftingRecipe {
         pattern: [c, c, c, c, 0, c, c, c, c],
-        result_id: id("furnace"), result_count: 1, width: 3, height: 3,
+        result_id: id("furnace"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Chest
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, p, 0, p, p, p, p],
-        result_id: id("chest"), result_count: 1, width: 3, height: 3,
+        result_id: id("chest"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Wooden pickaxe
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, 0, s, 0, 0, s, 0],
-        result_id: id("wooden_pickaxe"), result_count: 1, width: 3, height: 3,
+        result_id: id("wooden_pickaxe"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Wooden axe
     recipes.push(CraftingRecipe {
         pattern: [p, p, 0, p, s, 0, 0, s, 0],
-        result_id: id("wooden_axe"), result_count: 1, width: 2, height: 3,
+        result_id: id("wooden_axe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
 
     // Wooden shovel
     recipes.push(CraftingRecipe {
         pattern: [p, 0, 0, s, 0, 0, s, 0, 0],
-        result_id: id("wooden_shovel"), result_count: 1, width: 1, height: 3,
+        result_id: id("wooden_shovel"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Wooden sword
     recipes.push(CraftingRecipe {
         pattern: [p, 0, 0, p, 0, 0, s, 0, 0],
-        result_id: id("wooden_sword"), result_count: 1, width: 1, height: 3,
+        result_id: id("wooden_sword"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Stone pickaxe
     recipes.push(CraftingRecipe {
         pattern: [c, c, c, 0, s, 0, 0, s, 0],
-        result_id: id("stone_pickaxe"), result_count: 1, width: 3, height: 3,
+        result_id: id("stone_pickaxe"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Stone axe
     recipes.push(CraftingRecipe {
         pattern: [c, c, 0, c, s, 0, 0, s, 0],
-        result_id: id("stone_axe"), result_count: 1, width: 2, height: 3,
+        result_id: id("stone_axe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
 
     // Stone shovel
     recipes.push(CraftingRecipe {
         pattern: [c, 0, 0, s, 0, 0, s, 0, 0],
-        result_id: id("stone_shovel"), result_count: 1, width: 1, height: 3,
+        result_id: id("stone_shovel"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Stone sword
     recipes.push(CraftingRecipe {
         pattern: [c, 0, 0, c, 0, 0, s, 0, 0],
-        result_id: id("stone_sword"), result_count: 1, width: 1, height: 3,
+        result_id: id("stone_sword"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Torches (4 from coal + stick)
     recipes.push(CraftingRecipe {
         pattern: [id("coal"), 0,0, s, 0,0, 0,0,0],
-        result_id: id("torch"), result_count: 4, width: 1, height: 2,
+        result_id: id("torch"), result_count: 4, width: 1, height: 2, shapeless: false,
     });
 
     // Iron tools
     let iron = id("iron_ingot");
     recipes.push(CraftingRecipe {
         pattern: [iron, iron, iron, 0, s, 0, 0, s, 0],
-        result_id: id("iron_pickaxe"), result_count: 1, width: 3, height: 3,
+        result_id: id("iron_pickaxe"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [iron, iron, 0, iron, s, 0, 0, s, 0],
-        result_id: id("iron_axe"), result_count: 1, width: 2, height: 3,
+        result_id: id("iron_axe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [iron, 0, 0, s, 0, 0, s, 0, 0],
-        result_id: id("iron_shovel"), result_count: 1, width: 1, height: 3,
+        result_id: id("iron_shovel"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [iron, 0, 0, iron, 0, 0, s, 0, 0],
-        result_id: id("iron_sword"), result_count: 1, width: 1, height: 3,
+        result_id: id("iron_sword"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Diamond tools
     let dia = id("diamond");
     recipes.push(CraftingRecipe {
         pattern: [dia, dia, dia, 0, s, 0, 0, s, 0],
-        result_id: id("diamond_pickaxe"), result_count: 1, width: 3, height: 3,
+        result_id: id("diamond_pickaxe"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [dia, dia, 0, dia, s, 0, 0, s, 0],
-        result_id: id("diamond_axe"), result_count: 1, width: 2, height: 3,
+        result_id: id("diamond_axe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [dia, 0, 0, s, 0, 0, s, 0, 0],
-        result_id: id("diamond_shovel"), result_count: 1, width: 1, height: 3,
+        result_id: id("diamond_shovel"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [dia, 0, 0, dia, 0, 0, s, 0, 0],
-        result_id: id("diamond_sword"), result_count: 1, width: 1, height: 3,
+        result_id: id("diamond_sword"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Armor recipes: helmet (XXX, X.X), chestplate (X.X, XXX, XXX), leggings (XXX, X.X, X.X), boots (X.X, X.X)
@@ -365,22 +414,22 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         // Helmet
         recipes.push(CraftingRecipe {
             pattern: [m, m, m, m, 0, m, 0, 0, 0],
-            result_id: id(&format!("{}_helmet", prefix)), result_count: 1, width: 3, height: 2,
+            result_id: id(&format!("{}_helmet", prefix)), result_count: 1, width: 3, height: 2, shapeless: false,
         });
         // Chestplate
         recipes.push(CraftingRecipe {
             pattern: [m, 0, m, m, m, m, m, m, m],
-            result_id: id(&format!("{}_chestplate", prefix)), result_count: 1, width: 3, height: 3,
+            result_id: id(&format!("{}_chestplate", prefix)), result_count: 1, width: 3, height: 3, shapeless: false,
         });
         // Leggings
         recipes.push(CraftingRecipe {
             pattern: [m, m, m, m, 0, m, m, 0, m],
-            result_id: id(&format!("{}_leggings", prefix)), result_count: 1, width: 3, height: 3,
+            result_id: id(&format!("{}_leggings", prefix)), result_count: 1, width: 3, height: 3, shapeless: false,
         });
         // Boots
         recipes.push(CraftingRecipe {
             pattern: [m, 0, m, m, 0, m, 0, 0, 0],
-            result_id: id(&format!("{}_boots", prefix)), result_count: 1, width: 3, height: 2,
+            result_id: id(&format!("{}_boots", prefix)), result_count: 1, width: 3, height: 2, shapeless: false,
         });
     }
 
@@ -406,7 +455,7 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         let w = id(wool);
         recipes.push(CraftingRecipe {
             pattern: [w, w, w, p, p, p, 0, 0, 0],
-            result_id: id(bed), result_count: 1, width: 3, height: 2,
+            result_id: id(bed), result_count: 1, width: 3, height: 2, shapeless: false,
         });
     }
 
@@ -414,7 +463,7 @@ fn build_recipes() -> Vec<CraftingRecipe> {
     let string_id = id("string");
     recipes.push(CraftingRecipe {
         pattern: [0, s, string_id, s, 0, string_id, 0, s, string_id],
-        result_id: id("bow"), result_count: 1, width: 3, height: 3,
+        result_id: id("bow"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Arrow: flint + stick + feather
@@ -422,316 +471,316 @@ fn build_recipes() -> Vec<CraftingRecipe> {
     let feather = id("feather");
     recipes.push(CraftingRecipe {
         pattern: [flint, 0, 0, s, 0, 0, feather, 0, 0],
-        result_id: id("arrow"), result_count: 4, width: 1, height: 3,
+        result_id: id("arrow"), result_count: 4, width: 1, height: 3, shapeless: false,
     });
 
     // Shield: iron ingot + planks
     let iron = id("iron_ingot");
     recipes.push(CraftingRecipe {
         pattern: [p, iron, p, p, p, p, 0, p, 0],
-        result_id: id("shield"), result_count: 1, width: 3, height: 3,
+        result_id: id("shield"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Fishing rod: sticks + string
     let string_id2 = id("string");
     recipes.push(CraftingRecipe {
         pattern: [0, 0, s, 0, s, string_id2, s, 0, string_id2],
-        result_id: id("fishing_rod"), result_count: 1, width: 3, height: 3,
+        result_id: id("fishing_rod"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Hoes (material + stick pattern, like swords but horizontal top)
     recipes.push(CraftingRecipe {
         pattern: [p, p, 0, 0, s, 0, 0, s, 0],
-        result_id: id("wooden_hoe"), result_count: 1, width: 2, height: 3,
+        result_id: id("wooden_hoe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [c, c, 0, 0, s, 0, 0, s, 0],
-        result_id: id("stone_hoe"), result_count: 1, width: 2, height: 3,
+        result_id: id("stone_hoe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
     let iron = id("iron_ingot");
     recipes.push(CraftingRecipe {
         pattern: [iron, iron, 0, 0, s, 0, 0, s, 0],
-        result_id: id("iron_hoe"), result_count: 1, width: 2, height: 3,
+        result_id: id("iron_hoe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
     let dia = id("diamond");
     recipes.push(CraftingRecipe {
         pattern: [dia, dia, 0, 0, s, 0, 0, s, 0],
-        result_id: id("diamond_hoe"), result_count: 1, width: 2, height: 3,
+        result_id: id("diamond_hoe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
 
     // Golden tools
     let gold = id("gold_ingot");
     recipes.push(CraftingRecipe {
         pattern: [gold, gold, gold, 0, s, 0, 0, s, 0],
-        result_id: id("golden_pickaxe"), result_count: 1, width: 3, height: 3,
+        result_id: id("golden_pickaxe"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [gold, gold, 0, gold, s, 0, 0, s, 0],
-        result_id: id("golden_axe"), result_count: 1, width: 2, height: 3,
+        result_id: id("golden_axe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [gold, 0, 0, s, 0, 0, s, 0, 0],
-        result_id: id("golden_shovel"), result_count: 1, width: 1, height: 3,
+        result_id: id("golden_shovel"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [gold, 0, 0, gold, 0, 0, s, 0, 0],
-        result_id: id("golden_sword"), result_count: 1, width: 1, height: 3,
+        result_id: id("golden_sword"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
     recipes.push(CraftingRecipe {
         pattern: [gold, gold, 0, 0, s, 0, 0, s, 0],
-        result_id: id("golden_hoe"), result_count: 1, width: 2, height: 3,
+        result_id: id("golden_hoe"), result_count: 1, width: 2, height: 3, shapeless: false,
     });
 
     // Bread: 3 wheat in a row
     let wheat = id("wheat");
     recipes.push(CraftingRecipe {
         pattern: [wheat, wheat, wheat, 0, 0, 0, 0, 0, 0],
-        result_id: id("bread"), result_count: 1, width: 3, height: 1,
+        result_id: id("bread"), result_count: 1, width: 3, height: 1, shapeless: false,
     });
 
     // Bucket: 3 iron ingots in V shape
     recipes.push(CraftingRecipe {
         pattern: [iron, 0, iron, 0, iron, 0, 0, 0, 0],
-        result_id: id("bucket"), result_count: 1, width: 3, height: 2,
+        result_id: id("bucket"), result_count: 1, width: 3, height: 2, shapeless: false,
     });
 
     // Ladder: sticks in H pattern (3 ladders)
     recipes.push(CraftingRecipe {
         pattern: [s, 0, s, s, s, s, s, 0, s],
-        result_id: id("ladder"), result_count: 3, width: 3, height: 3,
+        result_id: id("ladder"), result_count: 3, width: 3, height: 3, shapeless: false,
     });
 
     // Fence: planks + sticks (3 fences)
     recipes.push(CraftingRecipe {
         pattern: [p, s, p, p, s, p, 0, 0, 0],
-        result_id: id("oak_fence"), result_count: 3, width: 3, height: 2,
+        result_id: id("oak_fence"), result_count: 3, width: 3, height: 2, shapeless: false,
     });
 
     // Fence gate: sticks + planks
     recipes.push(CraftingRecipe {
         pattern: [s, p, s, s, p, s, 0, 0, 0],
-        result_id: id("oak_fence_gate"), result_count: 1, width: 3, height: 2,
+        result_id: id("oak_fence_gate"), result_count: 1, width: 3, height: 2, shapeless: false,
     });
 
     // Door: 2x3 planks
     recipes.push(CraftingRecipe {
         pattern: [p, p, 0, p, p, 0, p, p, 0],
-        result_id: id("oak_door"), result_count: 3, width: 2, height: 3,
+        result_id: id("oak_door"), result_count: 3, width: 2, height: 3, shapeless: false,
     });
 
     // Trapdoor: 2x3 planks (horizontal)
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, p, p, p, 0, 0, 0],
-        result_id: id("oak_trapdoor"), result_count: 2, width: 3, height: 2,
+        result_id: id("oak_trapdoor"), result_count: 2, width: 3, height: 2, shapeless: false,
     });
 
     // Sign: planks + stick (3 signs)
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, p, p, p, 0, s, 0],
-        result_id: id("oak_sign"), result_count: 3, width: 3, height: 3,
+        result_id: id("oak_sign"), result_count: 3, width: 3, height: 3, shapeless: false,
     });
 
     // Flint and steel: iron + flint
     recipes.push(CraftingRecipe {
         pattern: [iron, 0, 0, 0, id("flint"), 0, 0, 0, 0],
-        result_id: id("flint_and_steel"), result_count: 1, width: 2, height: 2,
+        result_id: id("flint_and_steel"), result_count: 1, width: 2, height: 2, shapeless: false,
     });
 
     // Shears: 2 iron ingots diagonal
     recipes.push(CraftingRecipe {
         pattern: [0, iron, 0, iron, 0, 0, 0, 0, 0],
-        result_id: id("shears"), result_count: 1, width: 2, height: 2,
+        result_id: id("shears"), result_count: 1, width: 2, height: 2, shapeless: false,
     });
 
     // Iron bars: 6 iron ingots (16 bars)
     recipes.push(CraftingRecipe {
         pattern: [iron, iron, iron, iron, iron, iron, 0, 0, 0],
-        result_id: id("iron_bars"), result_count: 16, width: 3, height: 2,
+        result_id: id("iron_bars"), result_count: 16, width: 3, height: 2, shapeless: false,
     });
 
     // Glass pane: 6 glass (16 panes)
     let glass = id("glass");
     recipes.push(CraftingRecipe {
         pattern: [glass, glass, glass, glass, glass, glass, 0, 0, 0],
-        result_id: id("glass_pane"), result_count: 16, width: 3, height: 2,
+        result_id: id("glass_pane"), result_count: 16, width: 3, height: 2, shapeless: false,
     });
 
     // TNT: gunpowder + sand
     recipes.push(CraftingRecipe {
         pattern: [id("gunpowder"), id("sand"), id("gunpowder"), id("sand"), id("gunpowder"), id("sand"), id("gunpowder"), id("sand"), id("gunpowder")],
-        result_id: id("tnt"), result_count: 1, width: 3, height: 3,
+        result_id: id("tnt"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Anvil: 3 iron blocks + 4 iron ingots
     let iron_block = id("iron_block");
     recipes.push(CraftingRecipe {
         pattern: [iron_block, iron_block, iron_block, 0, iron, 0, iron, iron, iron],
-        result_id: id("anvil"), result_count: 1, width: 3, height: 3,
+        result_id: id("anvil"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Iron block: 9 iron ingots
     recipes.push(CraftingRecipe {
         pattern: [iron, iron, iron, iron, iron, iron, iron, iron, iron],
-        result_id: id("iron_block"), result_count: 1, width: 3, height: 3,
+        result_id: id("iron_block"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Gold block: 9 gold ingots
     recipes.push(CraftingRecipe {
         pattern: [gold, gold, gold, gold, gold, gold, gold, gold, gold],
-        result_id: id("gold_block"), result_count: 1, width: 3, height: 3,
+        result_id: id("gold_block"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Diamond block: 9 diamonds
     recipes.push(CraftingRecipe {
         pattern: [dia, dia, dia, dia, dia, dia, dia, dia, dia],
-        result_id: id("diamond_block"), result_count: 1, width: 3, height: 3,
+        result_id: id("diamond_block"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Iron ingots from iron block (1 block = 9 ingots)
     recipes.push(CraftingRecipe {
         pattern: [iron_block, 0,0, 0,0,0, 0,0,0],
-        result_id: id("iron_ingot"), result_count: 9, width: 1, height: 1,
+        result_id: id("iron_ingot"), result_count: 9, width: 1, height: 1, shapeless: false,
     });
 
     // Gold ingots from gold block
     let gold_block = id("gold_block");
     recipes.push(CraftingRecipe {
         pattern: [gold_block, 0,0, 0,0,0, 0,0,0],
-        result_id: id("gold_ingot"), result_count: 9, width: 1, height: 1,
+        result_id: id("gold_ingot"), result_count: 9, width: 1, height: 1, shapeless: false,
     });
 
     // Diamonds from diamond block
     let dia_block = id("diamond_block");
     recipes.push(CraftingRecipe {
         pattern: [dia_block, 0,0, 0,0,0, 0,0,0],
-        result_id: id("diamond"), result_count: 9, width: 1, height: 1,
+        result_id: id("diamond"), result_count: 9, width: 1, height: 1, shapeless: false,
     });
 
     // Cobblestone slab: 3 cobblestone (6 slabs)
     recipes.push(CraftingRecipe {
         pattern: [c, c, c, 0, 0, 0, 0, 0, 0],
-        result_id: id("cobblestone_slab"), result_count: 6, width: 3, height: 1,
+        result_id: id("cobblestone_slab"), result_count: 6, width: 3, height: 1, shapeless: false,
     });
 
     // Stone slab: 3 stone
     let stone = id("stone");
     recipes.push(CraftingRecipe {
         pattern: [stone, stone, stone, 0, 0, 0, 0, 0, 0],
-        result_id: id("stone_slab"), result_count: 6, width: 3, height: 1,
+        result_id: id("stone_slab"), result_count: 6, width: 3, height: 1, shapeless: false,
     });
 
     // Oak slab: 3 planks
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, 0, 0, 0, 0, 0, 0],
-        result_id: id("oak_slab"), result_count: 6, width: 3, height: 1,
+        result_id: id("oak_slab"), result_count: 6, width: 3, height: 1, shapeless: false,
     });
 
     // Cobblestone stairs: 6 cobblestone (4 stairs)
     recipes.push(CraftingRecipe {
         pattern: [c, 0, 0, c, c, 0, c, c, c],
-        result_id: id("cobblestone_stairs"), result_count: 4, width: 3, height: 3,
+        result_id: id("cobblestone_stairs"), result_count: 4, width: 3, height: 3, shapeless: false,
     });
 
     // Oak stairs: 6 planks (4 stairs)
     recipes.push(CraftingRecipe {
         pattern: [p, 0, 0, p, p, 0, p, p, p],
-        result_id: id("oak_stairs"), result_count: 4, width: 3, height: 3,
+        result_id: id("oak_stairs"), result_count: 4, width: 3, height: 3, shapeless: false,
     });
 
     // Cobblestone wall: 6 cobblestone (6 walls)
     recipes.push(CraftingRecipe {
         pattern: [c, c, c, c, c, c, 0, 0, 0],
-        result_id: id("cobblestone_wall"), result_count: 6, width: 3, height: 2,
+        result_id: id("cobblestone_wall"), result_count: 6, width: 3, height: 2, shapeless: false,
     });
 
     // Stone bricks: 4 stone (4 bricks)
     recipes.push(CraftingRecipe {
         pattern: [stone, stone, 0, stone, stone, 0, 0, 0, 0],
-        result_id: id("stone_bricks"), result_count: 4, width: 2, height: 2,
+        result_id: id("stone_bricks"), result_count: 4, width: 2, height: 2, shapeless: false,
     });
 
     // Rail: iron + stick (16 rails)
     recipes.push(CraftingRecipe {
         pattern: [iron, 0, iron, iron, s, iron, iron, 0, iron],
-        result_id: id("rail"), result_count: 16, width: 3, height: 3,
+        result_id: id("rail"), result_count: 16, width: 3, height: 3, shapeless: false,
     });
 
     // Powered rail: gold + stick + redstone (6 rails)
     let redstone = id("redstone");
     recipes.push(CraftingRecipe {
         pattern: [gold, 0, gold, gold, s, gold, gold, redstone, gold],
-        result_id: id("powered_rail"), result_count: 6, width: 3, height: 3,
+        result_id: id("powered_rail"), result_count: 6, width: 3, height: 3, shapeless: false,
     });
 
     // Redstone torch: redstone + stick
     recipes.push(CraftingRecipe {
         pattern: [redstone, 0,0, s, 0,0, 0,0,0],
-        result_id: id("redstone_torch"), result_count: 1, width: 1, height: 2,
+        result_id: id("redstone_torch"), result_count: 1, width: 1, height: 2, shapeless: false,
     });
 
     // Redstone repeater: redstone torches + redstone + stone
     let rt = id("redstone_torch");
     recipes.push(CraftingRecipe {
         pattern: [rt, redstone, rt, stone, stone, stone, 0, 0, 0],
-        result_id: id("repeater"), result_count: 1, width: 3, height: 2,
+        result_id: id("repeater"), result_count: 1, width: 3, height: 2, shapeless: false,
     });
 
     // Piston: planks + cobblestone + iron + redstone
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, c, iron, c, c, redstone, c],
-        result_id: id("piston"), result_count: 1, width: 3, height: 3,
+        result_id: id("piston"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Sticky piston: slime ball + piston
     let piston = id("piston");
     recipes.push(CraftingRecipe {
         pattern: [id("slime_ball"), 0, 0, piston, 0, 0, 0, 0, 0],
-        result_id: id("sticky_piston"), result_count: 1, width: 1, height: 2,
+        result_id: id("sticky_piston"), result_count: 1, width: 1, height: 2, shapeless: false,
     });
 
     // Lever: stick + cobblestone
     recipes.push(CraftingRecipe {
         pattern: [s, 0,0, c, 0,0, 0,0,0],
-        result_id: id("lever"), result_count: 1, width: 1, height: 2,
+        result_id: id("lever"), result_count: 1, width: 1, height: 2, shapeless: false,
     });
 
     // Stone button: 1 stone
     recipes.push(CraftingRecipe {
         pattern: [stone, 0,0, 0,0,0, 0,0,0],
-        result_id: id("stone_button"), result_count: 1, width: 1, height: 1,
+        result_id: id("stone_button"), result_count: 1, width: 1, height: 1, shapeless: false,
     });
 
     // Oak button: 1 plank
     recipes.push(CraftingRecipe {
         pattern: [p, 0,0, 0,0,0, 0,0,0],
-        result_id: id("oak_button"), result_count: 1, width: 1, height: 1,
+        result_id: id("oak_button"), result_count: 1, width: 1, height: 1, shapeless: false,
     });
 
     // Brewing stand: blaze rod + cobblestone
     recipes.push(CraftingRecipe {
         pattern: [0, id("blaze_rod"), 0, c, c, c, 0, 0, 0],
-        result_id: id("brewing_stand"), result_count: 1, width: 3, height: 2,
+        result_id: id("brewing_stand"), result_count: 1, width: 3, height: 2, shapeless: false,
     });
 
     // Enchanting table: book + diamond + obsidian
     let obsidian = id("obsidian");
     recipes.push(CraftingRecipe {
         pattern: [0, id("book"), 0, dia, obsidian, dia, obsidian, obsidian, obsidian],
-        result_id: id("enchanting_table"), result_count: 1, width: 3, height: 3,
+        result_id: id("enchanting_table"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Bookshelf: planks + books
     let book = id("book");
     recipes.push(CraftingRecipe {
         pattern: [p, p, p, book, book, book, p, p, p],
-        result_id: id("bookshelf"), result_count: 1, width: 3, height: 3,
+        result_id: id("bookshelf"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Paper: 3 sugar cane
     let sugar_cane = id("sugar_cane");
     recipes.push(CraftingRecipe {
         pattern: [sugar_cane, sugar_cane, sugar_cane, 0, 0, 0, 0, 0, 0],
-        result_id: id("paper"), result_count: 3, width: 3, height: 1,
+        result_id: id("paper"), result_count: 3, width: 3, height: 1, shapeless: false,
     });
 
     // Book: paper + leather
@@ -739,7 +788,7 @@ fn build_recipes() -> Vec<CraftingRecipe> {
     let leather = id("leather");
     recipes.push(CraftingRecipe {
         pattern: [paper, 0, 0, paper, 0, 0, leather, 0, 0],
-        result_id: id("book"), result_count: 1, width: 1, height: 3,
+        result_id: id("book"), result_count: 1, width: 1, height: 3, shapeless: false,
     });
 
     // Cake: milk buckets + sugar + egg + wheat
@@ -748,26 +797,26 @@ fn build_recipes() -> Vec<CraftingRecipe> {
     let egg = id("egg");
     recipes.push(CraftingRecipe {
         pattern: [milk, milk, milk, sugar, egg, sugar, wheat, wheat, wheat],
-        result_id: id("cake"), result_count: 1, width: 3, height: 3,
+        result_id: id("cake"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Golden apple: gold ingots + apple
     let apple = id("apple");
     recipes.push(CraftingRecipe {
         pattern: [gold, gold, gold, gold, apple, gold, gold, gold, gold],
-        result_id: id("golden_apple"), result_count: 1, width: 3, height: 3,
+        result_id: id("golden_apple"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Compass: iron + redstone
     recipes.push(CraftingRecipe {
         pattern: [0, iron, 0, iron, redstone, iron, 0, iron, 0],
-        result_id: id("compass"), result_count: 1, width: 3, height: 3,
+        result_id: id("compass"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Clock: gold + redstone
     recipes.push(CraftingRecipe {
         pattern: [0, gold, 0, gold, redstone, gold, 0, gold, 0],
-        result_id: id("clock"), result_count: 1, width: 3, height: 3,
+        result_id: id("clock"), result_count: 1, width: 3, height: 3, shapeless: false,
     });
 
     // Lantern: iron nuggets + torch
@@ -775,7 +824,42 @@ fn build_recipes() -> Vec<CraftingRecipe> {
     let torch = id("torch");
     recipes.push(CraftingRecipe {
         pattern: [nugget, nugget, nugget, nugget, torch, nugget, nugget, nugget, nugget],
-        result_id: id("lantern"), result_count: 1, width: 3, height: 3,
+        result_id: id("lantern"), result_count: 1, width: 3, height: 3, shapeless: false,
+    });
+
+    // === Shapeless recipes ===
+
+    // Mushroom stew
+    let brown = id("brown_mushroom");
+    let red = id("red_mushroom");
+    let bowl = id("bowl");
+    recipes.push(CraftingRecipe {
+        pattern: [brown, red, bowl, 0,0,0, 0,0,0],
+        result_id: id("mushroom_stew"), result_count: 1, width: 0, height: 0, shapeless: true,
+    });
+
+    // Fire charge
+    recipes.push(CraftingRecipe {
+        pattern: [id("blaze_powder"), id("coal"), id("gunpowder"), 0,0,0, 0,0,0],
+        result_id: id("fire_charge"), result_count: 3, width: 0, height: 0, shapeless: true,
+    });
+
+    // Book
+    recipes.push(CraftingRecipe {
+        pattern: [id("paper"), id("paper"), id("paper"), id("leather"), 0,0, 0,0,0],
+        result_id: id("book"), result_count: 1, width: 0, height: 0, shapeless: true,
+    });
+
+    // Fermented spider eye
+    recipes.push(CraftingRecipe {
+        pattern: [id("spider_eye"), id("brown_mushroom"), id("sugar"), 0,0,0, 0,0,0],
+        result_id: id("fermented_spider_eye"), result_count: 1, width: 0, height: 0, shapeless: true,
+    });
+
+    // Magma cream
+    recipes.push(CraftingRecipe {
+        pattern: [id("blaze_powder"), id("slime_ball"), 0, 0,0,0, 0,0,0],
+        result_id: id("magma_cream"), result_count: 1, width: 0, height: 0, shapeless: true,
     });
 
     recipes
@@ -956,9 +1040,97 @@ pub fn item_attack_damage(item_name: &str) -> f32 {
     }
 }
 
+/// Returns the attack speed for a weapon/tool.
+/// This is the number of attacks per second (vanilla attribute value).
+/// Cooldown ticks = 20.0 / attack_speed.
+pub fn item_attack_speed(item_name: &str) -> f32 {
+    match item_name {
+        // Swords: 1.6
+        "wooden_sword" | "stone_sword" | "iron_sword" | "diamond_sword" | "netherite_sword" | "golden_sword" => 1.6,
+        // Axes: 0.8 for wood/stone, 0.9 for iron, 1.0 for diamond/netherite/gold
+        "wooden_axe" | "stone_axe" => 0.8,
+        "iron_axe" => 0.9,
+        "diamond_axe" | "netherite_axe" | "golden_axe" => 1.0,
+        // Pickaxes: 1.2
+        "wooden_pickaxe" | "stone_pickaxe" | "iron_pickaxe" | "diamond_pickaxe" | "netherite_pickaxe" | "golden_pickaxe" => 1.2,
+        // Shovels: 1.0
+        "wooden_shovel" | "stone_shovel" | "iron_shovel" | "diamond_shovel" | "netherite_shovel" | "golden_shovel" => 1.0,
+        // Hoes: 1.0-4.0 (varies)
+        "wooden_hoe" | "golden_hoe" => 1.0,
+        "stone_hoe" => 2.0,
+        "iron_hoe" => 3.0,
+        "diamond_hoe" | "netherite_hoe" => 4.0,
+        // Trident
+        "trident" => 1.1,
+        // Fist/other: 4.0
+        _ => 4.0,
+    }
+}
+
 /// Returns true if the given item name is an axe (can disable shields).
 pub fn is_axe(item_name: &str) -> bool {
     matches!(item_name, "wooden_axe" | "stone_axe" | "iron_axe" | "golden_axe" | "diamond_axe" | "netherite_axe")
+}
+
+/// Returns true if the given item name is a sword (1 durability per attack, 2 for other tools).
+pub fn is_sword(item_name: &str) -> bool {
+    matches!(item_name, "wooden_sword" | "stone_sword" | "iron_sword" | "golden_sword" | "diamond_sword" | "netherite_sword")
+}
+
+/// Returns the mining speed multiplier of a tool against a block.
+/// Vanilla values: wood=2.0, stone=4.0, iron=6.0, diamond=8.0, netherite=9.0, gold=12.0.
+/// Returns 1.0 if the tool doesn't match the block or player has no tool.
+/// Swords give 1.5x against cobwebs. Shears give 15.0x against wool/cobwebs.
+pub fn tool_destroy_speed(item_name: &str) -> f32 {
+    match item_name {
+        s if s.starts_with("wooden_") && (s.ends_with("_pickaxe") || s.ends_with("_axe") || s.ends_with("_shovel") || s.ends_with("_hoe")) => 2.0,
+        s if s.starts_with("stone_") && (s.ends_with("_pickaxe") || s.ends_with("_axe") || s.ends_with("_shovel") || s.ends_with("_hoe")) => 4.0,
+        s if s.starts_with("iron_") && (s.ends_with("_pickaxe") || s.ends_with("_axe") || s.ends_with("_shovel") || s.ends_with("_hoe")) => 6.0,
+        s if s.starts_with("diamond_") && (s.ends_with("_pickaxe") || s.ends_with("_axe") || s.ends_with("_shovel") || s.ends_with("_hoe")) => 8.0,
+        s if s.starts_with("netherite_") && (s.ends_with("_pickaxe") || s.ends_with("_axe") || s.ends_with("_shovel") || s.ends_with("_hoe")) => 9.0,
+        s if s.starts_with("golden_") && (s.ends_with("_pickaxe") || s.ends_with("_axe") || s.ends_with("_shovel") || s.ends_with("_hoe")) => 12.0,
+        "wooden_sword" | "stone_sword" | "iron_sword" | "golden_sword" | "diamond_sword" | "netherite_sword" => 1.5, // only against cobwebs
+        "shears" => 2.0, // 15.0 against wool/cobwebs, 2.0 base
+        _ => 1.0,
+    }
+}
+
+/// Returns the max stack size for a given item ID.
+/// Most items stack to 64. Tools, weapons, armor, and some special items stack to 1.
+/// A few items stack to 16 (ender pearls, eggs, snowballs, etc.).
+pub fn item_max_stack_size(item_id: i32) -> i32 {
+    let name = match item_id_to_name(item_id) {
+        Some(n) => n,
+        None => return 64,
+    };
+    match name {
+        // Stack to 1: tools, weapons, armor, special items
+        s if s.ends_with("_sword") || s.ends_with("_pickaxe") || s.ends_with("_axe")
+            || s.ends_with("_shovel") || s.ends_with("_hoe") => 1,
+        s if s.ends_with("_helmet") || s.ends_with("_chestplate") || s.ends_with("_leggings")
+            || s.ends_with("_boots") => 1,
+        "shield" | "bow" | "crossbow" | "trident" | "fishing_rod" | "flint_and_steel"
+        | "shears" | "elytra" | "totem_of_undying" | "saddle" | "lead" | "name_tag"
+        | "enchanted_book" | "written_book" | "writable_book" | "knowledge_book"
+        | "music_disc_13" | "music_disc_cat" | "music_disc_blocks" | "music_disc_chirp"
+        | "music_disc_far" | "music_disc_mall" | "music_disc_mellohi" | "music_disc_stal"
+        | "music_disc_strad" | "music_disc_ward" | "music_disc_11" | "music_disc_wait"
+        | "music_disc_otherside" | "music_disc_5" | "music_disc_pigstep" | "music_disc_relic"
+        | "carrot_on_a_stick" | "warped_fungus_on_a_stick" | "debug_stick"
+        | "enchanted_golden_apple" => 1,
+        s if s.ends_with("_horse_armor") => 1,
+        s if s.contains("bucket") => 1,
+        s if s.ends_with("_boat") || s.ends_with("_chest_boat") => 1,
+        s if s.ends_with("_minecart") => 1,
+        "potion" | "splash_potion" | "lingering_potion" => 1,
+        // Stack to 16
+        "ender_pearl" | "egg" | "snowball" | "armor_stand" => 16,
+        s if s.ends_with("_sign") || s.ends_with("_hanging_sign") => 16,
+        s if s.ends_with("_banner") => 16,
+        "honey_bottle" => 16,
+        // Everything else stacks to 64
+        _ => 64,
+    }
 }
 
 // Bed block state IDs: 16 states per color, 16 bed colors (white through black).
@@ -1889,20 +2061,21 @@ pub fn mob_is_hostile(type_id: i32) -> bool {
 }
 
 /// Returns mob movement speed in blocks/tick.
+/// Values from vanilla SharedMonsterAttributes.MOVEMENT_SPEED.
 pub fn mob_speed(type_id: i32) -> f64 {
     match type_id {
-        MOB_BAT => 0.04,
-        MOB_CHICKEN => 0.05,
-        MOB_COW => 0.04,
-        MOB_CREEPER => 0.05,
-        MOB_ENDERMAN => 0.06,
-        MOB_PIG => 0.05,
-        MOB_SHEEP => 0.046,
-        MOB_SKELETON => 0.05,
-        MOB_SLIME => 0.04,
-        MOB_SPIDER => 0.06,
-        MOB_ZOMBIE => 0.046,
-        _ => 0.04,
+        MOB_BAT => 0.15,
+        MOB_CHICKEN => 0.25,
+        MOB_COW => 0.20,
+        MOB_CREEPER => 0.25,
+        MOB_ENDERMAN => 0.30,
+        MOB_PIG => 0.25,
+        MOB_SHEEP => 0.23,
+        MOB_SKELETON => 0.25,
+        MOB_SLIME => 0.20,
+        MOB_SPIDER => 0.30,
+        MOB_ZOMBIE => 0.23,
+        _ => 0.20,
     }
 }
 
@@ -2971,6 +3144,36 @@ pub fn wall_sign_state(min_state: i32, face: u8) -> i32 {
 /// MC formula: floor((yaw + 180) / 22.5) & 15
 pub fn yaw_to_sign_rotation(yaw: f32) -> i32 {
     (((yaw + 180.0) / 22.5).floor() as i32) & 15
+}
+
+/// Returns true if two enchantments are incompatible (can't coexist on the same item).
+/// Vanilla mutually exclusive groups:
+/// - Protection types: protection(0), fire_protection(1), blast_protection(2), projectile_protection(3)
+/// - Damage types: sharpness(13), smite(14), bane_of_arthropods(15)
+/// - Fortune(23) / Silk Touch(21)
+/// - Infinity(27) / Mending(37)
+/// - Depth Strider(8) / Frost Walker(9)
+/// - Loyalty(30) / Riptide(32), Channeling(33) / Riptide(32)
+/// - Multishot(34) / Piercing(36)
+pub fn enchantments_incompatible(a: i32, b: i32) -> bool {
+    if a == b { return false; } // same enchantment is not "incompatible"
+    let (lo, hi) = if a < b { (a, b) } else { (b, a) };
+    // Protection group: 0, 1, 2, 3
+    if lo <= 3 && hi <= 3 { return true; }
+    // Damage group: 13, 14, 15
+    if (13..=15).contains(&lo) && (13..=15).contains(&hi) { return true; }
+    // Fortune / Silk Touch
+    if (lo == 21 && hi == 23) || (lo == 23 && hi == 21) { return true; }
+    // Infinity / Mending
+    if (lo == 27 && hi == 37) || (lo == 37 && hi == 27) { return true; }
+    // Depth Strider / Frost Walker
+    if (lo == 8 && hi == 9) || (lo == 9 && hi == 8) { return true; }
+    // Riptide conflicts with Loyalty and Channeling
+    if hi == 32 && (lo == 30 || lo == 33) { return true; }
+    if lo == 32 && (hi == 30 || hi == 33) { return true; }
+    // Multishot / Piercing
+    if (lo == 34 && hi == 36) || (lo == 36 && hi == 34) { return true; }
+    false
 }
 
 pub fn enchantment_anvil_cost(id: i32) -> i32 {

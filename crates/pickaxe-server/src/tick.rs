@@ -751,6 +751,11 @@ pub struct WorldState {
     region_storage: RegionStorage,
     pub save_tx: mpsc::UnboundedSender<SaveOp>,
     pub block_entities: HashMap<BlockPos, BlockEntity>,
+    pub next_eid: Arc<AtomicI32>,
+    // Gamerules
+    pub keep_inventory: bool,
+    pub natural_regeneration: bool,
+    pub difficulty: i32, // 0=peaceful, 1=easy, 2=normal, 3=hard
     // Weather state
     pub raining: bool,
     pub thundering: bool,
@@ -762,7 +767,7 @@ pub struct WorldState {
 }
 
 impl WorldState {
-    pub fn new(region_storage: RegionStorage, save_tx: mpsc::UnboundedSender<SaveOp>) -> Self {
+    pub fn new(region_storage: RegionStorage, save_tx: mpsc::UnboundedSender<SaveOp>, next_eid: Arc<AtomicI32>) -> Self {
         Self {
             chunks: HashMap::new(),
             world_age: 0,
@@ -771,6 +776,10 @@ impl WorldState {
             region_storage,
             save_tx,
             block_entities: HashMap::new(),
+            next_eid,
+            keep_inventory: false,
+            natural_regeneration: true,
+            difficulty: 2, // normal
             raining: false,
             thundering: false,
             rain_time: 12000 + rand::random::<i32>().unsigned_abs() as i32 % 168000,
@@ -933,7 +942,7 @@ pub async fn run_tick_loop(
 ) {
     let adapter = V1_21Adapter::new();
     let mut world = World::new();
-    let mut world_state = WorldState::new(region_storage, save_tx);
+    let mut world_state = WorldState::new(region_storage, save_tx, next_eid.clone());
 
     // Load level.dat if it exists (restores world_age, time_of_day, weather)
     let level_dat_path = PathBuf::from(&config.world_dir).join("level.dat");
@@ -1170,10 +1179,12 @@ fn handle_new_player(
         current: s.health,
         max: 20.0,
         invulnerable_ticks: 60, // 3 seconds spawn invulnerability
+        absorption: 0.0,
     }).unwrap_or(Health {
         current: 20.0,
         max: 20.0,
         invulnerable_ticks: 60,
+        absorption: 0.0,
     });
     let player_food = saved.as_ref().map(|s| FoodData {
         food_level: s.food_level,
@@ -1337,6 +1348,12 @@ fn handle_new_player(
             players: vec![new_entry],
         },
     );
+
+    // Send tab list header/footer
+    let _ = sender.send(InternalPacket::SetTabListHeaderAndFooter {
+        header: TextComponent::plain("\u{00a7}6Pickaxe Server\u{00a7}r"),
+        footer: TextComponent::plain("\u{00a7}7Minecraft 1.21.1 \u{00a7}8| \u{00a7}7Powered by Rust"),
+    });
 
     // Send inventory (loaded or empty)
     let _ = sender.send(InternalPacket::SetContainerContent {
@@ -1652,20 +1669,36 @@ fn process_packet(
                     } else {
                         // Survival mode: check block hardness
                         let block_state = world_state.get_block(&position);
-                        let (held_item_id, efficiency_level) = {
+                        let (held_item_name, held_item_id, efficiency_level) = {
                             let slot =
                                 world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
                             if let Ok(inv) = world.get::<&Inventory>(entity) {
                                 if let Some(ref item) = inv.held_item(slot) {
-                                    (Some(item.item_id), item.enchantment_level(20))
+                                    (pickaxe_data::item_id_to_name(item.item_id).map(|s| s.to_string()), Some(item.item_id), item.enchantment_level(20))
                                 } else {
-                                    (None, 0)
+                                    (None, None, 0)
                                 }
                             } else {
-                                (None, 0)
+                                (None, None, 0)
                             }
                         };
-                        match calculate_break_ticks(block_state, held_item_id, efficiency_level, block_overrides) {
+                        // Get haste/mining fatigue from active effects
+                        let (haste_level, fatigue_level) = world.get::<&ActiveEffects>(entity).map(|effects| {
+                            let haste = effects.effects.get(&2).map(|e| e.amplifier + 1).unwrap_or(0);
+                            let fatigue = effects.effects.get(&3).map(|e| e.amplifier + 1).unwrap_or(0);
+                            (haste, fatigue)
+                        }).unwrap_or((0, 0));
+                        let player_in_water = {
+                            let eye_y = world.get::<&Position>(entity).map(|p| p.0.y + 1.62).unwrap_or(0.0);
+                            let eye_pos = BlockPos::new(
+                                world.get::<&Position>(entity).map(|p| p.0.x.floor() as i32).unwrap_or(0),
+                                eye_y.floor() as i32,
+                                world.get::<&Position>(entity).map(|p| p.0.z.floor() as i32).unwrap_or(0),
+                            );
+                            pickaxe_data::is_fluid(world_state.get_block(&eye_pos))
+                        };
+                        let player_on_ground = world.get::<&OnGround>(entity).map(|og| og.0).unwrap_or(true);
+                        match calculate_break_ticks(block_state, held_item_name.as_deref(), held_item_id, efficiency_level, haste_level, fatigue_level, player_in_water, player_on_ground, block_overrides) {
                             None => {
                                 // Unbreakable block, just ack
                                 if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
@@ -2266,7 +2299,7 @@ fn process_packet(
                             let slot_index = 36 + held_slot as usize;
                             if game_mode != GameMode::Creative {
                                 if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
-                                    let held = inv.slots[slot_index].clone();
+                                    let _held = inv.slots[slot_index].clone();
                                     // Buckets don't stack, so just replace the one bucket
                                     inv.set_slot(slot_index, Some(ItemStack::new(filled_id, 1)));
                                     // Send full inventory update
@@ -3640,6 +3673,64 @@ fn set_container_slot(
     }
 }
 
+/// Handle clicks on the player inventory screen (window_id=0).
+/// Slots: 0=craft result, 1-4=2x2 craft grid, 5-8=armor, 9-35=main, 36-44=hotbar, 45=offhand
+fn handle_player_inventory_click(
+    world: &mut World,
+    entity: hecs::Entity,
+    slot: i16,
+    changed_slots: &[(i16, Option<ItemStack>)],
+    carried_item: &Option<ItemStack>,
+) {
+    // Apply changed slots to player inventory
+    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+        for &(changed_slot, ref changed_item) in changed_slots {
+            let s = changed_slot as usize;
+            if s < 46 {
+                // Validate stack sizes before applying
+                if let Some(ref item) = changed_item {
+                    let max_stack = pickaxe_data::item_id_to_stack_size(item.item_id).unwrap_or(64);
+                    if item.count > max_stack as i8 {
+                        continue; // Reject invalid stack size
+                    }
+                }
+                inv.slots[s] = changed_item.clone();
+            }
+        }
+
+        // If craft result was taken (slot 0), consume ingredients from 2x2 grid
+        if slot == 0 && inv.slots[0].is_some() {
+            // The client already set slot 0 to None in changed_slots if taken
+            // But we need to recalculate after consumption
+        }
+
+        // Recalculate 2x2 crafting result when grid slots (1-4) change
+        let grid_changed = changed_slots.iter().any(|&(s, _)| s >= 1 && s <= 4);
+        let result_taken = slot == 0;
+        if grid_changed || result_taken {
+            // Build a 3x3 grid from the 2x2 (slots 1-4 map to top-left 2x2)
+            let grid: [Option<ItemStack>; 9] = [
+                inv.slots[1].clone(), inv.slots[2].clone(), None,
+                inv.slots[3].clone(), inv.slots[4].clone(), None,
+                None, None, None,
+            ];
+            inv.slots[0] = lookup_crafting_recipe(&grid);
+        }
+
+        inv.state_id = inv.state_id.wrapping_add(1);
+
+        // Resync inventory
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SetContainerContent {
+                window_id: 0,
+                state_id: inv.state_id,
+                slots: inv.slots.to_vec(),
+                carried_item: carried_item.clone(),
+            });
+        }
+    }
+}
+
 fn handle_container_click(
     world: &mut World,
     world_state: &mut WorldState,
@@ -3652,6 +3743,12 @@ fn handle_container_click(
     changed_slots: &[(i16, Option<ItemStack>)],
     carried_item: &Option<ItemStack>,
 ) {
+    // Window 0 = player inventory (always open, no OpenContainer component)
+    if window_id == 0 {
+        handle_player_inventory_click(world, entity, slot, changed_slots, carried_item);
+        return;
+    }
+
     let mut open = match world.remove_one::<OpenContainer>(entity) {
         Ok(oc) => oc,
         Err(_) => return,
@@ -3662,9 +3759,37 @@ fn handle_container_click(
         return;
     }
 
-    // Apply the client's proposed slot changes (trust-based for now)
+    // Apply the client's proposed slot changes (trust-based with stack size validation)
     match mode {
         0 | 1 | 2 | 3 | 4 | 5 | 6 => {
+            // Validate stack sizes before applying
+            let mut valid = true;
+            for (_, changed_item) in changed_slots {
+                if let Some(ref item) = changed_item {
+                    let max_stack = pickaxe_data::item_max_stack_size(item.item_id);
+                    if item.count > max_stack as i8 || item.count <= 0 {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+            if !valid {
+                // Resync inventory
+                if let Ok(inv) = world.get::<&Inventory>(entity) {
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        for i in 0..46 {
+                            let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                window_id: 0,
+                                state_id: inv.state_id,
+                                slot: i,
+                                item: inv.slots[i as usize].clone(),
+                            });
+                        }
+                    }
+                }
+                let _ = world.insert_one(entity, open);
+                return;
+            }
             for (changed_slot, changed_item) in changed_slots {
                 if let Some(t) = map_slot(&open.menu, *changed_slot) {
                     set_container_slot(world_state, world, entity, &mut open.menu, &t, changed_item.clone());
@@ -3761,7 +3886,22 @@ fn lookup_crafting_recipe(grid: &[Option<ItemStack>; 9]) -> Option<ItemStack> {
         }
     }
 
+    // Collect non-zero items from the grid for shapeless matching
+    let mut grid_items: Vec<i32> = grid_ids.iter().filter(|&&id| id != 0).copied().collect();
+    grid_items.sort();
+
     for recipe in pickaxe_data::crafting_recipes() {
+        if recipe.shapeless {
+            // Shapeless recipe: check that ingredients match (order doesn't matter)
+            let mut recipe_items: Vec<i32> = recipe.pattern.iter().filter(|&&id| id != 0).copied().collect();
+            recipe_items.sort();
+            if grid_items == recipe_items {
+                return Some(make_crafted_item(recipe.result_id, recipe.result_count));
+            }
+            continue;
+        }
+
+        // Shaped recipe: must match dimensions
         if recipe.width as usize != w || recipe.height as usize != h { continue; }
 
         // Normal match
@@ -3845,8 +3985,16 @@ fn calculate_anvil_result(menu: &mut Menu) {
             output.damage = new_damage;
             cost += 2;
 
-            // Merge enchantments from right into left
+            // Merge enchantments from right into left (check compatibility)
             for &(ench_id, sac_level) in &right.enchantments {
+                // Skip incompatible enchantments (e.g. Sharpness + Smite)
+                let incompatible = output.enchantments.iter().any(|(existing_id, _)| {
+                    *existing_id != ench_id && pickaxe_data::enchantments_incompatible(*existing_id, ench_id)
+                });
+                if incompatible {
+                    cost += 1; // vanilla charges 1 level for incompatible enchantments
+                    continue;
+                }
                 let target_level = output.enchantment_level(ench_id);
                 let new_level = if target_level == sac_level {
                     (sac_level + 1).min(pickaxe_data::enchantment_max_level(ench_id))
@@ -3875,8 +4023,16 @@ fn calculate_anvil_result(menu: &mut Menu) {
             if materials_used == 0 && rename.is_none() { return; }
             output.damage = damage;
         } else if right_name == "enchanted_book" && !right.enchantments.is_empty() {
-            // Enchanted book: merge enchantments, half anvil cost
+            // Enchanted book: merge enchantments, half anvil cost (check compatibility)
             for &(ench_id, sac_level) in &right.enchantments {
+                // Skip incompatible enchantments
+                let incompatible = output.enchantments.iter().any(|(existing_id, _)| {
+                    *existing_id != ench_id && pickaxe_data::enchantments_incompatible(*existing_id, ench_id)
+                });
+                if incompatible {
+                    cost += 1;
+                    continue;
+                }
                 let target_level = output.enchantment_level(ench_id);
                 let new_level = if target_level == sac_level {
                     (sac_level + 1).min(pickaxe_data::enchantment_max_level(ench_id))
@@ -4075,6 +4231,13 @@ fn handle_player_movement(
     let old_on_ground = world.get::<&OnGround>(entity).map(|og| og.0).unwrap_or(true);
     let dy = y - old_pos.y;
 
+    // Basic movement validation: reject impossible teleports (> 100 blocks per tick)
+    let move_dist_sq = (x - old_pos.x).powi(2) + (y - old_pos.y).powi(2) + (z - old_pos.z).powi(2);
+    if move_dist_sq > 100.0 * 100.0 {
+        tracing::warn!("Rejected suspicious movement: entity {} moved {:.1} blocks in one tick", entity_id, move_dist_sq.sqrt());
+        return;
+    }
+
     // Update position and on_ground
     if let Ok(mut pos) = world.get::<&mut Position>(entity) {
         pos.0 = Vec3d::new(x, y, z);
@@ -4116,8 +4279,25 @@ fn handle_player_movement(
             None
         }
     };
-    if let Some(damage) = fall_damage {
-        apply_damage(world, world_state, entity, entity_id, damage, "fall", scripting);
+    if let Some(mut damage) = fall_damage {
+        // Feather falling enchantment: 12% reduction per level (max 48% at level 4)
+        // MC: ProtectionEnchantment.getTypeModifier with FALL type, 2 per level
+        // Combined with protection enchantment for total EPF
+        if let Ok(inv) = world.get::<&Inventory>(entity) {
+            // Feather falling is on boots (slot 8)
+            if let Some(ref boots) = inv.slots[8] {
+                let ff_level = boots.enchantment_level(2); // feather_falling
+                if ff_level > 0 {
+                    // Each feather falling level gives 3 EPF (vs 1 for protection)
+                    // Capped at 48% reduction from feather falling alone
+                    let reduction = (ff_level as f32 * 12.0).min(48.0) / 100.0;
+                    damage *= 1.0 - reduction;
+                }
+            }
+        }
+        if damage > 0.0 {
+            apply_damage(world, world_state, entity, entity_id, damage, "fall", scripting);
+        }
     }
 
     // Sprint exhaustion (MC: 0.1 per meter while sprinting)
@@ -4180,14 +4360,24 @@ fn handle_attack(
         }
     };
 
+    // Get weapon name for attack speed calculation
+    let held_slot_idx = world.get::<&HeldSlot>(attacker).map(|h| h.0).unwrap_or(0);
+    let weapon_name: String = world.get::<&Inventory>(attacker)
+        .ok()
+        .and_then(|inv| inv.slots[36 + held_slot_idx as usize].as_ref()
+            .and_then(|item| pickaxe_data::item_id_to_name(item.item_id).map(|n| n.to_string())))
+        .unwrap_or_default();
+
     // Compute attack strength (cooldown). MC: 0.2 + strength^2 * 0.8
-    // Full strength at 10 ticks (vanilla uses getAttackStrengthScale(0.5f))
+    // Full strength varies by weapon: ticks = 20 / attack_speed
+    let attack_speed = pickaxe_data::item_attack_speed(&weapon_name);
+    let cooldown_ticks = (20.0 / attack_speed) as u32;
     let strength = {
         let cooldown = world
             .get::<&AttackCooldown>(attacker)
             .map(|c| c.ticks_since_last_attack)
             .unwrap_or(100);
-        let f = (cooldown as f32 / 10.0).min(1.0);
+        let f = (cooldown as f32 / cooldown_ticks as f32).min(1.0);
         f
     };
 
@@ -4214,21 +4404,8 @@ fn handle_attack(
         return;
     }
 
-    // Calculate damage based on held weapon
-    let held_slot = world.get::<&HeldSlot>(attacker).map(|h| h.0).unwrap_or(0);
-    let base_damage = {
-        let inv = world.get::<&Inventory>(attacker);
-        if let Ok(inv) = inv {
-            if let Some(ref item) = inv.slots[36 + held_slot as usize] {
-                let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("");
-                pickaxe_data::item_attack_damage(name)
-            } else {
-                1.0
-            }
-        } else {
-            1.0
-        }
-    };
+    // Calculate damage based on held weapon (reuse weapon_name from cooldown calc)
+    let base_damage = pickaxe_data::item_attack_damage(&weapon_name);
     let damage_scale = 0.2 + strength * strength * 0.8;
     let mut damage = base_damage * damage_scale;
 
@@ -4246,7 +4423,7 @@ fn handle_attack(
     // Sharpness/knockback enchantments
     let mut knockback_bonus = 0.0_f32;
     if let Ok(inv) = world.get::<&Inventory>(attacker) {
-        if let Some(ref item) = inv.slots[36 + held_slot as usize] {
+        if let Some(ref item) = inv.slots[36 + held_slot_idx as usize] {
             let sharpness = item.enchantment_level(13); // sharpness
             if sharpness > 0 {
                 damage += 0.5 + 0.5 * sharpness as f32;
@@ -4264,11 +4441,20 @@ fn handle_attack(
         }
     }
 
-    // Critical hit: falling, not on ground, strength > 0.9
+    // Critical hit: vanilla requires falling, not on ground, not climbing, not in water,
+    // no blindness, not a passenger, target is LivingEntity, not sprinting
     let on_ground = world.get::<&OnGround>(attacker).map(|og| og.0).unwrap_or(true);
     let fall_distance = world.get::<&FallDistance>(attacker).map(|fd| fd.0).unwrap_or(0.0);
     let is_sprinting = world.get::<&MovementState>(attacker).map(|ms| ms.sprinting).unwrap_or(false);
-    let is_critical = strength > 0.9 && fall_distance > 0.0 && !on_ground && !is_sprinting;
+    let in_water = {
+        let pos = world.get::<&Position>(attacker).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+        let feet_block = world_state.get_block(&BlockPos::new(pos.x.floor() as i32, pos.y.floor() as i32, pos.z.floor() as i32));
+        pickaxe_data::is_fluid(feet_block)
+    };
+    let has_blindness = world.get::<&ActiveEffects>(attacker)
+        .map(|fx| fx.effects.contains_key(&14)) // blindness = effect id 14
+        .unwrap_or(false);
+    let is_critical = strength > 0.9 && fall_distance > 0.0 && !on_ground && !is_sprinting && !in_water && !has_blindness;
 
     if is_critical {
         damage *= 1.5;
@@ -4291,7 +4477,7 @@ fn handle_attack(
         let attacker_has_axe = {
             let inv = world.get::<&Inventory>(attacker);
             if let Ok(inv) = inv {
-                if let Some(ref item) = inv.slots[36 + held_slot as usize] {
+                if let Some(ref item) = inv.slots[36 + held_slot_idx as usize] {
                     let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("");
                     pickaxe_data::is_axe(name)
                 } else { false }
@@ -4299,8 +4485,9 @@ fn handle_attack(
         };
         let target_is_blocking = world.get::<&BlockingState>(target).is_ok();
 
-        // PvP: Apply damage to target player
-        apply_damage(world, world_state, target, target_eid_val, damage, "player", scripting);
+        // PvP: Apply damage to target player (with attacker position for directional shield)
+        let attacker_pos = world.get::<&Position>(attacker).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+        apply_damage_from(world, world_state, target, target_eid_val, damage, "player", Some(attacker_pos), scripting);
 
         // If target was blocking and attacker used axe, disable their shield
         if attacker_has_axe && target_is_blocking {
@@ -4325,9 +4512,10 @@ fn handle_attack(
         }
     }
 
-    // Tool durability loss on attack (2 per hit, survival only)
+    // Tool durability loss on attack (1 for swords, 2 for other tools, survival only)
     if game_mode == GameMode::Survival {
-        damage_held_item(world, attacker, _attacker_eid, 2);
+        let dur_loss = if pickaxe_data::is_sword(&weapon_name) { 1 } else { 2 };
+        damage_held_item(world, attacker, _attacker_eid, dur_loss);
     }
 
     // Play attack sound at attacker position
@@ -4413,6 +4601,58 @@ fn handle_attack(
         }
     }
 
+    // Sweep attack: full strength, on ground, not sprinting, holding sword, not critical
+    let attacker_on_ground = world.get::<&OnGround>(attacker).map(|og| og.0).unwrap_or(true);
+    if strength > 0.9 && attacker_on_ground && !is_sprinting && !is_critical && pickaxe_data::is_sword(&weapon_name) {
+        let sweep_level = world.get::<&Inventory>(attacker)
+            .ok()
+            .map(|inv| {
+                inv.slots[36 + held_slot_idx as usize].as_ref()
+                    .map(|item| item.enchantment_level(19)) // sweeping_edge
+                    .unwrap_or(0)
+            })
+            .unwrap_or(0);
+        // Sweep damage: 1 + sweeping_edge * base_damage / (sweeping_edge + 1)
+        let sweep_damage = 1.0 + sweep_level as f32 * base_damage / (sweep_level as f32 + 1.0);
+        let target_pos = world.get::<&Position>(target).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+        let attacker_pos = world.get::<&Position>(attacker).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+
+        // Find nearby mobs within 1 block of target AND within 3 blocks of attacker (exclude target)
+        let mut sweep_targets: Vec<(hecs::Entity, i32)> = Vec::new();
+        for (e, (eid, pos, _mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+            if e == target { continue; }
+            let dx = pos.0.x - target_pos.x;
+            let dy = pos.0.y - target_pos.y;
+            let dz = pos.0.z - target_pos.z;
+            if dx * dx + dy * dy + dz * dz < 1.0 * 1.0 {
+                let adx = pos.0.x - attacker_pos.x;
+                let adz = pos.0.z - attacker_pos.z;
+                if adx * adx + adz * adz < 9.0 {
+                    sweep_targets.push((e, eid.0));
+                }
+            }
+        }
+
+        for (sweep_entity, sweep_eid) in sweep_targets {
+            // Apply sweep damage to mob
+            if let Ok(mut mob) = world.get::<&mut MobEntity>(sweep_entity) {
+                mob.health -= sweep_damage;
+            }
+            // Hurt animation
+            broadcast_to_all(world, &InternalPacket::HurtAnimation {
+                entity_id: sweep_eid,
+                yaw: 0.0,
+            });
+        }
+
+        // Sweep particles on attacker
+        broadcast_to_all(world, &InternalPacket::EntityAnimation {
+            entity_id: _attacker_eid,
+            animation: 0, // SWING_MAIN_ARM (sweep particles come from client side on full attack)
+        });
+        play_sound_at_entity(world, attacker_pos.x, attacker_pos.y, attacker_pos.z, "entity.player.attack.sweep", SOUND_PLAYERS, 1.0, 1.0);
+    }
+
     // Attack exhaustion: MC adds 0.1 per attack
     if let Ok(mut food) = world.get::<&mut FoodData>(attacker) {
         food.exhaustion = (food.exhaustion + 0.1).min(40.0);
@@ -4436,6 +4676,20 @@ fn apply_damage(
     source: &str,
     scripting: &ScriptRuntime,
 ) {
+    apply_damage_from(world, world_state, entity, entity_id, damage, source, None, scripting);
+}
+
+/// Apply damage with optional source position for directional shield blocking.
+fn apply_damage_from(
+    world: &mut World,
+    world_state: &mut WorldState,
+    entity: hecs::Entity,
+    entity_id: i32,
+    damage: f32,
+    source: &str,
+    source_pos: Option<Vec3d>,
+    scripting: &ScriptRuntime,
+) {
     // Check game mode — creative/spectator players don't take damage (except void)
     let game_mode = world.get::<&PlayerGameMode>(entity).map(|gm| gm.0).unwrap_or(GameMode::Survival);
     if game_mode == GameMode::Creative && source != "void" {
@@ -4456,7 +4710,34 @@ fn apply_damage(
             .ok()
             .map(|b| (b.start_tick, b.hand));
         if let Some((start_tick, _shield_hand)) = blocking_info {
-            world_state.tick_count.saturating_sub(start_tick) >= 5
+            let is_active = world_state.tick_count.saturating_sub(start_tick) >= 5;
+            if is_active {
+                // Directional check: shield only blocks damage from in front of the player
+                if let Some(src_pos) = source_pos {
+                    let player_pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+                    let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+                    // Player look vector (yaw in degrees, 0=south, 90=west, 180=north, 270=east)
+                    let yaw_rad = (yaw as f64).to_radians();
+                    let look_x = -(yaw_rad.sin());
+                    let look_z = yaw_rad.cos();
+                    // Vector from damage source to player (XZ plane)
+                    let dx = player_pos.x - src_pos.x;
+                    let dz = player_pos.z - src_pos.z;
+                    let len = (dx * dx + dz * dz).sqrt();
+                    if len > 0.001 {
+                        let nx = dx / len;
+                        let nz = dz / len;
+                        // Dot product: negative means damage is from in front
+                        nx * look_x + nz * look_z < 0.0
+                    } else {
+                        true // damage from same position, block it
+                    }
+                } else {
+                    true // no source position (environmental), block if active
+                }
+            } else {
+                false
+            }
         } else {
             false
         }
@@ -4655,13 +4936,19 @@ fn apply_damage(
         damage
     };
 
-    // Apply damage
+    // Apply damage (absorption absorbs first, then health)
     let (new_health, is_dead) = {
         let mut health = match world.get::<&mut Health>(entity) {
             Ok(h) => h,
             Err(_) => return,
         };
-        health.current = (health.current - final_damage).max(0.0);
+        let mut remaining = final_damage;
+        if health.absorption > 0.0 {
+            let absorbed = remaining.min(health.absorption);
+            health.absorption -= absorbed;
+            remaining -= absorbed;
+        }
+        health.current = (health.current - remaining).max(0.0);
         health.invulnerable_ticks = 20;
         (health.current, health.current <= 0.0)
     };
@@ -4747,18 +5034,38 @@ fn handle_player_death(
         overlay: false,
     });
 
-    // Reset XP on death (vanilla drops level * 7 XP orbs, we just reset for now)
-    if let Ok(mut xp) = world.get::<&mut ExperienceData>(entity) {
-        xp.level = 0;
-        xp.progress = 0.0;
-        xp.total_xp = 0;
-    }
-    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
-        let _ = sender.0.send(InternalPacket::SetExperience {
-            progress: 0.0,
-            level: 0,
-            total_xp: 0,
-        });
+    // Drop inventory on death if keepInventory is false
+    if !world_state.keep_inventory {
+        let pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+        // Collect items first, then spawn entities (avoids borrow conflict)
+        let mut drop_items = Vec::new();
+        if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+            for slot_idx in 5..46 {
+                if let Some(item) = inv.slots[slot_idx].take() {
+                    drop_items.push(item);
+                }
+            }
+        }
+        let eid_arc = world_state.next_eid.clone();
+        for item in drop_items {
+            let drop_x = pos.x + (rand::random::<f64>() - 0.5) * 0.5;
+            let drop_z = pos.z + (rand::random::<f64>() - 0.5) * 0.5;
+            spawn_item_entity(world, world_state, &eid_arc, drop_x, pos.y + 0.5, drop_z, item, 40, scripting);
+        }
+
+        // Reset XP on death (vanilla drops level * 7 XP orbs, we just reset for now)
+        if let Ok(mut xp) = world.get::<&mut ExperienceData>(entity) {
+            xp.level = 0;
+            xp.progress = 0.0;
+            xp.total_xp = 0;
+        }
+        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+            let _ = sender.0.send(InternalPacket::SetExperience {
+                progress: 0.0,
+                level: 0,
+                total_xp: 0,
+            });
+        }
     }
 }
 
@@ -5657,7 +5964,7 @@ fn tick_mob_ai(
         let damage = pickaxe_data::mob_attack_damage(attack.mob_type);
         let mob_name = pickaxe_data::mob_type_name(attack.mob_type).unwrap_or("mob");
         let target_eid = world.get::<&EntityId>(attack.target).map(|e| e.0).unwrap_or(0);
-        apply_damage(world, world_state, attack.target, target_eid, damage, mob_name, _scripting);
+        apply_damage_from(world, world_state, attack.target, target_eid, damage, mob_name, Some(attack.mob_pos), _scripting);
 
         // Apply knockback to target player (vanilla: 0.4 strength)
         if let Ok(target_sender) = world.get::<&ConnectionSender>(attack.target) {
@@ -6115,7 +6422,8 @@ fn tick_health_hunger(
         let is_hurt = health.current < health.max;
 
         // Saturated regen: food=20 and saturation>0 and hurt → heal every 10 ticks
-        if food.food_level >= 20 && food.saturation > 0.0 && is_hurt {
+        // Only if naturalRegeneration gamerule is true
+        if world_state.natural_regeneration && food.food_level >= 20 && food.saturation > 0.0 && is_hurt {
             food.tick_timer += 1;
             if food.tick_timer >= 10 {
                 let heal_amount = food.saturation.min(6.0) / 6.0;
@@ -6125,7 +6433,7 @@ fn tick_health_hunger(
             }
         }
         // Normal regen: food>=18, hurt → heal every 80 ticks
-        else if food.food_level >= 18 && is_hurt {
+        else if world_state.natural_regeneration && food.food_level >= 18 && is_hurt {
             food.tick_timer += 1;
             if food.tick_timer >= 80 {
                 health.current = (health.current + 1.0).min(health.max);
@@ -6134,12 +6442,16 @@ fn tick_health_hunger(
             }
         }
         // Starvation: food==0 → damage every 80 ticks
-        // MC: EASY caps at 5.0HP, NORMAL caps at 1.0HP, HARD no cap
-        // We implement Normal difficulty behavior
+        // MC: EASY caps at 10.0HP, NORMAL caps at 1.0HP, HARD no cap
         else if food.food_level == 0 {
             food.tick_timer += 1;
             if food.tick_timer >= 80 {
-                if health.current > 1.0 {
+                let min_health = match world_state.difficulty {
+                    1 => 10.0, // easy: won't go below 10 HP (5 hearts)
+                    3 => 0.0,  // hard: can kill
+                    _ => 1.0,  // normal: won't go below 1 HP
+                };
+                if health.current > min_health {
                     starvation_damage.push((entity, eid.0));
                 }
                 food.tick_timer = 0;
@@ -6422,6 +6734,69 @@ fn tick_eating(world: &mut World) {
                 food.food_level = (food.food_level + nutrition).min(20);
                 let sat_gain = nutrition as f32 * sat_mod * 2.0;
                 food.saturation = (food.saturation + sat_gain).min(food.food_level as f32);
+            }
+
+            // Special food effects: golden apple, enchanted golden apple, etc.
+            let item_name = pickaxe_data::item_id_to_name(item_id).unwrap_or("");
+            let eid = world.get::<&EntityId>(entity).map(|e| e.0).unwrap_or(0);
+            match item_name {
+                "golden_apple" => {
+                    // Absorption I (2 hearts) for 2 minutes (2400 ticks)
+                    if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                        h.absorption = (h.absorption + 4.0).min(4.0);
+                    }
+                    // Regeneration II for 5 seconds (100 ticks)
+                    let regen = EffectInstance {
+                        effect_id: 9, amplifier: 1, duration: 100,
+                        ambient: false, show_particles: true, show_icon: true,
+                    };
+                    if let Ok(mut active) = world.get::<&mut ActiveEffects>(entity) {
+                        active.effects.insert(9, regen);
+                    }
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                            entity_id: eid, effect_id: 9, amplifier: 1, duration: 100, flags: 0x06,
+                        });
+                    }
+                }
+                "enchanted_golden_apple" => {
+                    // Absorption IV (8 hearts) for 2 minutes
+                    if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                        h.absorption = (h.absorption + 16.0).min(16.0);
+                    }
+                    // Regeneration V for 20 seconds (400 ticks)
+                    let regen = EffectInstance {
+                        effect_id: 9, amplifier: 4, duration: 400,
+                        ambient: false, show_particles: true, show_icon: true,
+                    };
+                    // Fire Resistance for 5 minutes (6000 ticks)
+                    let fire_res = EffectInstance {
+                        effect_id: 11, amplifier: 0, duration: 6000,
+                        ambient: false, show_particles: true, show_icon: true,
+                    };
+                    // Resistance for 5 minutes
+                    let resistance = EffectInstance {
+                        effect_id: 10, amplifier: 0, duration: 6000,
+                        ambient: false, show_particles: true, show_icon: true,
+                    };
+                    if let Ok(mut active) = world.get::<&mut ActiveEffects>(entity) {
+                        active.effects.insert(9, regen);
+                        active.effects.insert(11, fire_res);
+                        active.effects.insert(10, resistance);
+                    }
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                            entity_id: eid, effect_id: 9, amplifier: 4, duration: 400, flags: 0x06,
+                        });
+                        let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                            entity_id: eid, effect_id: 11, amplifier: 0, duration: 6000, flags: 0x06,
+                        });
+                        let _ = sender.0.send(InternalPacket::UpdateMobEffect {
+                            entity_id: eid, effect_id: 10, amplifier: 0, duration: 6000, flags: 0x06,
+                        });
+                    }
+                }
+                _ => {}
             }
         }
 
@@ -7096,6 +7471,17 @@ fn tick_entity_tracking(world: &mut World) {
                     velocity_y: vy,
                     velocity_z: vz,
                 });
+                // Send arrow metadata: index 8 = AbstractArrow flags byte (0x01 = critical)
+                if arrow.is_critical {
+                    let _ = observer_sender.send(InternalPacket::SetEntityMetadata {
+                        entity_id: eid,
+                        metadata: vec![pickaxe_protocol_core::EntityMetadataEntry {
+                            index: 8,
+                            type_id: 0, // Byte
+                            data: vec![0x01], // is_critical flag
+                        }],
+                    });
+                }
             } else if let Some(bobber) = bobber_data.iter().find(|d| d.eid == eid) {
                 // Fishing bobber entity (type 129)
                 let vx = (bobber.vel.x * 8000.0) as i16;
@@ -7865,8 +8251,13 @@ fn tick_lightning(
 /// Consults Lua block overrides before falling back to codegen data.
 fn calculate_break_ticks(
     block_state: i32,
+    held_item_name: Option<&str>,
     held_item_id: Option<i32>,
     efficiency_level: i32,
+    haste_level: i32,       // 0 = none, 1+ = amplifier+1
+    mining_fatigue_level: i32, // 0 = none, 1+ = amplifier+1 (amplifier 0..3)
+    in_water: bool,
+    on_ground: bool,
     block_overrides: &crate::bridge::BlockOverrides,
 ) -> Option<u64> {
     let block_name = pickaxe_data::block_state_to_name(block_state);
@@ -7916,18 +8307,55 @@ fn calculate_break_ticks(
         }
     };
 
-    let mut seconds = if has_correct_tool {
-        hardness * 1.5
+    // Vanilla formula: Player.getDigSpeed()
+    // Step 1: base tool speed (1.0 if no matching tool, else tool's speed multiplier)
+    let mut speed: f64 = if has_correct_tool {
+        held_item_name.map(|n| pickaxe_data::tool_destroy_speed(n) as f64).unwrap_or(1.0)
     } else {
-        hardness * 5.0
+        1.0
     };
-    // Efficiency enchantment: reduce break time (level^2 + 1 speed bonus)
-    if efficiency_level > 0 && has_correct_tool {
-        let speed_bonus = (efficiency_level * efficiency_level + 1) as f64;
-        // Base tool speed varies; approximate by reducing time proportionally
-        seconds /= 1.0 + speed_bonus * 0.3;
+
+    // Step 2: efficiency enchantment (only if tool speed > 1.0)
+    if speed > 1.0 && efficiency_level > 0 {
+        speed += (efficiency_level * efficiency_level + 1) as f64;
     }
-    Some((seconds * 20.0).ceil() as u64)
+
+    // Step 3: haste effect — speed *= 1.0 + (amplifier + 1) * 0.2
+    if haste_level > 0 {
+        speed *= 1.0 + haste_level as f64 * 0.2;
+    }
+
+    // Step 4: mining fatigue effect
+    if mining_fatigue_level > 0 {
+        let amplifier = (mining_fatigue_level - 1).min(3);
+        let mult = match amplifier {
+            0 => 0.3,
+            1 => 0.09,
+            2 => 0.0027,
+            _ => 0.00081,
+        };
+        speed *= mult;
+    }
+
+    // Step 5: underwater penalty (5x slower, unless aqua affinity — not implemented yet)
+    if in_water {
+        speed /= 5.0;
+    }
+
+    // Step 6: not on ground penalty (5x slower)
+    if !on_ground {
+        speed /= 5.0;
+    }
+
+    // Vanilla: progress_per_tick = speed / hardness / (hasCorrectTool ? 30 : 100)
+    let divisor = if has_correct_tool { 30.0 } else { 100.0 };
+    let progress_per_tick = speed / hardness / divisor;
+
+    if progress_per_tick >= 1.0 {
+        return Some(0); // instant break
+    }
+
+    Some((1.0 / progress_per_tick).ceil() as u64)
 }
 
 /// Complete a block break: fire pre-event, set to air, send updates, handle drops.
@@ -8510,7 +8938,7 @@ fn tick_item_physics(world: &mut World, world_state: &mut WorldState, scripting:
         vel.0.y -= 0.04;
 
         // 2. Move with collision (simplified AABB collision)
-        let old_vel = vel.0;
+        let _old_vel = vel.0;
         let new_x = pos.0.x + vel.0.x;
         let new_y = pos.0.y + vel.0.y;
         let new_z = pos.0.z + vel.0.z;
@@ -8673,9 +9101,13 @@ fn tick_farming(world: &World, world_state: &mut WorldState) {
                 if let Some((age, max_age)) = pickaxe_data::crop_age(block) {
                     if age < max_age {
                         // Simplified growth: ~4% chance per random tick (f=1.0 equivalent)
+                        // Vanilla requires light >= 9; we approximate by checking the block
+                        // above is air (has sky light). Underground crops won't grow.
+                        let above = chunk.get_block(local_x, by + 1, local_z);
+                        let has_light = above == 0; // air above = sky light
                         // Check farmland below is present
                         let below = chunk.get_block(local_x, by - 1, local_z);
-                        if pickaxe_data::is_farmland(below) {
+                        if has_light && pickaxe_data::is_farmland(below) {
                             // Higher chance if farmland is moist
                             let moisture = pickaxe_data::farmland_moisture(below).unwrap_or(0);
                             let growth_chance = if moisture >= 7 { 12 } else { 26 };
@@ -8787,6 +9219,15 @@ fn tick_fire(
         let by = fire_pos.y;
         let bz = fire_pos.z;
 
+        // Rain extinguishes fire (vanilla: 0.2 + age * 0.03 chance when raining near rain)
+        if world_state.raining {
+            let rain_chance = 0.2 + age as f64 * 0.03;
+            if rng.gen::<f64>() < rain_chance {
+                updates.push((*fire_pos, 0));
+                continue;
+            }
+        }
+
         // Check if fire can survive: needs solid block below or adjacent flammable
         let below = BlockPos::new(bx, by - 1, bz);
         let below_block = world_state.get_block(&below);
@@ -8880,8 +9321,9 @@ fn tick_fire(
                             difficulty += (sy - 1) * 100;
                         }
 
-                        let spread_chance = (max_ignite + 40) / (new_age + 30);
-                        if spread_chance > 0 && rng.gen_range(0..difficulty) <= spread_chance {
+                        let spread_chance = (max_ignite + 40 + world_state.difficulty * 7) / (new_age + 30);
+                        if spread_chance > 0 && rng.gen_range(0..difficulty) <= spread_chance
+                            && (!world_state.raining || rng.gen::<f64>() > 0.2 + new_age as f64 * 0.03) {
                             let fire_age = (new_age + rng.gen_range(0..5) / 4).min(15);
                             updates.push((spread_pos, pickaxe_data::fire_state_with_age(fire_age)));
                         }
@@ -9638,7 +10080,9 @@ fn tick_arrow_physics(world: &mut World, world_state: &mut WorldState, next_eid:
             if dist_sq < 0.6 * 0.6 {
                 // Hit!
                 let damage = if arrow.is_critical {
-                    arrow.damage * 1.5 + 0.5
+                    // Vanilla: damage + random(0 to damage/2+2)
+                    let bonus = rand::random::<f32>() * (arrow.damage / 2.0 + 2.0);
+                    arrow.damage + bonus
                 } else {
                     arrow.damage
                 };
@@ -9735,8 +10179,8 @@ fn tick_arrow_physics(world: &mut World, world_state: &mut WorldState, next_eid:
                 }
             }
         } else {
-            // Arrow hit a player — use apply_damage
-            apply_damage(world, world_state, hit.target_entity, hit.target_eid, hit.damage, "arrow", scripting);
+            // Arrow hit a player — use apply_damage with arrow position for directional shield
+            apply_damage_from(world, world_state, hit.target_entity, hit.target_eid, hit.damage, "arrow", Some(hit.hit_pos), scripting);
         }
 
         // Play hit sound
@@ -10102,9 +10546,10 @@ fn do_explosion(
         }
     }
 
-    // Apply damage to players
+    // Apply damage to players (explosions use center position for shield directionality)
+    let explosion_center = Vec3d::new(center_x, center_y, center_z);
     for info in &player_infos {
-        apply_damage(world, world_state, info.entity, info.eid, info.damage, "explosion", scripting);
+        apply_damage_from(world, world_state, info.entity, info.eid, info.damage, "explosion", Some(explosion_center), scripting);
     }
 
     // Damage mobs
@@ -10138,7 +10583,7 @@ fn do_explosion(
 
     // Phase 4: Send per-player explosion packets with individual knockback
     let block_interaction = if destroy_blocks { 2 } else { 0 }; // DESTROY_WITH_DECAY or KEEP
-    for (pe, (peid, sender)) in world.query::<(&EntityId, &ConnectionSender)>().iter() {
+    for (_pe, (peid, sender)) in world.query::<(&EntityId, &ConnectionSender)>().iter() {
         // Find this player's knockback
         let (kx, ky, kz) = player_infos.iter()
             .find(|i| i.eid == peid.0)

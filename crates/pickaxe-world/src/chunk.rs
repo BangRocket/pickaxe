@@ -336,16 +336,30 @@ impl Chunk {
 
             let mut palette_nbt = Vec::new();
             for &state_id in &palette_map {
-                let name = pickaxe_data::block_state_to_name(state_id)
-                    .unwrap_or("air");
-                let full_name = if name.contains(':') {
-                    name.to_string()
+                if let Some((name, props)) = pickaxe_data::block_state_to_properties(state_id) {
+                    let full_name = if name.contains(':') {
+                        name.to_string()
+                    } else {
+                        format!("minecraft:{}", name)
+                    };
+                    if props.is_empty() {
+                        palette_nbt.push(nbt_compound! {
+                            "Name" => NbtValue::String(full_name)
+                        });
+                    } else {
+                        let prop_entries: Vec<(String, NbtValue)> = props.iter()
+                            .map(|(k, v)| (k.to_string(), NbtValue::String(v.to_string())))
+                            .collect();
+                        palette_nbt.push(NbtValue::Compound(vec![
+                            ("Name".into(), NbtValue::String(full_name)),
+                            ("Properties".into(), NbtValue::Compound(prop_entries)),
+                        ]));
+                    }
                 } else {
-                    format!("minecraft:{}", name)
-                };
-                palette_nbt.push(nbt_compound! {
-                    "Name" => NbtValue::String(full_name)
-                });
+                    palette_nbt.push(nbt_compound! {
+                        "Name" => NbtValue::String("minecraft:air".into())
+                    });
+                }
             }
 
             let mut block_states_entries = vec![
@@ -415,7 +429,7 @@ impl Chunk {
                 _ => continue,
             };
 
-            // Build palette: map NBT names to state IDs
+            // Build palette: map NBT names + properties to state IDs
             let mut palette_ids: Vec<i32> = Vec::new();
             for entry in palette_nbt {
                 let name = match entry.get("Name").and_then(|v| v.as_str()) {
@@ -423,8 +437,20 @@ impl Chunk {
                     None => continue,
                 };
                 let short_name = name.strip_prefix("minecraft:").unwrap_or(name);
-                let state_id = pickaxe_data::block_name_to_default_state(short_name)
-                    .unwrap_or(0);
+                let state_id = if let Some(props_nbt) = entry.get("Properties") {
+                    // Extract property key-value pairs from NBT compound
+                    if let NbtValue::Compound(entries) = props_nbt {
+                        let props: Vec<(&str, &str)> = entries.iter()
+                            .filter_map(|(k, v)| v.as_str().map(|s| (k.as_str(), s)))
+                            .collect();
+                        pickaxe_data::block_name_with_properties_to_state(short_name, &props)
+                            .unwrap_or_else(|| pickaxe_data::block_name_to_default_state(short_name).unwrap_or(0))
+                    } else {
+                        pickaxe_data::block_name_to_default_state(short_name).unwrap_or(0)
+                    }
+                } else {
+                    pickaxe_data::block_name_to_default_state(short_name).unwrap_or(0)
+                };
                 palette_ids.push(state_id);
             }
 

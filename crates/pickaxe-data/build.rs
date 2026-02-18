@@ -504,6 +504,98 @@ fn main() {
     writeln!(out, "    }}").unwrap();
     writeln!(out, "}}").unwrap();
 
+    // block_state_to_properties: map state_id to (block_name, [(prop_name, prop_value), ...])
+    // Uses stride math to decompose state_id offset into property values.
+    writeln!(out, "\n/// Map block state ID to block name and its property key-value pairs.").unwrap();
+    writeln!(out, "pub fn block_state_to_properties(state_id: i32) -> Option<(&'static str, Vec<(&'static str, &'static str)>)> {{").unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        if b.states.is_empty() || b.min_state_id == b.max_state_id {
+            // No properties or single state — just name, no properties
+            if b.min_state_id == b.max_state_id {
+                writeln!(out, "        {} => Some((\"{}\", vec![])),", b.min_state_id, b.name).unwrap();
+            } else {
+                writeln!(out, "        {}..={} => Some((\"{}\", vec![])),", b.min_state_id, b.max_state_id, b.name).unwrap();
+            }
+            continue;
+        }
+        writeln!(out, "        {}..={} => {{ // {}", b.min_state_id, b.max_state_id, b.name).unwrap();
+        writeln!(out, "            let rel = state_id - {};", b.min_state_id).unwrap();
+        writeln!(out, "            let mut props = Vec::new();").unwrap();
+        writeln!(out, "            let mut rem = rel;").unwrap();
+        // For each property, compute stride and extract value
+        for (si, state) in b.states.iter().enumerate() {
+            let stride: i32 = b.states[si + 1..].iter().map(|s| s.num_values).product();
+            writeln!(out, "            let idx{} = (rem / {}) as usize;", si, stride).unwrap();
+            writeln!(out, "            rem = rem % {};", stride).unwrap();
+            // Map index to string value
+            if state.state_type == "bool" {
+                writeln!(out, "            props.push((\"{}\", if idx{} == 0 {{ \"true\" }} else {{ \"false\" }}));", state.name, si).unwrap();
+            } else if state.state_type == "int" {
+                // Integer property — generate match on index
+                let start: i32 = state.values.first().and_then(|v| v.parse().ok()).unwrap_or(0);
+                let vals: Vec<String> = (0..state.num_values).map(|i| (start + i).to_string()).collect();
+                writeln!(out, "            props.push((\"{}\", match idx{} {{", state.name, si).unwrap();
+                for (vi, val) in vals.iter().enumerate() {
+                    writeln!(out, "                {} => \"{}\",", vi, val).unwrap();
+                }
+                writeln!(out, "                _ => \"0\",").unwrap();
+                writeln!(out, "            }}));").unwrap();
+            } else {
+                // Enum property
+                writeln!(out, "            props.push((\"{}\", match idx{} {{", state.name, si).unwrap();
+                for (vi, val) in state.values.iter().enumerate() {
+                    writeln!(out, "                {} => \"{}\",", vi, val).unwrap();
+                }
+                writeln!(out, "                _ => \"{}\",", state.values.first().map(|s| s.as_str()).unwrap_or("")).unwrap();
+                writeln!(out, "            }}));").unwrap();
+            }
+        }
+        writeln!(out, "            Some((\"{}\", props))", b.name).unwrap();
+        writeln!(out, "        }}").unwrap();
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // block_name_with_properties_to_state: reverse lookup
+    writeln!(out, "/// Map block name + property values to exact state ID.").unwrap();
+    writeln!(out, "/// `props` is a slice of (key, value) pairs.").unwrap();
+    writeln!(out, "pub fn block_name_with_properties_to_state(name: &str, props: &[(&str, &str)]) -> Option<i32> {{").unwrap();
+    writeln!(out, "    match name {{").unwrap();
+    for b in &blocks {
+        if b.states.is_empty() || b.min_state_id == b.max_state_id {
+            writeln!(out, "        \"{}\" => Some({}),", b.name, b.default_state).unwrap();
+            continue;
+        }
+        writeln!(out, "        \"{}\" => {{", b.name).unwrap();
+        writeln!(out, "            let mut offset = 0i32;").unwrap();
+        for (si, state) in b.states.iter().enumerate() {
+            let stride: i32 = b.states[si + 1..].iter().map(|s| s.num_values).product();
+            writeln!(out, "            let v{si} = props.iter().find(|(k, _)| *k == \"{}\").map(|(_, v)| *v).unwrap_or(\"\");", state.name).unwrap();
+            if state.state_type == "bool" {
+                writeln!(out, "            let idx{si} = if v{si} == \"true\" {{ 0 }} else {{ 1 }};").unwrap();
+            } else if state.state_type == "int" {
+                let start: i32 = state.values.first().and_then(|v| v.parse().ok()).unwrap_or(0);
+                writeln!(out, "            let idx{si} = v{si}.parse::<i32>().unwrap_or({}) - {};", start, start).unwrap();
+            } else {
+                writeln!(out, "            let idx{si} = match v{si} {{").unwrap();
+                for (vi, val) in state.values.iter().enumerate() {
+                    writeln!(out, "                \"{}\" => {},", val, vi).unwrap();
+                }
+                writeln!(out, "                _ => 0,").unwrap();
+                writeln!(out, "            }};").unwrap();
+            }
+            writeln!(out, "            offset += idx{si} * {};", stride).unwrap();
+        }
+        writeln!(out, "            Some({} + offset)", b.min_state_id).unwrap();
+        writeln!(out, "        }}").unwrap();
+    }
+    writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+
     println!(
         "cargo:rerun-if-changed={}",
         blocks_dir.display()

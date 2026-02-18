@@ -1029,7 +1029,248 @@ pub fn register_players_api(lua: &Lua) -> anyhow::Result<()> {
         )
         .map_err(lua_err)?;
 
+    // pickaxe.players.send_title(name, title, subtitle?, fade_in?, stay?, fade_out?)
+    players_table
+        .set(
+            "send_title",
+            lua.create_function(
+                |lua,
+                 (name, title, subtitle, fade_in, stay, fade_out): (
+                    String,
+                    String,
+                    Option<String>,
+                    Option<i32>,
+                    Option<i32>,
+                    Option<i32>,
+                )| {
+                    with_world(lua, |world| {
+                        let entity = match find_player_by_name(world, &name) {
+                            Some(e) => e,
+                            None => return false,
+                        };
+                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                            // Send animation times first
+                            let _ = sender.0.send(InternalPacket::SetTitlesAnimation {
+                                fade_in: fade_in.unwrap_or(10),
+                                stay: stay.unwrap_or(70),
+                                fade_out: fade_out.unwrap_or(20),
+                            });
+                            // Send subtitle if provided
+                            if let Some(sub) = subtitle {
+                                let _ = sender.0.send(InternalPacket::SetSubtitleText {
+                                    text: TextComponent::plain(&sub),
+                                });
+                            }
+                            // Send title (must come after subtitle to display both)
+                            let _ = sender.0.send(InternalPacket::SetTitleText {
+                                text: TextComponent::plain(&title),
+                            });
+                        }
+                        true
+                    })
+                },
+            )
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.send_actionbar(name, text)
+    players_table
+        .set(
+            "send_actionbar",
+            lua.create_function(|lua, (name, text): (String, String)| {
+                with_world(lua, |world| {
+                    let entity = match find_player_by_name(world, &name) {
+                        Some(e) => e,
+                        None => return false,
+                    };
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::SetActionBarText {
+                            text: TextComponent::plain(&text),
+                        });
+                    }
+                    true
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.get_inventory(name) -> table of {slot_index, item_id, item_name, count, damage?}
+    players_table
+        .set(
+            "get_inventory",
+            lua.create_function(|lua, name: String| {
+                with_world(lua, |world| -> Option<Vec<mlua::Value>> {
+                    let entity = find_player_by_name(world, &name)?;
+                    let inv = world.get::<&Inventory>(entity).ok()?;
+                    let mut result = Vec::new();
+                    for (i, slot) in inv.slots.iter().enumerate() {
+                        if let Some(item) = slot {
+                            if let Ok(t) = lua.create_table() {
+                                let _ = t.set("slot", i as i32);
+                                let _ = t.set("item_id", item.item_id);
+                                let _ = t.set("count", item.count);
+                                let _ = t.set("damage", item.damage);
+                                if let Some(name) = pickaxe_data::item_id_to_name(item.item_id) {
+                                    let _ = t.set("item_name", name);
+                                }
+                                result.push(mlua::Value::Table(t));
+                            }
+                        }
+                    }
+                    Some(result)
+                })
+            })
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    // pickaxe.players.set_inventory_slot(name, slot, item_name_or_nil, count?) -> bool
+    players_table
+        .set(
+            "set_inventory_slot",
+            lua.create_function(
+                |lua, (name, slot, item_name, count): (String, i32, Option<String>, Option<i32>)| {
+                    with_world(lua, |world| {
+                        let entity = match find_player_by_name(world, &name) {
+                            Some(e) => e,
+                            None => return false,
+                        };
+                        let slot_idx = slot as usize;
+                        if slot_idx >= 46 {
+                            return false;
+                        }
+                        let new_item = match item_name {
+                            Some(iname) => {
+                                let item_id =
+                                    match pickaxe_data::item_name_to_id(&iname) {
+                                        Some(id) => id,
+                                        None => return false,
+                                    };
+                                let cnt = count.unwrap_or(1).min(64).max(1) as i8;
+                                Some(ItemStack::new(item_id, cnt))
+                            }
+                            None => None, // clear slot
+                        };
+                        let state_id = {
+                            let mut inv = match world.get::<&mut Inventory>(entity) {
+                                Ok(inv) => inv,
+                                Err(_) => return false,
+                            };
+                            inv.set_slot(slot_idx, new_item.clone());
+                            inv.state_id
+                        };
+                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                            let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                window_id: 0,
+                                state_id,
+                                slot: slot_idx as i16,
+                                item: new_item,
+                            });
+                        }
+                        true
+                    })
+                },
+            )
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
     pickaxe.set("players", players_table).map_err(lua_err)?;
+    Ok(())
+}
+
+// ── Sounds API ───────────────────────────────────────────────────────
+
+/// Register `pickaxe.sounds` API on the Lua VM.
+pub fn register_sounds_api(lua: &Lua) -> anyhow::Result<()> {
+    let pickaxe: mlua::Table = lua.globals().get("pickaxe").map_err(lua_err)?;
+    let sounds_table = lua.create_table().map_err(lua_err)?;
+
+    // pickaxe.sounds.play(x, y, z, sound_name, volume?, pitch?) -> bool
+    sounds_table
+        .set(
+            "play",
+            lua.create_function(
+                |lua, (x, y, z, sound_name, volume, pitch): (f64, f64, f64, String, Option<f32>, Option<f32>)| {
+                    with_world(lua, |world| {
+                        let vol = volume.unwrap_or(1.0);
+                        let p = pitch.unwrap_or(1.0);
+                        let packet = InternalPacket::SoundEffect {
+                            sound_name,
+                            source: 0, // master
+                            x,
+                            y,
+                            z,
+                            volume: vol,
+                            pitch: p,
+                            seed: rand::random(),
+                        };
+                        for (_, sender) in world.query::<&ConnectionSender>().iter() {
+                            let _ = sender.0.send(packet.clone());
+                        }
+                        true
+                    })
+                },
+            )
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    pickaxe.set("sounds", sounds_table).map_err(lua_err)?;
+    Ok(())
+}
+
+// ── Particles API ────────────────────────────────────────────────────
+
+/// Register `pickaxe.particles` API on the Lua VM.
+pub fn register_particles_api(lua: &Lua) -> anyhow::Result<()> {
+    let pickaxe: mlua::Table = lua.globals().get("pickaxe").map_err(lua_err)?;
+    let particles_table = lua.create_table().map_err(lua_err)?;
+
+    // pickaxe.particles.spawn(x, y, z, particle_id, count?, offset_x?, offset_y?, offset_z?, speed?) -> bool
+    particles_table
+        .set(
+            "spawn",
+            lua.create_function(
+                |lua,
+                 (x, y, z, particle_id, count, offset_x, offset_y, offset_z, speed): (
+                    f64,
+                    f64,
+                    f64,
+                    i32,
+                    Option<i32>,
+                    Option<f32>,
+                    Option<f32>,
+                    Option<f32>,
+                    Option<f32>,
+                )| {
+                    with_world(lua, |world| {
+                        let packet = InternalPacket::LevelParticles {
+                            particle_id,
+                            long_distance: true,
+                            x,
+                            y,
+                            z,
+                            offset_x: offset_x.unwrap_or(0.0),
+                            offset_y: offset_y.unwrap_or(0.0),
+                            offset_z: offset_z.unwrap_or(0.0),
+                            max_speed: speed.unwrap_or(0.0),
+                            count: count.unwrap_or(1),
+                        };
+                        for (_, sender) in world.query::<&ConnectionSender>().iter() {
+                            let _ = sender.0.send(packet.clone());
+                        }
+                        true
+                    })
+                },
+            )
+            .map_err(lua_err)?,
+        )
+        .map_err(lua_err)?;
+
+    pickaxe.set("particles", particles_table).map_err(lua_err)?;
     Ok(())
 }
 

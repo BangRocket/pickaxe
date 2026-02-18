@@ -375,6 +375,48 @@ pub enum InternalPacket {
         item_count: i32,
     },
 
+    /// Tab List Header & Footer (0x6D CB) — server branding in tab list.
+    SetTabListHeaderAndFooter {
+        header: TextComponent,
+        footer: TextComponent,
+    },
+
+    /// Set Title Text (0x65 CB) — display large title text.
+    SetTitleText {
+        text: TextComponent,
+    },
+
+    /// Set Subtitle Text (0x63 CB) — display subtitle text below title.
+    SetSubtitleText {
+        text: TextComponent,
+    },
+
+    /// Set Title Animation Times (0x66 CB) — fade in/stay/fade out in ticks.
+    SetTitlesAnimation {
+        fade_in: i32,
+        stay: i32,
+        fade_out: i32,
+    },
+
+    /// Set Action Bar Text (0x4C CB) — text above hotbar.
+    SetActionBarText {
+        text: TextComponent,
+    },
+
+    /// Level Particles (0x29 CB) — spawn particle effects.
+    LevelParticles {
+        particle_id: i32,
+        long_distance: bool,
+        x: f64,
+        y: f64,
+        z: f64,
+        offset_x: f32,
+        offset_y: f32,
+        offset_z: f32,
+        max_speed: f32,
+        count: i32,
+    },
+
     // === Play (serverbound) ===
     /// Chat Message (0x06 serverbound, protocol 767)
     ChatMessage {

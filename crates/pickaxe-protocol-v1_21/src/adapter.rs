@@ -117,10 +117,16 @@ const PLAY_WORLD_EVENT: i32 = 0x28;
 const PLAY_SET_EXPERIENCE: i32 = 0x5C;
 const PLAY_ADD_EXPERIENCE_ORB: i32 = 0x02;
 const PLAY_UPDATE_MOB_EFFECT: i32 = 0x75;
-const PLAY_REMOVE_MOB_EFFECT: i32 = 0x42;
+const PLAY_REMOVE_MOB_EFFECT: i32 = 0x43;
 const PLAY_BLOCK_ENTITY_DATA: i32 = 0x07;
 const PLAY_OPEN_SIGN_EDITOR: i32 = 0x34;
 const PLAY_EXPLOSION: i32 = 0x20;
+const PLAY_LEVEL_PARTICLES: i32 = 0x29;
+const PLAY_SET_ACTION_BAR_TEXT: i32 = 0x4C;
+const PLAY_SET_SUBTITLE_TEXT: i32 = 0x63;
+const PLAY_SET_TITLE_TEXT: i32 = 0x65;
+const PLAY_SET_TITLES_ANIMATION: i32 = 0x66;
+const PLAY_TAB_LIST: i32 = 0x6D;
 
 // === Decode functions ===
 
@@ -1107,6 +1113,70 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             let mut nbt_buf = BytesMut::new();
             nbt.write_root_network(&mut nbt_buf);
             buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::SetTabListHeaderAndFooter { header, footer } => {
+            write_varint(&mut buf, PLAY_TAB_LIST);
+            // Header component as NBT
+            let header_nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(header.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            header_nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+            // Footer component as NBT
+            let footer_nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(footer.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            footer_nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::SetTitleText { text } => {
+            write_varint(&mut buf, PLAY_SET_TITLE_TEXT);
+            let nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(text.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::SetSubtitleText { text } => {
+            write_varint(&mut buf, PLAY_SET_SUBTITLE_TEXT);
+            let nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(text.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::SetTitlesAnimation { fade_in, stay, fade_out } => {
+            write_varint(&mut buf, PLAY_SET_TITLES_ANIMATION);
+            buf.put_i32(*fade_in);
+            buf.put_i32(*stay);
+            buf.put_i32(*fade_out);
+        }
+        InternalPacket::SetActionBarText { text } => {
+            write_varint(&mut buf, PLAY_SET_ACTION_BAR_TEXT);
+            let nbt = NbtValue::Compound(vec![
+                ("text".into(), NbtValue::String(text.text.clone())),
+            ]);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
+        }
+        InternalPacket::LevelParticles { particle_id, long_distance, x, y, z, offset_x, offset_y, offset_z, max_speed, count } => {
+            write_varint(&mut buf, PLAY_LEVEL_PARTICLES);
+            buf.put_u8(*long_distance as u8);
+            buf.put_f64(*x);
+            buf.put_f64(*y);
+            buf.put_f64(*z);
+            buf.put_f32(*offset_x);
+            buf.put_f32(*offset_y);
+            buf.put_f32(*offset_z);
+            buf.put_f32(*max_speed);
+            buf.put_i32(*count);
+            write_varint(&mut buf, *particle_id);
+            // No extra particle data for simple types
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

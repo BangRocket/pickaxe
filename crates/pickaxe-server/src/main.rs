@@ -44,6 +44,8 @@ async fn main() -> anyhow::Result<()> {
     bridge::register_commands_api(scripting.lua(), lua_commands.clone())?;
     bridge::register_blocks_api(scripting.lua(), block_overrides.clone())?;
     bridge::register_entities_api(scripting.lua(), next_eid.clone())?;
+    bridge::register_sounds_api(scripting.lua())?;
+    bridge::register_particles_api(scripting.lua())?;
     scripting.load_mods(&[Path::new("lua")])?;
 
     // Fire server_start event synchronously

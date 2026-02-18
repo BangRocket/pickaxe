@@ -154,6 +154,8 @@ pub struct Health {
     pub current: f32,
     pub max: f32,
     pub invulnerable_ticks: i32,
+    /// Absorption hearts (from golden apple, etc.). Absorbs damage before health.
+    pub absorption: f32,
 }
 
 impl Default for Health {
@@ -162,6 +164,7 @@ impl Default for Health {
             current: 20.0,
             max: 20.0,
             invulnerable_ticks: 0,
+            absorption: 0.0,
         }
     }
 }
