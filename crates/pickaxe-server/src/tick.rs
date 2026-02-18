@@ -5410,22 +5410,38 @@ fn tick_mob_ai(
             }
         }
 
-        // Apply movement
+        // Apply movement with proper collision (2-block height check + step-up)
         if update.move_x != 0.0 || update.move_z != 0.0 {
             if let Ok(mut pos) = world.get::<&mut Position>(update.entity) {
                 let new_x = pos.0.x + update.move_x;
                 let new_z = pos.0.z + update.move_z;
+                let feet_y = pos.0.y.floor() as i32;
+                let bx = new_x.floor() as i32;
+                let bz = new_z.floor() as i32;
 
-                // Simple collision: check if target block is air/passable
-                let target_block = world_state.get_block(&BlockPos::new(
-                    new_x.floor() as i32,
-                    pos.0.y.floor() as i32,
-                    new_z.floor() as i32,
-                ));
-                if target_block == 0 {
-                    pos.0.x = new_x;
-                    pos.0.z = new_z;
+                // Check 2-block clearance at target position (feet and head)
+                let block_feet = world_state.get_block(&BlockPos::new(bx, feet_y, bz));
+                let block_head = world_state.get_block(&BlockPos::new(bx, feet_y + 1, bz));
+
+                if block_feet == 0 && block_head == 0 {
+                    // Clear path — check there's ground below to prevent walking off edges
+                    let block_below = world_state.get_block(&BlockPos::new(bx, feet_y - 1, bz));
+                    if block_below != 0 {
+                        pos.0.x = new_x;
+                        pos.0.z = new_z;
+                    }
+                    // else: no ground ahead, mob stays put (avoids walking off cliffs)
+                } else if block_feet != 0 && block_head == 0 {
+                    // 1-block obstacle — try stepping up
+                    let step_feet = world_state.get_block(&BlockPos::new(bx, feet_y + 1, bz));
+                    let step_head = world_state.get_block(&BlockPos::new(bx, feet_y + 2, bz));
+                    if step_feet == 0 && step_head == 0 {
+                        pos.0.x = new_x;
+                        pos.0.y = (feet_y + 1) as f64;
+                        pos.0.z = new_z;
+                    }
                 }
+                // else: blocked by 2+ block wall, stay put
             }
         }
 
