@@ -880,6 +880,41 @@ impl WorldState {
     pub fn remove_block_entity(&mut self, pos: &BlockPos) -> Option<BlockEntity> {
         self.block_entities.remove(pos)
     }
+
+    /// Unload chunks that are not within any player's view distance.
+    /// Saves chunks to disk before removing them from memory.
+    /// Also removes block entities belonging to unloaded chunks.
+    pub fn unload_distant_chunks(&mut self, player_chunks: &[(i32, i32, i32)]) {
+        // player_chunks: &[(chunk_x, chunk_z, view_distance)]
+        let chunks_to_unload: Vec<ChunkPos> = self.chunks.keys()
+            .filter(|pos| {
+                !player_chunks.iter().any(|&(pcx, pcz, vd)| {
+                    (pos.x - pcx).abs() <= vd && (pos.z - pcz).abs() <= vd
+                })
+            })
+            .copied()
+            .collect();
+
+        if chunks_to_unload.is_empty() {
+            return;
+        }
+
+        let count = chunks_to_unload.len();
+        for pos in &chunks_to_unload {
+            // Save before unloading
+            self.queue_chunk_save(*pos);
+            self.chunks.remove(pos);
+
+            // Remove block entities in this chunk
+            let chunk_min_x = pos.x * 16;
+            let chunk_min_z = pos.z * 16;
+            self.block_entities.retain(|be_pos, _| {
+                !(be_pos.x >= chunk_min_x && be_pos.x < chunk_min_x + 16
+                    && be_pos.z >= chunk_min_z && be_pos.z < chunk_min_z + 16)
+            });
+        }
+        info!("Unloaded {} distant chunks ({} remain)", count, self.chunks.len());
+    }
 }
 
 /// The main game loop. Runs at 20 TPS on the main thread.
@@ -1070,6 +1105,14 @@ pub async fn run_tick_loop(
             save_block_entity_chunks(&world_state);
             let level_data = serialize_level_dat(&world_state, &config);
             let _ = world_state.save_tx.send(SaveOp::LevelDat(level_data));
+
+            // Unload chunks not in any player's view distance
+            let player_chunks: Vec<(i32, i32, i32)> = world
+                .query::<(&ChunkPosition, &ViewDistance)>()
+                .iter()
+                .map(|(_, (cp, vd))| (cp.chunk_x, cp.chunk_z, vd.0))
+                .collect();
+            world_state.unload_distant_chunks(&player_chunks);
         }
 
         tick_count += 1;
@@ -1571,6 +1614,20 @@ fn process_packet(
             sequence,
             ..
         } => {
+            // Range validation: reject digs > 6 blocks away
+            let player_pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+            {
+                let dx = player_pos.x - (position.x as f64 + 0.5);
+                let dy = player_pos.y - (position.y as f64 + 0.5);
+                let dz = player_pos.z - (position.z as f64 + 0.5);
+                if dx * dx + dy * dy + dz * dz > 6.0 * 6.0 {
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                    }
+                    return;
+                }
+            }
+
             let game_mode = world
                 .get::<&PlayerGameMode>(entity)
                 .map(|gm| gm.0)
@@ -2422,6 +2479,18 @@ fn process_packet(
             }
 
             let target = offset_by_face(&position, face);
+
+            // Range validation: reject placements > 6 blocks away (vanilla limit)
+            let player_pos = world.get::<&Position>(entity).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+            let dx = player_pos.x - (target.x as f64 + 0.5);
+            let dy = player_pos.y - (target.y as f64 + 0.5);
+            let dz = player_pos.z - (target.z as f64 + 0.5);
+            if dx * dx + dy * dy + dz * dz > 6.0 * 6.0 {
+                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                }
+                return;
+            }
 
             // Special handling for bed placement (2-block structure)
             if pickaxe_data::is_bed(block_id) {
@@ -3588,7 +3657,7 @@ fn handle_container_click(
 
     // Apply the client's proposed slot changes (trust-based for now)
     match mode {
-        0 | 1 | 2 | 4 => {
+        0 | 1 | 2 | 3 | 4 | 5 | 6 => {
             for (changed_slot, changed_item) in changed_slots {
                 if let Some(t) = map_slot(&open.menu, *changed_slot) {
                     set_container_slot(world_state, world, entity, &mut open.menu, &t, changed_item.clone());
@@ -3631,7 +3700,7 @@ fn handle_container_click(
                 }
             }
         }
-        _ => {} // Modes 3, 5, 6 — resync below
+        _ => {} // Unknown modes — resync below
     }
 
     let new_state_id = client_state_id.wrapping_add(1);
@@ -4162,7 +4231,8 @@ fn handle_attack(
         }
     }
 
-    // Sharpness enchantment: 0.5 + 0.5 * level extra damage
+    // Sharpness/knockback enchantments
+    let mut knockback_bonus = 0.0_f32;
     if let Ok(inv) = world.get::<&Inventory>(attacker) {
         if let Some(ref item) = inv.slots[36 + held_slot as usize] {
             let sharpness = item.enchantment_level(13); // sharpness
@@ -4178,7 +4248,7 @@ fn handle_attack(
                     let _ = sender; // fire aspect visual is TODO
                 }
             }
-            let _ = knockback_level; // knockback physics is TODO
+            knockback_bonus = knockback_level as f32;
         }
     }
 
@@ -4267,39 +4337,68 @@ fn handle_attack(
         });
     }
 
-    // Knockback (for both players and mobs)
-    let attacker_yaw = world.get::<&Rotation>(attacker).map(|r| r.yaw).unwrap_or(0.0);
-    let kb_strength = if is_sprinting { 1.4_f32 } else { 0.4 };
-    let sin_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).sin();
-    let cos_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).cos();
-    let kb_x = (-sin_yaw * kb_strength * 0.5) as f64;
-    let kb_z = (cos_yaw * kb_strength * 0.5) as f64;
-    let kb_y = 0.4_f64;
+    // Knockback (vanilla formula from LivingEntity.knockback + Player.attack)
+    // Base knockback = attack_knockback_attribute (0 for players) + knockback_enchantment
+    // Sprint bonus: +1.0 if sprinting
+    let kb_raw = knockback_bonus + if is_sprinting { 1.0 } else { 0.0 };
+    // Vanilla multiplies by 0.5 when calling knockback()
+    let kb_strength = kb_raw * 0.5;
 
-    // Send velocity to target (players get SetEntityVelocity, mobs broadcast)
-    if is_player {
-        if let Ok(sender) = world.get::<&ConnectionSender>(target) {
-            let _ = sender.0.send(InternalPacket::SetEntityVelocity {
-                entity_id: target_eid_val,
-                velocity_x: (kb_x * 8000.0) as i16,
-                velocity_y: (kb_y * 8000.0) as i16,
-                velocity_z: (kb_z * 8000.0) as i16,
-            });
-        }
-    }
-    // Mob knockback via velocity component
-    if is_mob {
-        if let Ok(mut vel) = world.get::<&mut Velocity>(target) {
-            vel.0.x += kb_x;
-            vel.0.y += kb_y;
-            vel.0.z += kb_z;
-        }
-        broadcast_to_all(world, &InternalPacket::SetEntityVelocity {
+    if kb_strength > 0.0 || knockback_bonus == 0.0 {
+        // Even without enchantment, base knockback of 0.4 is applied
+        let effective_kb = if kb_strength > 0.0 { kb_strength } else { 0.4 };
+
+        let attacker_yaw = world.get::<&Rotation>(attacker).map(|r| r.yaw).unwrap_or(0.0);
+        let sin_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).sin() as f64;
+        let cos_yaw = (attacker_yaw * std::f32::consts::PI / 180.0).cos() as f64;
+
+        // Normalize direction (sin, -cos) and scale by strength
+        let dir_len = (sin_yaw * sin_yaw + cos_yaw * cos_yaw).sqrt();
+        let dir_x = sin_yaw / dir_len;
+        let dir_z = -cos_yaw / dir_len;
+        let kb_vec_x = dir_x * effective_kb as f64;
+        let kb_vec_z = dir_z * effective_kb as f64;
+
+        // Get target's current velocity
+        let (old_vx, old_vy, old_vz) = if is_mob {
+            world.get::<&Velocity>(target).map(|v| (v.0.x, v.0.y, v.0.z)).unwrap_or((0.0, 0.0, 0.0))
+        } else {
+            (0.0, 0.0, 0.0) // Players: server doesn't track their velocity
+        };
+
+        let target_on_ground = world.get::<&OnGround>(target).map(|og| og.0).unwrap_or(true);
+
+        // Vanilla formula: halve existing velocity, subtract knockback vector
+        // Y: if on ground, min(0.4, old_y/2 + strength), else keep old_y
+        let new_vx = old_vx / 2.0 - kb_vec_x;
+        let new_vy = if target_on_ground {
+            (old_vy / 2.0 + effective_kb as f64).min(0.4)
+        } else {
+            old_vy
+        };
+        let new_vz = old_vz / 2.0 - kb_vec_z;
+
+        // Send velocity packet to target
+        let vel_packet = InternalPacket::SetEntityVelocity {
             entity_id: target_eid_val,
-            velocity_x: (kb_x * 8000.0) as i16,
-            velocity_y: (kb_y * 8000.0) as i16,
-            velocity_z: (kb_z * 8000.0) as i16,
-        });
+            velocity_x: (new_vx.clamp(-3.9, 3.9) * 8000.0) as i16,
+            velocity_y: (new_vy.clamp(-3.9, 3.9) * 8000.0) as i16,
+            velocity_z: (new_vz.clamp(-3.9, 3.9) * 8000.0) as i16,
+        };
+
+        if is_player {
+            if let Ok(sender) = world.get::<&ConnectionSender>(target) {
+                let _ = sender.0.send(vel_packet.clone());
+            }
+        }
+        if is_mob {
+            if let Ok(mut vel) = world.get::<&mut Velocity>(target) {
+                vel.0.x = new_vx;
+                vel.0.y = new_vy;
+                vel.0.z = new_vz;
+            }
+            broadcast_to_all(world, &vel_packet);
+        }
     }
 
     // Attack exhaustion: MC adds 0.1 per attack
@@ -5372,6 +5471,68 @@ fn tick_mob_ai(
         }
     }
 
+    // --- Undead sunlight burning (zombies, skeletons) ---
+    let is_daytime = {
+        let time = world_state.time_of_day % 24000;
+        time < 13000 || time >= 23000
+    };
+    if is_daytime && world_state.tick_count % 20 == 0 {
+        let mut burn_targets: Vec<(hecs::Entity, i32, Vec3d)> = Vec::new();
+        for (entity, (eid, pos, mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+            if mob.mob_type == pickaxe_data::MOB_ZOMBIE || mob.mob_type == pickaxe_data::MOB_SKELETON {
+                // Check if exposed to sky (no solid block above)
+                let bx = pos.0.x.floor() as i32;
+                let by = pos.0.y.floor() as i32;
+                let bz = pos.0.z.floor() as i32;
+                let mut exposed = true;
+                for check_y in (by + 2)..=320 {
+                    if let Some(b) = world_state.get_block_if_loaded(&BlockPos::new(bx, check_y, bz)) {
+                        if b != 0 { exposed = false; break; }
+                    } else {
+                        break; // Chunk not loaded, assume exposed (flat world)
+                    }
+                }
+                if exposed {
+                    burn_targets.push((entity, eid.0, pos.0));
+                }
+            }
+        }
+        for (entity, eid, pos) in burn_targets {
+            // Deal 1 damage per second (1 HP every 20 ticks)
+            let health = world.get::<&Health>(entity).map(|h| h.current).unwrap_or(0.0);
+            if health > 0.0 {
+                let new_health = (health - 1.0).max(0.0);
+                if let Ok(mut h) = world.get::<&mut Health>(entity) {
+                    h.current = new_health;
+                }
+                // Play fire damage effects
+                broadcast_to_all(world, &InternalPacket::EntityEvent { entity_id: eid, event_id: 2 }); // hurt
+                play_sound_at_entity(world, pos.x, pos.y, pos.z, "entity.generic.burn", SOUND_HOSTILE, 0.8, 1.0);
+                if new_health <= 0.0 {
+                    // Kill mob — drop loot
+                    let mob_type = world.get::<&MobEntity>(entity).map(|m| m.mob_type).unwrap_or(0);
+                    let (_, _, death_sound) = pickaxe_data::mob_sounds(mob_type);
+                    play_sound_at_entity(world, pos.x, pos.y, pos.z, death_sound, SOUND_HOSTILE, 1.0, 1.0);
+                    broadcast_to_all(world, &InternalPacket::EntityEvent { entity_id: eid, event_id: 3 });
+                    let drops = pickaxe_data::mob_drops(mob_type);
+                    for (item_name, min, max) in drops {
+                        let count = if min == max { *min } else { *min + (rand::random::<u32>() % (max - min + 1) as u32) as i32 };
+                        if count > 0 {
+                            if let Some(item_id) = pickaxe_data::item_name_to_id(item_name) {
+                                spawn_item_entity(world, world_state, next_eid, pos.x, pos.y + 0.5, pos.z, ItemStack::new(item_id, count as i8), 10, _scripting);
+                            }
+                        }
+                    }
+                    let _ = world.despawn(entity);
+                    broadcast_to_all(world, &InternalPacket::RemoveEntities { entity_ids: vec![eid] });
+                    for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
+                        tracked.visible.remove(&eid);
+                    }
+                }
+            }
+        }
+    }
+
     // --- Mob combat: melee attacks, skeleton arrows, creeper fuse ---
 
     // Collect melee attacks from all melee hostiles (zombie, spider, enderman, slime)
@@ -5469,6 +5630,28 @@ fn tick_mob_ai(
         let mob_name = pickaxe_data::mob_type_name(attack.mob_type).unwrap_or("mob");
         let target_eid = world.get::<&EntityId>(attack.target).map(|e| e.0).unwrap_or(0);
         apply_damage(world, world_state, attack.target, target_eid, damage, mob_name, _scripting);
+
+        // Apply knockback to target player (vanilla: 0.4 strength)
+        if let Ok(target_sender) = world.get::<&ConnectionSender>(attack.target) {
+            let target_on_ground = world.get::<&OnGround>(attack.target).map(|og| og.0).unwrap_or(true);
+            let target_pos = world.get::<&Position>(attack.target).map(|p| p.0).unwrap_or(Vec3d::new(0.0, 0.0, 0.0));
+            // Direction: from mob toward target
+            let dx = target_pos.x - attack.mob_pos.x;
+            let dz = target_pos.z - attack.mob_pos.z;
+            let dist = (dx * dx + dz * dz).sqrt().max(0.01);
+            let dir_x = dx / dist;
+            let dir_z = dz / dist;
+            let kb = 0.4_f64;
+            let new_vx = -dir_x * kb;
+            let new_vy = if target_on_ground { 0.4_f64.min(kb) } else { 0.0 };
+            let new_vz = -dir_z * kb;
+            let _ = target_sender.0.send(InternalPacket::SetEntityVelocity {
+                entity_id: target_eid,
+                velocity_x: (new_vx.clamp(-3.9, 3.9) * 8000.0) as i16,
+                velocity_y: (new_vy.clamp(-3.9, 3.9) * 8000.0) as i16,
+                velocity_z: (new_vz.clamp(-3.9, 3.9) * 8000.0) as i16,
+            });
+        }
 
         // Play attack sound
         let (_, hurt_sound, _) = pickaxe_data::mob_sounds(attack.mob_type);
