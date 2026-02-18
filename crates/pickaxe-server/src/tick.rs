@@ -105,6 +105,31 @@ fn serialize_block_entity(pos: &BlockPos, be: &BlockEntity) -> NbtValue {
                 "CookTimeTotal" => NbtValue::Short(*cook_total)
             }
         }
+        BlockEntity::Sign { front_text, back_text, color, has_glowing_text, is_waxed } => {
+            let make_text_nbt = |lines: &[String; 4], col: &str, glowing: bool| -> NbtValue {
+                let messages: Vec<NbtValue> = lines.iter().map(|line| {
+                    if line.is_empty() {
+                        NbtValue::String("{\"text\":\"\"}".into())
+                    } else {
+                        NbtValue::String(format!("{{\"text\":\"{}\"}}", line.replace('\\', "\\\\").replace('"', "\\\"")))
+                    }
+                }).collect();
+                nbt_compound! {
+                    "messages" => NbtValue::List(messages),
+                    "color" => NbtValue::String(col.to_string()),
+                    "has_glowing_text" => NbtValue::Byte(if glowing { 1 } else { 0 })
+                }
+            };
+            nbt_compound! {
+                "id" => NbtValue::String("minecraft:sign".into()),
+                "x" => NbtValue::Int(pos.x),
+                "y" => NbtValue::Int(pos.y),
+                "z" => NbtValue::Int(pos.z),
+                "front_text" => make_text_nbt(front_text, color, *has_glowing_text),
+                "back_text" => make_text_nbt(back_text, color, false),
+                "is_waxed" => NbtValue::Byte(if *is_waxed { 1 } else { 0 })
+            }
+        }
         BlockEntity::BrewingStand { bottles, ingredient, fuel, brew_time, fuel_uses } => {
             let mut items = Vec::new();
             for (i, slot) in bottles.iter().enumerate() {
@@ -268,6 +293,41 @@ fn deserialize_block_entity(nbt: &NbtValue) -> Option<(BlockPos, BlockEntity)> {
             Some((pos, BlockEntity::BrewingStand {
                 bottles, ingredient, fuel,
                 brew_time, fuel_uses,
+            }))
+        }
+        "sign" => {
+            let parse_text_side = |nbt: &NbtValue, key: &str| -> ([String; 4], String, bool) {
+                let mut lines = [String::new(), String::new(), String::new(), String::new()];
+                let mut color = "black".to_string();
+                let mut glowing = false;
+                if let Some(text_compound) = nbt.get(key) {
+                    if let Some(messages) = text_compound.get("messages").and_then(|v| v.as_list()) {
+                        for (i, msg) in messages.iter().enumerate().take(4) {
+                            if let Some(json_str) = msg.as_str() {
+                                // Parse simple {"text":"..."} format
+                                if let Some(start) = json_str.find("\"text\":\"") {
+                                    let rest = &json_str[start + 8..];
+                                    if let Some(end) = rest.find('"') {
+                                        lines[i] = rest[..end].replace("\\\"", "\"").replace("\\\\", "\\");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if let Some(c) = text_compound.get("color").and_then(|v| v.as_str()) {
+                        color = c.to_string();
+                    }
+                    if let Some(g) = text_compound.get("has_glowing_text").and_then(|v| v.as_byte()) {
+                        glowing = g != 0;
+                    }
+                }
+                (lines, color, glowing)
+            };
+            let (front_text, color, has_glowing_text) = parse_text_side(nbt, "front_text");
+            let (back_text, _, _) = parse_text_side(nbt, "back_text");
+            let is_waxed = nbt.get("is_waxed").and_then(|v| v.as_byte()).unwrap_or(0) != 0;
+            Some((pos, BlockEntity::Sign {
+                front_text, back_text, color, has_glowing_text, is_waxed,
             }))
         }
         _ => None,
@@ -667,6 +727,18 @@ pub enum BlockEntity {
         brew_time: i16,
         /// Fuel uses remaining (0-20, each blaze powder = 20)
         fuel_uses: i16,
+    },
+    Sign {
+        /// 4 lines of text for the front side
+        front_text: [String; 4],
+        /// 4 lines of text for the back side
+        back_text: [String; 4],
+        /// Text color (default "black")
+        color: String,
+        /// Whether the text glows
+        has_glowing_text: bool,
+        /// Whether the sign is waxed (prevents editing)
+        is_waxed: bool,
     },
 }
 
@@ -1782,6 +1854,25 @@ fn process_packet(
                 return;
             }
 
+            // Check if the target block is a sign — open editor on right-click
+            if pickaxe_data::is_sign_state(target_block) && !sneaking {
+                // Check if sign is waxed
+                let is_waxed = world_state.get_block_entity(&position)
+                    .and_then(|be| if let BlockEntity::Sign { is_waxed, .. } = be { Some(*is_waxed) } else { None })
+                    .unwrap_or(false);
+
+                if !is_waxed {
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::OpenSignEditor {
+                            position,
+                            is_front_text: true,
+                        });
+                        let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                    }
+                    return;
+                }
+            }
+
             // Check if the target block is interactive (doors, trapdoors, fence gates, levers, buttons)
             if let Some(new_state) = pickaxe_data::toggle_interactive_block(target_block) {
                 if !sneaking {
@@ -2130,6 +2221,106 @@ fn process_packet(
                 return;
             }
 
+            // Special handling for sign placement
+            {
+                let held_item_name = {
+                    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                    match world.get::<&Inventory>(entity) {
+                        Ok(inv) => inv.held_item(held_slot).as_ref().and_then(|item| {
+                            pickaxe_data::item_id_to_name(item.item_id).map(|n| n.to_string())
+                        }),
+                        Err(_) => None,
+                    }
+                };
+                if let Some(ref item_name) = held_item_name {
+                    if let Some((standing_min, wall_min)) = pickaxe_data::sign_state_ids(item_name) {
+                        // Determine if wall sign or standing sign based on placement face
+                        // Face 2-5 (horizontal) = wall sign on that face
+                        // Face 0 (bottom) or 1 (top) = standing sign with rotation from yaw
+                        let (sign_state, is_wall) = if face >= 2 && face <= 5 {
+                            (pickaxe_data::wall_sign_state(wall_min, face), true)
+                        } else {
+                            let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+                            (pickaxe_data::standing_sign_state(standing_min, yaw), false)
+                        };
+                        let _ = is_wall;
+
+                        let player_name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+                        let cancelled = scripting.fire_event_in_context(
+                            "block_place",
+                            &[
+                                ("name", &player_name),
+                                ("x", &target.x.to_string()),
+                                ("y", &target.y.to_string()),
+                                ("z", &target.z.to_string()),
+                                ("block_id", &sign_state.to_string()),
+                            ],
+                            world as *mut _ as *mut (),
+                            world_state as *mut _ as *mut (),
+                        );
+                        if cancelled {
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                            }
+                            return;
+                        }
+
+                        world_state.set_block(&target, sign_state);
+                        world_state.set_block_entity(target, BlockEntity::Sign {
+                            front_text: [String::new(), String::new(), String::new(), String::new()],
+                            back_text: [String::new(), String::new(), String::new(), String::new()],
+                            color: "black".to_string(),
+                            has_glowing_text: false,
+                            is_waxed: false,
+                        });
+
+                        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                            position: target,
+                            block_id: sign_state,
+                        });
+
+                        // Send OpenSignEditor to the placing player
+                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                            let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                            let _ = sender.0.send(InternalPacket::OpenSignEditor {
+                                position: target,
+                                is_front_text: true,
+                            });
+                        }
+
+                        // Play placement sound
+                        play_sound_at_block(world, &target, "block.wood.place", SOUND_BLOCKS, 1.0, 0.8);
+
+                        // Consume item (survival mode)
+                        let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                        if game_mode != GameMode::Creative {
+                            let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                            let slot_index = 36 + held_slot as usize;
+                            if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                if let Some(ref item) = inv.slots[slot_index] {
+                                    if item.count > 1 {
+                                        let mut new_item = item.clone();
+                                        new_item.count -= 1;
+                                        inv.set_slot(slot_index, Some(new_item));
+                                    } else {
+                                        inv.set_slot(slot_index, None);
+                                    }
+                                    let state_id = inv.state_id;
+                                    let slot_item = inv.slots[slot_index].clone();
+                                    drop(inv);
+                                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                            window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+
             let name = world
                 .get::<&Profile>(entity)
                 .map(|p| p.0.name.clone())
@@ -2420,6 +2611,42 @@ fn process_packet(
 
         InternalPacket::RenameItem { ref name } => {
             handle_anvil_rename(world, entity, name);
+        }
+
+        InternalPacket::SignUpdate { position, is_front_text, ref lines } => {
+            // Update the sign block entity with the text from the client
+            if let Some(be) = world_state.get_block_entity_mut(&position) {
+                if let BlockEntity::Sign { ref mut front_text, ref mut back_text, .. } = be {
+                    if is_front_text {
+                        for (i, line) in lines.iter().enumerate().take(4) {
+                            front_text[i] = line.clone();
+                        }
+                    } else {
+                        for (i, line) in lines.iter().enumerate().take(4) {
+                            back_text[i] = line.clone();
+                        }
+                    }
+                }
+            }
+
+            // Broadcast BlockEntityData to all players so they see the text
+            if let Some(be) = world_state.get_block_entity(&position) {
+                if matches!(be, BlockEntity::Sign { .. }) {
+                    let nbt = build_sign_update_nbt(be);
+                    broadcast_to_all(world, &InternalPacket::BlockEntityData {
+                        position,
+                        block_entity_type: 7, // sign
+                        nbt,
+                    });
+                }
+            }
+
+            // Save the chunk containing this sign
+            let chunk_pos = position.chunk_pos();
+            world_state.queue_chunk_save(chunk_pos);
+
+            let player_name = world.get::<&Profile>(entity).map(|p| p.0.name.clone()).unwrap_or_default();
+            debug!("{} updated sign at {:?}", player_name, position);
         }
 
         InternalPacket::UseItem { hand, sequence } => {
@@ -7402,6 +7629,7 @@ fn complete_block_break(
                 v.extend(fuel.into_iter());
                 v
             }
+            BlockEntity::Sign { .. } => Vec::new(), // Signs have no items to drop
         };
         for item in items {
             spawn_item_entity(
@@ -9437,6 +9665,9 @@ fn send_chunks_around(
     }
 
     let _ = sender.send(InternalPacket::ChunkBatchFinished { batch_size: count });
+
+    // Send BlockEntityData for signs in loaded chunks
+    send_sign_block_entities(sender, world_state, center_cx, center_cz, view_distance);
 }
 
 fn send_new_chunks(
@@ -9462,6 +9693,55 @@ fn send_new_chunks(
     }
 
     let _ = sender.send(InternalPacket::ChunkBatchFinished { batch_size: count });
+
+    // Send BlockEntityData for signs in newly loaded chunks
+    for cx in (new_cx - vd)..=(new_cx + vd) {
+        for cz in (new_cz - vd)..=(new_cz + vd) {
+            if (cx - old_cx).abs() > vd || (cz - old_cz).abs() > vd {
+                send_sign_block_entities_for_chunk(sender, world_state, cx, cz);
+            }
+        }
+    }
+}
+
+/// Send BlockEntityData packets for all signs in chunks within the given range.
+fn send_sign_block_entities(
+    sender: &mpsc::UnboundedSender<InternalPacket>,
+    world_state: &WorldState,
+    center_cx: i32,
+    center_cz: i32,
+    view_distance: i32,
+) {
+    for cx in (center_cx - view_distance)..=(center_cx + view_distance) {
+        for cz in (center_cz - view_distance)..=(center_cz + view_distance) {
+            send_sign_block_entities_for_chunk(sender, world_state, cx, cz);
+        }
+    }
+}
+
+/// Send BlockEntityData packets for all signs in a specific chunk.
+fn send_sign_block_entities_for_chunk(
+    sender: &mpsc::UnboundedSender<InternalPacket>,
+    world_state: &WorldState,
+    chunk_x: i32,
+    chunk_z: i32,
+) {
+    let min_x = chunk_x * 16;
+    let min_z = chunk_z * 16;
+    for (pos, be) in &world_state.block_entities {
+        if pos.x >= min_x && pos.x < min_x + 16
+            && pos.z >= min_z && pos.z < min_z + 16
+        {
+            if let BlockEntity::Sign { .. } = be {
+                let nbt = build_sign_update_nbt(be);
+                let _ = sender.send(InternalPacket::BlockEntityData {
+                    position: *pos,
+                    block_entity_type: 7, // sign
+                    nbt,
+                });
+            }
+        }
+    }
 }
 
 /// Send a packet to all players.
@@ -9687,6 +9967,33 @@ fn is_ore_drop(item_id: i32) -> bool {
 }
 
 /// Offset a block position by the given face direction.
+/// Build NBT for a sign block entity update (for BlockEntityData packet).
+fn build_sign_update_nbt(be: &BlockEntity) -> NbtValue {
+    if let BlockEntity::Sign { front_text, back_text, color, has_glowing_text, is_waxed } = be {
+        let make_text_nbt = |lines: &[String; 4], col: &str, glowing: bool| -> NbtValue {
+            let messages: Vec<NbtValue> = lines.iter().map(|line| {
+                if line.is_empty() {
+                    NbtValue::String("{\"text\":\"\"}".into())
+                } else {
+                    NbtValue::String(format!("{{\"text\":\"{}\"}}", line.replace('\\', "\\\\").replace('"', "\\\"")))
+                }
+            }).collect();
+            nbt_compound! {
+                "messages" => NbtValue::List(messages),
+                "color" => NbtValue::String(col.to_string()),
+                "has_glowing_text" => NbtValue::Byte(if glowing { 1 } else { 0 })
+            }
+        };
+        nbt_compound! {
+            "front_text" => make_text_nbt(front_text, color, *has_glowing_text),
+            "back_text" => make_text_nbt(back_text, color, false),
+            "is_waxed" => NbtValue::Byte(if *is_waxed { 1 } else { 0 })
+        }
+    } else {
+        NbtValue::Compound(Vec::new())
+    }
+}
+
 fn offset_by_face(pos: &BlockPos, face: u8) -> BlockPos {
     match face {
         0 => BlockPos::new(pos.x, pos.y - 1, pos.z),

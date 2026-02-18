@@ -1873,6 +1873,82 @@ pub fn enchantment_max_level(id: i32) -> i32 {
 }
 
 /// Returns the anvil XP cost multiplier per level for the given enchantment.
+/// Returns true if the given block name is a standing sign (any wood type).
+pub fn is_standing_sign(name: &str) -> bool {
+    matches!(name,
+        "oak_sign" | "spruce_sign" | "birch_sign" | "acacia_sign" | "cherry_sign"
+        | "jungle_sign" | "dark_oak_sign" | "mangrove_sign" | "bamboo_sign"
+        | "crimson_sign" | "warped_sign"
+    )
+}
+
+/// Returns true if the given block name is a wall sign (any wood type).
+pub fn is_wall_sign(name: &str) -> bool {
+    matches!(name,
+        "oak_wall_sign" | "spruce_wall_sign" | "birch_wall_sign" | "acacia_wall_sign"
+        | "cherry_wall_sign" | "jungle_wall_sign" | "dark_oak_wall_sign"
+        | "mangrove_wall_sign" | "bamboo_wall_sign"
+        | "crimson_wall_sign" | "warped_wall_sign"
+    )
+}
+
+/// Returns true if the given block name is any kind of sign (standing or wall).
+pub fn is_any_sign(name: &str) -> bool {
+    is_standing_sign(name) || is_wall_sign(name)
+}
+
+/// Returns true if the given block state ID belongs to a sign block.
+pub fn is_sign_state(state_id: i32) -> bool {
+    block_state_to_name(state_id).map(|n| is_any_sign(n)).unwrap_or(false)
+}
+
+/// Given a standing sign's item name (e.g. "oak_sign"), returns (standing_min_state, wall_min_state).
+pub fn sign_state_ids(item_name: &str) -> Option<(i32, i32)> {
+    match item_name {
+        "oak_sign" => Some((4302, 4762)),
+        "spruce_sign" => Some((4334, 4770)),
+        "birch_sign" => Some((4366, 4778)),
+        "acacia_sign" => Some((4398, 4786)),
+        "cherry_sign" => Some((4430, 4794)),
+        "jungle_sign" => Some((4462, 4802)),
+        "dark_oak_sign" => Some((4494, 4810)),
+        "mangrove_sign" => Some((4526, 4818)),
+        "bamboo_sign" => Some((4558, 4826)),
+        "crimson_sign" => Some((19276, 19340)),
+        "warped_sign" => Some((19308, 19348)),
+        _ => None,
+    }
+}
+
+/// Compute block state for a standing sign given its min state and player yaw.
+/// Standing sign rotation: 16 directions (0-15), each with waterlogged variant.
+/// State layout: minState + rotation * 2 + waterlogged(0/1)
+pub fn standing_sign_state(min_state: i32, yaw: f32) -> i32 {
+    let rotation = yaw_to_sign_rotation(yaw);
+    min_state + rotation * 2 // waterlogged=false
+}
+
+/// Compute block state for a wall sign given its min state and block face.
+/// Wall sign facing: north=0, south=1, west=2, east=3, each with waterlogged variant.
+/// State layout: minState + facing * 2 + waterlogged(0/1)
+/// Face: 2=north, 3=south, 4=west, 5=east
+pub fn wall_sign_state(min_state: i32, face: u8) -> i32 {
+    let facing = match face {
+        2 => 0, // north
+        3 => 1, // south
+        4 => 2, // west
+        5 => 3, // east
+        _ => 0,
+    };
+    min_state + facing * 2 // waterlogged=false
+}
+
+/// Convert player yaw to standing sign rotation (0-15).
+/// MC formula: floor((yaw + 180) / 22.5) & 15
+pub fn yaw_to_sign_rotation(yaw: f32) -> i32 {
+    (((yaw + 180.0) / 22.5).floor() as i32) & 15
+}
+
 pub fn enchantment_anvil_cost(id: i32) -> i32 {
     match id {
         0..=4 => 1,   // protection types

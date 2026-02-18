@@ -293,6 +293,26 @@ pub fn register_world_api(lua: &Lua) -> anyhow::Result<()> {
                             }
                             Some(mlua::Value::Table(table))
                         }
+                        crate::tick::BlockEntity::Sign {
+                            front_text, back_text, color, has_glowing_text, is_waxed,
+                        } => {
+                            let table = lua.create_table().ok()?;
+                            let _ = table.set("type", "sign");
+                            let front = lua.create_table().ok()?;
+                            for (i, line) in front_text.iter().enumerate() {
+                                let _ = front.set(i + 1, line.as_str());
+                            }
+                            let _ = table.set("front_text", front);
+                            let back = lua.create_table().ok()?;
+                            for (i, line) in back_text.iter().enumerate() {
+                                let _ = back.set(i + 1, line.as_str());
+                            }
+                            let _ = table.set("back_text", back);
+                            let _ = table.set("color", color.as_str());
+                            let _ = table.set("has_glowing_text", *has_glowing_text);
+                            let _ = table.set("is_waxed", *is_waxed);
+                            Some(mlua::Value::Table(table))
+                        }
                     }
                 })
             })

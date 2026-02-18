@@ -118,6 +118,8 @@ const PLAY_SET_EXPERIENCE: i32 = 0x5C;
 const PLAY_ADD_EXPERIENCE_ORB: i32 = 0x02;
 const PLAY_UPDATE_MOB_EFFECT: i32 = 0x75;
 const PLAY_REMOVE_MOB_EFFECT: i32 = 0x42;
+const PLAY_BLOCK_ENTITY_DATA: i32 = 0x07;
+const PLAY_OPEN_SIGN_EDITOR: i32 = 0x34;
 
 // === Decode functions ===
 
@@ -427,6 +429,20 @@ fn decode_play(id: i32, data: &mut BytesMut) -> Result<InternalPacket> {
             let sneaking = if data.len() >= 1 { read_u8(data)? != 0 } else { false };
             Ok(InternalPacket::InteractEntity {
                 entity_id, action_type, target_x, target_y, target_z, hand, sneaking,
+            })
+        }
+        0x35 => {
+            // Sign Update (serverbound) — client finished editing a sign
+            let position = BlockPos::decode(read_u64(data)?);
+            let is_front_text = read_u8(data)? != 0;
+            let line1 = read_string(data, 384)?;
+            let line2 = read_string(data, 384)?;
+            let line3 = read_string(data, 384)?;
+            let line4 = read_string(data, 384)?;
+            Ok(InternalPacket::SignUpdate {
+                position,
+                is_front_text,
+                lines: [line1, line2, line3, line4],
             })
         }
         0x36 => {
@@ -1049,6 +1065,19 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             write_varint(&mut buf, *entity_id);
             // Effect ID uses Holder encoding: registry reference = id + 1
             write_varint(&mut buf, *effect_id + 1);
+        }
+        InternalPacket::OpenSignEditor { position, is_front_text } => {
+            write_varint(&mut buf, PLAY_OPEN_SIGN_EDITOR);
+            buf.put_u64(position.encode());
+            buf.put_u8(*is_front_text as u8);
+        }
+        InternalPacket::BlockEntityData { position, block_entity_type, nbt } => {
+            write_varint(&mut buf, PLAY_BLOCK_ENTITY_DATA);
+            buf.put_u64(position.encode());
+            write_varint(&mut buf, *block_entity_type);
+            let mut nbt_buf = BytesMut::new();
+            nbt.write_root_network(&mut nbt_buf);
+            buf.extend_from_slice(&nbt_buf);
         }
         _ => bail!("Cannot encode {:?} in Play state", std::mem::discriminant(packet)),
     }

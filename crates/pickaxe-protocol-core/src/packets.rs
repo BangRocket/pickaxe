@@ -438,6 +438,27 @@ pub enum InternalPacket {
         name: String,
     },
 
+    /// Sign Update (0x35 SB) — client finished editing a sign.
+    SignUpdate {
+        position: BlockPos,
+        is_front_text: bool,
+        lines: [String; 4],
+    },
+
+    /// Open Sign Editor (0x34 CB) — tell client to open sign editing GUI.
+    OpenSignEditor {
+        position: BlockPos,
+        is_front_text: bool,
+    },
+
+    /// Block Entity Data (0x07 CB) — send block entity NBT to client.
+    BlockEntityData {
+        position: BlockPos,
+        /// Block entity type registry ID (7=sign, 8=hanging_sign)
+        block_entity_type: i32,
+        nbt: NbtValue,
+    },
+
     ConfirmTeleportation {
         teleport_id: i32,
     },
