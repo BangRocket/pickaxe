@@ -7,7 +7,7 @@ use flate2::Compression;
 use hecs::World;
 use pickaxe_nbt::{nbt_compound, nbt_list, NbtValue};
 use pickaxe_protocol_core::{player_info_actions, CommandNode, InternalPacket, PlayerInfoEntry};
-use pickaxe_protocol_v1_21::{build_item_metadata, build_sleeping_metadata, build_wake_metadata, V1_21Adapter};
+use pickaxe_protocol_v1_21::{build_item_metadata, build_sleeping_metadata, build_tnt_metadata, build_wake_metadata, V1_21Adapter};
 use pickaxe_region::RegionStorage;
 use pickaxe_scripting::ScriptRuntime;
 use pickaxe_types::{BlockPos, GameMode, GameProfile, ItemStack, TextComponent, Vec3d};
@@ -1034,6 +1034,7 @@ pub async fn run_tick_loop(
         tick_item_physics(&mut world, &mut world_state, &scripting);
         tick_arrow_physics(&mut world, &mut world_state, &next_eid, &scripting);
         tick_fishing_bobbers(&mut world, &mut world_state);
+        tick_tnt_entities(&mut world, &mut world_state, &next_eid, &scripting);
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
         }
@@ -1960,6 +1961,62 @@ fn process_packet(
                     let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
                 }
                 return;
+            }
+
+            // Check for flint_and_steel on TNT block — ignite it
+            if target_name == "tnt" {
+                let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let held_item_id = world.get::<&Inventory>(entity)
+                    .ok()
+                    .and_then(|inv| inv.held_item(held_slot).as_ref().map(|i| i.item_id));
+                let held_name = held_item_id.and_then(pickaxe_data::item_id_to_name).unwrap_or("");
+
+                if held_name == "flint_and_steel" {
+                    // Remove TNT block
+                    world_state.set_block(&position, 0);
+                    broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                        position,
+                        block_id: 0,
+                    });
+
+                    // Spawn primed TNT entity
+                    spawn_tnt_entity(
+                        world, world_state, &next_eid,
+                        position.x as f64 + 0.5,
+                        position.y as f64,
+                        position.z as f64 + 0.5,
+                        80, // default fuse
+                        Some(entity),
+                        scripting,
+                    );
+
+                    // Damage flint_and_steel durability in survival
+                    let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                    if game_mode != GameMode::Creative {
+                        let slot_index = 36 + held_slot as usize;
+                        if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                            if let Some(ref mut tool) = inv.slots[slot_index] {
+                                tool.damage += 1;
+                                if tool.max_damage > 0 && tool.damage >= tool.max_damage {
+                                    inv.slots[slot_index] = None;
+                                }
+                            }
+                            let state_id = inv.state_id;
+                            let slot_item = inv.slots[slot_index].clone();
+                            drop(inv);
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                    window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                });
+                            }
+                        }
+                    }
+
+                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                        let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                    }
+                    return;
+                }
             }
 
             // Check for farming interactions (hoe, seeds, bone meal)
@@ -5237,33 +5294,7 @@ fn tick_mob_ai(
 
     // Process creeper explosions
     for (creeper_entity, creeper_eid, creeper_pos) in creeper_explosions {
-        // Play explosion sound + particle
-        play_sound_at_entity(world, creeper_pos.x, creeper_pos.y, creeper_pos.z, "entity.generic.explode", SOUND_HOSTILE, 1.0, 1.0);
-
-        // Broadcast entity death animation (visual feedback for explosion)
-        broadcast_to_all(world, &InternalPacket::EntityEvent {
-            entity_id: creeper_eid,
-            event_id: 3, // death
-        });
-
-        // Damage all players within 6 blocks (damage falls off with distance)
-        let mut damaged_players: Vec<(hecs::Entity, i32, f64)> = Vec::new();
-        for (pe, (peid, ppos, _profile)) in world.query::<(&EntityId, &Position, &Profile)>().iter() {
-            let dx = ppos.0.x - creeper_pos.x;
-            let dy = ppos.0.y - creeper_pos.y;
-            let dz = ppos.0.z - creeper_pos.z;
-            let dist = (dx * dx + dy * dy + dz * dz).sqrt();
-            if dist < 6.0 {
-                damaged_players.push((pe, peid.0, dist));
-            }
-        }
-        for (pe, peid, dist) in damaged_players {
-            // Damage falls off: max 24 at center, 0 at 6 blocks
-            let damage = ((6.0 - dist) / 6.0 * 24.0).max(1.0) as f32;
-            apply_damage(world, world_state, pe, peid, damage, "explosion", _scripting);
-        }
-
-        // Despawn the creeper
+        // Despawn the creeper first
         let _ = world.despawn(creeper_entity);
         broadcast_to_all(world, &InternalPacket::RemoveEntities {
             entity_ids: vec![creeper_eid],
@@ -5271,6 +5302,14 @@ fn tick_mob_ai(
         for (_, tracked) in world.query_mut::<&mut TrackedEntities>() {
             tracked.visible.remove(&creeper_eid);
         }
+
+        // Creeper explosion: radius 3.0, destroys blocks
+        do_explosion(
+            world, world_state, next_eid, _scripting,
+            creeper_pos.x, creeper_pos.y + 1.0, creeper_pos.z,
+            3.0,
+            true,
+        );
     }
 }
 
@@ -6364,6 +6403,28 @@ fn tick_entity_tracking(world: &mut World) {
         });
     }
 
+    // Collect all primed TNT entities
+    struct TntData {
+        eid: i32,
+        uuid: Uuid,
+        pos: Vec3d,
+        vel: Vec3d,
+        fuse: i32,
+    }
+    let mut tnt_data: Vec<TntData> = Vec::new();
+    for (_e, (eid, euuid, pos, vel, tnt)) in world
+        .query::<(&EntityId, &EntityUuid, &Position, &Velocity, &TntEntity)>()
+        .iter()
+    {
+        tnt_data.push(TntData {
+            eid: eid.0,
+            uuid: euuid.0,
+            pos: pos.0,
+            vel: vel.0,
+            fuse: tnt.fuse,
+        });
+    }
+
     for i in 0..player_data.len() {
         let (observer_entity, _observer_eid, _, _, _, _, _, obs_cx, obs_cz) = player_data[i];
 
@@ -6418,6 +6479,15 @@ fn tick_entity_tracking(world: &mut World) {
             let bobber_cz = (bobber.pos.z.floor() as i32) >> 4;
             if (bobber_cx - obs_cx).abs() <= obs_vd && (bobber_cz - obs_cz).abs() <= obs_vd {
                 should_see.insert(bobber.eid);
+            }
+        }
+
+        // TNT entities in view distance
+        for tnt in &tnt_data {
+            let tnt_cx = (tnt.pos.x.floor() as i32) >> 4;
+            let tnt_cz = (tnt.pos.z.floor() as i32) >> 4;
+            if (tnt_cx - obs_cx).abs() <= obs_vd && (tnt_cz - obs_cz).abs() <= obs_vd {
+                should_see.insert(tnt.eid);
             }
         }
 
@@ -6558,6 +6628,32 @@ fn tick_entity_tracking(world: &mut World) {
                     velocity_y: vy,
                     velocity_z: vz,
                 });
+            } else if let Some(tnt) = tnt_data.iter().find(|d| d.eid == eid) {
+                // Primed TNT entity (type 106)
+                let vx = (tnt.vel.x * 8000.0) as i16;
+                let vy = (tnt.vel.y * 8000.0) as i16;
+                let vz = (tnt.vel.z * 8000.0) as i16;
+                let _ = observer_sender.send(InternalPacket::SpawnEntity {
+                    entity_id: eid,
+                    entity_uuid: tnt.uuid,
+                    entity_type: pickaxe_data::ENTITY_TNT,
+                    x: tnt.pos.x,
+                    y: tnt.pos.y,
+                    z: tnt.pos.z,
+                    pitch: 0,
+                    yaw: 0,
+                    head_yaw: 0,
+                    data: 0,
+                    velocity_x: vx,
+                    velocity_y: vy,
+                    velocity_z: vz,
+                });
+                // Send TNT metadata (fuse ticks + block state)
+                let metadata = build_tnt_metadata(tnt.fuse, 2095); // default TNT block state
+                let _ = observer_sender.send(InternalPacket::SetEntityMetadata {
+                    entity_id: eid,
+                    metadata,
+                });
             }
         }
 
@@ -6676,6 +6772,19 @@ fn tick_entity_movement_broadcast(world: &mut World) {
             pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
         if pos_changed {
             bobber_movers.push((eid.0, pos.0, prev_pos.0, og.0));
+        }
+    }
+
+    // Collect TNT entities that moved
+    let mut tnt_movers: Vec<(i32, Vec3d, Vec3d, bool)> = Vec::new();
+    for (_e, (eid, pos, prev_pos, og, _tnt)) in world
+        .query::<(&EntityId, &Position, &PreviousPosition, &OnGround, &TntEntity)>()
+        .iter()
+    {
+        let pos_changed =
+            pos.0.x != prev_pos.0.x || pos.0.y != prev_pos.0.y || pos.0.z != prev_pos.0.z;
+        if pos_changed {
+            tnt_movers.push((eid.0, pos.0, prev_pos.0, og.0));
         }
     }
 
@@ -6888,6 +6997,49 @@ fn tick_entity_movement_broadcast(world: &mut World) {
 
     // For each bobber mover, send position-only updates (like items)
     for &(mover_eid, new_pos, old_pos, on_ground) in &bobber_movers {
+        let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
+        let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
+        let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
+
+        let needs_teleport = (new_pos.x - old_pos.x).abs() > 8.0
+            || (new_pos.y - old_pos.y).abs() > 8.0
+            || (new_pos.z - old_pos.z).abs() > 8.0;
+
+        for (_e, (eid, tracked, sender)) in world
+            .query::<(&EntityId, &TrackedEntities, &ConnectionSender)>()
+            .iter()
+        {
+            if eid.0 == mover_eid {
+                continue;
+            }
+            if !tracked.visible.contains(&mover_eid) {
+                continue;
+            }
+
+            if needs_teleport {
+                let _ = sender.0.send(InternalPacket::TeleportEntity {
+                    entity_id: mover_eid,
+                    x: new_pos.x,
+                    y: new_pos.y,
+                    z: new_pos.z,
+                    yaw: 0,
+                    pitch: 0,
+                    on_ground,
+                });
+            } else {
+                let _ = sender.0.send(InternalPacket::UpdateEntityPosition {
+                    entity_id: mover_eid,
+                    delta_x: dx,
+                    delta_y: dy,
+                    delta_z: dz,
+                    on_ground,
+                });
+            }
+        }
+    }
+
+    // For each TNT mover, send position-only updates (like items/bobbers)
+    for &(mover_eid, new_pos, old_pos, on_ground) in &tnt_movers {
         let dx = ((new_pos.x - old_pos.x) * 4096.0) as i16;
         let dy = ((new_pos.y - old_pos.y) * 4096.0) as i16;
         let dz = ((new_pos.z - old_pos.z) * 4096.0) as i16;
@@ -8543,6 +8695,389 @@ fn tick_arrow_physics(world: &mut World, world_state: &mut WorldState, next_eid:
             tracked.visible.remove(eid);
         }
         let _ = world.despawn(*entity);
+    }
+}
+
+/// Spawn a primed TNT entity at the given position.
+fn spawn_tnt_entity(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    x: f64,
+    y: f64,
+    z: f64,
+    fuse: i32,
+    owner: Option<hecs::Entity>,
+    scripting: &ScriptRuntime,
+) -> i32 {
+    let eid = next_eid.fetch_add(1, Ordering::Relaxed);
+    let uuid = Uuid::new_v4();
+
+    // Small random initial velocity (MC: ±0.02 at random angle)
+    let mut rng = rand::thread_rng();
+    let angle: f64 = rng.gen_range(0.0..std::f64::consts::TAU);
+    let vx = -angle.sin() * 0.02;
+    let vy = 0.2; // small upward pop
+    let vz = angle.cos() * 0.02;
+
+    world.spawn((
+        EntityId(eid),
+        EntityUuid(uuid),
+        Position(Vec3d::new(x, y, z)),
+        PreviousPosition(Vec3d::new(x, y, z)),
+        Velocity(Vec3d::new(vx, vy, vz)),
+        OnGround(false),
+        TntEntity { fuse, owner },
+        Rotation { yaw: 0.0, pitch: 0.0 },
+    ));
+
+    // Play fuse sound
+    play_sound_at_entity(world, x, y, z, "entity.tnt.primed", SOUND_BLOCKS, 1.0, 1.0);
+
+    // Fire entity_spawn event
+    scripting.fire_event_in_context(
+        "entity_spawn",
+        &[
+            ("entity_id", &eid.to_string()),
+            ("entity_type", "tnt"),
+            ("x", &format!("{:.2}", x)),
+            ("y", &format!("{:.2}", y)),
+            ("z", &format!("{:.2}", z)),
+            ("fuse", &fuse.to_string()),
+        ],
+        world as *mut _ as *mut (),
+        world_state as *mut _ as *mut (),
+    );
+
+    eid
+}
+
+/// Tick primed TNT entities: gravity, velocity, fuse countdown, explosion.
+fn tick_tnt_entities(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    scripting: &ScriptRuntime,
+) {
+    // Collect TNT updates
+    struct TntUpdate {
+        entity: hecs::Entity,
+        eid: i32,
+        pos: Vec3d,
+        should_explode: bool,
+    }
+
+    let mut updates: Vec<TntUpdate> = Vec::new();
+
+    for (e, (eid, pos, vel, og, tnt)) in world
+        .query::<(&EntityId, &mut Position, &mut Velocity, &mut OnGround, &mut TntEntity)>()
+        .iter()
+    {
+        // Apply gravity
+        vel.0.y -= 0.04;
+
+        // Apply velocity to position
+        pos.0.x += vel.0.x;
+        pos.0.y += vel.0.y;
+        pos.0.z += vel.0.z;
+
+        // Ground collision
+        let feet_x = pos.0.x.floor() as i32;
+        let feet_y = (pos.0.y - 0.01).floor() as i32;
+        let feet_z = pos.0.z.floor() as i32;
+        let ground_block = world_state.get_block(&BlockPos::new(feet_x, feet_y, feet_z));
+        if ground_block != 0 {
+            // On solid ground
+            let ground_y = (feet_y + 1) as f64;
+            if pos.0.y < ground_y {
+                pos.0.y = ground_y;
+                vel.0.y *= -0.5; // bounce
+                vel.0.x *= 0.7;
+                vel.0.z *= 0.7;
+                og.0 = true;
+            }
+        } else {
+            og.0 = false;
+        }
+
+        // Friction/drag
+        vel.0.x *= 0.98;
+        vel.0.y *= 0.98;
+        vel.0.z *= 0.98;
+
+        // Decrement fuse
+        tnt.fuse -= 1;
+
+        updates.push(TntUpdate {
+            entity: e,
+            eid: eid.0,
+            pos: pos.0,
+            should_explode: tnt.fuse <= 0,
+        });
+    }
+
+    // Process explosions
+    for update in &updates {
+        if update.should_explode {
+            do_explosion(
+                world,
+                world_state,
+                next_eid,
+                scripting,
+                update.pos.x,
+                update.pos.y + 0.0625, // MC offsets slightly upward
+                update.pos.z,
+                4.0,
+                true, // destroy blocks
+            );
+
+            // Despawn the TNT entity
+            let _ = world.despawn(update.entity);
+            broadcast_to_all(world, &InternalPacket::RemoveEntities {
+                entity_ids: vec![update.eid],
+            });
+            for (_e, tracked) in world.query::<&mut TrackedEntities>().iter() {
+                tracked.visible.remove(&update.eid);
+            }
+        }
+    }
+}
+
+/// Perform an explosion at the given location with the given radius.
+/// Handles ray-casting block destruction, entity damage, knockback, chain TNT, and packets.
+fn do_explosion(
+    world: &mut World,
+    world_state: &mut WorldState,
+    next_eid: &Arc<AtomicI32>,
+    scripting: &ScriptRuntime,
+    center_x: f64,
+    center_y: f64,
+    center_z: f64,
+    radius: f32,
+    destroy_blocks: bool,
+) {
+    use std::collections::HashSet;
+
+    let mut rng = rand::thread_rng();
+    let base_x = center_x.floor() as i32;
+    let base_y = center_y.floor() as i32;
+    let base_z = center_z.floor() as i32;
+
+    // Phase 1: Ray-casting to find destroyed blocks
+    let mut destroyed_positions: HashSet<(i32, i32, i32)> = HashSet::new();
+
+    if destroy_blocks {
+        for j in 0..16i32 {
+            for k in 0..16i32 {
+                for l in 0..16i32 {
+                    // Only edge rays
+                    if j != 0 && j != 15 && k != 0 && k != 15 && l != 0 && l != 15 {
+                        continue;
+                    }
+
+                    // Direction from center of 16x16x16 cube
+                    let mut dx = (j as f64 / 15.0) * 2.0 - 1.0;
+                    let mut dy = (k as f64 / 15.0) * 2.0 - 1.0;
+                    let mut dz = (l as f64 / 15.0) * 2.0 - 1.0;
+                    let len = (dx * dx + dy * dy + dz * dz).sqrt();
+                    dx /= len;
+                    dy /= len;
+                    dz /= len;
+
+                    // Ray intensity: radius * (0.7 + random * 0.6)
+                    let mut intensity = radius as f64 * (0.7 + rng.gen::<f64>() * 0.6);
+
+                    let mut rx = center_x;
+                    let mut ry = center_y;
+                    let mut rz = center_z;
+
+                    while intensity > 0.0 {
+                        let bx = rx.floor() as i32;
+                        let by = ry.floor() as i32;
+                        let bz = rz.floor() as i32;
+
+                        let block = world_state.get_block(&BlockPos::new(bx, by, bz));
+                        if block != 0 {
+                            let resistance = pickaxe_data::block_state_to_resistance(block);
+                            intensity -= (resistance as f64 + 0.3) * 0.3;
+
+                            if intensity > 0.0 {
+                                // Block is destroyed (not indestructible)
+                                if resistance < 100.0 {
+                                    destroyed_positions.insert((bx, by, bz));
+                                }
+                            }
+                        } else {
+                            // Air: small attenuation
+                            intensity -= 0.3 * 0.3; // (0 + 0.3) * 0.3 = 0.09
+                        }
+
+                        rx += dx * 0.3;
+                        ry += dy * 0.3;
+                        rz += dz * 0.3;
+
+                        // Safety: stop after traveling past max radius
+                        let dist_sq = (rx - center_x).powi(2) + (ry - center_y).powi(2) + (rz - center_z).powi(2);
+                        if dist_sq > ((radius as f64 * 2.0) + 2.0).powi(2) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Phase 2: Destroy blocks, spawn drops, chain-ignite TNT
+    let mut chain_tnt: Vec<(f64, f64, f64)> = Vec::new();
+    let mut block_offsets: Vec<(i8, i8, i8)> = Vec::new();
+
+    for &(bx, by, bz) in &destroyed_positions {
+        let pos = BlockPos::new(bx, by, bz);
+        let block = world_state.get_block(&pos);
+        if block == 0 {
+            continue; // Already air (another ray got it)
+        }
+
+        let block_name = pickaxe_data::block_state_to_name(block).unwrap_or("");
+
+        // Check for TNT chain reaction
+        if block_name == "tnt" {
+            chain_tnt.push((bx as f64 + 0.5, by as f64, bz as f64 + 0.5));
+        } else {
+            // Spawn item drops (1/radius chance per block in explosions, MC uses 1/radius)
+            if rng.gen::<f64>() < (1.0 / radius as f64) {
+                let drops = pickaxe_data::block_state_to_drops(block);
+                for &drop_id in drops {
+                    let drop_item = ItemStack::new(drop_id, 1);
+                    spawn_item_entity(
+                        world,
+                        world_state,
+                        next_eid,
+                        bx as f64 + 0.5,
+                        by as f64 + 0.5,
+                        bz as f64 + 0.5,
+                        drop_item,
+                        10,
+                        scripting,
+                    );
+                }
+            }
+        }
+
+        // Remove block entity if any
+        world_state.remove_block_entity(&pos);
+
+        // Set to air
+        world_state.set_block(&pos, 0);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: pos,
+            block_id: 0,
+        });
+
+        // Calculate offset for explosion packet
+        let dx = (bx - base_x) as i8;
+        let dy = (by - base_y) as i8;
+        let dz = (bz - base_z) as i8;
+        block_offsets.push((dx, dy, dz));
+    }
+
+    // Phase 3: Entity damage and knockback
+    let damage_radius = radius as f64 * 2.0;
+
+    // Collect player info for damage + per-player knockback
+    struct PlayerExplosionInfo {
+        entity: hecs::Entity,
+        eid: i32,
+        damage: f32,
+        knockback_x: f32,
+        knockback_y: f32,
+        knockback_z: f32,
+    }
+    let mut player_infos: Vec<PlayerExplosionInfo> = Vec::new();
+
+    for (pe, (peid, ppos, _profile)) in world.query::<(&EntityId, &Position, &Profile)>().iter() {
+        let dx = ppos.0.x - center_x;
+        let dy = ppos.0.y - center_y;
+        let dz = ppos.0.z - center_z;
+        let dist = (dx * dx + dy * dy + dz * dz).sqrt();
+        if dist < damage_radius && dist > 0.0 {
+            let d0 = dist / damage_radius;
+            let d1 = 1.0 - d0; // simplified LOS (assume full exposure)
+            let damage = ((d1 * d1 + d1) / 2.0 * 7.0 * damage_radius + 1.0) as f32;
+            let knockback = d1;
+            let nx = dx / dist;
+            let ny = dy / dist;
+            let nz = dz / dist;
+            player_infos.push(PlayerExplosionInfo {
+                entity: pe,
+                eid: peid.0,
+                damage,
+                knockback_x: (nx * knockback) as f32,
+                knockback_y: (ny * knockback) as f32,
+                knockback_z: (nz * knockback) as f32,
+            });
+        }
+    }
+
+    // Apply damage to players
+    for info in &player_infos {
+        apply_damage(world, world_state, info.entity, info.eid, info.damage, "explosion", scripting);
+    }
+
+    // Damage mobs
+    let mut mob_damage: Vec<(hecs::Entity, i32, f32, Vec3d)> = Vec::new();
+    for (me, (meid, mpos, _mob)) in world.query::<(&EntityId, &Position, &MobEntity)>().iter() {
+        let dx = mpos.0.x - center_x;
+        let dy = mpos.0.y - center_y;
+        let dz = mpos.0.z - center_z;
+        let dist = (dx * dx + dy * dy + dz * dz).sqrt();
+        if dist < damage_radius && dist > 0.0 {
+            let d0 = dist / damage_radius;
+            let d1 = 1.0 - d0;
+            let damage = ((d1 * d1 + d1) / 2.0 * 7.0 * damage_radius + 1.0) as f32;
+            mob_damage.push((me, meid.0, damage, mpos.0));
+        }
+    }
+
+    for (me, meid, damage, mpos) in &mob_damage {
+        if let Ok(mut mob) = world.get::<&mut MobEntity>(*me) {
+            if mob.no_damage_ticks <= 0 {
+                mob.health -= damage;
+                mob.no_damage_ticks = 10;
+                broadcast_to_all(world, &InternalPacket::HurtAnimation {
+                    entity_id: *meid,
+                    yaw: 0.0,
+                });
+                play_sound_at_entity(world, mpos.x, mpos.y, mpos.z, "entity.generic.hurt", SOUND_HOSTILE, 1.0, 1.0);
+            }
+        }
+    }
+
+    // Phase 4: Send per-player explosion packets with individual knockback
+    let block_interaction = if destroy_blocks { 2 } else { 0 }; // DESTROY_WITH_DECAY or KEEP
+    for (pe, (peid, sender)) in world.query::<(&EntityId, &ConnectionSender)>().iter() {
+        // Find this player's knockback
+        let (kx, ky, kz) = player_infos.iter()
+            .find(|i| i.eid == peid.0)
+            .map(|i| (i.knockback_x, i.knockback_y, i.knockback_z))
+            .unwrap_or((0.0, 0.0, 0.0));
+        let _ = sender.0.send(InternalPacket::Explosion {
+            x: center_x,
+            y: center_y,
+            z: center_z,
+            power: radius,
+            destroyed_blocks: block_offsets.clone(),
+            knockback_x: kx,
+            knockback_y: ky,
+            knockback_z: kz,
+            block_interaction,
+        });
+    }
+
+    // Phase 5: Chain-ignite TNT blocks
+    for (tx, ty, tz) in chain_tnt {
+        let fuse = rng.gen_range(10..30); // shorter fuse for chain reaction
+        spawn_tnt_entity(world, world_state, next_eid, tx, ty, tz, fuse, None, scripting);
     }
 }
 

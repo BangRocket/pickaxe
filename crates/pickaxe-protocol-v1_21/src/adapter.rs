@@ -120,6 +120,7 @@ const PLAY_UPDATE_MOB_EFFECT: i32 = 0x75;
 const PLAY_REMOVE_MOB_EFFECT: i32 = 0x42;
 const PLAY_BLOCK_ENTITY_DATA: i32 = 0x07;
 const PLAY_OPEN_SIGN_EDITOR: i32 = 0x34;
+const PLAY_EXPLOSION: i32 = 0x20;
 
 // === Decode functions ===
 
@@ -1037,6 +1038,34 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_i32(*data);
             buf.put_u8(if *disable_relative { 1 } else { 0 });
         }
+        InternalPacket::Explosion { x, y, z, power, destroyed_blocks, knockback_x, knockback_y, knockback_z, block_interaction } => {
+            write_varint(&mut buf, PLAY_EXPLOSION);
+            buf.put_f64(*x);
+            buf.put_f64(*y);
+            buf.put_f64(*z);
+            buf.put_f32(*power);
+            // Block offsets (relative to floor(x,y,z))
+            write_varint(&mut buf, destroyed_blocks.len() as i32);
+            for (dx, dy, dz) in destroyed_blocks {
+                buf.put_i8(*dx);
+                buf.put_i8(*dy);
+                buf.put_i8(*dz);
+            }
+            // Player knockback
+            buf.put_f32(*knockback_x);
+            buf.put_f32(*knockback_y);
+            buf.put_f32(*knockback_z);
+            // BlockInteraction enum ordinal (VarInt)
+            write_varint(&mut buf, *block_interaction);
+            // Small explosion particles: VarInt particle type ID (explosion = 22)
+            write_varint(&mut buf, 22);
+            // Large explosion particles: VarInt particle type ID (explosion_emitter = 21)
+            write_varint(&mut buf, 21);
+            // Sound event: inline holder (type 0) + ResourceLocation + Optional<Float>(false)
+            write_varint(&mut buf, 0); // 0 = inline/direct holder
+            write_string(&mut buf, "minecraft:entity.generic.explode");
+            buf.put_u8(0); // Optional<Float> = absent (no fixed range)
+        }
         InternalPacket::SetExperience { progress, level, total_xp } => {
             write_varint(&mut buf, PLAY_SET_EXPERIENCE);
             buf.put_f32(*progress);
@@ -1185,6 +1214,32 @@ pub fn build_item_metadata(item: &pickaxe_types::ItemStack) -> Vec<EntityMetadat
     };
 
     vec![flags_entry, item_entry]
+}
+
+/// Build entity metadata for a primed TNT entity.
+/// Index 8: fuse ticks (VarInt), Index 9: block state (VarInt).
+pub fn build_tnt_metadata(fuse: i32, block_state: i32) -> Vec<EntityMetadataEntry> {
+    use pickaxe_protocol_core::EntityMetadataEntry;
+
+    // Index 8: fuse ticks — type 1 (VarInt)
+    let mut fuse_buf = BytesMut::new();
+    write_varint(&mut fuse_buf, fuse);
+    let fuse_entry = EntityMetadataEntry {
+        index: 8,
+        type_id: 1,
+        data: fuse_buf.to_vec(),
+    };
+
+    // Index 9: block state — type 1 (VarInt)
+    let mut state_buf = BytesMut::new();
+    write_varint(&mut state_buf, block_state);
+    let state_entry = EntityMetadataEntry {
+        index: 9,
+        type_id: 1,
+        data: state_buf.to_vec(),
+    };
+
+    vec![fuse_entry, state_entry]
 }
 
 fn encode_light_data(buf: &mut BytesMut, light: &ChunkLightData) {

@@ -780,6 +780,8 @@ pub fn fluid_height(state_id: i32) -> f64 {
 // === Mob Data ===
 
 /// Mob type constants (protocol entity type IDs for MC 1.21.1).
+pub const ENTITY_TNT: i32 = 106;
+
 pub const MOB_BAT: i32 = 6;
 pub const MOB_CHICKEN: i32 = 19;
 pub const MOB_COW: i32 = 22;

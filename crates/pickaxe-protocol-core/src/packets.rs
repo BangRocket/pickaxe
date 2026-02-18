@@ -557,6 +557,22 @@ pub enum InternalPacket {
         effect_id: i32,   // 0-indexed registry ID
     },
 
+    /// Explosion (0x20 CB) — explosion visual + block destruction + knockback.
+    Explosion {
+        x: f64,
+        y: f64,
+        z: f64,
+        power: f32,
+        /// Relative block offsets destroyed (dx, dy, dz as i8)
+        destroyed_blocks: Vec<(i8, i8, i8)>,
+        /// Player knockback
+        knockback_x: f32,
+        knockback_y: f32,
+        knockback_z: f32,
+        /// Block interaction mode: 0=keep, 1=destroy, 2=destroy_with_decay, 3=trigger_block
+        block_interaction: i32,
+    },
+
     /// World Event / Level Event (0x28 CB) — block break particles, sounds, etc.
     WorldEvent {
         event: i32,

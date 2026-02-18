@@ -384,6 +384,12 @@ impl ActiveEffects {
     }
 }
 
+/// Primed TNT entity component.
+pub struct TntEntity {
+    pub fuse: i32,                          // ticks until explosion (default 80)
+    pub owner: Option<hecs::Entity>,        // who ignited it
+}
+
 /// Current AI behavior state for a mob.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum MobAiState {

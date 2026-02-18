@@ -31,6 +31,8 @@ struct Block {
     #[serde(default)]
     hardness: f64,
     #[serde(default)]
+    resistance: f64,
+    #[serde(default)]
     diggable: bool,
     #[serde(rename = "harvestTools")]
     harvest_tools: Option<HashMap<String, bool>>,
@@ -255,6 +257,40 @@ fn main() {
         }
     }
     writeln!(out, "        _ => None,").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    // block_state_to_resistance
+    writeln!(
+        out,
+        "/// Map block state ID to explosion resistance."
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "pub fn block_state_to_resistance(state_id: i32) -> f64 {{"
+    )
+    .unwrap();
+    writeln!(out, "    match state_id {{").unwrap();
+    for b in &blocks {
+        if b.min_state_id == b.max_state_id {
+            writeln!(
+                out,
+                "        {} => {:?}, // {}",
+                b.min_state_id, b.resistance, b.name
+            )
+            .unwrap();
+        } else {
+            writeln!(
+                out,
+                "        {}..={} => {:?}, // {}",
+                b.min_state_id, b.max_state_id, b.resistance, b.name
+            )
+            .unwrap();
+        }
+    }
+    writeln!(out, "        _ => 0.0,").unwrap();
     writeln!(out, "    }}").unwrap();
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
