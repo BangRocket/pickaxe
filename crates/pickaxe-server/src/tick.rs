@@ -2656,6 +2656,12 @@ fn process_packet(
                 } else if block_name == "redstone_lamp" {
                     // Redstone lamp should default to unlit when placed
                     pickaxe_data::redstone_lamp_set_lit(false)
+                } else if block_name == "piston" || block_name == "sticky_piston" {
+                    // Piston faces opposite to player's look direction
+                    let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+                    let pitch = world.get::<&Rotation>(entity).map(|r| r.pitch).unwrap_or(0.0);
+                    let facing6 = pickaxe_data::yaw_pitch_to_facing6(yaw, pitch);
+                    pickaxe_data::piston_state(facing6, false, block_name == "sticky_piston")
                 } else {
                     block_id
                 }
@@ -7833,6 +7839,37 @@ fn complete_block_break(
         }
     }
 
+    // Special handling for pistons: breaking base removes head, breaking head removes base extension
+    if pickaxe_data::is_any_piston(old_block) && pickaxe_data::piston_is_extended(old_block) {
+        if let Some(facing) = pickaxe_data::piston_facing(old_block) {
+            let (dx, dy, dz) = pickaxe_data::facing6_to_offset(facing);
+            let head_pos = BlockPos::new(position.x + dx, position.y + dy, position.z + dz);
+            let head_block = world_state.get_block(&head_pos);
+            if pickaxe_data::is_piston_head(head_block) {
+                world_state.set_block(&head_pos, 0);
+                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                    position: head_pos,
+                    block_id: 0,
+                });
+            }
+        }
+    }
+    if pickaxe_data::is_piston_head(old_block) {
+        if let Some((facing, _, is_sticky)) = pickaxe_data::piston_head_props(old_block) {
+            let (dx, dy, dz) = pickaxe_data::facing6_to_offset(facing);
+            let base_pos = BlockPos::new(position.x - dx, position.y - dy, position.z - dz);
+            let base_block = world_state.get_block(&base_pos);
+            if pickaxe_data::is_any_piston(base_block) && pickaxe_data::piston_is_extended(base_block) {
+                let retracted = pickaxe_data::piston_state(facing, false, is_sticky);
+                world_state.set_block(&base_pos, retracted);
+                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                    position: base_pos,
+                    block_id: retracted,
+                });
+            }
+        }
+    }
+
     // Mining exhaustion (MC: 0.005 per block broken)
     if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
         food.exhaustion = (food.exhaustion + 0.005).min(40.0);
@@ -10110,6 +10147,7 @@ fn update_redstone_neighbors(
     // We may add more positions as wire power propagates
     let mut wire_updates: Vec<(BlockPos, i32, i32)> = Vec::new(); // (pos, old_state, new_state)
     let mut block_updates: Vec<(BlockPos, i32, i32)> = Vec::new(); // other redstone block updates
+    let mut piston_actions: Vec<(BlockPos, i32, bool)> = Vec::new(); // (pos, state, should_extend)
 
     while let Some(pos) = to_check.pop_front() {
         let state = match world_state.get_block_if_loaded(&pos) {
@@ -10197,6 +10235,19 @@ fn update_redstone_neighbors(
                 block_updates.push((pos, state, new_state));
             }
         }
+
+        // --- Piston ---
+        if pickaxe_data::is_any_piston(state) && !pickaxe_data::is_piston_head(state) {
+            let is_extended = pickaxe_data::piston_is_extended(state);
+            let has_power = block_receives_power(world_state, &pos);
+            if has_power && !is_extended {
+                // Should extend — collect for processing after all updates
+                piston_actions.push((pos, state, true));
+            } else if !has_power && is_extended {
+                // Should retract
+                piston_actions.push((pos, state, false));
+            }
+        }
     }
 
     // Apply all wire updates
@@ -10223,6 +10274,15 @@ fn update_redstone_neighbors(
             // Recursively propagate from each changed block
             // Use a simple iteration limit to prevent infinite loops
             update_redstone_cascade(world, world_state, &pos, 0);
+        }
+    }
+
+    // Process piston actions (extend/retract)
+    for (pos, state, should_extend) in piston_actions {
+        if should_extend {
+            try_extend_piston(world, world_state, &pos, state);
+        } else {
+            try_retract_piston(world, world_state, &pos, state);
         }
     }
 }
@@ -10630,6 +10690,200 @@ fn repeater_has_input(world_state: &WorldState, pos: &BlockPos, facing: i32) -> 
     }
 
     false
+}
+
+/// Try to extend a piston at `pos`. Resolves the push structure and moves blocks.
+fn try_extend_piston(
+    world: &World,
+    world_state: &mut WorldState,
+    pos: &BlockPos,
+    state: i32,
+) {
+    let facing = match pickaxe_data::piston_facing(state) {
+        Some(f) => f,
+        None => return,
+    };
+    let is_sticky = pickaxe_data::is_sticky_piston(state);
+    let (dx, dy, dz) = pickaxe_data::facing6_to_offset(facing);
+
+    // Resolve the push structure: collect blocks to push
+    let head_pos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+    let mut to_push: Vec<BlockPos> = Vec::new();
+    let mut to_destroy: Vec<BlockPos> = Vec::new();
+
+    if !resolve_push_structure(world_state, &head_pos, facing, &mut to_push, &mut to_destroy) {
+        return; // Can't extend (immovable block in the way or too many blocks)
+    }
+
+    // Play piston sound
+    play_sound_at_block(world, pos, "block.piston.extend", SOUND_BLOCKS, 0.5, 0.7);
+
+    // Destroy breakable blocks first
+    for dpos in &to_destroy {
+        world_state.set_block(dpos, 0);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: *dpos,
+            block_id: 0,
+        });
+    }
+
+    // Move blocks from farthest to nearest (so they don't overwrite each other)
+    // The push list is ordered from nearest to farthest, so reverse it
+    for bpos in to_push.iter().rev() {
+        let block = world_state.get_block(bpos);
+        let dest = BlockPos::new(bpos.x + dx, bpos.y + dy, bpos.z + dz);
+        world_state.set_block(&dest, block);
+        world_state.set_block(bpos, 0);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: dest,
+            block_id: block,
+        });
+    }
+
+    // Set air at positions that were vacated (already done by move loop above clearing source)
+    // But we need to broadcast the air for any position not overwritten
+    for bpos in &to_push {
+        let current = world_state.get_block(bpos);
+        if current != 0 {
+            // Position was overwritten by another push — already correct
+        } else {
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position: *bpos,
+                block_id: 0,
+            });
+        }
+    }
+
+    // Place piston head at the head position
+    let head_state = pickaxe_data::piston_head_state(facing, false, is_sticky);
+    world_state.set_block(&head_pos, head_state);
+    broadcast_to_all(world, &InternalPacket::BlockUpdate {
+        position: head_pos,
+        block_id: head_state,
+    });
+
+    // Set piston base to extended
+    let extended_state = pickaxe_data::piston_state(facing, true, is_sticky);
+    world_state.set_block(pos, extended_state);
+    broadcast_to_all(world, &InternalPacket::BlockUpdate {
+        position: *pos,
+        block_id: extended_state,
+    });
+
+    // Trigger redstone update from moved blocks (they may affect wires etc.)
+    for bpos in &to_push {
+        let dest = BlockPos::new(bpos.x + dx, bpos.y + dy, bpos.z + dz);
+        update_redstone_neighbors(world, world_state, &dest);
+    }
+    update_redstone_neighbors(world, world_state, &head_pos);
+}
+
+/// Try to retract a piston at `pos`. Removes head and pulls block for sticky.
+fn try_retract_piston(
+    world: &World,
+    world_state: &mut WorldState,
+    pos: &BlockPos,
+    state: i32,
+) {
+    let facing = match pickaxe_data::piston_facing(state) {
+        Some(f) => f,
+        None => return,
+    };
+    let is_sticky = pickaxe_data::is_sticky_piston(state);
+    let (dx, dy, dz) = pickaxe_data::facing6_to_offset(facing);
+
+    // Remove piston head
+    let head_pos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+    let head_block = world_state.get_block(&head_pos);
+    if pickaxe_data::is_piston_head(head_block) {
+        world_state.set_block(&head_pos, 0);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: head_pos,
+            block_id: 0,
+        });
+    }
+
+    // Set piston base to retracted
+    let retracted_state = pickaxe_data::piston_state(facing, false, is_sticky);
+    world_state.set_block(pos, retracted_state);
+    broadcast_to_all(world, &InternalPacket::BlockUpdate {
+        position: *pos,
+        block_id: retracted_state,
+    });
+
+    // For sticky pistons, try to pull the block 2 positions out
+    if is_sticky {
+        let pull_pos = BlockPos::new(pos.x + dx * 2, pos.y + dy * 2, pos.z + dz * 2);
+        let pull_block = world_state.get_block(&pull_pos);
+        if pull_block != 0 && pickaxe_data::is_pushable(pull_block) && !pickaxe_data::is_piston_destroyable(pull_block) {
+            // Pull block to head position
+            world_state.set_block(&head_pos, pull_block);
+            world_state.set_block(&pull_pos, 0);
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position: head_pos,
+                block_id: pull_block,
+            });
+            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                position: pull_pos,
+                block_id: 0,
+            });
+            update_redstone_neighbors(world, world_state, &head_pos);
+            update_redstone_neighbors(world, world_state, &pull_pos);
+        }
+    }
+
+    // Play piston sound
+    play_sound_at_block(world, pos, "block.piston.contract", SOUND_BLOCKS, 0.5, 0.65);
+
+    update_redstone_neighbors(world, world_state, &head_pos);
+}
+
+/// Resolve the push structure for a piston extending in the given direction.
+/// Returns true if the push is possible (all blocks can be moved).
+/// Populates `to_push` with blocks to move (nearest to farthest) and
+/// `to_destroy` with blocks to destroy.
+fn resolve_push_structure(
+    world_state: &WorldState,
+    start: &BlockPos,
+    facing: i32,
+    to_push: &mut Vec<BlockPos>,
+    to_destroy: &mut Vec<BlockPos>,
+) -> bool {
+    let (dx, dy, dz) = pickaxe_data::facing6_to_offset(facing);
+    let mut check_pos = *start;
+
+    for _ in 0..13 { // max 12 pushable blocks + 1 for the space check
+        let block = match world_state.get_block_if_loaded(&check_pos) {
+            Some(b) => b,
+            None => return false, // out of loaded chunks
+        };
+
+        // Air or fluid — nothing blocking, push is valid
+        if block == 0 {
+            return true;
+        }
+
+        // Destroyable blocks get destroyed
+        if pickaxe_data::is_piston_destroyable(block) {
+            to_destroy.push(check_pos);
+            return true;
+        }
+
+        // Check if pushable
+        if !pickaxe_data::is_pushable(block) {
+            return false; // immovable block — can't push
+        }
+
+        // Check max push limit
+        if to_push.len() >= 12 {
+            return false; // too many blocks
+        }
+
+        to_push.push(check_pos);
+        check_pos = BlockPos::new(check_pos.x + dx, check_pos.y + dy, check_pos.z + dz);
+    }
+
+    false // shouldn't reach here
 }
 
 /// Tick all furnace block entities: consume fuel, smelt items, send progress to viewers.

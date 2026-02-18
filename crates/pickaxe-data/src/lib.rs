@@ -1242,6 +1242,229 @@ pub fn opposite_facing(facing: i32) -> i32 {
     }
 }
 
+// === Piston Data ===
+
+/// Piston state range: 2011-2022 (12 states)
+/// Layout: extended_idx*6 + facing_idx. Extended: true=0, false=1.
+/// Facing: north=0, east=1, south=2, west=3, up=4, down=5.
+const PISTON_MIN: i32 = 2011;
+const PISTON_MAX: i32 = 2022;
+
+/// Sticky piston state range: 1992-2003 (same layout as piston)
+const STICKY_PISTON_MIN: i32 = 1992;
+const STICKY_PISTON_MAX: i32 = 2003;
+
+/// Piston head state range: 2023-2046 (24 states)
+/// Layout: facing_idx*4 + short_idx*2 + type_idx
+/// Facing: same 6 directions. Short: true=0, false=1. Type: normal=0, sticky=1.
+const PISTON_HEAD_MIN: i32 = 2023;
+const PISTON_HEAD_MAX: i32 = 2046;
+
+/// Moving piston state range: 2063-2074 (12 states)
+/// Layout: facing_idx*2 + type_idx. Facing: 6 directions. Type: normal=0, sticky=1.
+const MOVING_PISTON_MIN: i32 = 2063;
+#[allow(dead_code)]
+const MOVING_PISTON_MAX: i32 = 2074;
+
+/// 6-direction facing values (for pistons): north=0, east=1, south=2, west=3, up=4, down=5
+pub const FACING6_NORTH: i32 = 0;
+pub const FACING6_EAST: i32 = 1;
+pub const FACING6_SOUTH: i32 = 2;
+pub const FACING6_WEST: i32 = 3;
+pub const FACING6_UP: i32 = 4;
+pub const FACING6_DOWN: i32 = 5;
+
+/// Check if a block state is a piston (normal).
+pub fn is_piston(state_id: i32) -> bool {
+    (PISTON_MIN..=PISTON_MAX).contains(&state_id)
+}
+
+/// Check if a block state is a sticky piston.
+pub fn is_sticky_piston(state_id: i32) -> bool {
+    (STICKY_PISTON_MIN..=STICKY_PISTON_MAX).contains(&state_id)
+}
+
+/// Check if a block state is any piston base (normal or sticky).
+pub fn is_any_piston(state_id: i32) -> bool {
+    is_piston(state_id) || is_sticky_piston(state_id)
+}
+
+/// Get piston 6-direction facing (0=north, 1=east, 2=south, 3=west, 4=up, 5=down).
+pub fn piston_facing(state_id: i32) -> Option<i32> {
+    if is_piston(state_id) {
+        Some((state_id - PISTON_MIN) % 6)
+    } else if is_sticky_piston(state_id) {
+        Some((state_id - STICKY_PISTON_MIN) % 6)
+    } else {
+        None
+    }
+}
+
+/// Check if a piston is extended.
+pub fn piston_is_extended(state_id: i32) -> bool {
+    if is_piston(state_id) {
+        (state_id - PISTON_MIN) / 6 == 0 // extended=true → index 0
+    } else if is_sticky_piston(state_id) {
+        (state_id - STICKY_PISTON_MIN) / 6 == 0
+    } else {
+        false
+    }
+}
+
+/// Build a piston state. `sticky`: false=normal, true=sticky.
+pub fn piston_state(facing6: i32, extended: bool, sticky: bool) -> i32 {
+    let base = if sticky { STICKY_PISTON_MIN } else { PISTON_MIN };
+    let ext_idx = if extended { 0 } else { 1 };
+    base + ext_idx * 6 + facing6.clamp(0, 5)
+}
+
+/// Check if a block state is a piston head.
+pub fn is_piston_head(state_id: i32) -> bool {
+    (PISTON_HEAD_MIN..=PISTON_HEAD_MAX).contains(&state_id)
+}
+
+/// Get piston head properties: (facing6, is_short, is_sticky).
+pub fn piston_head_props(state_id: i32) -> Option<(i32, bool, bool)> {
+    if !is_piston_head(state_id) { return None; }
+    let offset = state_id - PISTON_HEAD_MIN;
+    let type_idx = offset % 2;
+    let short_idx = (offset / 2) % 2;
+    let facing = offset / 4;
+    Some((facing, short_idx == 0, type_idx == 1))
+}
+
+/// Build a piston head state.
+pub fn piston_head_state(facing6: i32, is_short: bool, is_sticky: bool) -> i32 {
+    PISTON_HEAD_MIN
+        + facing6.clamp(0, 5) * 4
+        + if is_short { 0 } else { 2 }
+        + if is_sticky { 1 } else { 0 }
+}
+
+/// Convert a 6-direction facing to (dx, dy, dz) offset.
+pub fn facing6_to_offset(facing6: i32) -> (i32, i32, i32) {
+    match facing6 {
+        0 => (0, 0, -1),  // north: -z
+        1 => (1, 0, 0),   // east: +x
+        2 => (0, 0, 1),   // south: +z
+        3 => (-1, 0, 0),  // west: -x
+        4 => (0, 1, 0),   // up: +y
+        5 => (0, -1, 0),  // down: -y
+        _ => (0, 0, 0),
+    }
+}
+
+/// Get the opposite of a 6-direction facing.
+pub fn opposite_facing6(facing6: i32) -> i32 {
+    match facing6 {
+        0 => 2, // north → south
+        1 => 3, // east → west
+        2 => 0, // south → north
+        3 => 1, // west → east
+        4 => 5, // up → down
+        5 => 4, // down → up
+        _ => facing6,
+    }
+}
+
+/// Convert player yaw + pitch to 6-direction facing (for piston placement).
+/// Pistons face the direction opposite to where the player is looking.
+pub fn yaw_pitch_to_facing6(yaw: f32, pitch: f32) -> i32 {
+    if pitch < -45.0 {
+        FACING6_UP // looking up → place facing up
+    } else if pitch > 45.0 {
+        FACING6_DOWN // looking down → place facing down
+    } else {
+        let angle = ((yaw % 360.0) + 360.0) % 360.0;
+        if angle >= 315.0 || angle < 45.0 { FACING6_SOUTH }       // yaw ~0 = south
+        else if angle >= 45.0 && angle < 135.0 { FACING6_WEST }   // yaw ~90 = west
+        else if angle >= 135.0 && angle < 225.0 { FACING6_NORTH } // yaw ~180 = north
+        else { FACING6_EAST }                                       // yaw ~270 = east
+    }
+}
+
+/// Check if a block can be pushed by a piston.
+/// Returns true if the block is pushable (air, normal blocks).
+/// Returns false for obsidian, bedrock, extended pistons, block entities, etc.
+pub fn is_pushable(state_id: i32) -> bool {
+    if state_id == 0 { return true; } // air is pushable (just fills empty space)
+
+    let name = match block_state_to_name(state_id) {
+        Some(n) => n,
+        None => return false,
+    };
+
+    // Immovable blocks
+    if matches!(name,
+        "obsidian" | "crying_obsidian" | "respawn_anchor" | "reinforced_deepslate"
+        | "bedrock" | "end_portal_frame" | "end_portal" | "end_gateway"
+        | "nether_portal" | "enchanting_table" | "beacon" | "spawner"
+        | "moving_piston" | "barrier" | "command_block" | "chain_command_block"
+        | "repeating_command_block" | "structure_block" | "jigsaw"
+    ) {
+        return false;
+    }
+
+    // Extended pistons cannot be pushed
+    if is_any_piston(state_id) && piston_is_extended(state_id) {
+        return false;
+    }
+
+    // Piston heads cannot be pushed independently
+    if is_piston_head(state_id) {
+        return false;
+    }
+
+    // Blocks with block entities generally can't be pushed
+    // (chests, furnaces, signs, banners, etc.)
+    if matches!(name,
+        "chest" | "trapped_chest" | "furnace" | "blast_furnace" | "smoker"
+        | "brewing_stand" | "hopper" | "dropper" | "dispenser"
+        | "lectern" | "jukebox" | "bell" | "conduit"
+        | "end_chest" | "shulker_box"
+    ) || name.contains("shulker_box") || name.contains("banner") {
+        return false;
+    }
+
+    // Signs can't be pushed
+    if is_sign_state(state_id) {
+        return false;
+    }
+
+    true
+}
+
+/// Check if a block is destroyed (rather than pushed) by a piston.
+/// Fire, flowers, tall grass, etc.
+pub fn is_piston_destroyable(state_id: i32) -> bool {
+    let name = match block_state_to_name(state_id) {
+        Some(n) => n,
+        None => return false,
+    };
+
+    // Blocks that get destroyed when pushed
+    is_fire(state_id)
+        || is_fluid(state_id)
+        || matches!(name,
+            "dead_bush" | "fern" | "short_grass" | "tall_grass" | "large_fern"
+            | "sunflower" | "lilac" | "rose_bush" | "peony"
+            | "dandelion" | "poppy" | "blue_orchid" | "allium" | "azure_bluet"
+            | "red_tulip" | "orange_tulip" | "white_tulip" | "pink_tulip"
+            | "oxeye_daisy" | "cornflower" | "lily_of_the_valley" | "wither_rose"
+            | "torch" | "wall_torch" | "soul_torch" | "soul_wall_torch"
+            | "redstone_torch" | "redstone_wall_torch"
+            | "redstone_wire" | "repeater"
+            | "lever" | "snow" | "cobweb" | "vine"
+            | "lily_pad" | "sea_pickle" | "turtle_egg"
+            | "tripwire" | "tripwire_hook"
+        )
+        || name.contains("button")
+        || name.contains("carpet")
+        || name.contains("pressure_plate")
+        || name.contains("coral_fan")
+        || name.contains("candle")
+}
+
 // === Mob Data ===
 
 /// Mob type constants (protocol entity type IDs for MC 1.21.1).
