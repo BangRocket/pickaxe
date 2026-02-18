@@ -1952,6 +1952,11 @@ fn process_packet(
                         };
                         play_sound_at_block(world, &position, sound, SOUND_BLOCKS, 1.0, 1.0);
 
+                        // Update redstone neighbors when lever/button is toggled
+                        if target_name == "lever" || target_name.contains("button") {
+                            update_redstone_neighbors(world, world_state, &position);
+                        }
+
                         debug!("{} interacted with {} at {:?}", name, target_name, position);
                     }
 
@@ -2617,6 +2622,45 @@ fn process_packet(
                 return;
             }
 
+            // Special handling for directional redstone components
+            let block_id = {
+                let block_name = pickaxe_data::block_state_to_name(block_id).unwrap_or("");
+                if block_name == "repeater" {
+                    // Repeater faces the player's look direction (north=0, south=1, west=2, east=3)
+                    let yaw = world.get::<&Rotation>(entity).map(|r| r.yaw).unwrap_or(0.0);
+                    let angle = ((yaw % 360.0) + 360.0) % 360.0;
+                    // MC yaw: 0=south, 90=west, 180=north, 270=east
+                    let facing = if angle >= 315.0 || angle < 45.0 { 1 }       // south (yaw ~0)
+                        else if angle >= 45.0 && angle < 135.0 { 2 }           // west (yaw ~90)
+                        else if angle >= 135.0 && angle < 225.0 { 0 }          // north (yaw ~180)
+                        else { 3 };                                             // east (yaw ~270)
+                    pickaxe_data::repeater_state(1, facing, false, false)
+                } else if block_name == "redstone_torch" {
+                    // Wall torch when placed on side of a block (face 2-5)
+                    if face >= 2 && face <= 5 {
+                        // face 2=north, 3=south, 4=west, 5=east
+                        // Wall torch facing order: north=0, south=1, west=2, east=3
+                        // State = 5740 + facing*2 + lit_offset (0=lit, 1=unlit)
+                        let wall_facing = match face {
+                            2 => 0, // north
+                            3 => 1, // south
+                            4 => 2, // west
+                            5 => 3, // east
+                            _ => 0,
+                        };
+                        5740 + wall_facing * 2 // lit=true (offset 0)
+                    } else {
+                        // Standing torch on top of block — default is already lit (5738)
+                        5738
+                    }
+                } else if block_name == "redstone_lamp" {
+                    // Redstone lamp should default to unlit when placed
+                    pickaxe_data::redstone_lamp_set_lit(false)
+                } else {
+                    block_id
+                }
+            };
+
             world_state.set_block(&target, block_id);
 
             // Create block entity for container blocks
@@ -2686,6 +2730,9 @@ fn process_packet(
                 .map(|n| pickaxe_data::block_sound_group(n))
                 .unwrap_or("stone");
             play_sound_at_block(world, &target, &format!("block.{}.place", sound_group), SOUND_BLOCKS, 1.0, 0.8);
+
+            // Update redstone neighbors when a block is placed
+            update_redstone_neighbors(world, world_state, &target);
 
             debug!("{} placed block at {:?}", name, target);
         }
@@ -6293,6 +6340,9 @@ fn tick_buttons(world: &mut World, world_state: &mut WorldState) {
                 "block.wooden_button.click_off"
             };
             play_sound_at_block(world, &position, sound, SOUND_BLOCKS, 1.0, 1.0);
+
+            // Update redstone neighbors when button resets
+            update_redstone_neighbors(world, world_state, &position);
         }
     }
 }
@@ -7830,6 +7880,9 @@ fn complete_block_break(
         .map(|n| pickaxe_data::block_sound_group(n))
         .unwrap_or("stone");
     play_sound_at_block(world, position, &format!("block.{}.break", sound_group), SOUND_BLOCKS, 1.0, 0.8);
+
+    // Update redstone neighbors when a block is broken
+    update_redstone_neighbors(world, world_state, position);
 
     // Award XP for ore mining (survival only)
     let xp_amount = block_xp_drop(old_block);
@@ -10006,6 +10059,577 @@ fn give_item_to_player(world: &mut World, entity: hecs::Entity, item_id: i32, co
     }
 
     true
+}
+
+/// Update redstone components in response to a block change at `origin`.
+/// Propagates power changes to adjacent redstone wire, torches, repeaters, and lamps.
+fn update_redstone_neighbors(
+    world: &World,
+    world_state: &mut WorldState,
+    origin: &BlockPos,
+) {
+    use std::collections::{HashSet, VecDeque};
+
+    // Collect positions that need checking: the origin + all 6 neighbors
+    let mut to_check: VecDeque<BlockPos> = VecDeque::new();
+    let mut visited: HashSet<(i32, i32, i32)> = HashSet::new();
+
+    // Add origin and direct neighbors
+    let offsets: [(i32, i32, i32); 7] = [
+        (0, 0, 0),
+        (1, 0, 0), (-1, 0, 0),
+        (0, 1, 0), (0, -1, 0),
+        (0, 0, 1), (0, 0, -1),
+    ];
+
+    for &(dx, dy, dz) in &offsets {
+        let pos = BlockPos::new(origin.x + dx, origin.y + dy, origin.z + dz);
+        if visited.insert((pos.x, pos.y, pos.z)) {
+            to_check.push_back(pos);
+        }
+    }
+
+    // Also check positions 2 blocks away through solid blocks (strong power propagation)
+    // and positions diagonally adjacent for wire connections
+    let diag_offsets: [(i32, i32, i32); 4] = [
+        (1, 1, 0), (-1, 1, 0), (0, 1, 1), (0, 1, -1),
+    ];
+    for &(dx, dy, dz) in &diag_offsets {
+        let pos = BlockPos::new(origin.x + dx, origin.y + dy, origin.z + dz);
+        if visited.insert((pos.x, pos.y, pos.z)) {
+            to_check.push_back(pos);
+        }
+        // Also below
+        let pos2 = BlockPos::new(origin.x + dx, origin.y - 1 + dy, origin.z + dz);
+        if visited.insert((pos2.x, pos2.y, pos2.z)) {
+            to_check.push_back(pos2);
+        }
+    }
+
+    // Process all redstone blocks in the check set
+    // We may add more positions as wire power propagates
+    let mut wire_updates: Vec<(BlockPos, i32, i32)> = Vec::new(); // (pos, old_state, new_state)
+    let mut block_updates: Vec<(BlockPos, i32, i32)> = Vec::new(); // other redstone block updates
+
+    while let Some(pos) = to_check.pop_front() {
+        let state = match world_state.get_block_if_loaded(&pos) {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // --- Redstone Wire ---
+        if pickaxe_data::is_redstone_wire(state) {
+            let new_power = calculate_wire_power(world_state, &pos);
+            let old_power = pickaxe_data::redstone_wire_power(state).unwrap_or(0);
+            if new_power != old_power {
+                let new_state = pickaxe_data::redstone_wire_state(new_power);
+                wire_updates.push((pos, state, new_state));
+
+                // When wire power changes, check its neighbors too (propagation)
+                for &(dx, dy, dz) in &[(1i32,0i32,0i32),(-1,0,0),(0,0,1),(0,0,-1),(0,1,0),(0,-1,0)] {
+                    let npos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+                    if visited.insert((npos.x, npos.y, npos.z)) {
+                        to_check.push_back(npos);
+                    }
+                }
+                // Wire can also power through diagonals (up/down slopes)
+                for &(dx, dz) in &[(1i32,0i32),(-1,0),(0,1),(0,-1)] {
+                    let above = BlockPos::new(pos.x + dx, pos.y + 1, pos.z + dz);
+                    if visited.insert((above.x, above.y, above.z)) {
+                        to_check.push_back(above);
+                    }
+                    let below = BlockPos::new(pos.x + dx, pos.y - 1, pos.z + dz);
+                    if visited.insert((below.x, below.y, below.z)) {
+                        to_check.push_back(below);
+                    }
+                }
+            }
+        }
+
+        // --- Redstone Torch ---
+        if pickaxe_data::is_redstone_torch(state) {
+            let should_be_lit = !is_torch_receiving_power(world_state, &pos, state);
+            let is_lit = pickaxe_data::redstone_torch_is_lit(state);
+            if should_be_lit != is_lit {
+                let new_state = pickaxe_data::redstone_torch_set_lit(state, should_be_lit);
+                block_updates.push((pos, state, new_state));
+                // Torch state change affects its neighbors
+                for &(dx, dy, dz) in &offsets {
+                    let npos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+                    if visited.insert((npos.x, npos.y, npos.z)) {
+                        to_check.push_back(npos);
+                    }
+                }
+            }
+        }
+
+        // --- Repeater ---
+        if pickaxe_data::is_repeater(state) {
+            if let Some((delay, facing, locked, powered)) = pickaxe_data::repeater_props(state) {
+                if !locked {
+                    let has_input = repeater_has_input(world_state, &pos, facing);
+                    if has_input != powered {
+                        let new_state = pickaxe_data::repeater_state(delay, facing, locked, has_input);
+                        block_updates.push((pos, state, new_state));
+                        // Repeater output affects the block it points to
+                        let (dx, dz) = pickaxe_data::facing_to_offset(facing);
+                        let out_pos = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+                        if visited.insert((out_pos.x, out_pos.y, out_pos.z)) {
+                            to_check.push_back(out_pos);
+                        }
+                        // Also check behind (input side)
+                        let (bdx, bdz) = pickaxe_data::facing_to_offset(pickaxe_data::opposite_facing(facing));
+                        let back_pos = BlockPos::new(pos.x + bdx, pos.y, pos.z + bdz);
+                        if visited.insert((back_pos.x, back_pos.y, back_pos.z)) {
+                            to_check.push_back(back_pos);
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Redstone Lamp ---
+        if pickaxe_data::is_redstone_lamp(state) {
+            let has_power = block_receives_power(world_state, &pos);
+            let is_lit = state == pickaxe_data::redstone_lamp_set_lit(true);
+            if has_power != is_lit {
+                let new_state = pickaxe_data::redstone_lamp_set_lit(has_power);
+                block_updates.push((pos, state, new_state));
+            }
+        }
+    }
+
+    // Apply all wire updates
+    for (pos, _old, new_state) in &wire_updates {
+        world_state.set_block(pos, *new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: *pos,
+            block_id: *new_state,
+        });
+    }
+
+    // Apply all other block updates
+    for (pos, _old, new_state) in &block_updates {
+        world_state.set_block(pos, *new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: *pos,
+            block_id: *new_state,
+        });
+    }
+
+    // If any torches or repeaters changed, we need a second pass for cascading effects
+    if !block_updates.is_empty() {
+        for (pos, _, _) in block_updates {
+            // Recursively propagate from each changed block
+            // Use a simple iteration limit to prevent infinite loops
+            update_redstone_cascade(world, world_state, &pos, 0);
+        }
+    }
+}
+
+/// Cascade redstone updates from a changed block, up to a depth limit.
+fn update_redstone_cascade(
+    world: &World,
+    world_state: &mut WorldState,
+    origin: &BlockPos,
+    depth: u32,
+) {
+    if depth >= 16 { return; } // Prevent infinite loops
+
+    use std::collections::HashSet;
+
+    let offsets: [(i32, i32, i32); 6] = [
+        (1, 0, 0), (-1, 0, 0),
+        (0, 1, 0), (0, -1, 0),
+        (0, 0, 1), (0, 0, -1),
+    ];
+
+    let mut changes: Vec<(BlockPos, i32)> = Vec::new();
+
+    // Check all neighbors of origin
+    for &(dx, dy, dz) in &offsets {
+        let pos = BlockPos::new(origin.x + dx, origin.y + dy, origin.z + dz);
+        let state = match world_state.get_block_if_loaded(&pos) {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // Wire
+        if pickaxe_data::is_redstone_wire(state) {
+            let new_power = calculate_wire_power(world_state, &pos);
+            let old_power = pickaxe_data::redstone_wire_power(state).unwrap_or(0);
+            if new_power != old_power {
+                let new_state = pickaxe_data::redstone_wire_state(new_power);
+                changes.push((pos, new_state));
+            }
+        }
+
+        // Torch
+        if pickaxe_data::is_redstone_torch(state) {
+            let should_be_lit = !is_torch_receiving_power(world_state, &pos, state);
+            let is_lit = pickaxe_data::redstone_torch_is_lit(state);
+            if should_be_lit != is_lit {
+                let new_state = pickaxe_data::redstone_torch_set_lit(state, should_be_lit);
+                changes.push((pos, new_state));
+            }
+        }
+
+        // Repeater
+        if pickaxe_data::is_repeater(state) {
+            if let Some((delay, facing, locked, powered)) = pickaxe_data::repeater_props(state) {
+                if !locked {
+                    let has_input = repeater_has_input(world_state, &pos, facing);
+                    if has_input != powered {
+                        let new_state = pickaxe_data::repeater_state(delay, facing, locked, has_input);
+                        changes.push((pos, new_state));
+                    }
+                }
+            }
+        }
+
+        // Lamp
+        if pickaxe_data::is_redstone_lamp(state) {
+            let has_power = block_receives_power(world_state, &pos);
+            let is_lit = state == pickaxe_data::redstone_lamp_set_lit(true);
+            if has_power != is_lit {
+                let new_state = pickaxe_data::redstone_lamp_set_lit(has_power);
+                changes.push((pos, new_state));
+            }
+        }
+    }
+
+    // Also check wire on diagonals (up/down)
+    for &(dx, dz) in &[(1i32,0i32),(-1,0),(0,1),(0,-1)] {
+        for dy in [-1i32, 1] {
+            let pos = BlockPos::new(origin.x + dx, origin.y + dy, origin.z + dz);
+            let state = match world_state.get_block_if_loaded(&pos) {
+                Some(s) => s,
+                None => continue,
+            };
+            if pickaxe_data::is_redstone_wire(state) {
+                let new_power = calculate_wire_power(world_state, &pos);
+                let old_power = pickaxe_data::redstone_wire_power(state).unwrap_or(0);
+                if new_power != old_power {
+                    let new_state = pickaxe_data::redstone_wire_state(new_power);
+                    changes.push((pos, new_state));
+                }
+            }
+        }
+    }
+
+    for (pos, new_state) in &changes {
+        world_state.set_block(pos, *new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: *pos,
+            block_id: *new_state,
+        });
+    }
+
+    // Recurse for any changes
+    for (pos, _) in changes {
+        update_redstone_cascade(world, world_state, &pos, depth + 1);
+    }
+}
+
+/// Calculate what power level a redstone wire at `pos` should have.
+/// Checks all adjacent power sources and neighboring wires.
+fn calculate_wire_power(world_state: &WorldState, pos: &BlockPos) -> i32 {
+    let mut max_power: i32 = 0;
+
+    // Check all 6 neighbors for direct power sources (levers, buttons, torches, repeaters, redstone blocks)
+    let offsets: [(i32, i32, i32); 6] = [
+        (1, 0, 0), (-1, 0, 0),
+        (0, 1, 0), (0, -1, 0),
+        (0, 0, 1), (0, 0, -1),
+    ];
+
+    for &(dx, dy, dz) in &offsets {
+        let npos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+        let nstate = match world_state.get_block_if_loaded(&npos) {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // Redstone block always outputs 15
+        if pickaxe_data::block_state_to_name(nstate) == Some("redstone_block") {
+            max_power = 15;
+            continue;
+        }
+
+        // Lit torch above or beside outputs 15
+        if pickaxe_data::is_redstone_torch(nstate) && pickaxe_data::redstone_torch_is_lit(nstate) {
+            // Torches don't power wire through the block they're on, they power adjacent blocks
+            // Standing torch at (x, y+1) powers wire at (x, y) — yes (below)
+            // Wall torch facing away powers wire on the other side — more complex
+            if dy == 1 || dy == -1 {
+                max_power = 15;
+            } else {
+                max_power = 15;
+            }
+            continue;
+        }
+
+        // Lever/button: powers adjacent wire
+        if pickaxe_data::is_lever_powered(nstate) || pickaxe_data::is_button_powered(nstate) {
+            max_power = 15;
+            continue;
+        }
+
+        // Powered repeater facing into this wire
+        if pickaxe_data::is_repeater(nstate) {
+            if let Some((_, facing, _, powered)) = pickaxe_data::repeater_props(nstate) {
+                if powered {
+                    let (fdx, fdz) = pickaxe_data::facing_to_offset(facing);
+                    // Repeater at npos facing direction (fdx, fdz) outputs to npos + (fdx, 0, fdz)
+                    // So it powers this wire if npos + (fdx, 0, fdz) == pos
+                    if npos.x + fdx == pos.x && npos.z + fdz == pos.z && dy == 0 {
+                        max_power = 15;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check horizontal neighbors for wire power (attenuated by 1)
+    let horiz: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+    for &(dx, dz) in &horiz {
+        let npos = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+        let nstate = match world_state.get_block_if_loaded(&npos) {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // Direct horizontal wire neighbor
+        if pickaxe_data::is_redstone_wire(nstate) {
+            let npower = pickaxe_data::redstone_wire_power(nstate).unwrap_or(0);
+            max_power = max_power.max(npower - 1);
+        }
+
+        // Wire going up a slope: check pos above neighbor if neighbor is not a solid block
+        let above_neighbor = BlockPos::new(pos.x + dx, pos.y + 1, pos.z + dz);
+        let above_state = world_state.get_block_if_loaded(&above_neighbor).unwrap_or(0);
+        if pickaxe_data::is_redstone_wire(above_state) {
+            // Can connect up only if block directly above wire pos is not solid
+            let above_self = BlockPos::new(pos.x, pos.y + 1, pos.z);
+            let above_self_state = world_state.get_block_if_loaded(&above_self).unwrap_or(0);
+            if !pickaxe_data::is_solid_block(above_self_state) {
+                let npower = pickaxe_data::redstone_wire_power(above_state).unwrap_or(0);
+                max_power = max_power.max(npower - 1);
+            }
+        }
+
+        // Wire going down a slope: check pos below neighbor if neighbor is not solid
+        if !pickaxe_data::is_solid_block(nstate) {
+            let below_neighbor = BlockPos::new(pos.x + dx, pos.y - 1, pos.z + dz);
+            let below_state = world_state.get_block_if_loaded(&below_neighbor).unwrap_or(0);
+            if pickaxe_data::is_redstone_wire(below_state) {
+                let npower = pickaxe_data::redstone_wire_power(below_state).unwrap_or(0);
+                max_power = max_power.max(npower - 1);
+            }
+        }
+    }
+
+    // Strong power: check if a solid block adjacent is receiving power from a source
+    // (solid blocks pass through strong power to adjacent wire)
+    for &(dx, dy, dz) in &offsets {
+        let npos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+        let nstate = match world_state.get_block_if_loaded(&npos) {
+            Some(s) => s,
+            None => continue,
+        };
+        if pickaxe_data::is_solid_block(nstate) {
+            // Check if this solid block has a power source directly attached
+            let strong = get_strong_power_into_block(world_state, &npos);
+            if strong > 0 {
+                max_power = max_power.max(strong);
+            }
+        }
+    }
+
+    max_power.clamp(0, 15)
+}
+
+/// Get the strong power level being fed into a solid block at `pos`.
+/// Strong power comes from: powered repeater output, powered lever/button on the block.
+fn get_strong_power_into_block(world_state: &WorldState, pos: &BlockPos) -> i32 {
+    let mut power = 0i32;
+
+    let offsets: [(i32, i32, i32); 6] = [
+        (1, 0, 0), (-1, 0, 0),
+        (0, 1, 0), (0, -1, 0),
+        (0, 0, 1), (0, 0, -1),
+    ];
+
+    for &(dx, dy, dz) in &offsets {
+        let npos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+        let nstate = match world_state.get_block_if_loaded(&npos) {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // Powered repeater facing into this block
+        if pickaxe_data::is_repeater(nstate) {
+            if let Some((_, facing, _, powered)) = pickaxe_data::repeater_props(nstate) {
+                if powered {
+                    let (fdx, fdz) = pickaxe_data::facing_to_offset(facing);
+                    if npos.x + fdx == pos.x && npos.z + fdz == pos.z && dy == 0 {
+                        power = 15;
+                    }
+                }
+            }
+        }
+
+        // Torch below this block (standing torch)
+        if dy == -1 && pickaxe_data::is_redstone_torch(nstate) && pickaxe_data::redstone_torch_is_lit(nstate) {
+            // Standing torch at y-1 strongly powers the block above
+            if nstate == 5739 { // standing torch, lit
+                power = 15;
+            }
+        }
+
+        // Lever/button directly on this block
+        if pickaxe_data::is_lever_powered(nstate) || pickaxe_data::is_button_powered(nstate) {
+            power = 15;
+        }
+    }
+
+    power
+}
+
+/// Check if a redstone torch at `pos` is receiving power (should turn off).
+/// A torch turns off when the block it's attached to is powered.
+fn is_torch_receiving_power(world_state: &WorldState, pos: &BlockPos, state: i32) -> bool {
+    // Standing torch: attached to block below
+    if state == 5738 || state == 5739 {
+        let below = BlockPos::new(pos.x, pos.y - 1, pos.z);
+        return block_receives_power(world_state, &below);
+    }
+
+    // Wall torch: attached to the block it faces away from
+    if let Some(facing) = pickaxe_data::redstone_wall_torch_facing(state) {
+        // Wall torch facing direction means it's attached to the opposite side
+        let (dx, dz) = pickaxe_data::facing_to_offset(pickaxe_data::opposite_facing(facing));
+        let attached = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+        return block_receives_power(world_state, &attached);
+    }
+
+    false
+}
+
+/// Check if a block at `pos` is receiving any redstone power.
+/// Used for lamps, torches checking their attachment block, etc.
+fn block_receives_power(world_state: &WorldState, pos: &BlockPos) -> bool {
+    let offsets: [(i32, i32, i32); 6] = [
+        (1, 0, 0), (-1, 0, 0),
+        (0, 1, 0), (0, -1, 0),
+        (0, 0, 1), (0, 0, -1),
+    ];
+
+    for &(dx, dy, dz) in &offsets {
+        let npos = BlockPos::new(pos.x + dx, pos.y + dy, pos.z + dz);
+        let nstate = match world_state.get_block_if_loaded(&npos) {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // Direct power sources
+        if pickaxe_data::is_lever_powered(nstate) || pickaxe_data::is_button_powered(nstate) {
+            return true;
+        }
+
+        // Redstone block
+        if pickaxe_data::block_state_to_name(nstate) == Some("redstone_block") {
+            return true;
+        }
+
+        // Lit redstone torch (powers blocks above and adjacent, not the attachment block)
+        if pickaxe_data::is_redstone_torch(nstate) && pickaxe_data::redstone_torch_is_lit(nstate) {
+            // Standing torch powers block above it
+            if (nstate == 5738 || nstate == 5739) && dy == -1 {
+                return true; // torch is below us
+            }
+            // Wall torch: powers all adjacent except its attachment block
+            if let Some(torch_facing) = pickaxe_data::redstone_wall_torch_facing(nstate) {
+                let (adx, adz) = pickaxe_data::facing_to_offset(pickaxe_data::opposite_facing(torch_facing));
+                // If this block is NOT the attachment block, torch powers it
+                if !(dx == -adx && dz == -adz && dy == 0) {
+                    return true;
+                }
+            }
+        }
+
+        // Powered repeater facing into this block
+        if pickaxe_data::is_repeater(nstate) {
+            if let Some((_, facing, _, powered)) = pickaxe_data::repeater_props(nstate) {
+                if powered {
+                    let (fdx, fdz) = pickaxe_data::facing_to_offset(facing);
+                    if npos.x + fdx == pos.x && npos.z + fdz == pos.z && dy == 0 {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Redstone wire with power > 0 provides weak power to adjacent blocks
+        if pickaxe_data::is_redstone_wire(nstate) {
+            let wp = pickaxe_data::redstone_wire_power(nstate).unwrap_or(0);
+            if wp > 0 {
+                return true;
+            }
+        }
+
+        // Strong power: if a solid block adjacent is strongly powered, it passes power through
+        if pickaxe_data::is_solid_block(nstate) {
+            let strong = get_strong_power_into_block(world_state, &npos);
+            if strong > 0 {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
+/// Check if a repeater at `pos` with given `facing` has an input signal.
+fn repeater_has_input(world_state: &WorldState, pos: &BlockPos, facing: i32) -> bool {
+    // Repeater input comes from the opposite direction of its facing
+    let input_dir = pickaxe_data::opposite_facing(facing);
+    let (dx, dz) = pickaxe_data::facing_to_offset(input_dir);
+    let input_pos = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+    let input_state = world_state.get_block_if_loaded(&input_pos).unwrap_or(0);
+
+    // Direct power sources
+    if pickaxe_data::block_power_output(input_state) > 0 {
+        return true;
+    }
+
+    // Redstone wire with power > 0
+    if pickaxe_data::is_redstone_wire(input_state) {
+        let wp = pickaxe_data::redstone_wire_power(input_state).unwrap_or(0);
+        return wp > 0;
+    }
+
+    // Another repeater outputting into this one
+    if pickaxe_data::is_repeater(input_state) {
+        if let Some((_, other_facing, _, other_powered)) = pickaxe_data::repeater_props(input_state) {
+            if other_powered {
+                let (fdx, fdz) = pickaxe_data::facing_to_offset(other_facing);
+                if input_pos.x + fdx == pos.x && input_pos.z + fdz == pos.z {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Solid block receiving strong power
+    if pickaxe_data::is_solid_block(input_state) {
+        let strong = get_strong_power_into_block(world_state, &input_pos);
+        if strong > 0 {
+            return true;
+        }
+    }
+
+    false
 }
 
 /// Tick all furnace block entities: consume fuel, smelt items, send progress to viewers.

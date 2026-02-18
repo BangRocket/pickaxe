@@ -964,6 +964,284 @@ pub fn is_flammable(name: &str) -> bool {
     ignite > 0
 }
 
+// === Redstone Data ===
+
+/// Redstone wire state range: 2978-4273 (1296 states).
+/// Formula: state_id = 2978 + west*1 + south*3 + power*9 + north*144 + east*432
+/// Connection values: up=0, side=1, none=2
+const REDSTONE_WIRE_MIN: i32 = 2978;
+const REDSTONE_WIRE_MAX: i32 = 4273;
+
+/// Redstone torch: 5738=unlit, 5739=lit
+const REDSTONE_TORCH_MIN: i32 = 5738;
+/// Redstone wall torch: 5740-5747 (4 facing × 2 lit)
+/// Formula: state_id = 5740 + lit*1 + facing*2
+const REDSTONE_WALL_TORCH_MIN: i32 = 5740;
+
+/// Repeater: 5881-5944 (64 states)
+/// Formula: state_id = 5881 + powered*1 + locked*2 + facing*4 + (delay-1)*16
+const REPEATER_MIN: i32 = 5881;
+const REPEATER_MAX: i32 = 5944;
+
+/// Redstone lamp: 7417=lit (true=0), 7418=unlit (false=1)
+const REDSTONE_LAMP_LIT: i32 = 7417;
+const REDSTONE_LAMP_UNLIT: i32 = 7418;
+
+/// Check if a block state is redstone wire.
+pub fn is_redstone_wire(state_id: i32) -> bool {
+    (REDSTONE_WIRE_MIN..=REDSTONE_WIRE_MAX).contains(&state_id)
+}
+
+/// Get the power level (0-15) of a redstone wire block state.
+pub fn redstone_wire_power(state_id: i32) -> Option<i32> {
+    if !is_redstone_wire(state_id) { return None; }
+    let offset = state_id - REDSTONE_WIRE_MIN;
+    Some((offset / 9) % 16)
+}
+
+/// Build a redstone wire state with given power and all-none connections.
+/// For simplicity, we use all-none connections (the client auto-renders connections).
+pub fn redstone_wire_state(power: i32) -> i32 {
+    // west=none(2), south=none(2), power, north=none(2), east=none(2)
+    // = 2978 + 2*1 + 2*3 + power*9 + 2*144 + 2*432
+    REDSTONE_WIRE_MIN + 2 + 6 + power.clamp(0, 15) * 9 + 288 + 864
+}
+
+/// Build a redstone wire state with specific connections.
+/// Each connection: 0=up, 1=side, 2=none
+pub fn redstone_wire_state_full(power: i32, north: i32, east: i32, south: i32, west: i32) -> i32 {
+    REDSTONE_WIRE_MIN
+        + west.clamp(0, 2)
+        + south.clamp(0, 2) * 3
+        + power.clamp(0, 15) * 9
+        + north.clamp(0, 2) * 144
+        + east.clamp(0, 2) * 432
+}
+
+/// Check if a block state is a redstone torch (standing or wall).
+pub fn is_redstone_torch(state_id: i32) -> bool {
+    state_id == 5738 || state_id == 5739 || (5740..=5747).contains(&state_id)
+}
+
+/// Check if a redstone torch is lit.
+/// Standing: 5738=lit, 5739=unlit. Wall: even offset=lit, odd=unlit.
+pub fn redstone_torch_is_lit(state_id: i32) -> bool {
+    if state_id == 5738 || state_id == 5739 {
+        state_id == 5738 // standing torch: 5738=lit, 5739=unlit
+    } else if (5740..=5747).contains(&state_id) {
+        // wall torch: lit = (state_id - 5740) % 2 == 0
+        (state_id - REDSTONE_WALL_TORCH_MIN) % 2 == 0
+    } else {
+        false
+    }
+}
+
+/// Set the lit state of a redstone torch. Returns new state_id.
+pub fn redstone_torch_set_lit(state_id: i32, lit: bool) -> i32 {
+    if state_id == 5738 || state_id == 5739 {
+        if lit { 5738 } else { 5739 }
+    } else if (5740..=5747).contains(&state_id) {
+        let base = state_id - (state_id - REDSTONE_WALL_TORCH_MIN) % 2;
+        if lit { base } else { base + 1 }
+    } else {
+        state_id
+    }
+}
+
+/// Check if a block state is a repeater.
+pub fn is_repeater(state_id: i32) -> bool {
+    (REPEATER_MIN..=REPEATER_MAX).contains(&state_id)
+}
+
+/// Get repeater properties: (delay 1-4, facing 0-3, locked, powered).
+/// Facing: north=0, south=1, west=2, east=3.
+/// State layout: 5881 + delay_idx*16 + facing_idx*4 + locked_idx*2 + powered_idx
+/// Bool index: true=0, false=1.
+pub fn repeater_props(state_id: i32) -> Option<(i32, i32, bool, bool)> {
+    if !is_repeater(state_id) { return None; }
+    let offset = state_id - REPEATER_MIN;
+    let powered_idx = offset % 2;
+    let locked_idx = (offset / 2) % 2;
+    let facing = (offset / 4) % 4;
+    let delay = (offset / 16) + 1;
+    Some((delay, facing, locked_idx == 0, powered_idx == 0))
+}
+
+/// Build a repeater state from properties.
+/// Facing: north=0, south=1, west=2, east=3.
+pub fn repeater_state(delay: i32, facing: i32, locked: bool, powered: bool) -> i32 {
+    REPEATER_MIN
+        + if powered { 0 } else { 1 }  // true=0, false=1
+        + if locked { 0 } else { 2 }   // true=0, false=1
+        + facing.clamp(0, 3) * 4
+        + (delay.clamp(1, 4) - 1) * 16
+}
+
+/// Check if a block state is a redstone lamp.
+pub fn is_redstone_lamp(state_id: i32) -> bool {
+    state_id == REDSTONE_LAMP_LIT || state_id == REDSTONE_LAMP_UNLIT
+}
+
+/// Set redstone lamp lit state.
+pub fn redstone_lamp_set_lit(lit: bool) -> i32 {
+    if lit { REDSTONE_LAMP_LIT } else { REDSTONE_LAMP_UNLIT }
+}
+
+/// Check if a block state is any powered lever (powered=true).
+/// Lever state layout: 5626 + face*8 + facing*2 + powered_idx (true=0, false=1).
+pub fn is_lever_powered(state_id: i32) -> bool {
+    if !(5626..=5649).contains(&state_id) { return false; }
+    (state_id - 5626) % 2 == 0
+}
+
+/// Check if a block state is any powered button.
+pub fn is_button_powered(state_id: i32) -> bool {
+    let name = block_state_to_name(state_id).unwrap_or("");
+    if !name.ends_with("_button") { return false; }
+    // All buttons share same layout: powered = offset % 2 == 1
+    // Stone button: 5748-5771, oak_button etc have similar layout
+    // Use toggle_interactive_block to check
+    // Simpler: just check if the "powered" variant exists
+    // Button state layout: state = min + powered*1 + facing*2 + face*8
+    // So powered = (state - min) % 2 == 1
+    // We can check via the generic method
+    // For now, check if toggling gives a lower state (powered→unpowered)
+    if let Some(toggled) = toggle_interactive_block(state_id) {
+        toggled < state_id // powered version is always +1 from unpowered
+    } else {
+        false
+    }
+}
+
+/// Get the redstone power level output by a block (0 or 15 for most sources).
+/// Returns 0 for non-powered blocks.
+pub fn block_power_output(state_id: i32) -> i32 {
+    // Powered lever
+    if is_lever_powered(state_id) { return 15; }
+    // Powered button
+    if is_button_powered(state_id) { return 15; }
+    // Lit redstone torch
+    if is_redstone_torch(state_id) && redstone_torch_is_lit(state_id) { return 15; }
+    // Redstone block (always outputs 15)
+    if block_state_to_name(state_id) == Some("redstone_block") { return 15; }
+    // Powered repeater
+    if is_repeater(state_id) {
+        if let Some((_, _, _, powered)) = repeater_props(state_id) {
+            if powered { return 15; }
+        }
+    }
+    0
+}
+
+/// Check if a block is a solid/opaque full block (redstone conductor).
+/// Solid blocks transmit strong power and block wire connections.
+pub fn is_solid_block(state_id: i32) -> bool {
+    let name = match block_state_to_name(state_id) {
+        Some(n) => n,
+        None => return false,
+    };
+    matches!(name,
+        "stone" | "granite" | "polished_granite" | "diorite" | "polished_diorite"
+        | "andesite" | "polished_andesite" | "deepslate" | "cobbled_deepslate"
+        | "polished_deepslate" | "calcite" | "tuff" | "dripstone_block"
+        | "grass_block" | "dirt" | "coarse_dirt" | "podzol" | "cobblestone"
+        | "oak_planks" | "spruce_planks" | "birch_planks" | "jungle_planks"
+        | "acacia_planks" | "dark_oak_planks" | "mangrove_planks" | "cherry_planks"
+        | "bamboo_planks" | "crimson_planks" | "warped_planks"
+        | "bedrock" | "sand" | "red_sand" | "gravel" | "coal_ore" | "iron_ore"
+        | "copper_ore" | "gold_ore" | "redstone_ore" | "lapis_ore" | "diamond_ore"
+        | "emerald_ore" | "deepslate_coal_ore" | "deepslate_iron_ore"
+        | "deepslate_copper_ore" | "deepslate_gold_ore" | "deepslate_redstone_ore"
+        | "deepslate_lapis_ore" | "deepslate_diamond_ore" | "deepslate_emerald_ore"
+        | "coal_block" | "iron_block" | "gold_block" | "diamond_block"
+        | "emerald_block" | "lapis_block" | "netherite_block" | "copper_block"
+        | "raw_iron_block" | "raw_copper_block" | "raw_gold_block"
+        | "bricks" | "bookshelf" | "mossy_cobblestone" | "obsidian"
+        | "end_stone" | "netherrack" | "soul_sand" | "soul_soil" | "basalt"
+        | "smooth_basalt" | "polished_basalt" | "glowstone" | "clay"
+        | "terracotta" | "packed_mud" | "mud_bricks" | "prismarine"
+        | "prismarine_bricks" | "dark_prismarine" | "purpur_block"
+        | "smooth_stone" | "sandstone" | "red_sandstone" | "cut_sandstone"
+        | "cut_red_sandstone" | "smooth_sandstone" | "smooth_red_sandstone"
+        | "quartz_block" | "smooth_quartz" | "nether_bricks" | "red_nether_bricks"
+        | "stone_bricks" | "mossy_stone_bricks" | "cracked_stone_bricks"
+        | "chiseled_stone_bricks" | "infested_stone" | "infested_cobblestone"
+        | "infested_stone_bricks" | "infested_mossy_stone_bricks"
+        | "infested_cracked_stone_bricks" | "infested_chiseled_stone_bricks"
+        | "infested_deepslate" | "blackstone" | "polished_blackstone"
+        | "polished_blackstone_bricks" | "cracked_polished_blackstone_bricks"
+        | "chiseled_polished_blackstone" | "end_stone_bricks"
+        | "redstone_lamp" | "hay_block" | "bone_block" | "dried_kelp_block"
+        | "target" | "shroomlight" | "warped_wart_block" | "nether_wart_block"
+        | "crying_obsidian" | "lodestone" | "tinted_glass"
+        | "white_wool" | "orange_wool" | "magenta_wool" | "light_blue_wool"
+        | "yellow_wool" | "lime_wool" | "pink_wool" | "gray_wool"
+        | "light_gray_wool" | "cyan_wool" | "purple_wool" | "blue_wool"
+        | "brown_wool" | "green_wool" | "red_wool" | "black_wool"
+        | "white_concrete" | "orange_concrete" | "magenta_concrete" | "light_blue_concrete"
+        | "yellow_concrete" | "lime_concrete" | "pink_concrete" | "gray_concrete"
+        | "light_gray_concrete" | "cyan_concrete" | "purple_concrete" | "blue_concrete"
+        | "brown_concrete" | "green_concrete" | "red_concrete" | "black_concrete"
+        | "white_terracotta" | "orange_terracotta" | "magenta_terracotta"
+        | "light_blue_terracotta" | "yellow_terracotta" | "lime_terracotta"
+        | "pink_terracotta" | "gray_terracotta" | "light_gray_terracotta"
+        | "cyan_terracotta" | "purple_terracotta" | "blue_terracotta"
+        | "brown_terracotta" | "green_terracotta" | "red_terracotta" | "black_terracotta"
+        | "white_glazed_terracotta" | "orange_glazed_terracotta"
+        | "magenta_glazed_terracotta" | "light_blue_glazed_terracotta"
+        | "yellow_glazed_terracotta" | "lime_glazed_terracotta"
+        | "pink_glazed_terracotta" | "gray_glazed_terracotta"
+        | "light_gray_glazed_terracotta" | "cyan_glazed_terracotta"
+        | "purple_glazed_terracotta" | "blue_glazed_terracotta"
+        | "brown_glazed_terracotta" | "green_glazed_terracotta"
+        | "red_glazed_terracotta" | "black_glazed_terracotta"
+        | "white_concrete_powder" | "orange_concrete_powder" | "magenta_concrete_powder"
+        | "light_blue_concrete_powder" | "yellow_concrete_powder"
+        | "lime_concrete_powder" | "pink_concrete_powder" | "gray_concrete_powder"
+        | "light_gray_concrete_powder" | "cyan_concrete_powder"
+        | "purple_concrete_powder" | "blue_concrete_powder"
+        | "brown_concrete_powder" | "green_concrete_powder"
+        | "red_concrete_powder" | "black_concrete_powder"
+        | "amethyst_block" | "budding_amethyst" | "moss_block" | "muddy_mangrove_roots"
+        | "sculk" | "sculk_catalyst" | "reinforced_deepslate"
+    )
+}
+
+/// Get the facing direction a wall torch is pointing (0=north, 1=south, 2=west, 3=east).
+/// Returns the direction the torch faces (away from the wall it's attached to).
+pub fn redstone_wall_torch_facing(state_id: i32) -> Option<i32> {
+    if !(REDSTONE_WALL_TORCH_MIN..=5747).contains(&state_id) { return None; }
+    Some((state_id - REDSTONE_WALL_TORCH_MIN) / 2)
+}
+
+/// Get the facing direction of a repeater (0=north, 1=south, 2=west, 3=east).
+/// This is the direction the repeater outputs to.
+pub fn repeater_facing(state_id: i32) -> Option<i32> {
+    repeater_props(state_id).map(|(_, facing, _, _)| facing)
+}
+
+/// Convert facing direction (0=north, 1=south, 2=west, 3=east) to dx, dz offset.
+pub fn facing_to_offset(facing: i32) -> (i32, i32) {
+    match facing {
+        0 => (0, -1),  // north: -z
+        1 => (0, 1),   // south: +z
+        2 => (-1, 0),  // west: -x
+        3 => (1, 0),   // east: +x
+        _ => (0, 0),
+    }
+}
+
+/// Get the opposite facing direction.
+pub fn opposite_facing(facing: i32) -> i32 {
+    match facing {
+        0 => 1, // north → south
+        1 => 0, // south → north
+        2 => 3, // west → east
+        3 => 2, // east → west
+        _ => facing,
+    }
+}
+
 // === Mob Data ===
 
 /// Mob type constants (protocol entity type IDs for MC 1.21.1).
