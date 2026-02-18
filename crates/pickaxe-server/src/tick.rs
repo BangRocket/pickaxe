@@ -1561,6 +1561,9 @@ fn process_packet(
             z,
             on_ground,
         } => {
+            if x.is_nan() || y.is_nan() || z.is_nan() || x.is_infinite() || y.is_infinite() || z.is_infinite() {
+                return; // Reject invalid position
+            }
             handle_player_movement(world, world_state, entity, entity_id, x, y, z, None, on_ground, scripting);
         }
 
@@ -1572,6 +1575,10 @@ fn process_packet(
             pitch,
             on_ground,
         } => {
+            if x.is_nan() || y.is_nan() || z.is_nan() || x.is_infinite() || y.is_infinite() || z.is_infinite()
+                || yaw.is_nan() || pitch.is_nan() || yaw.is_infinite() || pitch.is_infinite() {
+                return; // Reject invalid position
+            }
             if let Ok(mut rot) = world.get::<&mut Rotation>(entity) {
                 rot.yaw = yaw;
                 rot.pitch = pitch;
@@ -4084,10 +4091,15 @@ fn handle_player_movement(
     }
 
     // Fall distance tracking and fall damage
+    // Check if player is in water (resets fall distance)
+    let in_water = {
+        let feet_block = world_state.get_block(&BlockPos::new(x.floor() as i32, y.floor() as i32, z.floor() as i32));
+        pickaxe_data::is_fluid(feet_block)
+    };
     let fall_damage = {
         if let Ok(mut fd) = world.get::<&mut FallDistance>(entity) {
-            if on_ground {
-                let damage = if fd.0 > 3.0 {
+            if on_ground || in_water {
+                let damage = if on_ground && fd.0 > 3.0 && !in_water {
                     Some((fd.0 - 3.0).ceil())
                 } else {
                     None

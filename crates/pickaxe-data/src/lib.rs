@@ -437,11 +437,323 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         result_id: id("diamond_hoe"), result_count: 1, width: 2, height: 3,
     });
 
+    // Golden tools
+    let gold = id("gold_ingot");
+    recipes.push(CraftingRecipe {
+        pattern: [gold, gold, gold, 0, s, 0, 0, s, 0],
+        result_id: id("golden_pickaxe"), result_count: 1, width: 3, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [gold, gold, 0, gold, s, 0, 0, s, 0],
+        result_id: id("golden_axe"), result_count: 1, width: 2, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [gold, 0, 0, s, 0, 0, s, 0, 0],
+        result_id: id("golden_shovel"), result_count: 1, width: 1, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [gold, 0, 0, gold, 0, 0, s, 0, 0],
+        result_id: id("golden_sword"), result_count: 1, width: 1, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [gold, gold, 0, 0, s, 0, 0, s, 0],
+        result_id: id("golden_hoe"), result_count: 1, width: 2, height: 3,
+    });
+
     // Bread: 3 wheat in a row
     let wheat = id("wheat");
     recipes.push(CraftingRecipe {
         pattern: [wheat, wheat, wheat, 0, 0, 0, 0, 0, 0],
         result_id: id("bread"), result_count: 1, width: 3, height: 1,
+    });
+
+    // Bucket: 3 iron ingots in V shape
+    recipes.push(CraftingRecipe {
+        pattern: [iron, 0, iron, 0, iron, 0, 0, 0, 0],
+        result_id: id("bucket"), result_count: 1, width: 3, height: 2,
+    });
+
+    // Ladder: sticks in H pattern (3 ladders)
+    recipes.push(CraftingRecipe {
+        pattern: [s, 0, s, s, s, s, s, 0, s],
+        result_id: id("ladder"), result_count: 3, width: 3, height: 3,
+    });
+
+    // Fence: planks + sticks (3 fences)
+    recipes.push(CraftingRecipe {
+        pattern: [p, s, p, p, s, p, 0, 0, 0],
+        result_id: id("oak_fence"), result_count: 3, width: 3, height: 2,
+    });
+
+    // Fence gate: sticks + planks
+    recipes.push(CraftingRecipe {
+        pattern: [s, p, s, s, p, s, 0, 0, 0],
+        result_id: id("oak_fence_gate"), result_count: 1, width: 3, height: 2,
+    });
+
+    // Door: 2x3 planks
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, 0, p, p, 0, p, p, 0],
+        result_id: id("oak_door"), result_count: 3, width: 2, height: 3,
+    });
+
+    // Trapdoor: 2x3 planks (horizontal)
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, p, p, p, p, 0, 0, 0],
+        result_id: id("oak_trapdoor"), result_count: 2, width: 3, height: 2,
+    });
+
+    // Sign: planks + stick (3 signs)
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, p, p, p, p, 0, s, 0],
+        result_id: id("oak_sign"), result_count: 3, width: 3, height: 3,
+    });
+
+    // Flint and steel: iron + flint
+    recipes.push(CraftingRecipe {
+        pattern: [iron, 0, 0, 0, id("flint"), 0, 0, 0, 0],
+        result_id: id("flint_and_steel"), result_count: 1, width: 2, height: 2,
+    });
+
+    // Shears: 2 iron ingots diagonal
+    recipes.push(CraftingRecipe {
+        pattern: [0, iron, 0, iron, 0, 0, 0, 0, 0],
+        result_id: id("shears"), result_count: 1, width: 2, height: 2,
+    });
+
+    // Iron bars: 6 iron ingots (16 bars)
+    recipes.push(CraftingRecipe {
+        pattern: [iron, iron, iron, iron, iron, iron, 0, 0, 0],
+        result_id: id("iron_bars"), result_count: 16, width: 3, height: 2,
+    });
+
+    // Glass pane: 6 glass (16 panes)
+    let glass = id("glass");
+    recipes.push(CraftingRecipe {
+        pattern: [glass, glass, glass, glass, glass, glass, 0, 0, 0],
+        result_id: id("glass_pane"), result_count: 16, width: 3, height: 2,
+    });
+
+    // TNT: gunpowder + sand
+    recipes.push(CraftingRecipe {
+        pattern: [id("gunpowder"), id("sand"), id("gunpowder"), id("sand"), id("gunpowder"), id("sand"), id("gunpowder"), id("sand"), id("gunpowder")],
+        result_id: id("tnt"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Anvil: 3 iron blocks + 4 iron ingots
+    let iron_block = id("iron_block");
+    recipes.push(CraftingRecipe {
+        pattern: [iron_block, iron_block, iron_block, 0, iron, 0, iron, iron, iron],
+        result_id: id("anvil"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Iron block: 9 iron ingots
+    recipes.push(CraftingRecipe {
+        pattern: [iron, iron, iron, iron, iron, iron, iron, iron, iron],
+        result_id: id("iron_block"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Gold block: 9 gold ingots
+    recipes.push(CraftingRecipe {
+        pattern: [gold, gold, gold, gold, gold, gold, gold, gold, gold],
+        result_id: id("gold_block"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Diamond block: 9 diamonds
+    recipes.push(CraftingRecipe {
+        pattern: [dia, dia, dia, dia, dia, dia, dia, dia, dia],
+        result_id: id("diamond_block"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Iron ingots from iron block (1 block = 9 ingots)
+    recipes.push(CraftingRecipe {
+        pattern: [iron_block, 0,0, 0,0,0, 0,0,0],
+        result_id: id("iron_ingot"), result_count: 9, width: 1, height: 1,
+    });
+
+    // Gold ingots from gold block
+    let gold_block = id("gold_block");
+    recipes.push(CraftingRecipe {
+        pattern: [gold_block, 0,0, 0,0,0, 0,0,0],
+        result_id: id("gold_ingot"), result_count: 9, width: 1, height: 1,
+    });
+
+    // Diamonds from diamond block
+    let dia_block = id("diamond_block");
+    recipes.push(CraftingRecipe {
+        pattern: [dia_block, 0,0, 0,0,0, 0,0,0],
+        result_id: id("diamond"), result_count: 9, width: 1, height: 1,
+    });
+
+    // Cobblestone slab: 3 cobblestone (6 slabs)
+    recipes.push(CraftingRecipe {
+        pattern: [c, c, c, 0, 0, 0, 0, 0, 0],
+        result_id: id("cobblestone_slab"), result_count: 6, width: 3, height: 1,
+    });
+
+    // Stone slab: 3 stone
+    let stone = id("stone");
+    recipes.push(CraftingRecipe {
+        pattern: [stone, stone, stone, 0, 0, 0, 0, 0, 0],
+        result_id: id("stone_slab"), result_count: 6, width: 3, height: 1,
+    });
+
+    // Oak slab: 3 planks
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, p, 0, 0, 0, 0, 0, 0],
+        result_id: id("oak_slab"), result_count: 6, width: 3, height: 1,
+    });
+
+    // Cobblestone stairs: 6 cobblestone (4 stairs)
+    recipes.push(CraftingRecipe {
+        pattern: [c, 0, 0, c, c, 0, c, c, c],
+        result_id: id("cobblestone_stairs"), result_count: 4, width: 3, height: 3,
+    });
+
+    // Oak stairs: 6 planks (4 stairs)
+    recipes.push(CraftingRecipe {
+        pattern: [p, 0, 0, p, p, 0, p, p, p],
+        result_id: id("oak_stairs"), result_count: 4, width: 3, height: 3,
+    });
+
+    // Cobblestone wall: 6 cobblestone (6 walls)
+    recipes.push(CraftingRecipe {
+        pattern: [c, c, c, c, c, c, 0, 0, 0],
+        result_id: id("cobblestone_wall"), result_count: 6, width: 3, height: 2,
+    });
+
+    // Stone bricks: 4 stone (4 bricks)
+    recipes.push(CraftingRecipe {
+        pattern: [stone, stone, 0, stone, stone, 0, 0, 0, 0],
+        result_id: id("stone_bricks"), result_count: 4, width: 2, height: 2,
+    });
+
+    // Rail: iron + stick (16 rails)
+    recipes.push(CraftingRecipe {
+        pattern: [iron, 0, iron, iron, s, iron, iron, 0, iron],
+        result_id: id("rail"), result_count: 16, width: 3, height: 3,
+    });
+
+    // Powered rail: gold + stick + redstone (6 rails)
+    let redstone = id("redstone");
+    recipes.push(CraftingRecipe {
+        pattern: [gold, 0, gold, gold, s, gold, gold, redstone, gold],
+        result_id: id("powered_rail"), result_count: 6, width: 3, height: 3,
+    });
+
+    // Redstone torch: redstone + stick
+    recipes.push(CraftingRecipe {
+        pattern: [redstone, 0,0, s, 0,0, 0,0,0],
+        result_id: id("redstone_torch"), result_count: 1, width: 1, height: 2,
+    });
+
+    // Redstone repeater: redstone torches + redstone + stone
+    let rt = id("redstone_torch");
+    recipes.push(CraftingRecipe {
+        pattern: [rt, redstone, rt, stone, stone, stone, 0, 0, 0],
+        result_id: id("repeater"), result_count: 1, width: 3, height: 2,
+    });
+
+    // Piston: planks + cobblestone + iron + redstone
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, p, c, iron, c, c, redstone, c],
+        result_id: id("piston"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Sticky piston: slime ball + piston
+    let piston = id("piston");
+    recipes.push(CraftingRecipe {
+        pattern: [id("slime_ball"), 0, 0, piston, 0, 0, 0, 0, 0],
+        result_id: id("sticky_piston"), result_count: 1, width: 1, height: 2,
+    });
+
+    // Lever: stick + cobblestone
+    recipes.push(CraftingRecipe {
+        pattern: [s, 0,0, c, 0,0, 0,0,0],
+        result_id: id("lever"), result_count: 1, width: 1, height: 2,
+    });
+
+    // Stone button: 1 stone
+    recipes.push(CraftingRecipe {
+        pattern: [stone, 0,0, 0,0,0, 0,0,0],
+        result_id: id("stone_button"), result_count: 1, width: 1, height: 1,
+    });
+
+    // Oak button: 1 plank
+    recipes.push(CraftingRecipe {
+        pattern: [p, 0,0, 0,0,0, 0,0,0],
+        result_id: id("oak_button"), result_count: 1, width: 1, height: 1,
+    });
+
+    // Brewing stand: blaze rod + cobblestone
+    recipes.push(CraftingRecipe {
+        pattern: [0, id("blaze_rod"), 0, c, c, c, 0, 0, 0],
+        result_id: id("brewing_stand"), result_count: 1, width: 3, height: 2,
+    });
+
+    // Enchanting table: book + diamond + obsidian
+    let obsidian = id("obsidian");
+    recipes.push(CraftingRecipe {
+        pattern: [0, id("book"), 0, dia, obsidian, dia, obsidian, obsidian, obsidian],
+        result_id: id("enchanting_table"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Bookshelf: planks + books
+    let book = id("book");
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, p, book, book, book, p, p, p],
+        result_id: id("bookshelf"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Paper: 3 sugar cane
+    let sugar_cane = id("sugar_cane");
+    recipes.push(CraftingRecipe {
+        pattern: [sugar_cane, sugar_cane, sugar_cane, 0, 0, 0, 0, 0, 0],
+        result_id: id("paper"), result_count: 3, width: 3, height: 1,
+    });
+
+    // Book: paper + leather
+    let paper = id("paper");
+    let leather = id("leather");
+    recipes.push(CraftingRecipe {
+        pattern: [paper, 0, 0, paper, 0, 0, leather, 0, 0],
+        result_id: id("book"), result_count: 1, width: 1, height: 3,
+    });
+
+    // Cake: milk buckets + sugar + egg + wheat
+    let milk = id("milk_bucket");
+    let sugar = id("sugar");
+    let egg = id("egg");
+    recipes.push(CraftingRecipe {
+        pattern: [milk, milk, milk, sugar, egg, sugar, wheat, wheat, wheat],
+        result_id: id("cake"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Golden apple: gold ingots + apple
+    let apple = id("apple");
+    recipes.push(CraftingRecipe {
+        pattern: [gold, gold, gold, gold, apple, gold, gold, gold, gold],
+        result_id: id("golden_apple"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Compass: iron + redstone
+    recipes.push(CraftingRecipe {
+        pattern: [0, iron, 0, iron, redstone, iron, 0, iron, 0],
+        result_id: id("compass"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Clock: gold + redstone
+    recipes.push(CraftingRecipe {
+        pattern: [0, gold, 0, gold, redstone, gold, 0, gold, 0],
+        result_id: id("clock"), result_count: 1, width: 3, height: 3,
+    });
+
+    // Lantern: iron nuggets + torch
+    let nugget = id("iron_nugget");
+    let torch = id("torch");
+    recipes.push(CraftingRecipe {
+        pattern: [nugget, nugget, nugget, nugget, torch, nugget, nugget, nugget, nugget],
+        result_id: id("lantern"), result_count: 1, width: 3, height: 3,
     });
 
     recipes
