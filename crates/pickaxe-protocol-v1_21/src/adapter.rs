@@ -113,6 +113,7 @@ const PLAY_UPDATE_TIME: i32 = 0x64;
 const PLAY_ENTITY_ANIMATION: i32 = 0x03;
 const PLAY_TAKE_ITEM_ENTITY: i32 = 0x6F;
 const PLAY_SOUND_EFFECT: i32 = 0x68;
+const PLAY_WORLD_EVENT: i32 = 0x28;
 const PLAY_SET_EXPERIENCE: i32 = 0x5C;
 const PLAY_ADD_EXPERIENCE_ORB: i32 = 0x02;
 
@@ -1001,6 +1002,17 @@ fn encode_play(packet: &InternalPacket) -> Result<BytesMut> {
             buf.put_f32(*volume);
             buf.put_f32(*pitch);
             buf.put_i64(*seed);
+        }
+        InternalPacket::WorldEvent { event, position, data, disable_relative } => {
+            write_varint(&mut buf, PLAY_WORLD_EVENT);
+            buf.put_i32(*event);
+            // Position: packed as u64
+            let pos_val = ((position.x as i64 & 0x3FFFFFF) << 38)
+                | ((position.z as i64 & 0x3FFFFFF) << 12)
+                | (position.y as i64 & 0xFFF);
+            buf.put_i64(pos_val);
+            buf.put_i32(*data);
+            buf.put_u8(if *disable_relative { 1 } else { 0 });
         }
         InternalPacket::SetExperience { progress, level, total_xp } => {
             write_varint(&mut buf, PLAY_SET_EXPERIENCE);

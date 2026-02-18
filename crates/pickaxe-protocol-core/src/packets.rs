@@ -516,6 +516,14 @@ pub enum InternalPacket {
         seed: i64,
     },
 
+    /// World Event / Level Event (0x28 CB) — block break particles, sounds, etc.
+    WorldEvent {
+        event: i32,
+        position: BlockPos,
+        data: i32,
+        disable_relative: bool,
+    },
+
     /// Set Experience (0x5C CB) — update player's XP bar.
     SetExperience {
         progress: f32,   // 0.0 to 1.0

@@ -417,6 +417,33 @@ fn build_recipes() -> Vec<CraftingRecipe> {
         result_id: id("fishing_rod"), result_count: 1, width: 3, height: 3,
     });
 
+    // Hoes (material + stick pattern, like swords but horizontal top)
+    recipes.push(CraftingRecipe {
+        pattern: [p, p, 0, 0, s, 0, 0, s, 0],
+        result_id: id("wooden_hoe"), result_count: 1, width: 2, height: 3,
+    });
+    recipes.push(CraftingRecipe {
+        pattern: [c, c, 0, 0, s, 0, 0, s, 0],
+        result_id: id("stone_hoe"), result_count: 1, width: 2, height: 3,
+    });
+    let iron = id("iron_ingot");
+    recipes.push(CraftingRecipe {
+        pattern: [iron, iron, 0, 0, s, 0, 0, s, 0],
+        result_id: id("iron_hoe"), result_count: 1, width: 2, height: 3,
+    });
+    let dia = id("diamond");
+    recipes.push(CraftingRecipe {
+        pattern: [dia, dia, 0, 0, s, 0, 0, s, 0],
+        result_id: id("diamond_hoe"), result_count: 1, width: 2, height: 3,
+    });
+
+    // Bread: 3 wheat in a row
+    let wheat = id("wheat");
+    recipes.push(CraftingRecipe {
+        pattern: [wheat, wheat, wheat, 0, 0, 0, 0, 0, 0],
+        result_id: id("bread"), result_count: 1, width: 3, height: 1,
+    });
+
     recipes
 }
 
@@ -958,6 +985,140 @@ pub fn fishing_loot(roll: f64) -> (&'static str, i32) {
         else if treasure_roll < 0.66 { ("saddle", 1) }
         else { ("nautilus_shell", 1) }
     }
+}
+
+// === Farming Data ===
+
+// Farmland block state IDs (moisture 0-7)
+const FARMLAND_MIN: i32 = 4286;
+const FARMLAND_MAX: i32 = 4293;
+
+// Crop block state ranges (age property)
+const WHEAT_MIN: i32 = 4278;
+const WHEAT_MAX: i32 = 4285;     // age 0-7
+const CARROTS_MIN: i32 = 8595;
+const CARROTS_MAX: i32 = 8602;   // age 0-7
+const POTATOES_MIN: i32 = 8603;
+const POTATOES_MAX: i32 = 8610;  // age 0-7
+const BEETROOTS_MIN: i32 = 12509;
+const BEETROOTS_MAX: i32 = 12512; // age 0-3
+
+/// Returns true if the block state is farmland.
+pub fn is_farmland(state_id: i32) -> bool {
+    (FARMLAND_MIN..=FARMLAND_MAX).contains(&state_id)
+}
+
+/// Returns the farmland moisture level (0-7), or None if not farmland.
+pub fn farmland_moisture(state_id: i32) -> Option<i32> {
+    if is_farmland(state_id) {
+        Some(state_id - FARMLAND_MIN)
+    } else {
+        None
+    }
+}
+
+/// Returns the farmland block state for a given moisture level (0-7).
+pub fn farmland_state(moisture: i32) -> i32 {
+    FARMLAND_MIN + moisture.clamp(0, 7)
+}
+
+/// Returns true if the block state is any crop block.
+pub fn is_crop(state_id: i32) -> bool {
+    (WHEAT_MIN..=WHEAT_MAX).contains(&state_id)
+        || (CARROTS_MIN..=CARROTS_MAX).contains(&state_id)
+        || (POTATOES_MIN..=POTATOES_MAX).contains(&state_id)
+        || (BEETROOTS_MIN..=BEETROOTS_MAX).contains(&state_id)
+}
+
+/// Returns the crop age and max age for a crop block state, or None.
+pub fn crop_age(state_id: i32) -> Option<(i32, i32)> {
+    if (WHEAT_MIN..=WHEAT_MAX).contains(&state_id) {
+        Some((state_id - WHEAT_MIN, 7))
+    } else if (CARROTS_MIN..=CARROTS_MAX).contains(&state_id) {
+        Some((state_id - CARROTS_MIN, 7))
+    } else if (POTATOES_MIN..=POTATOES_MAX).contains(&state_id) {
+        Some((state_id - POTATOES_MIN, 7))
+    } else if (BEETROOTS_MIN..=BEETROOTS_MAX).contains(&state_id) {
+        Some((state_id - BEETROOTS_MIN, 3))
+    } else {
+        None
+    }
+}
+
+/// Advance a crop's age by the given amount, clamping to max age.
+/// Returns the new block state, or None if not a crop.
+pub fn crop_grow(state_id: i32, stages: i32) -> Option<i32> {
+    if (WHEAT_MIN..=WHEAT_MAX).contains(&state_id) {
+        let age = (state_id - WHEAT_MIN + stages).min(7);
+        Some(WHEAT_MIN + age)
+    } else if (CARROTS_MIN..=CARROTS_MAX).contains(&state_id) {
+        let age = (state_id - CARROTS_MIN + stages).min(7);
+        Some(CARROTS_MIN + age)
+    } else if (POTATOES_MIN..=POTATOES_MAX).contains(&state_id) {
+        let age = (state_id - POTATOES_MIN + stages).min(7);
+        Some(POTATOES_MIN + age)
+    } else if (BEETROOTS_MIN..=BEETROOTS_MAX).contains(&state_id) {
+        let age = (state_id - BEETROOTS_MIN + stages).min(3);
+        Some(BEETROOTS_MIN + age)
+    } else {
+        None
+    }
+}
+
+/// Returns the seed/planting item ID for a given crop seed item,
+/// and the initial crop block state to place.
+/// Returns None if the item is not a plantable crop seed.
+pub fn seed_to_crop(item_name: &str) -> Option<i32> {
+    match item_name {
+        "wheat_seeds" => Some(WHEAT_MIN),       // wheat age=0
+        "carrot" => Some(CARROTS_MIN),          // carrots age=0
+        "potato" => Some(POTATOES_MIN),         // potatoes age=0
+        "beetroot_seeds" => Some(BEETROOTS_MIN), // beetroots age=0
+        _ => None,
+    }
+}
+
+/// Returns crop drops as (item_name, min_count, max_count, seed_name, seed_min, seed_max).
+/// Only drops full items at max age.
+pub fn crop_drops(state_id: i32) -> Option<(&'static str, i32, i32, &'static str, i32, i32)> {
+    let (age, max_age) = crop_age(state_id)?;
+    if (WHEAT_MIN..=WHEAT_MAX).contains(&state_id) {
+        if age >= max_age {
+            Some(("wheat", 1, 1, "wheat_seeds", 1, 3))
+        } else {
+            Some(("wheat_seeds", 1, 1, "", 0, 0))
+        }
+    } else if (CARROTS_MIN..=CARROTS_MAX).contains(&state_id) {
+        if age >= max_age {
+            Some(("carrot", 1, 4, "", 0, 0))
+        } else {
+            Some(("carrot", 1, 1, "", 0, 0))
+        }
+    } else if (POTATOES_MIN..=POTATOES_MAX).contains(&state_id) {
+        if age >= max_age {
+            Some(("potato", 1, 4, "", 0, 0))
+        } else {
+            Some(("potato", 1, 1, "", 0, 0))
+        }
+    } else if (BEETROOTS_MIN..=BEETROOTS_MAX).contains(&state_id) {
+        if age >= max_age {
+            Some(("beetroot", 1, 1, "beetroot_seeds", 1, 3))
+        } else {
+            Some(("beetroot_seeds", 1, 1, "", 0, 0))
+        }
+    } else {
+        None
+    }
+}
+
+/// Returns true if a block can be hoed into farmland.
+pub fn is_hoeable(block_name: &str) -> bool {
+    matches!(block_name, "grass_block" | "dirt" | "dirt_path")
+}
+
+/// Returns true if the item is a hoe.
+pub fn is_hoe(item_name: &str) -> bool {
+    matches!(item_name, "wooden_hoe" | "stone_hoe" | "iron_hoe" | "golden_hoe" | "diamond_hoe" | "netherite_hoe")
 }
 
 #[cfg(test)]

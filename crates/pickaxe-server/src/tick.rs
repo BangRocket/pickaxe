@@ -830,6 +830,10 @@ pub async fn run_tick_loop(
         if tick_count % 4 == 0 {
             tick_item_pickup(&mut world, &mut world_state, &scripting);
         }
+        // Crop growth + farmland moisture (every 68 ticks ≈ 3.4s, simulating random ticks)
+        if tick_count % 68 == 0 {
+            tick_farming(&world, &mut world_state);
+        }
         tick_furnaces(&world, &mut world_state);
         tick_mob_ai(&mut world, &mut world_state, &scripting, &next_eid);
         tick_mob_spawning(&mut world, &world_state, &next_eid, tick_count);
@@ -1723,6 +1727,175 @@ fn process_packet(
                     let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
                 }
                 return;
+            }
+
+            // Check for farming interactions (hoe, seeds, bone meal)
+            {
+                let held_item_info = {
+                    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                    match world.get::<&Inventory>(entity) {
+                        Ok(inv) => inv.held_item(held_slot).as_ref().map(|item| (item.item_id, item.count)),
+                        Err(_) => None,
+                    }
+                };
+
+                if let Some((item_id, _item_count)) = held_item_info {
+                    let item_name = pickaxe_data::item_id_to_name(item_id).unwrap_or("");
+
+                    // Hoe: till dirt/grass into farmland (must click top face)
+                    if pickaxe_data::is_hoe(item_name) && face == 1 {
+                        let target_name = pickaxe_data::block_state_to_name(target_block).unwrap_or("");
+                        if pickaxe_data::is_hoeable(target_name) {
+                            // Check air above
+                            let above_pos = BlockPos::new(position.x, position.y + 1, position.z);
+                            let above_block = world_state.get_block(&above_pos);
+                            if above_block == 0 {
+                                // Convert to farmland (moisture=0)
+                                let farmland = pickaxe_data::farmland_state(0);
+                                world_state.set_block(&position, farmland);
+                                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                    position,
+                                    block_id: farmland,
+                                });
+                                play_sound_at_block(world, &position, "item.hoe.till", SOUND_BLOCKS, 1.0, 1.0);
+
+                                // Hoe durability damage (survival mode)
+                                let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                                if game_mode != GameMode::Creative {
+                                    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                                    let slot_index = 36 + held_slot as usize;
+                                    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                        if let Some(ref mut hoe_item) = inv.slots[slot_index] {
+                                            hoe_item.damage += 1;
+                                            if hoe_item.max_damage > 0 && hoe_item.damage >= hoe_item.max_damage {
+                                                inv.slots[slot_index] = None;
+                                            }
+                                        }
+                                        let state_id = inv.state_id;
+                                        let slot_item = inv.slots[slot_index].clone();
+                                        drop(inv);
+                                        if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                            let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                                window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                            });
+                                        }
+                                    }
+                                }
+
+                                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                                }
+                                return;
+                            }
+                        }
+                    }
+
+                    // Seeds: plant on farmland (must click top face)
+                    if let Some(crop_state) = pickaxe_data::seed_to_crop(item_name) {
+                        if face == 1 && pickaxe_data::is_farmland(target_block) {
+                            let plant_pos = BlockPos::new(position.x, position.y + 1, position.z);
+                            let above_block = world_state.get_block(&plant_pos);
+                            if above_block == 0 {
+                                world_state.set_block(&plant_pos, crop_state);
+                                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                    position: plant_pos,
+                                    block_id: crop_state,
+                                });
+                                play_sound_at_block(world, &plant_pos, "item.crop.plant", SOUND_BLOCKS, 1.0, 1.0);
+
+                                // Consume seed (survival mode)
+                                let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                                if game_mode != GameMode::Creative {
+                                    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                                    let slot_index = 36 + held_slot as usize;
+                                    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                        if let Some(ref item) = inv.slots[slot_index] {
+                                            if item.count > 1 {
+                                                let mut new_item = item.clone();
+                                                new_item.count -= 1;
+                                                inv.set_slot(slot_index, Some(new_item));
+                                            } else {
+                                                inv.set_slot(slot_index, None);
+                                            }
+                                            let state_id = inv.state_id;
+                                            let slot_item = inv.slots[slot_index].clone();
+                                            drop(inv);
+                                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                                let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                                    window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                                }
+                                return;
+                            }
+                        }
+                    }
+
+                    // Bone meal: accelerate crop growth
+                    let bone_meal_id = pickaxe_data::item_name_to_id("bone_meal").unwrap_or(960);
+                    if item_id == bone_meal_id && pickaxe_data::is_crop(target_block) {
+                        let (age, max_age) = pickaxe_data::crop_age(target_block).unwrap_or((0, 7));
+                        if age < max_age {
+                            let mut rng = rand::thread_rng();
+                            let stages = rng.gen_range(2..=5);
+                            if let Some(new_state) = pickaxe_data::crop_grow(target_block, stages) {
+                                world_state.set_block(&position, new_state);
+                                broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                    position,
+                                    block_id: new_state,
+                                });
+
+                                // Green particle effect (block event level 15 = bone meal)
+                                // Send WorldEvent 1505 for bone meal particles
+                                broadcast_to_all(world, &InternalPacket::WorldEvent {
+                                    event: 1505,
+                                    position,
+                                    data: 0,
+                                    disable_relative: false,
+                                });
+
+                                play_sound_at_block(world, &position, "item.bone_meal.use", SOUND_BLOCKS, 1.0, 1.0);
+
+                                // Consume bone meal (survival mode)
+                                let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                                if game_mode != GameMode::Creative {
+                                    let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                                    let slot_index = 36 + held_slot as usize;
+                                    if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                        if let Some(ref item) = inv.slots[slot_index] {
+                                            if item.count > 1 {
+                                                let mut new_item = item.clone();
+                                                new_item.count -= 1;
+                                                inv.set_slot(slot_index, Some(new_item));
+                                            } else {
+                                                inv.set_slot(slot_index, None);
+                                            }
+                                            let state_id = inv.state_id;
+                                            let slot_item = inv.slots[slot_index].clone();
+                                            drop(inv);
+                                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                                let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                                    window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                    let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                                }
+                                return;
+                            }
+                        }
+                    }
+                }
             }
 
             // Look up the held item to determine what block to place
@@ -6162,6 +6335,40 @@ fn complete_block_break(
         .unwrap_or(GameMode::Survival);
 
     if game_mode == GameMode::Survival {
+        // Handle crop drops specially
+        if let Some((drop_name, drop_min, drop_max, seed_name, seed_min, seed_max)) = pickaxe_data::crop_drops(old_block) {
+            let mut rng = rand::thread_rng();
+            // Drop main item
+            let count = rng.gen_range(drop_min..=drop_max);
+            if count > 0 {
+                if let Some(drop_id) = pickaxe_data::item_name_to_id(drop_name) {
+                    spawn_item_entity(
+                        world, world_state, next_eid,
+                        position.x as f64 + 0.5, position.y as f64 + 0.25, position.z as f64 + 0.5,
+                        ItemStack::new(drop_id, count as i8), 10, scripting,
+                    );
+                }
+            }
+            // Drop seeds (if applicable)
+            if !seed_name.is_empty() && seed_max > 0 {
+                let seed_count = rng.gen_range(seed_min..=seed_max);
+                if seed_count > 0 {
+                    if let Some(seed_id) = pickaxe_data::item_name_to_id(seed_name) {
+                        spawn_item_entity(
+                            world, world_state, next_eid,
+                            position.x as f64 + 0.5, position.y as f64 + 0.25, position.z as f64 + 0.5,
+                            ItemStack::new(seed_id, seed_count as i8), 10, scripting,
+                        );
+                    }
+                }
+            }
+            // Apply exhaustion for mining
+            if let Ok(mut food) = world.get::<&mut FoodData>(entity) {
+                food.exhaustion += 0.005;
+            }
+            return; // Skip normal drop logic for crops
+        }
+
         let block_name = pickaxe_data::block_state_to_name(old_block);
 
         // Check if player has the correct tool for drops (override first, then codegen)
@@ -6568,6 +6775,109 @@ fn spawn_arrow(
     ));
 
     (entity, eid)
+}
+
+/// Tick crop growth and farmland moisture. Runs every 68 ticks (~3.4 seconds) to approximate
+/// MC's random tick system. Scans all loaded chunks for crops and farmland.
+fn tick_farming(world: &World, world_state: &mut WorldState) {
+    // Collect block updates to apply
+    let mut updates: Vec<(BlockPos, i32)> = Vec::new();
+    let mut rng = rand::thread_rng();
+
+    // Get all loaded chunk positions
+    let chunk_positions: Vec<pickaxe_types::ChunkPos> = world_state.chunks.keys().cloned().collect();
+
+    for chunk_pos in chunk_positions {
+        // Simulate random tick: 3 random blocks per chunk section per tick (MC default)
+        // Since we run less often, check more blocks
+        let chunk = match world_state.chunks.get(&chunk_pos) {
+            Some(c) => c,
+            None => continue,
+        };
+
+        // Check each section for crop blocks and farmland
+        for section_y in 0..24 {
+            let world_y = section_y as i32 * 16 - 64;
+            // Random tick: pick 3 random blocks in this section
+            for _ in 0..3 {
+                let local_x = rng.gen_range(0..16);
+                let local_y = rng.gen_range(0..16);
+                let local_z = rng.gen_range(0..16);
+                let by = world_y + local_y as i32;
+                let block = chunk.get_block(local_x, by, local_z);
+
+                if block == 0 { continue; }
+
+                let bx = chunk_pos.x * 16 + local_x as i32;
+                let bz = chunk_pos.z * 16 + local_z as i32;
+
+                // Crop growth
+                if let Some((age, max_age)) = pickaxe_data::crop_age(block) {
+                    if age < max_age {
+                        // Simplified growth: ~4% chance per random tick (f=1.0 equivalent)
+                        // Check farmland below is present
+                        let below = chunk.get_block(local_x, by - 1, local_z);
+                        if pickaxe_data::is_farmland(below) {
+                            // Higher chance if farmland is moist
+                            let moisture = pickaxe_data::farmland_moisture(below).unwrap_or(0);
+                            let growth_chance = if moisture >= 7 { 12 } else { 26 };
+                            if rng.gen_range(0..growth_chance) == 0 {
+                                if let Some(new_state) = pickaxe_data::crop_grow(block, 1) {
+                                    updates.push((BlockPos::new(bx, by, bz), new_state));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Farmland moisture
+                if pickaxe_data::is_farmland(block) {
+                    let moisture = pickaxe_data::farmland_moisture(block).unwrap_or(0);
+                    // Check for water within 4 blocks horizontally, 1 vertically
+                    let has_water = 'water: {
+                        for wx in (bx - 4)..=(bx + 4) {
+                            for wz in (bz - 4)..=(bz + 4) {
+                                for wy in by..=(by + 1) {
+                                    let wpos = BlockPos::new(wx, wy, wz);
+                                    // Only check loaded chunks
+                                    if let Some(wblock) = world_state.get_block_if_loaded(&wpos) {
+                                        if pickaxe_data::is_water(wblock) {
+                                            break 'water true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        false
+                    };
+
+                    if has_water {
+                        if moisture < 7 {
+                            updates.push((BlockPos::new(bx, by, bz), pickaxe_data::farmland_state(7)));
+                        }
+                    } else if moisture > 0 {
+                        updates.push((BlockPos::new(bx, by, bz), pickaxe_data::farmland_state(moisture - 1)));
+                    } else {
+                        // Check if crop above maintains farmland
+                        let above = chunk.get_block(local_x, by + 1, local_z);
+                        if !pickaxe_data::is_crop(above) {
+                            // Revert to dirt
+                            updates.push((BlockPos::new(bx, by, bz), 10)); // dirt
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Apply updates and broadcast
+    for (pos, new_state) in updates {
+        world_state.set_block(&pos, new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: pos,
+            block_id: new_state,
+        });
+    }
 }
 
 /// Spawn a fishing bobber entity.
