@@ -258,6 +258,41 @@ pub fn register_world_api(lua: &Lua) -> anyhow::Result<()> {
                             }
                             Some(mlua::Value::Table(table))
                         }
+                        crate::tick::BlockEntity::BrewingStand {
+                            bottles, ingredient, fuel, brew_time, fuel_uses,
+                        } => {
+                            let table = lua.create_table().ok()?;
+                            let _ = table.set("type", "brewing_stand");
+                            let _ = table.set("brew_time", *brew_time);
+                            let _ = table.set("fuel_uses", *fuel_uses);
+                            let bottles_table = lua.create_table().ok()?;
+                            for (i, slot) in bottles.iter().enumerate() {
+                                if let Some(item) = slot {
+                                    let t = lua.create_table().ok()?;
+                                    let _ = t.set("id", item.item_id);
+                                    let _ = t.set("name", pickaxe_data::item_id_to_name(item.item_id).unwrap_or("unknown"));
+                                    let _ = t.set("count", item.count);
+                                    let _ = t.set("potion_type", item.damage);
+                                    let _ = bottles_table.set(i + 1, t);
+                                }
+                            }
+                            let _ = table.set("bottles", bottles_table);
+                            if let Some(item) = ingredient {
+                                let t = lua.create_table().ok()?;
+                                let _ = t.set("id", item.item_id);
+                                let _ = t.set("name", pickaxe_data::item_id_to_name(item.item_id).unwrap_or("unknown"));
+                                let _ = t.set("count", item.count);
+                                let _ = table.set("ingredient", t);
+                            }
+                            if let Some(item) = fuel {
+                                let t = lua.create_table().ok()?;
+                                let _ = t.set("id", item.item_id);
+                                let _ = t.set("name", pickaxe_data::item_id_to_name(item.item_id).unwrap_or("unknown"));
+                                let _ = t.set("count", item.count);
+                                let _ = table.set("fuel", t);
+                            }
+                            Some(mlua::Value::Table(table))
+                        }
                     }
                 })
             })

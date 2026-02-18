@@ -105,6 +105,63 @@ fn serialize_block_entity(pos: &BlockPos, be: &BlockEntity) -> NbtValue {
                 "CookTimeTotal" => NbtValue::Short(*cook_total)
             }
         }
+        BlockEntity::BrewingStand { bottles, ingredient, fuel, brew_time, fuel_uses } => {
+            let mut items = Vec::new();
+            for (i, slot) in bottles.iter().enumerate() {
+                if let Some(item) = slot {
+                    let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("air");
+                    if item.damage != 0 {
+                        if let Some(potion_name) = pickaxe_data::potion_index_to_name(item.damage) {
+                            items.push(nbt_compound! {
+                                "Slot" => NbtValue::Byte(i as i8),
+                                "id" => NbtValue::String(format!("minecraft:{}", name)),
+                                "Count" => NbtValue::Byte(item.count),
+                                "tag" => nbt_compound! {
+                                    "Potion" => NbtValue::String(format!("minecraft:{}", potion_name))
+                                }
+                            });
+                        } else {
+                            items.push(nbt_compound! {
+                                "Slot" => NbtValue::Byte(i as i8),
+                                "id" => NbtValue::String(format!("minecraft:{}", name)),
+                                "Count" => NbtValue::Byte(item.count)
+                            });
+                        }
+                    } else {
+                        items.push(nbt_compound! {
+                            "Slot" => NbtValue::Byte(i as i8),
+                            "id" => NbtValue::String(format!("minecraft:{}", name)),
+                            "Count" => NbtValue::Byte(item.count)
+                        });
+                    }
+                }
+            }
+            if let Some(item) = ingredient {
+                let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("air");
+                items.push(nbt_compound! {
+                    "Slot" => NbtValue::Byte(3),
+                    "id" => NbtValue::String(format!("minecraft:{}", name)),
+                    "Count" => NbtValue::Byte(item.count)
+                });
+            }
+            if let Some(item) = fuel {
+                let name = pickaxe_data::item_id_to_name(item.item_id).unwrap_or("air");
+                items.push(nbt_compound! {
+                    "Slot" => NbtValue::Byte(4),
+                    "id" => NbtValue::String(format!("minecraft:{}", name)),
+                    "Count" => NbtValue::Byte(item.count)
+                });
+            }
+            nbt_compound! {
+                "id" => NbtValue::String("minecraft:brewing_stand".into()),
+                "x" => NbtValue::Int(pos.x),
+                "y" => NbtValue::Int(pos.y),
+                "z" => NbtValue::Int(pos.z),
+                "Items" => NbtValue::List(items),
+                "BrewTime" => NbtValue::Short(*brew_time),
+                "Fuel" => NbtValue::Byte(*fuel_uses as i8)
+            }
+        }
     }
 }
 
@@ -167,6 +224,50 @@ fn deserialize_block_entity(nbt: &NbtValue) -> Option<(BlockPos, BlockEntity)> {
             Some((pos, BlockEntity::Furnace {
                 input, fuel, output,
                 burn_time, burn_duration: burn_time, cook_progress, cook_total,
+            }))
+        }
+        "brewing_stand" => {
+            let mut bottles: [Option<ItemStack>; 3] = [None, None, None];
+            let mut ingredient = None;
+            let mut fuel = None;
+            if let Some(items_list) = nbt.get("Items").and_then(|v| v.as_list()) {
+                for item_nbt in items_list {
+                    let slot = item_nbt.get("Slot").and_then(|v| v.as_byte()).unwrap_or(-1);
+                    let item_id_str = match item_nbt.get("id").and_then(|v| v.as_str()) {
+                        Some(s) => s,
+                        None => continue,
+                    };
+                    let name = item_id_str.strip_prefix("minecraft:").unwrap_or(item_id_str);
+                    let item_id = match pickaxe_data::item_name_to_id(name) {
+                        Some(id) => id,
+                        None => continue,
+                    };
+                    let count = item_nbt.get("Count").and_then(|v| v.as_byte()).unwrap_or(1);
+                    let mut stack = ItemStack::new(item_id, count);
+                    // Restore potion type from tag.Potion
+                    if let Some(tag) = item_nbt.get("tag") {
+                        if let Some(potion_str) = tag.get("Potion").and_then(|v| v.as_str()) {
+                            let potion_name = potion_str.strip_prefix("minecraft:").unwrap_or(potion_str);
+                            if let Some(idx) = pickaxe_data::potion_name_to_index(potion_name) {
+                                stack.damage = idx;
+                            }
+                        }
+                    }
+                    match slot {
+                        0 => bottles[0] = Some(stack),
+                        1 => bottles[1] = Some(stack),
+                        2 => bottles[2] = Some(stack),
+                        3 => ingredient = Some(stack),
+                        4 => fuel = Some(stack),
+                        _ => {}
+                    }
+                }
+            }
+            let brew_time = nbt.get("BrewTime").and_then(|v| v.as_short()).unwrap_or(0);
+            let fuel_uses = nbt.get("Fuel").and_then(|v| v.as_byte()).unwrap_or(0) as i16;
+            Some((pos, BlockEntity::BrewingStand {
+                bottles, ingredient, fuel,
+                brew_time, fuel_uses,
             }))
         }
         _ => None,
@@ -534,6 +635,18 @@ pub enum BlockEntity {
         cook_progress: i16,
         cook_total: i16,
     },
+    BrewingStand {
+        /// Slots 0-2: potion bottles (input/output)
+        bottles: [Option<ItemStack>; 3],
+        /// Slot 3: ingredient/reagent
+        ingredient: Option<ItemStack>,
+        /// Slot 4: fuel (blaze powder)
+        fuel: Option<ItemStack>,
+        /// Ticks remaining in current brew (0 = not brewing, counts down from 400)
+        brew_time: i16,
+        /// Fuel uses remaining (0-20, each blaze powder = 20)
+        fuel_uses: i16,
+    },
 }
 
 /// World state: chunk storage.
@@ -836,6 +949,7 @@ pub async fn run_tick_loop(
             tick_farming(&world, &mut world_state);
         }
         tick_furnaces(&world, &mut world_state);
+        tick_brewing_stands(&world, &mut world_state);
         tick_mob_ai(&mut world, &mut world_state, &scripting, &next_eid);
         tick_mob_spawning(&mut world, &world_state, &next_eid, tick_count);
         if tick_count % 100 == 0 {
@@ -1614,7 +1728,7 @@ fn process_packet(
             // Check if the target block is a container — open it instead of placing
             let target_block = world_state.get_block(&position);
             let target_name = pickaxe_data::block_state_to_name(target_block).unwrap_or("");
-            let is_container = matches!(target_name, "chest" | "furnace" | "lit_furnace" | "crafting_table");
+            let is_container = matches!(target_name, "chest" | "furnace" | "lit_furnace" | "crafting_table" | "brewing_stand");
             let sneaking = world.get::<&MovementState>(entity).map(|m| m.sneaking).unwrap_or(false);
 
             if is_container && !sneaking {
@@ -2033,6 +2147,15 @@ fn process_packet(
                     world_state.set_block_entity(target, BlockEntity::Furnace {
                         input: None, fuel: None, output: None,
                         burn_time: 0, burn_duration: 0, cook_progress: 0, cook_total: 200,
+                    });
+                }
+                "brewing_stand" => {
+                    world_state.set_block_entity(target, BlockEntity::BrewingStand {
+                        bottles: [None, None, None],
+                        ingredient: None,
+                        fuel: None,
+                        brew_time: 0,
+                        fuel_uses: 0,
                     });
                 }
                 _ => {}
@@ -2548,6 +2671,7 @@ fn open_container(
     let (menu_type, title, menu) = match block_name {
         "chest" => (2, "Chest", Menu::Chest { pos: *pos }),
         "furnace" | "lit_furnace" => (14, "Furnace", Menu::Furnace { pos: *pos }),
+        "brewing_stand" => (11, "Brewing Stand", Menu::BrewingStand { pos: *pos }),
         "crafting_table" => (12, "Crafting", Menu::CraftingTable {
             grid: std::array::from_fn(|_| None),
             result: None,
@@ -2583,6 +2707,13 @@ fn open_container(
                 let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 1, value: *burn_duration });
                 let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 2, value: *cook_progress });
                 let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 3, value: *cook_total });
+            }
+        }
+        // For brewing stands, send current brew time and fuel
+        if block_name == "brewing_stand" {
+            if let Some(BlockEntity::BrewingStand { brew_time, fuel_uses, .. }) = world_state.get_block_entity(pos) {
+                let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 0, value: *brew_time });
+                let _ = sender.0.send(InternalPacket::SetContainerData { container_id, property: 1, value: *fuel_uses });
             }
         }
     }
@@ -2647,6 +2778,24 @@ fn build_container_slots(
             }
             slots
         }
+        Menu::BrewingStand { pos } => {
+            // Slots: 0-2=bottles, 3=ingredient, 4=fuel, 5-31=player inv, 32-40=hotbar
+            let mut slots = Vec::with_capacity(41);
+            if let Some(BlockEntity::BrewingStand { bottles, ingredient, fuel, .. }) = world_state.get_block_entity(pos) {
+                for b in bottles { slots.push(b.clone()); }
+                slots.push(ingredient.clone());
+                slots.push(fuel.clone());
+            } else {
+                slots.resize(5, None);
+            }
+            if let Some(inv) = &player_inv {
+                for i in 9..36 { slots.push(inv.slots[i].clone()); }
+                for i in 36..45 { slots.push(inv.slots[i].clone()); }
+            } else {
+                slots.resize(41, None);
+            }
+            slots
+        }
     }
 }
 
@@ -2673,6 +2822,7 @@ fn close_container(
         Menu::Chest { .. } => "chest",
         Menu::Furnace { .. } => "furnace",
         Menu::CraftingTable { .. } => "crafting_table",
+        Menu::BrewingStand { .. } => "brewing_stand",
     };
 
     // Drop crafting grid items back to the player
@@ -2732,6 +2882,13 @@ fn map_slot(menu: &Menu, window_slot: i16) -> Option<SlotTarget> {
             else if s < 46 { Some(SlotTarget::PlayerInventory(s - 37 + 36)) }
             else { None }
         }
+        Menu::BrewingStand { .. } => {
+            // 0-4=container, 5-31=player inv (9-35), 32-40=hotbar (36-44)
+            if s < 5 { Some(SlotTarget::Container(s)) }
+            else if s < 32 { Some(SlotTarget::PlayerInventory(s - 5 + 9)) }
+            else if s < 41 { Some(SlotTarget::PlayerInventory(s - 32 + 36)) }
+            else { None }
+        }
     }
 }
 
@@ -2754,6 +2911,16 @@ fn set_container_slot(
                 Menu::Furnace { pos } => {
                     if let Some(BlockEntity::Furnace { ref mut input, ref mut fuel, ref mut output, .. }) = world_state.get_block_entity_mut(pos) {
                         match idx { 0 => *input = item, 1 => *fuel = item, 2 => *output = item, _ => {} }
+                    }
+                }
+                Menu::BrewingStand { pos } => {
+                    if let Some(BlockEntity::BrewingStand { ref mut bottles, ref mut ingredient, ref mut fuel, .. }) = world_state.get_block_entity_mut(pos) {
+                        match idx {
+                            0..=2 => bottles[*idx] = item,
+                            3 => *ingredient = item,
+                            4 => *fuel = item,
+                            _ => {}
+                        }
                     }
                 }
                 _ => {}
@@ -6794,6 +6961,12 @@ fn complete_block_break(
             BlockEntity::Furnace { input, fuel, output, .. } => {
                 [input, fuel, output].into_iter().flatten().collect()
             }
+            BlockEntity::BrewingStand { bottles, ingredient, fuel, .. } => {
+                let mut v: Vec<ItemStack> = bottles.into_iter().flatten().collect();
+                v.extend(ingredient.into_iter());
+                v.extend(fuel.into_iter());
+                v
+            }
         };
         for item in items {
             spawn_item_entity(
@@ -7931,6 +8104,89 @@ fn tick_furnaces(world: &World, world_state: &mut WorldState) {
                     let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 1, value: *bd });
                     let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 2, value: *cp });
                     let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 3, value: *ct });
+                }
+            }
+        }
+    }
+}
+
+/// Tick all brewing stands: consume fuel, progress brew, transform potions.
+fn tick_brewing_stands(world: &World, world_state: &mut WorldState) {
+    let mut updates: Vec<(BlockPos, i16, i16)> = Vec::new();
+
+    for (pos, block_entity) in world_state.block_entities.iter_mut() {
+        let BlockEntity::BrewingStand {
+            ref mut bottles, ref mut ingredient, ref mut fuel,
+            ref mut brew_time, ref mut fuel_uses,
+        } = block_entity else { continue };
+
+        // Check if we need fuel and have blaze powder
+        let blaze_powder_id = pickaxe_data::item_name_to_id("blaze_powder").unwrap_or(0);
+        if *fuel_uses <= 0 {
+            if let Some(ref mut f) = fuel {
+                if f.item_id == blaze_powder_id {
+                    *fuel_uses = 20;
+                    f.count -= 1;
+                    if f.count <= 0 { *fuel = None; }
+                }
+            }
+        }
+
+        // Check if we have a valid ingredient that can brew any of the bottles
+        let ingredient_name = ingredient.as_ref()
+            .and_then(|i| pickaxe_data::item_id_to_name(i.item_id));
+        let has_valid_recipe = if let Some(ing_name) = ingredient_name {
+            bottles.iter().any(|b| {
+                if let Some(item) = b {
+                    if !pickaxe_data::is_potion(item.item_id) { return false; }
+                    pickaxe_data::brewing_recipe(item.damage, ing_name).is_some()
+                } else { false }
+            })
+        } else { false };
+
+        if *brew_time > 0 {
+            // Currently brewing — decrement timer
+            if !has_valid_recipe {
+                // Ingredient removed or changed — cancel brew
+                *brew_time = 0;
+            } else {
+                *brew_time -= 1;
+                if *brew_time <= 0 {
+                    // Brew complete — transform potions
+                    if let Some(ing_name) = ingredient_name {
+                        for bottle in bottles.iter_mut() {
+                            if let Some(ref mut item) = bottle {
+                                if pickaxe_data::is_potion(item.item_id) {
+                                    if let Some(output_idx) = pickaxe_data::brewing_recipe(item.damage, ing_name) {
+                                        item.damage = output_idx;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Consume ingredient
+                    if let Some(ref mut ing) = ingredient {
+                        ing.count -= 1;
+                        if ing.count <= 0 { *ingredient = None; }
+                    }
+                }
+            }
+            updates.push((*pos, *brew_time, *fuel_uses));
+        } else if has_valid_recipe && *fuel_uses > 0 {
+            // Start brewing
+            *fuel_uses -= 1;
+            *brew_time = 400;
+            updates.push((*pos, *brew_time, *fuel_uses));
+        }
+    }
+
+    // Send progress updates to players who have this brewing stand open
+    for (pos, bt, fu) in &updates {
+        for (_e, (sender, open)) in world.query::<(&ConnectionSender, &OpenContainer)>().iter() {
+            if let Menu::BrewingStand { pos: bpos } = &open.menu {
+                if bpos == pos {
+                    let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 0, value: *bt });
+                    let _ = sender.0.send(InternalPacket::SetContainerData { container_id: open.container_id, property: 1, value: *fu });
                 }
             }
         }

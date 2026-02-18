@@ -1655,3 +1655,77 @@ pub fn is_potion(item_id: i32) -> bool {
     };
     matches!(name, "potion" | "splash_potion" | "lingering_potion")
 }
+
+/// Returns true if the item is a valid brewing ingredient/reagent.
+pub fn is_brewing_ingredient(item_name: &str) -> bool {
+    matches!(item_name,
+        "nether_wart" | "glowstone_dust" | "redstone" | "fermented_spider_eye"
+        | "golden_carrot" | "magma_cream" | "rabbit_foot" | "sugar"
+        | "glistering_melon_slice" | "spider_eye" | "ghast_tear" | "blaze_powder"
+        | "pufferfish" | "phantom_membrane" | "turtle_helmet"
+        | "gunpowder" | "dragon_breath"
+    )
+}
+
+/// Brewing recipe: (input_potion_index, ingredient_name) -> output_potion_index.
+/// Returns None if no recipe exists.
+pub fn brewing_recipe(input_potion_index: i32, ingredient_name: &str) -> Option<i32> {
+    match (input_potion_index, ingredient_name) {
+        // Base potions from water (index 0)
+        (0, "nether_wart") => Some(3),        // water -> awkward
+        (0, "glowstone_dust") => Some(2),      // water -> thick
+        (0, "redstone") => Some(1),            // water -> mundane
+        (0, "fermented_spider_eye") => Some(34), // water -> weakness
+
+        // From awkward (index 3)
+        (3, "golden_carrot") => Some(4),       // awkward -> night_vision
+        (3, "rabbit_foot") => Some(8),         // awkward -> leaping
+        (3, "magma_cream") => Some(11),        // awkward -> fire_resistance
+        (3, "sugar") => Some(13),              // awkward -> swiftness
+        (3, "pufferfish") => Some(19),         // awkward -> water_breathing
+        (3, "glistering_melon_slice") => Some(21), // awkward -> healing
+        (3, "spider_eye") => Some(25),         // awkward -> poison
+        (3, "ghast_tear") => Some(28),         // awkward -> regeneration
+        (3, "blaze_powder") => Some(31),       // awkward -> strength
+        (3, "phantom_membrane") => Some(37),   // awkward -> slow_falling
+        (3, "turtle_helmet") => Some(4),       // awkward -> night_vision (turtle master not in our potion list)
+
+        // Duration extensions (redstone)
+        (4, "redstone") => Some(5),            // night_vision -> long_night_vision
+        (6, "redstone") => Some(7),            // invisibility -> long_invisibility
+        (8, "redstone") => Some(9),            // leaping -> long_leaping
+        (11, "redstone") => Some(12),          // fire_resistance -> long_fire_resistance
+        (13, "redstone") => Some(14),          // swiftness -> long_swiftness
+        (16, "redstone") => Some(17),          // slowness -> long_slowness
+        (19, "redstone") => Some(20),          // water_breathing -> long_water_breathing
+        (25, "redstone") => Some(26),          // poison -> long_poison
+        (28, "redstone") => Some(29),          // regeneration -> long_regeneration
+        (31, "redstone") => Some(32),          // strength -> long_strength
+        (34, "redstone") => Some(35),          // weakness -> long_weakness
+        (37, "redstone") => Some(38),          // slow_falling -> long_slow_falling
+
+        // Potency upgrades (glowstone_dust)
+        (8, "glowstone_dust") => Some(10),     // leaping -> strong_leaping
+        (13, "glowstone_dust") => Some(15),    // swiftness -> strong_swiftness
+        (16, "glowstone_dust") => Some(18),    // slowness -> strong_slowness
+        (21, "glowstone_dust") => Some(22),    // healing -> strong_healing
+        (23, "glowstone_dust") => Some(24),    // harming -> strong_harming
+        (25, "glowstone_dust") => Some(27),    // poison -> strong_poison
+        (28, "glowstone_dust") => Some(30),    // regeneration -> strong_regeneration
+        (31, "glowstone_dust") => Some(33),    // strength -> strong_strength
+
+        // Corruption (fermented_spider_eye)
+        (4, "fermented_spider_eye") => Some(6),  // night_vision -> invisibility
+        (5, "fermented_spider_eye") => Some(7),  // long_night_vision -> long_invisibility
+        (8, "fermented_spider_eye") => Some(16), // leaping -> slowness
+        (13, "fermented_spider_eye") => Some(16), // swiftness -> slowness
+        (14, "fermented_spider_eye") => Some(17), // long_swiftness -> long_slowness
+        (25, "fermented_spider_eye") => Some(23), // poison -> harming
+        (26, "fermented_spider_eye") => Some(23), // long_poison -> harming
+        (27, "fermented_spider_eye") => Some(24), // strong_poison -> strong_harming
+        (21, "fermented_spider_eye") => Some(23), // healing -> harming
+        (22, "fermented_spider_eye") => Some(24), // strong_healing -> strong_harming
+
+        _ => None,
+    }
+}

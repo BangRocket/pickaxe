@@ -203,6 +203,7 @@ pub enum Menu {
         grid: [Option<ItemStack>; 9],
         result: Option<ItemStack>,
     },
+    BrewingStand { pos: BlockPos },
 }
 
 /// Tracks the container a player currently has open.
