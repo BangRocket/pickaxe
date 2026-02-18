@@ -777,6 +777,110 @@ pub fn fluid_height(state_id: i32) -> f64 {
     }
 }
 
+/// Get water block state for a given level (0-15).
+/// Level 0 = source, 1-7 = flowing, 8+ = falling.
+pub fn water_state_with_level(level: i32) -> i32 {
+    80 + level.clamp(0, 15)
+}
+
+/// Get lava level (0=source/full, 1-7=flowing, 8-15=falling).
+/// Returns None if not a lava block.
+pub fn lava_level(state_id: i32) -> Option<i32> {
+    if is_lava(state_id) {
+        Some(state_id - 96)
+    } else {
+        None
+    }
+}
+
+/// Get lava block state for a given level (0-15).
+pub fn lava_state_with_level(level: i32) -> i32 {
+    96 + level.clamp(0, 15)
+}
+
+/// Check if a block is any fluid (water or lava).
+pub fn is_fluid(state_id: i32) -> bool {
+    is_water(state_id) || is_lava(state_id)
+}
+
+/// Check if a fluid block is a source (level 0).
+pub fn is_fluid_source(state_id: i32) -> bool {
+    state_id == WATER_SOURCE || state_id == LAVA_SOURCE
+}
+
+/// Get the fluid amount (1-8) from a block state. Source = 8, level 1 = 7, etc.
+/// Returns 0 if not a fluid.
+pub fn fluid_amount(state_id: i32) -> i32 {
+    let level = if is_water(state_id) {
+        state_id - 80
+    } else if is_lava(state_id) {
+        state_id - 96
+    } else {
+        return 0;
+    };
+    if level == 0 { 8 } else if level >= 8 { 8 } else { 8 - level }
+}
+
+/// Check if a block is solid for fluid flow purposes (stops fluid from passing through).
+/// Air, fluids, and non-solid blocks (flowers, torches, etc.) are NOT solid.
+pub fn is_solid_for_fluid(name: &str) -> bool {
+    match name {
+        "" | "air" | "cave_air" | "void_air" => false,
+        "water" | "lava" => false,
+        // Non-solid blocks that water can flow through / destroy
+        n if is_flower(n) => false,
+        n if n.ends_with("_tulip") => false,
+        "short_grass" | "tall_grass" | "fern" | "large_fern" | "dead_bush" => false,
+        "dandelion" | "poppy" | "blue_orchid" | "allium" | "azure_bluet" => false,
+        "oxeye_daisy" | "cornflower" | "lily_of_the_valley" | "wither_rose" => false,
+        "sunflower" | "lilac" | "rose_bush" | "peony" | "torchflower" => false,
+        "torch" | "wall_torch" | "soul_torch" | "soul_wall_torch" => false,
+        "redstone_torch" | "redstone_wall_torch" => false,
+        n if n.ends_with("_carpet") => false,
+        "snow" => false,
+        "sugar_cane" => false,
+        "vine" | "glow_lichen" => false,
+        "sweet_berry_bush" => false,
+        "fire" | "soul_fire" => false,
+        "redstone_wire" => false,
+        "rail" | "powered_rail" | "detector_rail" | "activator_rail" => false,
+        "tripwire" | "tripwire_hook" => false,
+        _ => true,
+    }
+}
+
+/// Check if a block should be destroyed (broken with drops) when water flows into it.
+pub fn is_fluid_destructible(name: &str) -> bool {
+    match name {
+        n if is_flower(n) => true,
+        n if n.ends_with("_tulip") => true,
+        "short_grass" | "tall_grass" | "fern" | "large_fern" | "dead_bush" => true,
+        "dandelion" | "poppy" | "blue_orchid" | "allium" | "azure_bluet" => true,
+        "oxeye_daisy" | "cornflower" | "lily_of_the_valley" | "wither_rose" => true,
+        "sunflower" | "lilac" | "rose_bush" | "peony" | "torchflower" => true,
+        "torch" | "wall_torch" | "soul_torch" | "soul_wall_torch" => true,
+        "redstone_torch" | "redstone_wall_torch" => true,
+        n if n.ends_with("_carpet") => true,
+        "snow" => true,
+        "sugar_cane" => true,
+        "vine" | "glow_lichen" => true,
+        "sweet_berry_bush" => true,
+        "redstone_wire" => true,
+        "rail" | "powered_rail" | "detector_rail" | "activator_rail" => true,
+        "tripwire" | "tripwire_hook" => true,
+        _ => false,
+    }
+}
+
+/// Check if a block name is a flower.
+fn is_flower(name: &str) -> bool {
+    matches!(name,
+        "dandelion" | "poppy" | "blue_orchid" | "allium" | "azure_bluet"
+        | "oxeye_daisy" | "cornflower" | "lily_of_the_valley" | "wither_rose"
+        | "torchflower"
+    ) || name.ends_with("_tulip")
+}
+
 // === Fire Block Data ===
 
 /// Fire block state range: 2360-2871 (512 states).

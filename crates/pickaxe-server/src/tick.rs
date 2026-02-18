@@ -1046,6 +1046,10 @@ pub async fn run_tick_loop(
         if tick_count % 35 == 0 {
             tick_fire(&mut world, &mut world_state, &next_eid, &scripting);
         }
+        // Fluid tick: water every 5 ticks, lava every 30 ticks
+        if tick_count % 5 == 0 {
+            tick_fluids(&world, &mut world_state, true, tick_count % 30 == 0);
+        }
         tick_furnaces(&world, &mut world_state);
         tick_brewing_stands(&world, &mut world_state);
         tick_mob_ai(&mut world, &mut world_state, &scripting, &next_eid);
@@ -2110,6 +2114,118 @@ fn process_packet(
                             return;
                         }
                     }
+                }
+            }
+
+            // Check for bucket interactions (water/lava placement and pickup)
+            {
+                let held_slot = world.get::<&HeldSlot>(entity).map(|h| h.0).unwrap_or(0);
+                let held_item_id = world.get::<&Inventory>(entity)
+                    .ok()
+                    .and_then(|inv| inv.held_item(held_slot).as_ref().map(|i| i.item_id));
+                let held_name = held_item_id.and_then(pickaxe_data::item_id_to_name).unwrap_or("");
+
+                match held_name {
+                    "water_bucket" | "lava_bucket" => {
+                        // Place water/lava source at target face
+                        let place_pos = offset_by_face(&position, face);
+                        let place_block = world_state.get_block(&place_pos);
+                        let place_name = pickaxe_data::block_state_to_name(place_block).unwrap_or("");
+
+                        if place_block == 0 || pickaxe_data::is_fluid_destructible(place_name)
+                            || pickaxe_data::is_fluid(place_block) {
+                            let source_state = if held_name == "water_bucket" {
+                                pickaxe_data::WATER_SOURCE
+                            } else {
+                                pickaxe_data::LAVA_SOURCE
+                            };
+
+                            world_state.set_block(&place_pos, source_state);
+                            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                position: place_pos,
+                                block_id: source_state,
+                            });
+
+                            let sound = if held_name == "water_bucket" {
+                                "item.bucket.empty"
+                            } else {
+                                "item.bucket.empty_lava"
+                            };
+                            play_sound_at_block(world, &place_pos, sound, SOUND_PLAYERS, 1.0, 1.0);
+
+                            // Replace held bucket with empty bucket (survival)
+                            let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                            if game_mode != GameMode::Creative {
+                                let slot_index = 36 + held_slot as usize;
+                                if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                    inv.set_slot(slot_index, Some(ItemStack::new(908, 1))); // empty bucket
+                                    let state_id = inv.state_id;
+                                    let slot_item = inv.slots[slot_index].clone();
+                                    drop(inv);
+                                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                            window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                        });
+                                    }
+                                }
+                            }
+
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                            }
+                            return;
+                        }
+                    }
+                    "bucket" => {
+                        // Pick up water/lava source with empty bucket
+                        // Check the block at cursor position (not offset)
+                        let pickup_pos = offset_by_face(&position, face);
+                        let pickup_block = world_state.get_block(&pickup_pos);
+
+                        if pickaxe_data::is_fluid_source(pickup_block) {
+                            let filled_id = if pickaxe_data::is_water(pickup_block) { 909 } else { 910 };
+                            let sound = if pickaxe_data::is_water(pickup_block) {
+                                "item.bucket.fill"
+                            } else {
+                                "item.bucket.fill_lava"
+                            };
+
+                            // Remove the source block
+                            world_state.set_block(&pickup_pos, 0);
+                            broadcast_to_all(world, &InternalPacket::BlockUpdate {
+                                position: pickup_pos,
+                                block_id: 0,
+                            });
+
+                            play_sound_at_block(world, &pickup_pos, sound, SOUND_PLAYERS, 1.0, 1.0);
+
+                            // Replace empty bucket with filled bucket
+                            let game_mode = world.get::<&PlayerGameMode>(entity).map(|g| g.0).unwrap_or(GameMode::Survival);
+                            let slot_index = 36 + held_slot as usize;
+                            if game_mode != GameMode::Creative {
+                                if let Ok(mut inv) = world.get::<&mut Inventory>(entity) {
+                                    let held = inv.slots[slot_index].clone();
+                                    // Buckets don't stack, so just replace the one bucket
+                                    inv.set_slot(slot_index, Some(ItemStack::new(filled_id, 1)));
+                                    // Send full inventory update
+                                    let state_id = inv.state_id;
+                                    let slot_item = inv.slots[slot_index].clone();
+                                    drop(inv);
+                                    if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                        let _ = sender.0.send(InternalPacket::SetContainerSlot {
+                                            window_id: 0, state_id, slot: slot_index as i16, item: slot_item,
+                                        });
+                                    }
+                                }
+                            }
+
+                            if let Ok(sender) = world.get::<&ConnectionSender>(entity) {
+                                let _ = sender.0.send(InternalPacket::AcknowledgeBlockChange { sequence });
+                            }
+                            return;
+                        }
+                    }
+                    _ => {}
                 }
             }
 
@@ -8502,6 +8618,382 @@ fn tick_fire(
             scripting,
         );
     }
+}
+
+/// Tick fluid blocks: water and lava flow, source creation, water-lava interactions.
+/// Water ticks every 5 game ticks, lava every 30 game ticks.
+fn tick_fluids(world: &World, world_state: &mut WorldState, do_water: bool, do_lava: bool) {
+    // Phase 1: Collect all fluid block positions
+    let mut fluid_blocks: Vec<(BlockPos, i32, bool)> = Vec::new(); // (pos, state, is_water)
+    {
+        let chunk_positions: Vec<pickaxe_types::ChunkPos> = world_state.chunks.keys().cloned().collect();
+        for chunk_pos in chunk_positions {
+            let chunk = match world_state.chunks.get(&chunk_pos) {
+                Some(c) => c,
+                None => continue,
+            };
+            for section_y in 0..24 {
+                let world_y = section_y as i32 * 16 - 64;
+                for local_x in 0..16usize {
+                    for local_y in 0..16 {
+                        for local_z in 0..16usize {
+                            let by = world_y + local_y as i32;
+                            let block = chunk.get_block(local_x, by, local_z);
+                            if pickaxe_data::is_water(block) && do_water {
+                                let bx = chunk_pos.x * 16 + local_x as i32;
+                                let bz = chunk_pos.z * 16 + local_z as i32;
+                                fluid_blocks.push((BlockPos::new(bx, by, bz), block, true));
+                            } else if pickaxe_data::is_lava(block) && do_lava {
+                                let bx = chunk_pos.x * 16 + local_x as i32;
+                                let bz = chunk_pos.z * 16 + local_z as i32;
+                                fluid_blocks.push((BlockPos::new(bx, by, bz), block, false));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Phase 2: For each fluid block, compute its new state
+    let mut updates: Vec<(BlockPos, i32)> = Vec::new();
+
+    // Also collect positions where NEW fluid should appear (flow targets)
+    // We need to process both existing fluids AND check air neighbors for flow
+    let mut flow_targets: Vec<(BlockPos, i32, bool)> = Vec::new(); // (pos, new_state, is_water)
+
+    for (pos, state, is_water_fluid) in &fluid_blocks {
+        let level = if *is_water_fluid {
+            pickaxe_data::water_level(*state).unwrap_or(0)
+        } else {
+            pickaxe_data::lava_level(*state).unwrap_or(0)
+        };
+        let is_source = level == 0;
+        let amount = if is_source { 8 } else if level >= 8 { 8 } else { 8 - level };
+        let drop_off = if *is_water_fluid { 1 } else { 2 }; // water drops 1 per block, lava 2
+
+        // Compute what this block SHOULD be based on neighbors
+        let new_state = compute_new_fluid_state(world_state, pos, *is_water_fluid, drop_off);
+
+        if new_state != *state {
+            updates.push((*pos, new_state));
+        }
+
+        // Flow downward: check block below
+        let below_pos = BlockPos::new(pos.x, pos.y - 1, pos.z);
+        let below_block = world_state.get_block(&below_pos);
+        let below_name = pickaxe_data::block_state_to_name(below_block).unwrap_or("");
+
+        if below_block == 0 || pickaxe_data::is_fluid_destructible(below_name) {
+            // Flow down: falling fluid (level 8)
+            let falling_state = if *is_water_fluid {
+                pickaxe_data::water_state_with_level(8)
+            } else {
+                pickaxe_data::lava_state_with_level(8)
+            };
+            flow_targets.push((below_pos, falling_state, *is_water_fluid));
+        } else if !*is_water_fluid && pickaxe_data::is_water(below_block) {
+            // Lava flowing down into water = stone
+            updates.push((below_pos, pickaxe_data::block_name_to_default_state("stone").unwrap_or(1)));
+        } else if below_block != 0 && !pickaxe_data::is_fluid(below_block) || pickaxe_data::is_fluid_source(below_block) {
+            // Can't flow down — try horizontal spread
+            if amount > 1 { // Only spread if we have enough fluid
+                let new_level = if is_source { drop_off } else { level + drop_off };
+                if new_level <= 7 {
+                    let spread_state = if *is_water_fluid {
+                        pickaxe_data::water_state_with_level(new_level)
+                    } else {
+                        pickaxe_data::lava_state_with_level(new_level)
+                    };
+
+                    // Find which directions to spread (prefer directions with drops)
+                    let directions: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+                    let slope_dist = if *is_water_fluid { 4 } else { 2 };
+
+                    // Find shortest path to a drop for each direction
+                    let mut best_dist = slope_dist + 1;
+                    let mut best_dirs: Vec<(i32, i32)> = Vec::new();
+
+                    for (dx, dz) in &directions {
+                        let adj = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+                        let adj_block = world_state.get_block(&adj);
+                        let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+
+                        // Can we flow into this block?
+                        if adj_block != 0 && !pickaxe_data::is_fluid_destructible(adj_name)
+                            && !pickaxe_data::is_fluid(adj_block)
+                        {
+                            if pickaxe_data::is_solid_for_fluid(adj_name) {
+                                continue; // solid block, can't flow
+                            }
+                        }
+
+                        // Check if there's a drop below the adjacent block
+                        let adj_below = BlockPos::new(adj.x, adj.y - 1, adj.z);
+                        let adj_below_block = world_state.get_block(&adj_below);
+                        if adj_below_block == 0 || pickaxe_data::is_fluid_destructible(
+                            pickaxe_data::block_state_to_name(adj_below_block).unwrap_or("")) {
+                            // Direct drop found
+                            if 0 < best_dist {
+                                best_dist = 0;
+                                best_dirs.clear();
+                            }
+                            if 0 <= best_dist {
+                                best_dirs.push((*dx, *dz));
+                            }
+                        } else {
+                            // Search further for drops (BFS up to slope_dist)
+                            let dist = find_slope_distance(world_state, &adj, slope_dist, 1, *dx, *dz);
+                            if dist < best_dist {
+                                best_dist = dist;
+                                best_dirs.clear();
+                            }
+                            if dist <= best_dist && dist <= slope_dist {
+                                best_dirs.push((*dx, *dz));
+                            }
+                        }
+                    }
+
+                    // If no slope preference found, spread to all valid directions
+                    if best_dirs.is_empty() {
+                        for (dx, dz) in &directions {
+                            let adj = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+                            let adj_block = world_state.get_block(&adj);
+                            let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+                            if (adj_block == 0 || pickaxe_data::is_fluid_destructible(adj_name))
+                                && !pickaxe_data::is_solid_for_fluid(adj_name)
+                            {
+                                best_dirs.push((*dx, *dz));
+                            }
+                        }
+                    }
+
+                    for (dx, dz) in &best_dirs {
+                        let adj = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+                        let adj_block = world_state.get_block(&adj);
+                        let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+
+                        // Don't overwrite with weaker flow
+                        if pickaxe_data::is_water(adj_block) && *is_water_fluid {
+                            let adj_level = pickaxe_data::water_level(adj_block).unwrap_or(0);
+                            if adj_level != 0 && adj_level > new_level {
+                                flow_targets.push((adj, spread_state, true));
+                            }
+                            continue;
+                        }
+                        if pickaxe_data::is_lava(adj_block) && !*is_water_fluid {
+                            let adj_level = pickaxe_data::lava_level(adj_block).unwrap_or(0);
+                            if adj_level != 0 && adj_level > new_level {
+                                flow_targets.push((adj, spread_state, false));
+                            }
+                            continue;
+                        }
+
+                        // Water-lava interactions (horizontal)
+                        if *is_water_fluid && pickaxe_data::is_lava(adj_block) {
+                            let lava_level = pickaxe_data::lava_level(adj_block).unwrap_or(0);
+                            if lava_level == 0 {
+                                updates.push((adj, pickaxe_data::block_name_to_default_state("obsidian").unwrap_or(2346)));
+                            } else {
+                                updates.push((adj, pickaxe_data::block_name_to_default_state("cobblestone").unwrap_or(14)));
+                            }
+                            continue;
+                        }
+                        if !*is_water_fluid && pickaxe_data::is_water(adj_block) {
+                            if is_source {
+                                updates.push((adj, pickaxe_data::block_name_to_default_state("obsidian").unwrap_or(2346)));
+                            } else {
+                                updates.push((adj, pickaxe_data::block_name_to_default_state("cobblestone").unwrap_or(14)));
+                            }
+                            continue;
+                        }
+
+                        if adj_block == 0 || pickaxe_data::is_fluid_destructible(adj_name) {
+                            flow_targets.push((adj, spread_state, *is_water_fluid));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Phase 3: Check for air blocks that should be empty (flowing fluid with no source)
+    // This handles fluid retraction when source is removed
+    // Already handled by compute_new_fluid_state returning air
+
+    // Phase 4: Apply flow targets (new fluid placements)
+    for (pos, state, _is_water) in &flow_targets {
+        let existing = world_state.get_block(pos);
+        let existing_name = pickaxe_data::block_state_to_name(existing).unwrap_or("");
+
+        // Don't overwrite solid blocks or source blocks
+        if pickaxe_data::is_solid_for_fluid(existing_name) && existing != 0 {
+            continue;
+        }
+        if pickaxe_data::is_fluid_source(existing) {
+            continue;
+        }
+
+        // Destroy blocks that water can break (flowers, torches, etc. just disappear)
+        // In vanilla, some blocks drop items but we skip drops for simplicity
+
+        // Only place if stronger than existing flow
+        if pickaxe_data::is_fluid(existing) && !pickaxe_data::is_fluid_source(existing) {
+            // Compare levels - only place if we're stronger
+            let existing_level = if pickaxe_data::is_water(existing) {
+                pickaxe_data::water_level(existing).unwrap_or(7)
+            } else {
+                pickaxe_data::lava_level(existing).unwrap_or(7)
+            };
+            let new_level = if pickaxe_data::is_water(*state) {
+                pickaxe_data::water_level(*state).unwrap_or(7)
+            } else {
+                pickaxe_data::lava_level(*state).unwrap_or(7)
+            };
+            if new_level >= existing_level && existing_level < 8 {
+                continue; // existing is already stronger
+            }
+        }
+
+        updates.push((*pos, *state));
+    }
+
+    // Phase 5: Apply all updates and broadcast
+    for (pos, new_state) in updates {
+        let old = world_state.get_block(&pos);
+        if old == new_state {
+            continue;
+        }
+        world_state.set_block(&pos, new_state);
+        broadcast_to_all(world, &InternalPacket::BlockUpdate {
+            position: pos,
+            block_id: new_state,
+        });
+    }
+}
+
+/// Compute what a fluid block at `pos` should become based on its neighbors.
+/// Returns the new block state (may be same, different level, or air if drying up).
+fn compute_new_fluid_state(
+    world_state: &WorldState,
+    pos: &BlockPos,
+    is_water: bool,
+    drop_off: i32,
+) -> i32 {
+    let current = world_state.get_block_if_loaded(pos).unwrap_or(0);
+    let current_level = if is_water {
+        pickaxe_data::water_level(current).unwrap_or(0)
+    } else {
+        pickaxe_data::lava_level(current).unwrap_or(0)
+    };
+
+    // Source blocks don't change
+    if current_level == 0 {
+        return current;
+    }
+
+    // Check above: if fluid above, this should be falling (level 8)
+    let above = BlockPos::new(pos.x, pos.y + 1, pos.z);
+    let above_block = world_state.get_block_if_loaded(&above).unwrap_or(0);
+    let same_fluid_above = if is_water {
+        pickaxe_data::is_water(above_block)
+    } else {
+        pickaxe_data::is_lava(above_block)
+    };
+
+    if same_fluid_above {
+        return if is_water {
+            pickaxe_data::water_state_with_level(8)
+        } else {
+            pickaxe_data::lava_state_with_level(8)
+        };
+    }
+
+    // Check horizontal neighbors for sources / higher-level fluid
+    let mut max_neighbor_amount = 0i32;
+    let mut source_count = 0i32;
+    let directions: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+
+    for (dx, dz) in &directions {
+        let adj = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+        let adj_block = world_state.get_block_if_loaded(&adj).unwrap_or(0);
+        let is_same = if is_water { pickaxe_data::is_water(adj_block) } else { pickaxe_data::is_lava(adj_block) };
+        if is_same {
+            let adj_amount = pickaxe_data::fluid_amount(adj_block);
+            if pickaxe_data::is_fluid_source(adj_block) {
+                source_count += 1;
+            }
+            max_neighbor_amount = max_neighbor_amount.max(adj_amount);
+        }
+    }
+
+    // Infinite source creation (water only): 2+ source neighbors + solid below
+    if is_water && source_count >= 2 {
+        let below = BlockPos::new(pos.x, pos.y - 1, pos.z);
+        let below_block = world_state.get_block_if_loaded(&below).unwrap_or(0);
+        let below_name = pickaxe_data::block_state_to_name(below_block).unwrap_or("");
+        if pickaxe_data::is_solid_for_fluid(below_name) || pickaxe_data::is_fluid_source(below_block) {
+            return pickaxe_data::WATER_SOURCE;
+        }
+    }
+
+    // Compute new level from neighbors
+    let new_amount = max_neighbor_amount - drop_off;
+    if new_amount <= 0 {
+        return 0; // dry up (air)
+    }
+
+    let new_level = 8 - new_amount;
+    if is_water {
+        pickaxe_data::water_state_with_level(new_level)
+    } else {
+        pickaxe_data::lava_state_with_level(new_level)
+    }
+}
+
+/// Find the slope distance (shortest path to a drop) in a given direction.
+/// Returns the distance (1-max_dist) or max_dist+1 if no drop found.
+fn find_slope_distance(
+    world_state: &WorldState,
+    pos: &BlockPos,
+    max_dist: i32,
+    current_dist: i32,
+    from_dx: i32,
+    from_dz: i32,
+) -> i32 {
+    if current_dist > max_dist {
+        return max_dist + 1;
+    }
+
+    // Check if there's a drop here
+    let below = BlockPos::new(pos.x, pos.y - 1, pos.z);
+    let below_block = world_state.get_block_if_loaded(&below).unwrap_or(0);
+    let below_name = pickaxe_data::block_state_to_name(below_block).unwrap_or("");
+    if below_block == 0 || pickaxe_data::is_fluid_destructible(below_name) {
+        return current_dist;
+    }
+
+    let mut min_dist = max_dist + 1;
+    let directions: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+
+    for (dx, dz) in &directions {
+        // Don't go backward
+        if *dx == -from_dx && *dz == -from_dz {
+            continue;
+        }
+        let adj = BlockPos::new(pos.x + dx, pos.y, pos.z + dz);
+        let adj_block = world_state.get_block_if_loaded(&adj).unwrap_or(0);
+        let adj_name = pickaxe_data::block_state_to_name(adj_block).unwrap_or("");
+
+        if pickaxe_data::is_solid_for_fluid(adj_name) && adj_block != 0 {
+            continue;
+        }
+
+        let dist = find_slope_distance(world_state, &adj, max_dist, current_dist + 1, *dx, *dz);
+        min_dist = min_dist.min(dist);
+    }
+
+    min_dist
 }
 
 /// Spawn a fishing bobber entity.
